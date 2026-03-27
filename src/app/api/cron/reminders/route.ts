@@ -45,13 +45,16 @@ export async function GET(req: NextRequest) {
 
     try {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://dormantfile.com";
-      const fileUrl = `${appUrl}/file/${reminder.companyId}`;
+      const filingType = reminder.filingType as "accounts" | "ct600";
+      const filePath = filingType === "accounts" ? "accounts" : "ct600";
+      const fileUrl = `${appUrl}/file/${reminder.companyId}/${filePath}`;
 
       const { subject, html } = buildReminderEmail({
         companyName: reminder.company.companyName,
         daysUntilDeadline,
         filingDeadline: reminder.filingDeadline,
         fileUrl,
+        filingType,
       });
 
       await resend.emails.send({
