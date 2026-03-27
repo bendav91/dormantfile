@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { validateUTR } from "@/lib/utils";
-import { Loader2, Building2, Hash, FileDigit, Calendar } from "lucide-react";
+import { Loader2, Building2, Hash, FileDigit, Calendar, CheckCircle2 } from "lucide-react";
 
 interface FormErrors {
   companyName?: string;
@@ -117,6 +117,46 @@ export default function CompanyForm() {
   const [accountingPeriodEnd, setAccountingPeriodEnd] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
+  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "found" | "not_found" | "unavailable">("idle");
+  const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (lookupTimer.current) clearTimeout(lookupTimer.current);
+
+    const num = companyRegistrationNumber.trim();
+    if (num.length < 6) {
+      setLookupStatus("idle");
+      return;
+    }
+
+    setLookupStatus("loading");
+    lookupTimer.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/company/lookup?number=${encodeURIComponent(num)}`);
+        if (res.status === 503) {
+          setLookupStatus("unavailable");
+          return;
+        }
+        if (res.status === 404) {
+          setLookupStatus("not_found");
+          return;
+        }
+        if (!res.ok) {
+          setLookupStatus("idle");
+          return;
+        }
+        const data = await res.json();
+        setCompanyName(data.companyName);
+        setLookupStatus("found");
+      } catch {
+        setLookupStatus("idle");
+      }
+    }, 500);
+
+    return () => {
+      if (lookupTimer.current) clearTimeout(lookupTimer.current);
+    };
+  }, [companyRegistrationNumber]);
 
   function validate(): FormErrors {
     const errs: FormErrors = {};
@@ -239,6 +279,23 @@ export default function CompanyForm() {
             maxLength={8}
             hasError={!!errors.companyRegistrationNumber}
           />
+          {lookupStatus === "loading" && (
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
+              <Loader2 size={13} color="#64748B" strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
+              <span style={{ fontSize: "13px", color: "#64748B" }}>Looking up company...</span>
+            </div>
+          )}
+          {lookupStatus === "found" && (
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
+              <CheckCircle2 size={13} color="#16A34A" strokeWidth={2} />
+              <span style={{ fontSize: "13px", color: "#16A34A" }}>Found: {companyName}</span>
+            </div>
+          )}
+          {lookupStatus === "not_found" && (
+            <div style={{ marginTop: "2px" }}>
+              <span style={{ fontSize: "13px", color: "#DC2626" }}>No company found with that number.</span>
+            </div>
+          )}
         </FormField>
 
         <FormField
