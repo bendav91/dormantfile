@@ -55,7 +55,7 @@ export default function RegisterPage() {
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
         <p className="mt-2 text-sm text-gray-600">
-          Start filing your nil CT600 returns for free
+          Start filing your dormant accounts in minutes.
         </p>
       </div>
 

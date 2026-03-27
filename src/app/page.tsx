@@ -130,7 +130,7 @@ export default function LandingPage() {
                   Direct submission
                 </p>
                 <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
-                  Filed directly with Companies House and HMRC via official APIs.
+                  Filed directly with Companies House and HMRC — no middlemen.
                 </p>
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function LandingPage() {
                 Add your company
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                Enter your company name, UTR, and accounting period.
+                Enter your companies house number, we locate the rest. No data entry required.
               </p>
             </div>
             {/* Step 2 */}
@@ -175,7 +175,7 @@ export default function LandingPage() {
                 We remind you
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                Email reminders as your filing deadline approaches.
+                Email reminders as your dormant filing deadline approaches.
               </p>
             </div>
             {/* Step 3 */}
@@ -190,7 +190,7 @@ export default function LandingPage() {
                 File in minutes
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                We submit your accounts to Companies House and your CT600 to HMRC.
+                File dormant accounts and nil tax returns in minutes - no hassle - every year!
               </p>
             </div>
           </div>
