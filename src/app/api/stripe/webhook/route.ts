@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { getSubscriptionStatusFromEvent } from "@/lib/stripe/helpers";
+import { tierFromPriceId } from "@/lib/subscription";
 import { prisma } from "@/lib/db";
+import Stripe from "stripe";
+import { SubscriptionTier } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -11,7 +14,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
-  let event: ReturnType<typeof stripe.webhooks.constructEvent>;
+  let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
@@ -23,16 +26,68 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  const status = getSubscriptionStatusFromEvent(event.type);
-
-  if (status) {
-    const dataObject = event.data.object as { customer?: string };
-    const customerId = dataObject.customer;
+  // Handle checkout.session.completed — fires immediately when payment succeeds
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const customerId = typeof session.customer === "string" ? session.customer : undefined;
+    const tier = (session.metadata?.tier as SubscriptionTier) || "basic";
 
     if (customerId) {
       await prisma.user.updateMany({
         where: { stripeCustomerId: customerId },
-        data: { subscriptionStatus: status },
+        data: {
+          subscriptionStatus: "active",
+          subscriptionTier: tier,
+          subscriptionPeriodStart: new Date(),
+        },
+      });
+    }
+
+    return NextResponse.json({ received: true });
+  }
+
+  // Handle ongoing subscription events (renewals, failures, cancellations)
+  const status = getSubscriptionStatusFromEvent(event.type);
+
+  if (status) {
+    const dataObject = event.data.object as Stripe.Subscription | Stripe.Invoice;
+    const customerId = typeof dataObject.customer === "string"
+      ? dataObject.customer
+      : undefined;
+
+    if (customerId) {
+      const updateData: { subscriptionStatus: typeof status; subscriptionTier?: SubscriptionTier; subscriptionPeriodStart?: Date } = {
+        subscriptionStatus: status,
+      };
+
+      // Reset period start on renewal
+      if (status === "active") {
+        updateData.subscriptionPeriodStart = new Date();
+      }
+
+      // Determine tier from the subscription's price
+      if (status === "active" && "items" in dataObject && dataObject.items?.data?.length) {
+        const priceId = dataObject.items.data[0].price.id;
+        updateData.subscriptionTier = tierFromPriceId(priceId);
+      } else if (status === "active" && "subscription" in dataObject && dataObject.subscription) {
+        // invoice.paid — fetch subscription to get price
+        const subId = typeof dataObject.subscription === "string"
+          ? dataObject.subscription
+          : dataObject.subscription;
+        const sub = await stripe.subscriptions.retrieve(subId as string);
+        if (sub.items.data.length) {
+          updateData.subscriptionTier = tierFromPriceId(sub.items.data[0].price.id);
+        }
+      }
+
+      // Reset tier on cancellation
+      if (status === "cancelled") {
+        updateData.subscriptionTier = "none";
+      }
+
+      await prisma.user.updateMany({
+        where: { stripeCustomerId: customerId },
+        data: updateData,
       });
     }
   }

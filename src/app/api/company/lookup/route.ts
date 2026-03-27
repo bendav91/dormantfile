@@ -26,11 +26,15 @@ export async function GET(req: NextRequest) {
 
   const paddedNumber = number.padStart(8, "0");
 
+  const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
+
+  const urlPrefix = process.env.NODE_ENV !== "production" ? "https://api-sandbox.company-information.service.gov.uk" : "https://api.company-information.service.gov.uk";
+
   const res = await fetch(
-    `https://api.company-information.service.gov.uk/company/${encodeURIComponent(paddedNumber)}`,
+    `${urlPrefix}/company/${encodeURIComponent(paddedNumber)}`,
     {
       headers: {
-        Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString("base64")}`,
+        Authorization: `Basic ${basicAuth}`,
       },
     }
   );

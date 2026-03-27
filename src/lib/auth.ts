@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
 
 declare module "next-auth" {
   interface Session {
@@ -28,7 +29,11 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
+        const ip = req?.headers?.["x-forwarded-for"] ?? "unknown";
+        const { success } = rateLimit(`login:${ip}`, 5, 60000);
+        if (!success) return null;
+
         if (!credentials?.email || !credentials?.password) {
           return null;
         }

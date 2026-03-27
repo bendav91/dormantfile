@@ -12,12 +12,8 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
     return null;
   }
 
-  async function handleCheckout() {
-    const res = await fetch("/api/stripe/create-checkout", { method: "POST" });
-    if (res.ok) {
-      const { url } = await res.json();
-      if (url) window.location.href = url;
-    }
+  function handleCheckout() {
+    window.location.href = "/choose-plan";
   }
 
   async function handlePortal() {
@@ -46,7 +42,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <AlertTriangle size={18} color="#CA8A04" strokeWidth={2} style={{ flexShrink: 0 }} />
           <p style={{ fontSize: "14px", color: "#713F12", margin: 0, fontWeight: 500 }}>
-            No active subscription. Subscribe to file your CT600 with HMRC.
+            You haven&apos;t completed your subscription yet. Choose a plan to start filing.
           </p>
         </div>
         <button
@@ -71,7 +67,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
             (e.currentTarget as HTMLButtonElement).style.opacity = "1";
           }}
         >
-          Subscribe now
+          Choose a plan
         </button>
       </div>
     );

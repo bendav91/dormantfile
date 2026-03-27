@@ -2,7 +2,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { IBM_Plex_Sans } from "next/font/google";
-import { FileText } from "lucide-react";
+import { FileText, Settings } from "lucide-react";
+import Link from "next/link";
+import SignOutButton from "@/components/sign-out-button";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -40,7 +42,15 @@ export default async function AppLayout({
             height: "64px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Link
+            href="/dashboard"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              textDecoration: "none",
+            }}
+          >
             <FileText size={22} color="#2563EB" strokeWidth={2} />
             <span
               style={{
@@ -52,16 +62,35 @@ export default async function AppLayout({
             >
               DormantFile
             </span>
+          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <span
+              style={{
+                fontSize: "14px",
+                color: "#64748B",
+                fontWeight: 500,
+              }}
+            >
+              {session.user.email}
+            </span>
+            <Link
+              href="/settings"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "32px",
+                height: "32px",
+                borderRadius: "8px",
+                color: "#64748B",
+                transition: "all 200ms",
+              }}
+              title="Account settings"
+            >
+              <Settings size={18} strokeWidth={2} />
+            </Link>
+            <SignOutButton />
           </div>
-          <span
-            style={{
-              fontSize: "14px",
-              color: "#64748B",
-              fontWeight: 500,
-            }}
-          >
-            {session.user.email}
-          </span>
         </div>
       </nav>
 
