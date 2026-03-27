@@ -13,6 +13,13 @@ enum SubscriptionStatus {
   past_due
 }
 
+enum SubscriptionTier {
+  none
+  basic
+  multi
+  bulk
+}
+
 enum FilingStatus {
   pending
   submitted
@@ -22,6 +29,11 @@ enum FilingStatus {
   failed
 }
 
+enum FilingType {
+  accounts
+  ct600
+}
+
 model User {
   id                 String             @id @default(cuid())
   email              String             @unique
@@ -29,29 +41,37 @@ model User {
   name               String
   stripeCustomerId   String?
   subscriptionStatus SubscriptionStatus @default(none)
+  subscriptionTier   SubscriptionTier   @default(none)
+  subscriptionPeriodStart DateTime?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
-  company            Company?
+  companies          Company[]
+  resetTokens        PasswordResetToken[]
 }
 
 model Company {
   id                        String     @id @default(cuid())
-  userId                    String     @unique
+  userId                    String
   companyName               String
   companyRegistrationNumber String
-  uniqueTaxReference        String
+  uniqueTaxReference        String?
+  registeredForCorpTax      Boolean    @default(false)
   accountingPeriodStart     DateTime
   accountingPeriodEnd       DateTime
+  deletedAt                 DateTime?
   createdAt                 DateTime   @default(now())
   updatedAt                 DateTime   @updatedAt
   user                      User       @relation(fields: [userId], references: [id])
   filings                   Filing[]
   reminders                 Reminder[]
+
+  @@unique([userId, companyRegistrationNumber])
 }
 
 model Filing {
   id                  String       @id @default(cuid())
   companyId           String
+  filingType          FilingType
   periodStart         DateTime
   periodEnd           DateTime
   status              FilingStatus @default(pending)
@@ -62,16 +82,27 @@ model Filing {
   createdAt           DateTime     @default(now())
   company             Company      @relation(fields: [companyId], references: [id])
 
-  @@unique([companyId, periodStart, periodEnd])
+  @@unique([companyId, periodStart, periodEnd, filingType])
 }
 
 model Reminder {
-  id                 String    @id @default(cuid())
+  id                 String     @id @default(cuid())
   companyId          String
+  filingType         FilingType
   filingDeadline     DateTime
-  remindersSent      Int       @default(0)
+  remindersSent      Int        @default(0)
   lastReminderSentAt DateTime?
   nextReminderAt     DateTime?
-  createdAt          DateTime  @default(now())
-  company            Company   @relation(fields: [companyId], references: [id])
+  createdAt          DateTime   @default(now())
+  company            Company    @relation(fields: [companyId], references: [id])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
 }
