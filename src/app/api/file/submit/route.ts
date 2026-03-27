@@ -4,9 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { buildGovTalkMessage } from "@/lib/hmrc/xml-builder";
 import { submitToHmrc, pollHmrc } from "@/lib/hmrc/submission-client";
-import { calculateFilingDeadline, calculateNextReminderDate } from "@/lib/utils";
-import { resend } from "@/lib/email/client";
-import { buildFilingConfirmationEmail } from "@/lib/email/templates";
+import { getCompanyLimit } from "@/lib/subscription";
+import { rollForwardPeriod } from "@/lib/roll-forward";
 import type { VendorCredentials } from "@/lib/hmrc/types";
 
 const POLL_TIMEOUT_MS = 120_000;
@@ -32,61 +31,6 @@ function getHmrcEndpoint(): string {
   return endpoint;
 }
 
-async function rollForwardPeriod(
-  companyId: string,
-  oldPeriodEnd: Date,
-  userEmail: string,
-  companyName: string
-): Promise<void> {
-  const newPeriodStart = new Date(oldPeriodEnd);
-  newPeriodStart.setUTCDate(newPeriodStart.getUTCDate() + 1);
-
-  const newPeriodEnd = new Date(oldPeriodEnd);
-  newPeriodEnd.setUTCFullYear(newPeriodEnd.getUTCFullYear() + 1);
-
-  const newFilingDeadline = calculateFilingDeadline(newPeriodEnd);
-  const nextReminderAt = calculateNextReminderDate(newFilingDeadline, 0);
-
-  await prisma.$transaction([
-    prisma.company.update({
-      where: { id: companyId },
-      data: {
-        accountingPeriodStart: newPeriodStart,
-        accountingPeriodEnd: newPeriodEnd,
-      },
-    }),
-    prisma.reminder.deleteMany({
-      where: { companyId },
-    }),
-    prisma.reminder.create({
-      data: {
-        companyId,
-        filingDeadline: newFilingDeadline,
-        remindersSent: 0,
-        nextReminderAt,
-      },
-    }),
-  ]);
-
-  // Send confirmation email — non-fatal if it fails
-  try {
-    const { subject, html } = buildFilingConfirmationEmail({
-      companyName,
-      periodStart: new Date(newPeriodStart.getTime() - (365 * 24 * 60 * 60 * 1000)),
-      periodEnd: oldPeriodEnd,
-    });
-
-    await resend.emails.send({
-      from: "DormantFile <noreply@dormantfile.com>",
-      to: userEmail,
-      subject,
-      html,
-    });
-  } catch {
-    // Email failure must not block the filing response
-  }
-}
-
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
@@ -107,6 +51,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Active subscription required" }, { status: 403 });
   }
 
+  // Count unique companies filed for in the current billing period
+  const periodStart = user.subscriptionPeriodStart ?? user.createdAt;
+  const filedCompanyIds = await prisma.filing.findMany({
+    where: {
+      company: { userId: session.user.id },
+      status: { in: ["submitted", "polling_timeout", "accepted"] },
+      createdAt: { gte: periodStart },
+    },
+    select: { companyId: true },
+    distinct: ["companyId"],
+  });
+  const filingLimit = getCompanyLimit(user.subscriptionTier);
+  const filingsUsed = filedCompanyIds.length;
+
+  if (filingsUsed >= filingLimit) {
+    return NextResponse.json(
+      { error: `You have used all ${filingLimit} filing${filingLimit === 1 ? "" : "s"} for this billing period. Upgrade your plan to file for more companies.` },
+      { status: 403 }
+    );
+  }
+
   let body: { companyId?: string; gatewayUsername?: string; gatewayPassword?: string };
   try {
     body = await req.json();
@@ -125,17 +90,35 @@ export async function POST(req: NextRequest) {
 
   // Find company
   const company = await prisma.company.findFirst({
-    where: { id: companyId, userId: session.user.id },
+    where: { id: companyId, userId: session.user.id, deletedAt: null },
   });
 
   if (!company) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
+  if (!company.registeredForCorpTax) {
+    return NextResponse.json({ error: "This company is not registered for Corporation Tax" }, { status: 400 });
+  }
+
+  // Clean up stale pending filings (older than 5 minutes — never reached HMRC)
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+  await prisma.filing.deleteMany({
+    where: {
+      companyId,
+      filingType: "ct600",
+      periodStart: company.accountingPeriodStart,
+      periodEnd: company.accountingPeriodEnd,
+      status: "pending",
+      createdAt: { lt: fiveMinutesAgo },
+    },
+  });
+
   // Idempotency check
   const existingFiling = await prisma.filing.findFirst({
     where: {
       companyId,
+      filingType: "ct600",
       periodStart: company.accountingPeriodStart,
       periodEnd: company.accountingPeriodEnd,
       status: { in: ["submitted", "polling_timeout", "accepted"] },
@@ -144,7 +127,7 @@ export async function POST(req: NextRequest) {
 
   if (existingFiling) {
     return NextResponse.json(
-      { error: "A filing already exists for this period" },
+      { error: "A filing for this period has already been submitted. Check your dashboard for the current status." },
       { status: 409 }
     );
   }
@@ -153,6 +136,7 @@ export async function POST(req: NextRequest) {
   const filing = await prisma.filing.create({
     data: {
       companyId,
+      filingType: "ct600",
       periodStart: company.accountingPeriodStart,
       periodEnd: company.accountingPeriodEnd,
       status: "pending",
@@ -260,6 +244,8 @@ export async function POST(req: NextRequest) {
       await rollForwardPeriod(
         companyId,
         company.accountingPeriodEnd,
+        company.registeredForCorpTax,
+        "ct600",
         user.email,
         company.companyName
       );
