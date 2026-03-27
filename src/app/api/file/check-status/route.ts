@@ -3,10 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { pollHmrc } from "@/lib/hmrc/submission-client";
-import { calculateFilingDeadline, calculateNextReminderDate } from "@/lib/utils";
-import { resend } from "@/lib/email/client";
-import { buildFilingConfirmationEmail } from "@/lib/email/templates";
 import type { VendorCredentials } from "@/lib/hmrc/types";
+import { rollForwardPeriod } from "@/lib/roll-forward";
 
 function getVendorCredentials(): VendorCredentials {
   const vendorId = process.env.HMRC_VENDOR_ID;
@@ -18,60 +16,6 @@ function getVendorCredentials(): VendorCredentials {
   }
 
   return { vendorId, senderId, senderPassword };
-}
-
-async function rollForwardPeriod(
-  companyId: string,
-  oldPeriodEnd: Date,
-  userEmail: string,
-  companyName: string
-): Promise<void> {
-  const newPeriodStart = new Date(oldPeriodEnd);
-  newPeriodStart.setUTCDate(newPeriodStart.getUTCDate() + 1);
-
-  const newPeriodEnd = new Date(oldPeriodEnd);
-  newPeriodEnd.setUTCFullYear(newPeriodEnd.getUTCFullYear() + 1);
-
-  const newFilingDeadline = calculateFilingDeadline(newPeriodEnd);
-  const nextReminderAt = calculateNextReminderDate(newFilingDeadline, 0);
-
-  await prisma.$transaction([
-    prisma.company.update({
-      where: { id: companyId },
-      data: {
-        accountingPeriodStart: newPeriodStart,
-        accountingPeriodEnd: newPeriodEnd,
-      },
-    }),
-    prisma.reminder.deleteMany({
-      where: { companyId },
-    }),
-    prisma.reminder.create({
-      data: {
-        companyId,
-        filingDeadline: newFilingDeadline,
-        remindersSent: 0,
-        nextReminderAt,
-      },
-    }),
-  ]);
-
-  try {
-    const { subject, html } = buildFilingConfirmationEmail({
-      companyName,
-      periodStart: new Date(oldPeriodEnd.getTime() - (365 * 24 * 60 * 60 * 1000)),
-      periodEnd: oldPeriodEnd,
-    });
-
-    await resend.emails.send({
-      from: "DormantFile <noreply@dormantfile.com>",
-      to: userEmail,
-      subject,
-      html,
-    });
-  } catch {
-    // Email failure must not block the status response
-  }
 }
 
 export async function POST(req: NextRequest) {
@@ -163,6 +107,8 @@ export async function POST(req: NextRequest) {
     await rollForwardPeriod(
       filing.companyId,
       filing.company.accountingPeriodEnd,
+      filing.company.registeredForCorpTax,
+      filing.filingType as "accounts" | "ct600",
       filing.company.user.email,
       filing.company.companyName
     );
