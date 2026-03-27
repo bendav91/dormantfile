@@ -280,7 +280,7 @@ export default async function DashboardPage() {
         >
           {canFile && !blockingFiling ? (
             <Link
-              href="/file"
+              href={`/file/${company.id}`}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
