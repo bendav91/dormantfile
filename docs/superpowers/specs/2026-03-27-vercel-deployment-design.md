@@ -47,7 +47,11 @@ Vercel auto-provisions `POSTGRES_URL`, `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_
 
 ### Prisma Configuration Changes
 
-Update `prisma/schema.prisma` datasource to support Vercel Postgres connection pooling:
+The project currently uses `@prisma/adapter-pg` (a driver adapter) in `src/lib/db.ts`, which bypasses Prisma's built-in connection handling. This is incompatible with Vercel Postgres's PgBouncer pooling — the `pg` driver sends prepared statements that fail through PgBouncer in transaction mode.
+
+**Solution:** Remove the driver adapter and let Prisma handle connections natively via the schema's `url`/`directUrl`. This is the recommended approach for Vercel Postgres.
+
+**Update `prisma/schema.prisma`** datasource:
 
 ```prisma
 datasource db {
@@ -57,10 +61,40 @@ datasource db {
 }
 ```
 
-- `url` — pooled connection used at runtime
+- `url` — pooled connection used at runtime (via PgBouncer)
 - `directUrl` — direct connection used by `prisma migrate deploy` during builds
 
-For local development, set both `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` to the existing local `DATABASE_URL` value in `.env`.
+**Update `src/lib/db.ts`** — remove `@prisma/adapter-pg` and use standard Prisma client:
+
+```typescript
+import { PrismaClient } from "@prisma/client";
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+
+export const prisma = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+```
+
+**Update `prisma.config.ts`** — remove the `datasource` override so the CLI uses the schema's `url`/`directUrl`:
+
+```typescript
+import "dotenv/config";
+import { defineConfig } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+});
+```
+
+**Remove dependencies** — uninstall `@prisma/adapter-pg` and `pg` (+ `@types/pg` if present) as they are no longer needed.
+
+For local development, set both `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` to the existing local database URL in `.env`.
 
 ## Environment Variables
 
@@ -87,6 +121,7 @@ All variables scoped per environment in Vercel's dashboard.
 | `COMPANY_INFORMATION_API_ENDPOINT` | Production endpoint |
 | `COMPANIES_HOUSE_PRESENTER_ID` | Production |
 | `COMPANIES_HOUSE_PRESENTER_AUTH` | Production |
+| `COMPANIES_HOUSE_FILING_ENDPOINT` | Production endpoint |
 | `CRON_SECRET` | Unique production token |
 | `NEXT_PUBLIC_APP_URL` | Production URL |
 
@@ -112,7 +147,7 @@ Already configured in `vercel.json`:
 }
 ```
 
-Vercel cron jobs only execute on the production deployment — preview environments are unaffected. The existing `CRON_SECRET` bearer token authentication works with Vercel's automatic cron authorization header.
+Vercel cron jobs only execute on the production deployment — preview environments are unaffected. The cron endpoints check for `Authorization: Bearer <CRON_SECRET>`, which matches the header Vercel sends automatically when `CRON_SECRET` is set as an environment variable in the project.
 
 ## Stripe Webhooks
 
@@ -128,9 +163,11 @@ Vercel cron jobs only execute on the production deployment — preview environme
 ## Code Changes Required
 
 1. **`prisma/schema.prisma`** — add `url` and `directUrl` to datasource block
-2. **`.env.example`** — update to reflect `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` replacing `DATABASE_URL`
-3. **`src/lib/db.ts`** — update if it references `DATABASE_URL` directly; should use `POSTGRES_PRISMA_URL`
-4. **Any other files** referencing `DATABASE_URL` — update to new variable name
+2. **`src/lib/db.ts`** — remove `@prisma/adapter-pg` driver adapter, use standard `PrismaClient()`
+3. **`prisma.config.ts`** — remove the `datasource` override (let the schema handle URL resolution)
+4. **`package.json`** — uninstall `@prisma/adapter-pg` and `pg` (+ `@types/pg` if present)
+5. **`.env.example`** — replace `DATABASE_URL` with `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING`
+6. **`.env` / `.env.local`** — set `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` to the local database URL for development
 
 ## Deployment Steps (Manual, One-Time)
 
@@ -139,7 +176,7 @@ Vercel cron jobs only execute on the production deployment — preview environme
 3. Link each database to its respective environment
 4. Set all environment variables in Vercel dashboard (production and preview scoped)
 5. Set build command override: `prisma generate && prisma migrate deploy && next build`
-6. Push code changes (Prisma schema, env var references) to `main`
+6. Push code changes (Prisma schema, db.ts, prisma.config.ts, dependency removal) to `main` — this first deploy should contain only the configuration changes (no new migrations) to validate the database connection works
 7. Verify production deployment succeeds and migrations apply
 8. Create `dev` branch (if not exists) and push to verify preview deployment
 9. Configure Stripe live webhook to production URL
