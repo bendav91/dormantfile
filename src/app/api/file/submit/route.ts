@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
     govTalkXml = buildGovTalkMessage(
       {
         companyName: company.companyName,
-        uniqueTaxReference: company.uniqueTaxReference,
+        uniqueTaxReference: company.uniqueTaxReference!,
         periodStart: company.accountingPeriodStart,
         periodEnd: company.accountingPeriodEnd,
         declarantName: user.name,
