@@ -1,17 +1,27 @@
 import { describe, it, expect } from "vitest";
-import { calculateFilingDeadline, validateUTR, calculateNextReminderDate } from "@/lib/utils";
+import { calculateCT600Deadline, calculateAccountsDeadline, validateUTR, calculateNextReminderDate, validatePassword, validateEmail } from "@/lib/utils";
 
-describe("calculateFilingDeadline", () => {
+describe("calculateCT600Deadline", () => {
   it("returns 12 months after accounting period end", () => {
-    const periodEnd = new Date("2026-03-31");
-    const deadline = calculateFilingDeadline(periodEnd);
-    expect(deadline).toEqual(new Date("2027-03-31"));
+    expect(calculateCT600Deadline(new Date("2026-03-31"))).toEqual(new Date("2027-03-31"));
   });
-
   it("handles leap year edge case", () => {
-    const periodEnd = new Date("2027-02-28");
-    const deadline = calculateFilingDeadline(periodEnd);
-    expect(deadline).toEqual(new Date("2028-02-28"));
+    expect(calculateCT600Deadline(new Date("2027-02-28"))).toEqual(new Date("2028-02-28"));
+  });
+});
+
+describe("calculateAccountsDeadline", () => {
+  it("returns 9 months after accounting period end", () => {
+    expect(calculateAccountsDeadline(new Date("2026-03-31"))).toEqual(new Date("2026-12-31"));
+  });
+  it("handles month overflow correctly", () => {
+    expect(calculateAccountsDeadline(new Date("2026-06-30"))).toEqual(new Date("2027-03-30"));
+  });
+  it("clamps end-of-month correctly (May 31 + 9 months = Feb 28)", () => {
+    const result = calculateAccountsDeadline(new Date("2026-05-31"));
+    expect(result.getUTCFullYear()).toBe(2027);
+    expect(result.getUTCMonth()).toBe(1); // February
+    expect(result.getUTCDate()).toBe(28);
   });
 });
 
@@ -74,5 +84,49 @@ describe("calculateNextReminderDate", () => {
     const deadline = new Date("2027-03-31");
     const next = calculateNextReminderDate(deadline, 6);
     expect(next).toBeNull();
+  });
+});
+
+describe("validatePassword", () => {
+  it("accepts a valid password with letters and numbers", () => {
+    expect(validatePassword("hello123")).toBe(true);
+  });
+
+  it("rejects a password shorter than 8 characters", () => {
+    expect(validatePassword("abc123")).toBe(false);
+  });
+
+  it("rejects a password with only letters", () => {
+    expect(validatePassword("abcdefgh")).toBe(false);
+  });
+
+  it("rejects a password with only numbers", () => {
+    expect(validatePassword("12345678")).toBe(false);
+  });
+
+  it("rejects an empty string", () => {
+    expect(validatePassword("")).toBe(false);
+  });
+});
+
+describe("validateEmail", () => {
+  it("accepts a valid email", () => {
+    expect(validateEmail("user@example.com")).toBe(true);
+  });
+
+  it("rejects a string without @", () => {
+    expect(validateEmail("userexample.com")).toBe(false);
+  });
+
+  it("rejects a string without domain", () => {
+    expect(validateEmail("user@")).toBe(false);
+  });
+
+  it("rejects a string without dot after @", () => {
+    expect(validateEmail("user@example")).toBe(false);
+  });
+
+  it("rejects an empty string", () => {
+    expect(validateEmail("")).toBe(false);
   });
 });
