@@ -194,6 +194,15 @@ export default function LandingPage() {
               </p>
             </div>
           </div>
+          <p className="text-center mt-8">
+            <Link
+              href="/how-it-works"
+              className="text-sm font-medium transition-colors duration-200"
+              style={{ color: "#2563EB" }}
+            >
+              See the full walkthrough &rarr;
+            </Link>
+          </p>
         </div>
       </section>
 
@@ -447,27 +456,29 @@ export default function LandingPage() {
         style={{ backgroundColor: "#F1F5F9", borderTop: "1px solid #E2E8F0" }}
         className="py-8 px-6"
       >
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-          <p style={{ color: "#94A3B8" }}>
-            DormantFile is not an accountancy firm. We provide a software tool
-            only.
-          </p>
-          <div className="flex gap-6">
-            <Link
-              href="/privacy"
-              className="transition-colors duration-200"
-              style={{ color: "#64748B" }}
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href="/terms"
-              className="transition-colors duration-200"
-              style={{ color: "#64748B" }}
-            >
-              Terms
-            </Link>
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-6 mb-4">
+            {[
+              { href: "/about", label: "About" },
+              { href: "/security", label: "Security" },
+              { href: "/faq", label: "FAQ" },
+              { href: "/contact", label: "Contact" },
+              { href: "/privacy", label: "Privacy" },
+              { href: "/terms", label: "Terms" },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm transition-colors duration-200"
+                style={{ color: "#64748B" }}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
+          <p className="text-center text-xs" style={{ color: "#94A3B8" }}>
+            DormantFile is not an accountancy firm. We provide a software tool only.
+          </p>
         </div>
       </footer>
     </div>
