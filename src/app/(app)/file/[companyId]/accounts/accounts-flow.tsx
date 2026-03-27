@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  ArrowLeft,
 } from "lucide-react";
 
 // ─── Shared style constants ───────────────────────────────────────────────────
@@ -233,10 +232,8 @@ function StepConfirm({
 }
 
 function StepAuthenticate({
-  onBack,
   onSubmit,
 }: {
-  onBack: () => void;
   onSubmit: (authCode: string) => void;
 }) {
   const [authCode, setAuthCode] = useState("");
@@ -259,32 +256,6 @@ function StepAuthenticate({
   return (
     <div>
       <div style={{ marginBottom: "28px" }}>
-        <button
-          onClick={onBack}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            background: "none",
-            border: "none",
-            padding: "0",
-            fontSize: "14px",
-            color: "#64748B",
-            cursor: "pointer",
-            marginBottom: "20px",
-            fontWeight: 500,
-            transition: "color 200ms",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = "#1E293B";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = "#64748B";
-          }}
-        >
-          <ArrowLeft size={15} strokeWidth={2} />
-          Back
-        </button>
         <h1
           style={{
             fontSize: "26px",
@@ -903,7 +874,6 @@ export default function AccountsFlow({
   if (step === "authenticate") {
     return (
       <StepAuthenticate
-        onBack={() => setStep("confirm")}
         onSubmit={handleSubmit}
       />
     );
