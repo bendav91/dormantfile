@@ -4,8 +4,6 @@ export function calculateCT600Deadline(accountingPeriodEnd: Date): Date {
   return deadline;
 }
 
-export const calculateFilingDeadline = calculateCT600Deadline;
-
 export function calculateAccountsDeadline(accountingPeriodEnd: Date): Date {
   const deadline = new Date(accountingPeriodEnd);
   const targetMonth = deadline.getUTCMonth() + 9;
