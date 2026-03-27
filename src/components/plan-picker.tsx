@@ -52,6 +52,7 @@ const PLANS = [
 export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) {
   const [loading, setLoading] = useState<SubscriptionTier | null>(null);
   const [error, setError] = useState("");
+  const [downgradeSuccess, setDowngradeSuccess] = useState("");
 
   async function handleSelect(tier: SubscriptionTier) {
     setLoading(tier);
@@ -69,6 +70,13 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
         if (!res.ok) {
           const data = await res.json();
           setError(data.error || "Failed to change plan. Please try again.");
+          setLoading(null);
+          return;
+        }
+
+        const data = await res.json();
+        if (data.effective === "next_period") {
+          setDowngradeSuccess(`Your plan will change to ${PLANS.find((p) => p.tier === tier)?.name} at the end of your billing period.`);
           setLoading(null);
           return;
         }
@@ -122,6 +130,23 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
         </div>
       )}
 
+      {downgradeSuccess && (
+        <div
+          style={{
+            padding: "12px 16px",
+            backgroundColor: "#F0FDF4",
+            border: "1px solid #BBF7D0",
+            borderRadius: "8px",
+            fontSize: "14px",
+            color: "#166534",
+            marginBottom: "24px",
+            textAlign: "center",
+          }}
+        >
+          {downgradeSuccess}
+        </div>
+      )}
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
         {PLANS.map((plan) => {
           const isCurrent = plan.tier === currentTier;
@@ -129,6 +154,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
             (currentTier === "bulk" && plan.tier !== "bulk") ||
             (currentTier === "multi" && plan.tier === "basic")
           );
+          const isDisabled = loading !== null || isCurrent;
 
           return (
             <div
@@ -214,28 +240,28 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
               ) : (
                 <button
                   onClick={() => handleSelect(plan.tier)}
-                  disabled={loading !== null || isDowngrade}
+                  disabled={isDisabled}
                   style={{
                     padding: "10px 20px",
                     borderRadius: "8px",
                     fontWeight: 600,
                     fontSize: "14px",
                     border: "none",
-                    cursor: loading !== null || isDowngrade ? "not-allowed" : "pointer",
+                    cursor: isDisabled ? "not-allowed" : "pointer",
                     transition: "all 200ms",
                     backgroundColor: isDowngrade
-                      ? "#F1F5F9"
+                      ? "#64748B"
                       : plan.popular
                         ? "#F97316"
                         : "#2563EB",
-                    color: isDowngrade ? "#94A3B8" : "#ffffff",
+                    color: "#ffffff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px",
                   }}
                   onMouseEnter={(e) => {
-                    if (!loading && !isDowngrade) {
+                    if (!isDisabled) {
                       (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
                       (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
                     }
@@ -249,7 +275,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                     <Loader2 size={16} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
                   )}
                   {isDowngrade
-                    ? "Manage via billing"
+                    ? "Downgrade"
                     : isUpgrade
                       ? "Upgrade"
                       : "Select"}
@@ -262,7 +288,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
 
       {isUpgrade && (
         <p style={{ fontSize: "13px", color: "#94A3B8", textAlign: "center", marginTop: "20px" }}>
-          To downgrade your plan, use the Manage billing button in Settings.
+          Upgrades take effect immediately. Downgrades take effect at the end of your billing period.
         </p>
       )}
 

@@ -5,17 +5,17 @@ import { validateUTR } from "@/lib/utils";
 import { Loader2, Building2, Hash, FileDigit, Calendar, CheckCircle2 } from "lucide-react";
 
 interface FormErrors {
-  companyName?: string;
   companyRegistrationNumber?: string;
   uniqueTaxReference?: string;
-  accountingPeriodEnd?: string;
   general?: string;
 }
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "12px 16px",
-  border: "1px solid #E2E8F0",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "#94A3B8",
   borderRadius: "8px",
   fontSize: "16px",
   color: "#1E293B",
@@ -110,11 +110,20 @@ function FocusableInput({
   );
 }
 
+function formatDisplayDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?: boolean }) {
   const [companyName, setCompanyName] = useState("");
   const [companyRegistrationNumber, setCompanyRegistrationNumber] = useState("");
+  const [periodStartOn, setPeriodStartOn] = useState<string | null>(null);
+  const [periodEndOn, setPeriodEndOn] = useState<string | null>(null);
   const [uniqueTaxReference, setUniqueTaxReference] = useState("");
-  const [accountingPeriodEnd, setAccountingPeriodEnd] = useState("");
   const [registeredForCorpTax, setRegisteredForCorpTax] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
@@ -126,12 +135,17 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
 
     const num = companyRegistrationNumber.trim();
     if (num.length < 6) {
-      setLookupStatus("idle");
+      lookupTimer.current = setTimeout(() => {
+        setLookupStatus("idle");
+        setCompanyName("");
+        setPeriodStartOn(null);
+        setPeriodEndOn(null);
+      }, 0);
       return;
     }
 
-    setLookupStatus("loading");
     lookupTimer.current = setTimeout(async () => {
+      setLookupStatus("loading");
       try {
         const res = await fetch(`/api/company/lookup?number=${encodeURIComponent(num)}`);
         if (res.status === 503) {
@@ -148,6 +162,8 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         }
         const data = await res.json();
         setCompanyName(data.companyName);
+        setPeriodStartOn(data.periodStartOn);
+        setPeriodEndOn(data.periodEndOn);
         setLookupStatus("found");
       } catch {
         setLookupStatus("error");
@@ -161,33 +177,20 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
 
   function validate(): FormErrors {
     const errs: FormErrors = {};
-    if (!companyName.trim()) {
-      errs.companyName = "Company name is required.";
-    }
     if (!companyRegistrationNumber.trim()) {
       errs.companyRegistrationNumber = "Registration number is required.";
     } else if (companyRegistrationNumber.length > 8) {
       errs.companyRegistrationNumber = "Registration number must be 8 characters or fewer.";
+    } else if (lookupStatus !== "found") {
+      errs.companyRegistrationNumber = "Enter a valid company number that can be verified with Companies House.";
+    } else if (!periodEndOn) {
+      errs.companyRegistrationNumber = "Companies House has no upcoming accounting period for this company. It may already be filed or the company may be dissolved.";
     }
     if (registeredForCorpTax) {
       if (!uniqueTaxReference.trim()) {
         errs.uniqueTaxReference = "UTR is required for companies registered for Corporation Tax.";
       } else if (!validateUTR(uniqueTaxReference)) {
         errs.uniqueTaxReference = "UTR must be exactly 10 digits.";
-      }
-    }
-    if (!accountingPeriodEnd) {
-      errs.accountingPeriodEnd = "Accounting period end date is required.";
-    } else {
-      const periodEnd = new Date(accountingPeriodEnd);
-      const now = new Date();
-      const twoYearsAgo = new Date();
-      twoYearsAgo.setUTCFullYear(twoYearsAgo.getUTCFullYear() - 2);
-
-      if (periodEnd > now) {
-        errs.accountingPeriodEnd = "Accounting period end date cannot be in the future.";
-      } else if (periodEnd < twoYearsAgo) {
-        errs.accountingPeriodEnd = "Accounting period end date cannot be more than 2 years in the past.";
       }
     }
     return errs;
@@ -208,10 +211,8 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyName,
           companyRegistrationNumber,
           uniqueTaxReference: registeredForCorpTax ? uniqueTaxReference : undefined,
-          accountingPeriodEnd,
           registeredForCorpTax,
         }),
       });
@@ -282,89 +283,137 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           )}
           {lookupStatus === "error" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "#64748B" }}>Lookup failed — enter company name manually.</span>
+              <span style={{ fontSize: "13px", color: "#DC2626" }}>Lookup failed — please try again or check the number.</span>
+            </div>
+          )}
+          {lookupStatus === "unavailable" && (
+            <div style={{ marginTop: "2px" }}>
+              <span style={{ fontSize: "13px", color: "#D97706" }}>Companies House lookup is currently unavailable. Please try again later.</span>
             </div>
           )}
         </FormField>
 
-        <FormField
-          id="companyName"
-          label="Company Name"
-          helpText="The registered name of your company as it appears at Companies House."
-          error={errors.companyName}
-          icon={Building2}
-        >
-          <FocusableInput
-            id="companyName"
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-            placeholder="e.g. Acme Ltd"
-            hasError={!!errors.companyName}
-          />
-        </FormField>
-
-        <FormField
-          id="accountingPeriodEnd"
-          label="Accounting Period End Date"
-          helpText="The last day of your company's accounting period — usually found on your confirmation statement or HMRC correspondence."
-          error={errors.accountingPeriodEnd}
-          icon={Calendar}
-        >
-          <FocusableInput
-            id="accountingPeriodEnd"
-            type="date"
-            value={accountingPeriodEnd}
-            onChange={(e) => setAccountingPeriodEnd(e.target.value)}
-            placeholder=""
-            hasError={!!errors.accountingPeriodEnd}
-          />
-        </FormField>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#1E293B",
-              cursor: "pointer",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={registeredForCorpTax}
-              onChange={(e) => {
-                setRegisteredForCorpTax(e.target.checked);
-                if (!e.target.checked) setUniqueTaxReference("");
+        {lookupStatus === "found" && companyName && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#1E293B",
               }}
-              style={{ width: "18px", height: "18px", accentColor: "#2563EB" }}
-            />
-            Is this company registered for Corporation Tax?
-          </label>
-          <p style={{ fontSize: "13px", color: "#64748B", margin: 0, paddingLeft: "28px" }}>
-            If your company has a UTR from HMRC, tick this box. If you&apos;re unsure, you probably don&apos;t need it — most newly incorporated dormant companies are not registered.
-          </p>
-        </div>
+            >
+              <Building2 size={15} color="#2563EB" strokeWidth={2} />
+              Company Name
+            </label>
+            <div
+              style={{
+                padding: "12px 16px",
+                backgroundColor: "#F8FAFC",
+                borderWidth: "1px",
+                borderStyle: "solid",
+                borderColor: "#E2E8F0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                color: "#1E293B",
+                fontWeight: 500,
+              }}
+            >
+              {companyName}
+            </div>
+            <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
+              Verified from Companies House. This cannot be edited.
+            </p>
+          </div>
+        )}
 
-        {registeredForCorpTax && (
-          <FormField
-            id="uniqueTaxReference"
-            label="Unique Tax Reference (UTR)"
-            helpText="Your 10-digit Unique Tax Reference from HMRC. You can find this on correspondence from HMRC or in your HMRC online account."
-            error={errors.uniqueTaxReference}
-            icon={FileDigit}
-          >
-            <FocusableInput
-              id="uniqueTaxReference"
-              value={uniqueTaxReference}
-              onChange={(e) => setUniqueTaxReference(e.target.value)}
-              placeholder="e.g. 1234567890"
-              maxLength={10}
-              hasError={!!errors.uniqueTaxReference}
-            />
-          </FormField>
+        {lookupStatus === "found" && periodStartOn && periodEndOn && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#1E293B",
+              }}
+            >
+              <Calendar size={15} color="#2563EB" strokeWidth={2} />
+              Accounting Period
+            </label>
+            <div
+              style={{
+                padding: "12px 16px",
+                backgroundColor: "#F8FAFC",
+                borderWidth: "1px",
+                borderStyle: "solid",
+                borderColor: "#E2E8F0",
+                borderRadius: "8px",
+                fontSize: "16px",
+                color: "#1E293B",
+                fontWeight: 500,
+              }}
+            >
+              {formatDisplayDate(periodStartOn)} &ndash; {formatDisplayDate(periodEndOn)}
+            </div>
+            <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
+              Next filing period from Companies House. This cannot be edited.
+            </p>
+          </div>
+        )}
+
+        {lookupStatus === "found" && (
+          <>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#1E293B",
+                  cursor: "pointer",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={registeredForCorpTax}
+                  onChange={(e) => {
+                    setRegisteredForCorpTax(e.target.checked);
+                    if (!e.target.checked) setUniqueTaxReference("");
+                  }}
+                  style={{ width: "18px", height: "18px", accentColor: "#2563EB" }}
+                />
+                Is this company registered for Corporation Tax?
+              </label>
+              <p style={{ fontSize: "13px", color: "#64748B", margin: 0, paddingLeft: "28px" }}>
+                If your dormant company is still registered for Corporation Tax, you can provide your company&apos;s UTR from HMRC.
+              </p>
+            </div>
+
+            {registeredForCorpTax && (
+              <FormField
+                id="uniqueTaxReference"
+                label="Unique Tax Reference (UTR)"
+                helpText="Your 10-digit Unique Tax Reference from HMRC. You can find this on correspondence from HMRC or in your HMRC online account."
+                error={errors.uniqueTaxReference}
+                icon={FileDigit}
+              >
+                <FocusableInput
+                  id="uniqueTaxReference"
+                  value={uniqueTaxReference}
+                  onChange={(e) => setUniqueTaxReference(e.target.value)}
+                  placeholder="e.g. 1234567890"
+                  maxLength={10}
+                  hasError={!!errors.uniqueTaxReference}
+                />
+              </FormField>
+            )}
+          </>
         )}
 
         {errors.general && (

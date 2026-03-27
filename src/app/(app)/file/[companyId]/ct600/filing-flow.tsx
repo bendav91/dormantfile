@@ -18,7 +18,9 @@ import {
 const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "12px 16px",
-  border: "1px solid #E2E8F0",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: "#94A3B8",
   borderRadius: "8px",
   fontSize: "16px",
   color: "#1E293B",

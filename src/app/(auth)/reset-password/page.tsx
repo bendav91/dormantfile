@@ -21,7 +21,7 @@ function ResetPasswordForm() {
         </p>
         <Link
           href="/forgot-password"
-          className="block w-full text-center bg-blue-600 text-white rounded-lg py-3 font-semibold hover:bg-blue-700 transition-colors"
+          className="block w-full text-center bg-blue-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors"
         >
           Request new link
         </Link>
@@ -66,7 +66,7 @@ function ResetPasswordForm() {
         </p>
         <Link
           href="/login"
-          className="block w-full text-center bg-blue-600 text-white rounded-lg py-3 font-semibold hover:bg-blue-700 transition-colors"
+          className="block w-full text-center bg-blue-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors"
         >
           Sign in
         </Link>
@@ -93,15 +93,15 @@ function ResetPasswordForm() {
             placeholder="At least 8 characters"
             minLength={8}
             required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
-          <p className="text-xs text-gray-400 mt-1">Must include at least one letter and one number.</p>
+          <p className="text-xs text-gray-500 mt-1">Must include at least one letter and one number.</p>
         </div>
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-lg py-3 font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+          className="w-full bg-blue-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
           {loading ? "Resetting..." : "Reset password"}
         </button>

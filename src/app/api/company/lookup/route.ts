@@ -28,10 +28,9 @@ export async function GET(req: NextRequest) {
 
   const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
 
-  const urlPrefix = process.env.NODE_ENV !== "production" ? "https://api-sandbox.company-information.service.gov.uk" : "https://api.company-information.service.gov.uk";
-
+  
   const res = await fetch(
-    `${urlPrefix}/company/${encodeURIComponent(paddedNumber)}`,
+    `${process.env.COMPANY_INFORMATION_API_ENDPOINT}/company/${encodeURIComponent(paddedNumber)}`,
     {
       headers: {
         Authorization: `Basic ${basicAuth}`,
@@ -55,10 +54,16 @@ export async function GET(req: NextRequest) {
 
   const data = await res.json();
 
+  const nextAccounts = data.accounts?.next_accounts;
+
   return NextResponse.json({
     companyName: data.company_name,
     companyNumber: data.company_number,
     companyStatus: data.company_status,
     dateOfCreation: data.date_of_creation,
+    periodStartOn: nextAccounts?.period_start_on ?? null,
+    periodEndOn: nextAccounts?.period_end_on ?? null,
+    accountsDueOn: nextAccounts?.due_on ?? null,
+    accountsOverdue: nextAccounts?.overdue ?? false,
   });
 }

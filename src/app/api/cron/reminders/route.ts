@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       },
       company: {
         user: {
-          subscriptionStatus: "active",
+          subscriptionStatus: { in: ["active", "cancelling"] },
         },
       },
     },

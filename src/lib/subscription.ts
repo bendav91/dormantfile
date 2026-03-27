@@ -50,3 +50,14 @@ export const TIER_PRICES: Record<SubscriptionTier, number> = {
   multi: 39,
   bulk: 49,
 };
+
+const TIER_RANK: Record<SubscriptionTier, number> = {
+  none: 0,
+  basic: 1,
+  multi: 2,
+  bulk: 3,
+};
+
+export function isUpgrade(from: SubscriptionTier, to: SubscriptionTier): boolean {
+  return TIER_RANK[to] > TIER_RANK[from];
+}

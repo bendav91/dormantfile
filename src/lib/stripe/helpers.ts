@@ -8,6 +8,9 @@ export function getSubscriptionStatusFromEvent(
       return SubscriptionStatus.active;
     case "invoice.payment_failed":
       return SubscriptionStatus.past_due;
+    case "customer.subscription.updated":
+      // Handled separately in the webhook (needs cancel_at_period_end check)
+      return null;
     case "customer.subscription.deleted":
       return SubscriptionStatus.cancelled;
     default:

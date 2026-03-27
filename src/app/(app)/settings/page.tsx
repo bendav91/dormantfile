@@ -110,7 +110,7 @@ export default async function SettingsPage() {
               Subscription
             </p>
             <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
-              {user.subscriptionStatus === "active"
+              {user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling"
                 ? `Active — ${TIER_LABELS[user.subscriptionTier]} plan`
                 : user.subscriptionStatus === "past_due"
                   ? "Past due"

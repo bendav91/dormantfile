@@ -9,6 +9,7 @@ datasource db {
 enum SubscriptionStatus {
   none
   active
+  cancelling
   cancelled
   past_due
 }

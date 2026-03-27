@@ -21,7 +21,7 @@ export default async function AccountsFilingPage({ params }: PageProps) {
   const { companyId } = await params;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (!user || user.subscriptionStatus !== "active") redirect("/dashboard");
+  if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling")) redirect("/dashboard");
 
   const company = await prisma.company.findFirst({
     where: { id: companyId, userId: session.user.id, deletedAt: null },

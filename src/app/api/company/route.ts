@@ -36,10 +36,52 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { companyName, companyRegistrationNumber, uniqueTaxReference, accountingPeriodEnd, registeredForCorpTax } = body;
+  const { companyRegistrationNumber, uniqueTaxReference, registeredForCorpTax } = body;
 
-  if (!companyName || !companyRegistrationNumber || !accountingPeriodEnd) {
-    return NextResponse.json({ error: "Company name, registration number, and accounting period are required" }, { status: 400 });
+  if (!companyRegistrationNumber) {
+    return NextResponse.json({ error: "Registration number is required" }, { status: 400 });
+  }
+
+  // Fetch company details from Companies House (server-side verification)
+  const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: "Company lookup is not configured" }, { status: 503 });
+  }
+
+  const paddedNumber = companyRegistrationNumber.trim().padStart(8, "0");
+  const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
+
+  let companyName: string;
+  let accountingPeriodEnd: string;
+  let accountingPeriodStart: string;
+  try {
+    const chRes = await fetch(
+      `${process.env.COMPANY_INFORMATION_API_ENDPOINT}/company/${encodeURIComponent(paddedNumber)}`,
+      { headers: { Authorization: `Basic ${basicAuth}` } }
+    );
+
+    if (chRes.status === 404) {
+      return NextResponse.json({ error: "No company found with that registration number" }, { status: 400 });
+    }
+    if (!chRes.ok) {
+      return NextResponse.json({ error: "Failed to verify company with Companies House" }, { status: 502 });
+    }
+
+    const chData = await chRes.json();
+    companyName = chData.company_name;
+
+    const nextAccounts = chData.accounts?.next_accounts;
+    if (!nextAccounts?.period_end_on) {
+      return NextResponse.json(
+        { error: "Companies House has no upcoming accounting period for this company" },
+        { status: 400 }
+      );
+    }
+
+    accountingPeriodStart = nextAccounts.period_start_on;
+    accountingPeriodEnd = nextAccounts.period_end_on;
+  } catch {
+    return NextResponse.json({ error: "Failed to connect to Companies House" }, { status: 502 });
   }
 
   if (registeredForCorpTax && !uniqueTaxReference) {
@@ -63,28 +105,7 @@ export async function POST(req: NextRequest) {
   }
 
   const periodEnd = new Date(accountingPeriodEnd);
-  const now = new Date();
-  const twoYearsAgo = new Date();
-  twoYearsAgo.setUTCFullYear(twoYearsAgo.getUTCFullYear() - 2);
-
-  if (periodEnd > now) {
-    return NextResponse.json(
-      { error: "Accounting period end date cannot be in the future." },
-      { status: 400 }
-    );
-  }
-
-  if (periodEnd < twoYearsAgo) {
-    return NextResponse.json(
-      { error: "Accounting period end date cannot be more than 2 years in the past." },
-      { status: 400 }
-    );
-  }
-
-  // Derive accountingPeriodStart: periodEnd - 1 year + 1 day
-  const periodStart = new Date(periodEnd);
-  periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
-  periodStart.setUTCDate(periodStart.getUTCDate() + 1);
+  const periodStart = new Date(accountingPeriodStart);
 
   const accountsDeadline = calculateAccountsDeadline(periodEnd);
   const accountsReminderAt = calculateNextReminderDate(accountsDeadline, 0);

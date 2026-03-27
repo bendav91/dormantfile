@@ -8,7 +8,55 @@ interface SubscriptionBannerProps {
 }
 
 export default function SubscriptionBanner({ status }: SubscriptionBannerProps) {
-  if (status === "active") {
+  if (status === "active" || status === "cancelling") {
+    if (status === "cancelling") {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "16px",
+            padding: "14px 20px",
+            backgroundColor: "#FEFCE8",
+            border: "1px solid #FDE047",
+            borderRadius: "12px",
+            marginBottom: "24px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <AlertTriangle size={18} color="#CA8A04" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <p style={{ fontSize: "14px", color: "#713F12", margin: 0, fontWeight: 500 }}>
+              Your subscription is set to cancel at the end of your billing period. You can still file until then.
+            </p>
+          </div>
+          <button
+            onClick={handlePortal}
+            style={{
+              backgroundColor: "#CA8A04",
+              color: "#ffffff",
+              padding: "8px 18px",
+              borderRadius: "8px",
+              fontWeight: 600,
+              fontSize: "14px",
+              border: "none",
+              cursor: "pointer",
+              transition: "all 200ms",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
+            }}
+          >
+            Undo cancellation
+          </button>
+        </div>
+      );
+    }
     return null;
   }
 

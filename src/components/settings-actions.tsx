@@ -232,7 +232,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                       style={{
                         backgroundColor: "#DC2626",
                         color: "#ffffff",
-                        padding: "4px 12px",
+                        padding: "6px 14px",
                         borderRadius: "6px",
                         fontWeight: 600,
                         fontSize: "13px",
@@ -249,7 +249,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                       style={{
                         backgroundColor: "transparent",
                         color: "#64748B",
-                        padding: "4px 12px",
+                        padding: "6px 14px",
                         borderRadius: "6px",
                         fontWeight: 600,
                         fontSize: "13px",

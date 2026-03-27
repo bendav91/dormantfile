@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe/client";
 import { SubscriptionTier } from "@prisma/client";
-import { priceIdFromTier, tierFromPriceId } from "@/lib/subscription";
+import { priceIdFromTier, tierFromPriceId, isUpgrade } from "@/lib/subscription";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -52,22 +52,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "You are already on this plan" }, { status: 400 });
   }
 
-  // Update the existing subscription's price (prorate by default)
-  await stripe.subscriptions.update(subscription.id, {
-    items: [
-      {
-        id: subscription.items.data[0].id,
-        price: newPriceId,
-      },
-    ],
-    proration_behavior: "create_prorations",
-  });
+  if (isUpgrade(currentTier, tier)) {
+    // Upgrade: charge prorated difference immediately, update tier now
+    await stripe.subscriptions.update(subscription.id, {
+      items: [
+        {
+          id: subscription.items.data[0].id,
+          price: newPriceId,
+        },
+      ],
+      proration_behavior: "always_invoice",
+      payment_behavior: "error_if_incomplete",
+    });
 
-  // Update the user's tier immediately
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { subscriptionTier: tier },
-  });
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { subscriptionTier: tier },
+    });
 
-  return NextResponse.json({ success: true, tier });
+    return NextResponse.json({ success: true, tier, effective: "now" });
+  } else {
+    // Downgrade: change price for next renewal, keep current tier until then
+    await stripe.subscriptions.update(subscription.id, {
+      items: [
+        {
+          id: subscription.items.data[0].id,
+          price: newPriceId,
+        },
+      ],
+      proration_behavior: "none",
+    });
+
+    return NextResponse.json({ success: true, tier, effective: "next_period" });
+  }
 }

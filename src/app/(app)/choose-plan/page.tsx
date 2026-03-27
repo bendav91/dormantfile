@@ -20,7 +20,7 @@ export default async function ChoosePlanPage() {
     redirect("/login");
   }
 
-  const isUpgrade = user.subscriptionStatus === "active";
+  const isUpgrade = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto" }}>

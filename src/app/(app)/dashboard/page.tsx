@@ -2,13 +2,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Building2, Plus } from "lucide-react";
+import { Building2, Plus, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import SubscriptionBanner from "@/components/subscription-banner";
 import FilingStatusBadge from "@/components/filing-status-badge";
 import EnableCorpTax from "@/components/enable-corp-tax";
 import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
+import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -33,6 +34,12 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  // Sync subscription state from Stripe if it looks stale (safety net for missed webhooks)
+  await syncSubscriptionIfStale(user.id);
+  // Re-read user after potential sync
+  const freshUser = await prisma.user.findUnique({ where: { id: user.id } });
+  if (freshUser) Object.assign(user, freshUser);
+
   const companies = await prisma.company.findMany({
     where: { userId: user.id, deletedAt: null },
     include: {
@@ -48,7 +55,7 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const canFile = user.subscriptionStatus === "active";
+  const canFile = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
   const showAddCompany = canAddCompany(user.subscriptionTier, companies.length);
   const companyLimit = getCompanyLimit(user.subscriptionTier);
 
@@ -69,6 +76,27 @@ export default async function DashboardPage() {
   return (
     <div style={{ maxWidth: "640px", margin: "0 auto" }}>
       <SubscriptionBanner status={user.subscriptionStatus} />
+
+      {canFile && companyLimit > 0 && companies.length > companyLimit && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "10px",
+            padding: "14px 20px",
+            backgroundColor: "#FEFCE8",
+            border: "1px solid #FDE047",
+            borderRadius: "12px",
+            marginBottom: "24px",
+          }}
+        >
+          <AlertTriangle size={18} color="#CA8A04" strokeWidth={2} style={{ flexShrink: 0, marginTop: "1px" }} />
+          <p style={{ fontSize: "14px", color: "#713F12", margin: 0, fontWeight: 500 }}>
+            You have {companies.length} {companies.length === 1 ? "company" : "companies"} but your {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period. Remove companies or upgrade your plan from{" "}
+            <a href="/choose-plan" style={{ color: "#92400E", fontWeight: 600 }}>Change plan</a>.
+          </p>
+        </div>
+      )}
 
       {/* Page heading */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px" }}>
@@ -98,9 +126,9 @@ export default async function DashboardPage() {
                 borderRadius: "9999px",
                 fontSize: "12px",
                 fontWeight: 600,
-                backgroundColor: user.subscriptionTier === "none" ? "#FEF2F2" : user.subscriptionStatus === "active" ? "#EFF6FF" : "#F8FAFC",
-                color: user.subscriptionTier === "none" ? "#DC2626" : user.subscriptionStatus === "active" ? "#2563EB" : "#64748B",
-                border: `1px solid ${user.subscriptionTier === "none" ? "#FECACA" : user.subscriptionStatus === "active" ? "#BFDBFE" : "#E2E8F0"}`,
+                backgroundColor: user.subscriptionTier === "none" ? "#FEF2F2" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "#EFF6FF" : "#F8FAFC",
+                color: user.subscriptionTier === "none" ? "#DC2626" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "#2563EB" : "#64748B",
+                border: `1px solid ${user.subscriptionTier === "none" ? "#FECACA" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "#BFDBFE" : "#E2E8F0"}`,
               }}
             >
               {user.subscriptionTier === "none" ? "No plan" : `${TIER_LABELS[user.subscriptionTier]} plan`}
@@ -131,7 +159,7 @@ export default async function DashboardPage() {
               gap: "6px",
               backgroundColor: "#2563EB",
               color: "#ffffff",
-              padding: "10px 18px",
+              padding: "10px 20px",
               borderRadius: "8px",
               fontWeight: 600,
               fontSize: "14px",
@@ -283,10 +311,10 @@ export default async function DashboardPage() {
                           <Link
                             href={`/file/${company.id}/accounts`}
                             style={{
-                              display: "inline-flex", alignItems: "center", gap: "4px",
+                              display: "inline-flex", alignItems: "center", gap: "6px",
                               backgroundColor: "#F97316", color: "#ffffff",
-                              padding: "4px 10px", borderRadius: "6px",
-                              fontWeight: 600, fontSize: "12px", textDecoration: "none",
+                              padding: "6px 14px", borderRadius: "6px",
+                              fontWeight: 600, fontSize: "13px", textDecoration: "none",
                             }}
                           >
                             Retry

@@ -46,6 +46,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
+  // Handle subscription updates (cancel at period end / reactivation)
+  if (event.type === "customer.subscription.updated") {
+    const subscription = event.data.object as Stripe.Subscription;
+    const customerId = typeof subscription.customer === "string"
+      ? subscription.customer
+      : undefined;
+
+    if (customerId) {
+      if (subscription.cancel_at_period_end) {
+        await prisma.user.updateMany({
+          where: { stripeCustomerId: customerId },
+          data: { subscriptionStatus: "cancelling" },
+        });
+      } else if (subscription.status === "active") {
+        // User reactivated before period end
+        const tier = subscription.items.data.length
+          ? tierFromPriceId(subscription.items.data[0].price.id)
+          : undefined;
+        await prisma.user.updateMany({
+          where: { stripeCustomerId: customerId },
+          data: {
+            subscriptionStatus: "active",
+            ...(tier ? { subscriptionTier: tier } : {}),
+          },
+        });
+      }
+    }
+
+    return NextResponse.json({ received: true });
+  }
+
   // Handle ongoing subscription events (renewals, failures, cancellations)
   const status = getSubscriptionStatusFromEvent(event.type);
 
