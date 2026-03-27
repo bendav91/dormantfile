@@ -2,6 +2,7 @@ import { FilingStatus } from "@prisma/client";
 
 interface FilingStatusBadgeProps {
   status: FilingStatus;
+  filingType?: "accounts" | "ct600";
 }
 
 const statusConfig: Record<
@@ -19,7 +20,7 @@ const statusConfig: Record<
     color: "#1D4ED8",
   },
   polling_timeout: {
-    label: "Processing",
+    label: "Awaiting HMRC",
     backgroundColor: "#FEFCE8",
     color: "#A16207",
   },
@@ -40,8 +41,11 @@ const statusConfig: Record<
   },
 };
 
-export default function FilingStatusBadge({ status }: FilingStatusBadgeProps) {
+export default function FilingStatusBadge({ status, filingType }: FilingStatusBadgeProps) {
   const config = statusConfig[status];
+  const label = status === "polling_timeout" && filingType === "accounts"
+    ? "Awaiting CH"
+    : config.label;
 
   return (
     <span
@@ -55,7 +59,7 @@ export default function FilingStatusBadge({ status }: FilingStatusBadgeProps) {
         color: config.color,
       }}
     >
-      {config.label}
+      {label}
     </span>
   );
 }
