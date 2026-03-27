@@ -92,7 +92,7 @@ export default defineConfig({
 });
 ```
 
-**Remove dependencies** — uninstall `@prisma/adapter-pg` and `pg` (+ `@types/pg` if present) as they are no longer needed.
+**Remove dependencies** — uninstall `@prisma/adapter-pg`, `pg`, and `@types/pg` (the latter is in `dependencies`, not `devDependencies`) as they are no longer needed.
 
 For local development, set both `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` to the existing local database URL in `.env`.
 
@@ -104,7 +104,7 @@ All variables scoped per environment in Vercel's dashboard.
 
 | Variable | Value |
 |---|---|
-| `NEXTAUTH_URL` | Vercel production URL |
+| `NEXTAUTH_URL` | Vercel production URL (NextAuth auto-detects via `VERCEL_URL`, but set explicitly once custom domain is added) |
 | `NEXTAUTH_SECRET` | Unique production secret |
 | `STRIPE_SECRET_KEY` | Live key |
 | `STRIPE_PUBLISHABLE_KEY` | Live key |
@@ -162,7 +162,7 @@ Vercel cron jobs only execute on the production deployment — preview environme
 
 ## Code Changes Required
 
-1. **`prisma/schema.prisma`** — add `url` and `directUrl` to datasource block
+1. **`prisma/schema.prisma`** — add `url` and `directUrl` fields to datasource block (currently has no `url` field)
 2. **`src/lib/db.ts`** — remove `@prisma/adapter-pg` driver adapter, use standard `PrismaClient()`
 3. **`prisma.config.ts`** — remove the `datasource` override (let the schema handle URL resolution)
 4. **`package.json`** — uninstall `@prisma/adapter-pg` and `pg` (+ `@types/pg` if present)
