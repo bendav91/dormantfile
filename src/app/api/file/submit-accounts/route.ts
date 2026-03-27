@@ -70,18 +70,25 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { companyId?: string };
+  let body: { companyId?: string; companyAuthCode?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { companyId } = body;
+  const { companyId, companyAuthCode } = body;
 
   if (!companyId) {
     return NextResponse.json(
       { error: "companyId is required" },
+      { status: 400 }
+    );
+  }
+
+  if (!companyAuthCode || !/^[A-Za-z0-9]{6}$/.test(companyAuthCode)) {
+    return NextResponse.json(
+      { error: "A valid 6-character company authentication code is required" },
       { status: 400 }
     );
   }
@@ -163,6 +170,7 @@ export async function POST(req: NextRequest) {
         companyRegistrationNumber: company.companyRegistrationNumber,
         periodStart: company.accountingPeriodStart,
         periodEnd: company.accountingPeriodEnd,
+        companyAuthCode,
       },
       credentials
     );

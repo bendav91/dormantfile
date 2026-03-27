@@ -6,6 +6,7 @@ interface AccountsSubmissionData {
   companyRegistrationNumber: string;
   periodStart: Date;
   periodEnd: Date;
+  companyAuthCode: string;
 }
 
 interface PresenterCredentials {
@@ -23,19 +24,49 @@ export function buildAccountsXml(
   const periodEndStr = data.periodEnd.toISOString().split("T")[0];
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<CompanyAccounts>
-  <CompanyName>${data.companyName}</CompanyName>
-  <CompanyNumber>${data.companyRegistrationNumber}</CompanyNumber>
-  <PeriodStart>${periodStartStr}</PeriodStart>
-  <PeriodEnd>${periodEndStr}</PeriodEnd>
-  <BalanceSheet>
-    <TotalAssets>0</TotalAssets>
-    <TotalLiabilities>0</TotalLiabilities>
-    <ShareholderFunds>0</ShareholderFunds>
-  </BalanceSheet>
-  <DormantStatement>true</DormantStatement>
-  <Presenter>
-    <Id>${credentials.presenterId}</Id>
-  </Presenter>
-</CompanyAccounts>`;
+<GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
+  <EnvelopeVersion>2.0</EnvelopeVersion>
+  <Header>
+    <MessageDetails>
+      <Class>Accounts</Class>
+      <Qualifier>request</Qualifier>
+      <Function>submit</Function>
+    </MessageDetails>
+    <SenderDetails>
+      <IDAuthentication>
+        <SenderID>${credentials.presenterId}</SenderID>
+        <Authentication>
+          <Method>CHMD5</Method>
+          <Value>${credentials.presenterAuth}</Value>
+        </Authentication>
+      </IDAuthentication>
+    </SenderDetails>
+  </Header>
+  <GovTalkDetails>
+    <Keys/>
+  </GovTalkDetails>
+  <Body>
+    <FormSubmission xmlns="http://xmlgw.companieshouse.gov.uk">
+      <FormHeader>
+        <CompanyNumber>${data.companyRegistrationNumber}</CompanyNumber>
+        <CompanyName>${data.companyName}</CompanyName>
+        <CompanyAuthenticationCode>${data.companyAuthCode}</CompanyAuthenticationCode>
+        <FormIdentifier>Accounts</FormIdentifier>
+      </FormHeader>
+      <DateSigned>${periodEndStr}</DateSigned>
+      <Form>
+        <CompanyAccounts>
+          <PeriodStart>${periodStartStr}</PeriodStart>
+          <PeriodEnd>${periodEndStr}</PeriodEnd>
+          <BalanceSheet>
+            <TotalAssets>0</TotalAssets>
+            <TotalLiabilities>0</TotalLiabilities>
+            <ShareholderFunds>0</ShareholderFunds>
+          </BalanceSheet>
+          <DormantStatement>true</DormantStatement>
+        </CompanyAccounts>
+      </Form>
+    </FormSubmission>
+  </Body>
+</GovTalkMessage>`;
 }

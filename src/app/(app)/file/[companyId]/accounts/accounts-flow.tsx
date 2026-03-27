@@ -235,9 +235,28 @@ function StepConfirm({
 
 function StepAuthenticate({
   onBack,
+  onSubmit,
 }: {
   onBack: () => void;
+  onSubmit: (authCode: string) => void;
 }) {
+  const [authCode, setAuthCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  function handleSubmit() {
+    const trimmed = authCode.trim();
+    if (!trimmed) {
+      setError("Please enter your company authentication code.");
+      return;
+    }
+    if (!/^[A-Za-z0-9]{6}$/.test(trimmed)) {
+      setError("The authentication code must be exactly 6 alphanumeric characters.");
+      return;
+    }
+    setError(null);
+    onSubmit(trimmed);
+  }
+
   return (
     <div>
       <div style={{ marginBottom: "28px" }}>
@@ -278,40 +297,99 @@ function StepAuthenticate({
         >
           Companies House authentication
         </h1>
+        <p style={{ fontSize: "15px", color: "#64748B", margin: 0, lineHeight: 1.6 }}>
+          Enter your company authentication code to authorise this filing.
+        </p>
       </div>
 
       <div style={cardStyle}>
-        {/* Coming soon notice */}
+        <div style={{ marginBottom: "24px" }}>
+          <label
+            htmlFor="ch-auth-code"
+            style={{
+              display: "block",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: "#475569",
+              marginBottom: "8px",
+            }}
+          >
+            Company authentication code
+          </label>
+          <input
+            id="ch-auth-code"
+            type="text"
+            maxLength={6}
+            value={authCode}
+            onChange={(e) => {
+              setAuthCode(e.target.value.toUpperCase());
+              if (error) setError(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSubmit();
+            }}
+            placeholder="e.g. A1B2C3"
+            autoComplete="off"
+            style={{
+              width: "100%",
+              padding: "12px 14px",
+              fontSize: "16px",
+              fontFamily: "monospace",
+              letterSpacing: "0.15em",
+              border: error ? "2px solid #EF4444" : "2px solid #E2E8F0",
+              borderRadius: "8px",
+              outline: "none",
+              transition: "border-color 200ms",
+              boxSizing: "border-box",
+            }}
+            onFocus={(e) => {
+              if (!error) e.currentTarget.style.borderColor = "#2563EB";
+            }}
+            onBlur={(e) => {
+              if (!error) e.currentTarget.style.borderColor = "#E2E8F0";
+            }}
+          />
+          {error && (
+            <p style={{ fontSize: "13px", color: "#EF4444", margin: "8px 0 0 0" }}>
+              {error}
+            </p>
+          )}
+        </div>
+
+        {/* Info card */}
         <div
           style={{
             display: "flex",
             alignItems: "flex-start",
             gap: "10px",
             padding: "14px 16px",
-            backgroundColor: "#FEFCE8",
-            border: "1px solid #FDE68A",
+            backgroundColor: "#EFF6FF",
+            border: "1px solid #BFDBFE",
             borderRadius: "8px",
             marginBottom: "28px",
           }}
         >
-          <AlertTriangle
+          <ShieldCheck
             size={18}
-            color="#A16207"
+            color="#2563EB"
             strokeWidth={2}
             style={{ flexShrink: 0, marginTop: "1px" }}
           />
-          <p style={{ fontSize: "14px", color: "#713F12", margin: 0, lineHeight: 1.5 }}>
-            Companies House authentication will be available once we complete software filer registration with Companies House. This feature is coming soon.
+          <p style={{ fontSize: "14px", color: "#1E40AF", margin: 0, lineHeight: 1.5 }}>
+            This is the 6-character code Companies House posted to your company&apos;s registered office. It authorises filings on behalf of your company.
           </p>
         </div>
 
         <button
-          disabled
-          style={{
-            ...primaryButtonStyle,
-            backgroundColor: "#CBD5E1",
-            cursor: "not-allowed",
-            opacity: 1,
+          onClick={handleSubmit}
+          style={primaryButtonStyle}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
+            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.opacity = "1";
+            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
           }}
         >
           <ShieldCheck size={17} strokeWidth={2} />
@@ -753,14 +831,14 @@ export default function AccountsFlow({
   const [step, setStep] = useState<Step>("confirm");
   const [result, setResult] = useState<ResultState | null>(null);
 
-  async function handleSubmit() {
+  async function handleSubmit(companyAuthCode: string) {
     setStep("submitting");
 
     try {
       const res = await fetch("/api/file/submit-accounts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyId }),
+        body: JSON.stringify({ companyId, companyAuthCode }),
       });
 
       const data = await res.json();
@@ -824,6 +902,7 @@ export default function AccountsFlow({
     return (
       <StepAuthenticate
         onBack={() => setStep("confirm")}
+        onSubmit={handleSubmit}
       />
     );
   }
