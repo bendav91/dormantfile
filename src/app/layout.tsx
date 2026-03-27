@@ -8,8 +8,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "DormantFile - Nil CT600 Filing Made Simple",
-  description: "File your nil CT600 tax return quickly and easily with DormantFile.",
+  title: "DormantFile - Dormant Company Filing Made Simple",
+  description:
+    "File your dormant company accounts and nil CT600 tax returns online. Direct submission to Companies House and HMRC.",
 };
 
 export default function RootLayout({

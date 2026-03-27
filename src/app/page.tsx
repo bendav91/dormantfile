@@ -130,7 +130,7 @@ export default function LandingPage() {
                   Direct submission
                 </p>
                 <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
-                  Filed directly with Companies House and HMRC via official APIs.
+                  Filed directly with Companies House and HMRC — no middlemen.
                 </p>
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function LandingPage() {
                 Add your company
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                Enter your company name, UTR, and accounting period.
+                Enter your companies house number, we locate the rest. No data entry required.
               </p>
             </div>
             {/* Step 2 */}
@@ -175,7 +175,7 @@ export default function LandingPage() {
                 We remind you
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                Email reminders as your filing deadline approaches.
+                Email reminders as your dormant filing deadline approaches.
               </p>
             </div>
             {/* Step 3 */}
@@ -190,10 +190,19 @@ export default function LandingPage() {
                 File in minutes
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                We submit your accounts to Companies House and your CT600 to HMRC.
+                File dormant accounts and nil tax returns in minutes - no hassle - every year!
               </p>
             </div>
           </div>
+          <p className="text-center mt-8">
+            <Link
+              href="/how-it-works"
+              className="text-sm font-medium transition-colors duration-200"
+              style={{ color: "#2563EB" }}
+            >
+              See the full walkthrough &rarr;
+            </Link>
+          </p>
         </div>
       </section>
 
@@ -447,27 +456,29 @@ export default function LandingPage() {
         style={{ backgroundColor: "#F1F5F9", borderTop: "1px solid #E2E8F0" }}
         className="py-8 px-6"
       >
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-          <p style={{ color: "#94A3B8" }}>
-            DormantFile is not an accountancy firm. We provide a software tool
-            only.
-          </p>
-          <div className="flex gap-6">
-            <Link
-              href="/privacy"
-              className="transition-colors duration-200"
-              style={{ color: "#64748B" }}
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href="/terms"
-              className="transition-colors duration-200"
-              style={{ color: "#64748B" }}
-            >
-              Terms
-            </Link>
+        <div className="max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-6 mb-4">
+            {[
+              { href: "/about", label: "About" },
+              { href: "/security", label: "Security" },
+              { href: "/faq", label: "FAQ" },
+              { href: "/contact", label: "Contact" },
+              { href: "/privacy", label: "Privacy" },
+              { href: "/terms", label: "Terms" },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm transition-colors duration-200"
+                style={{ color: "#64748B" }}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
+          <p className="text-center text-xs" style={{ color: "#94A3B8" }}>
+            DormantFile is not an accountancy firm. We provide a software tool only.
+          </p>
         </div>
       </footer>
     </div>
