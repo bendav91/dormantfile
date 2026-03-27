@@ -110,14 +110,15 @@ function FocusableInput({
   );
 }
 
-export default function CompanyForm() {
+export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?: boolean }) {
   const [companyName, setCompanyName] = useState("");
   const [companyRegistrationNumber, setCompanyRegistrationNumber] = useState("");
   const [uniqueTaxReference, setUniqueTaxReference] = useState("");
   const [accountingPeriodEnd, setAccountingPeriodEnd] = useState("");
+  const [registeredForCorpTax, setRegisteredForCorpTax] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
-  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "found" | "not_found" | "unavailable">("idle");
+  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "found" | "not_found" | "unavailable" | "error">("idle");
   const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -142,14 +143,14 @@ export default function CompanyForm() {
           return;
         }
         if (!res.ok) {
-          setLookupStatus("idle");
+          setLookupStatus("error");
           return;
         }
         const data = await res.json();
         setCompanyName(data.companyName);
         setLookupStatus("found");
       } catch {
-        setLookupStatus("idle");
+        setLookupStatus("error");
       }
     }, 500);
 
@@ -168,13 +169,26 @@ export default function CompanyForm() {
     } else if (companyRegistrationNumber.length > 8) {
       errs.companyRegistrationNumber = "Registration number must be 8 characters or fewer.";
     }
-    if (!uniqueTaxReference.trim()) {
-      errs.uniqueTaxReference = "UTR is required.";
-    } else if (!validateUTR(uniqueTaxReference)) {
-      errs.uniqueTaxReference = "UTR must be exactly 10 digits.";
+    if (registeredForCorpTax) {
+      if (!uniqueTaxReference.trim()) {
+        errs.uniqueTaxReference = "UTR is required for companies registered for Corporation Tax.";
+      } else if (!validateUTR(uniqueTaxReference)) {
+        errs.uniqueTaxReference = "UTR must be exactly 10 digits.";
+      }
     }
     if (!accountingPeriodEnd) {
       errs.accountingPeriodEnd = "Accounting period end date is required.";
+    } else {
+      const periodEnd = new Date(accountingPeriodEnd);
+      const now = new Date();
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setUTCFullYear(twoYearsAgo.getUTCFullYear() - 2);
+
+      if (periodEnd > now) {
+        errs.accountingPeriodEnd = "Accounting period end date cannot be in the future.";
+      } else if (periodEnd < twoYearsAgo) {
+        errs.accountingPeriodEnd = "Accounting period end date cannot be more than 2 years in the past.";
+      }
     }
     return errs;
   }
@@ -196,38 +210,24 @@ export default function CompanyForm() {
         body: JSON.stringify({
           companyName,
           companyRegistrationNumber,
-          uniqueTaxReference,
+          uniqueTaxReference: registeredForCorpTax ? uniqueTaxReference : undefined,
           accountingPeriodEnd,
+          registeredForCorpTax,
         }),
       });
 
       if (!companyRes.ok) {
         const data = await companyRes.json();
-        if (companyRes.status === 409) {
-          setErrors({ general: "A company is already registered to your account." });
-        } else {
-          setErrors({ general: data.error || "Failed to save company. Please try again." });
-        }
+        setErrors({ general: data.error || "Failed to save company. Please try again." });
         setLoading(false);
         return;
       }
 
-      const checkoutRes = await fetch("/api/stripe/create-checkout", {
-        method: "POST",
-      });
-
-      if (!checkoutRes.ok) {
-        setErrors({ general: "Failed to create checkout session. Please try again." });
-        setLoading(false);
-        return;
-      }
-
-      const { url } = await checkoutRes.json();
-      if (url) {
-        window.location.href = url;
+      // First company: go to plan picker. Additional companies: go to dashboard.
+      if (isFirstCompany) {
+        window.location.href = "/choose-plan";
       } else {
-        setErrors({ general: "No checkout URL returned. Please try again." });
-        setLoading(false);
+        window.location.href = "/dashboard";
       }
     } catch {
       setErrors({ general: "An unexpected error occurred. Please try again." });
@@ -248,22 +248,6 @@ export default function CompanyForm() {
           gap: "28px",
         }}
       >
-        <FormField
-          id="companyName"
-          label="Company Name"
-          helpText="The registered name of your company as it appears at Companies House."
-          error={errors.companyName}
-          icon={Building2}
-        >
-          <FocusableInput
-            id="companyName"
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-            placeholder="e.g. Acme Ltd"
-            hasError={!!errors.companyName}
-          />
-        </FormField>
-
         <FormField
           id="companyRegistrationNumber"
           label="Companies House Registration Number"
@@ -296,22 +280,26 @@ export default function CompanyForm() {
               <span style={{ fontSize: "13px", color: "#DC2626" }}>No company found with that number.</span>
             </div>
           )}
+          {lookupStatus === "error" && (
+            <div style={{ marginTop: "2px" }}>
+              <span style={{ fontSize: "13px", color: "#64748B" }}>Lookup failed — enter company name manually.</span>
+            </div>
+          )}
         </FormField>
 
         <FormField
-          id="uniqueTaxReference"
-          label="Unique Tax Reference (UTR)"
-          helpText="Your 10-digit Unique Tax Reference from HMRC. You can find this on correspondence from HMRC or in your HMRC online account."
-          error={errors.uniqueTaxReference}
-          icon={FileDigit}
+          id="companyName"
+          label="Company Name"
+          helpText="The registered name of your company as it appears at Companies House."
+          error={errors.companyName}
+          icon={Building2}
         >
           <FocusableInput
-            id="uniqueTaxReference"
-            value={uniqueTaxReference}
-            onChange={(e) => setUniqueTaxReference(e.target.value)}
-            placeholder="e.g. 1234567890"
-            maxLength={10}
-            hasError={!!errors.uniqueTaxReference}
+            id="companyName"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            placeholder="e.g. Acme Ltd"
+            hasError={!!errors.companyName}
           />
         </FormField>
 
@@ -331,6 +319,53 @@ export default function CompanyForm() {
             hasError={!!errors.accountingPeriodEnd}
           />
         </FormField>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#1E293B",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={registeredForCorpTax}
+              onChange={(e) => {
+                setRegisteredForCorpTax(e.target.checked);
+                if (!e.target.checked) setUniqueTaxReference("");
+              }}
+              style={{ width: "18px", height: "18px", accentColor: "#2563EB" }}
+            />
+            Is this company registered for Corporation Tax?
+          </label>
+          <p style={{ fontSize: "13px", color: "#64748B", margin: 0, paddingLeft: "28px" }}>
+            If your company has a UTR from HMRC, tick this box. If you&apos;re unsure, you probably don&apos;t need it — most newly incorporated dormant companies are not registered.
+          </p>
+        </div>
+
+        {registeredForCorpTax && (
+          <FormField
+            id="uniqueTaxReference"
+            label="Unique Tax Reference (UTR)"
+            helpText="Your 10-digit Unique Tax Reference from HMRC. You can find this on correspondence from HMRC or in your HMRC online account."
+            error={errors.uniqueTaxReference}
+            icon={FileDigit}
+          >
+            <FocusableInput
+              id="uniqueTaxReference"
+              value={uniqueTaxReference}
+              onChange={(e) => setUniqueTaxReference(e.target.value)}
+              placeholder="e.g. 1234567890"
+              maxLength={10}
+              hasError={!!errors.uniqueTaxReference}
+            />
+          </FormField>
+        )}
 
         {errors.general && (
           <div
@@ -378,7 +413,7 @@ export default function CompanyForm() {
           }}
         >
           {loading && <Loader2 size={18} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />}
-          {loading ? "Processing..." : "Continue to Payment"}
+          {loading ? "Processing..." : isFirstCompany ? "Continue to Payment" : "Add Company"}
         </button>
 
         <p style={{ fontSize: "13px", color: "#94A3B8", textAlign: "center", margin: 0 }}>
