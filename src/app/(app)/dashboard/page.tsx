@@ -2,13 +2,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Calendar, Building2, FileText } from "lucide-react";
+import { Building2, Plus } from "lucide-react";
 import Link from "next/link";
 import SubscriptionBanner from "@/components/subscription-banner";
 import FilingStatusBadge from "@/components/filing-status-badge";
-import CheckStatusButton from "@/components/check-status-button";
-import { calculateFilingDeadline } from "@/lib/utils";
-import { FilingStatus } from "@prisma/client";
+import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
+import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -17,8 +16,6 @@ function formatDate(date: Date): string {
     year: "numeric",
   });
 }
-
-const BLOCKING_STATUSES: FilingStatus[] = ["submitted", "polling_timeout", "pending"];
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -35,418 +32,314 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const company = await prisma.company.findUnique({
-    where: { userId: user.id },
+  const companies = await prisma.company.findMany({
+    where: { userId: user.id, deletedAt: null },
     include: {
       filings: {
         orderBy: { createdAt: "desc" },
-        take: 10,
+        take: 5,
       },
     },
+    orderBy: { createdAt: "asc" },
   });
 
-  if (!company) {
+  if (companies.length === 0) {
     redirect("/onboarding");
   }
 
-  const filingDeadline = calculateFilingDeadline(company.accountingPeriodEnd);
-
-  const blockingFiling = company.filings.find((f) =>
-    BLOCKING_STATUSES.includes(f.status)
-  );
-
   const canFile = user.subscriptionStatus === "active";
-  const isPollingTimeout = blockingFiling?.status === "polling_timeout";
-  const isFilingInProgress =
-    blockingFiling &&
-    (blockingFiling.status === "submitted" || blockingFiling.status === "pending");
+  const showAddCompany = canAddCompany(user.subscriptionTier, companies.length);
+  const companyLimit = getCompanyLimit(user.subscriptionTier);
 
-  const daysUntilDeadline = Math.ceil(
-    (filingDeadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-  );
-
-  const deadlineIsUrgent = daysUntilDeadline <= 30 && daysUntilDeadline > 0;
-  const deadlineIsPast = daysUntilDeadline <= 0;
+  // Count filings used in current billing period
+  const periodStart = user.subscriptionPeriodStart ?? user.createdAt;
+  const filedCompanyIds = await prisma.filing.findMany({
+    where: {
+      company: { userId: user.id },
+      status: { in: ["submitted", "polling_timeout", "accepted"] },
+      createdAt: { gte: periodStart },
+    },
+    select: { companyId: true },
+    distinct: ["companyId"],
+  });
+  const filingsUsed = filedCompanyIds.length;
+  const atFilingLimit = filingsUsed >= companyLimit && companyLimit > 0;
 
   return (
     <div>
       <SubscriptionBanner status={user.subscriptionStatus} />
 
       {/* Page heading */}
-      <div style={{ marginBottom: "32px" }}>
-        <h1
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            color: "#1E293B",
-            margin: "0 0 6px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
-          Dashboard
-        </h1>
-        <p style={{ fontSize: "15px", color: "#64748B", margin: 0 }}>
-          Manage your CT600 Corporation Tax filings
-        </p>
-      </div>
-
-      {/* Company overview card */}
-      <div
-        style={{
-          backgroundColor: "#ffffff",
-          borderRadius: "12px",
-          padding: "28px",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          marginBottom: "24px",
-          transition: "box-shadow 200ms, transform 200ms",
-        }}
-      >
-        {/* Card header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            marginBottom: "24px",
-            paddingBottom: "20px",
-            borderBottom: "1px solid #F1F5F9",
-          }}
-        >
-          <div
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px" }}>
+        <div>
+          <h1
             style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "10px",
-              backgroundColor: "#EFF6FF",
-              display: "flex",
+              fontSize: "28px",
+              fontWeight: 700,
+              color: "#1E293B",
+              margin: "0 0 6px 0",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Dashboard
+          </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "2px" }}>
+            <p style={{ fontSize: "15px", color: "#64748B", margin: 0 }}>
+              {companies.length} {companies.length === 1 ? "company" : "companies"}
+              {companyLimit > 0 && ` / ${companyLimit}`}
+            </p>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                padding: "3px 10px",
+                borderRadius: "9999px",
+                fontSize: "12px",
+                fontWeight: 600,
+                backgroundColor: user.subscriptionTier === "none" ? "#FEF2F2" : user.subscriptionStatus === "active" ? "#EFF6FF" : "#F8FAFC",
+                color: user.subscriptionTier === "none" ? "#DC2626" : user.subscriptionStatus === "active" ? "#2563EB" : "#64748B",
+                border: `1px solid ${user.subscriptionTier === "none" ? "#FECACA" : user.subscriptionStatus === "active" ? "#BFDBFE" : "#E2E8F0"}`,
+              }}
+            >
+              {user.subscriptionTier === "none" ? "No plan" : `${TIER_LABELS[user.subscriptionTier]} plan`}
+            </span>
+            {companyLimit > 0 && (
+              <span
+                style={{
+                  padding: "3px 10px",
+                  borderRadius: "9999px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  backgroundColor: atFilingLimit ? "#FEF2F2" : "#F0FDF4",
+                  color: atFilingLimit ? "#DC2626" : "#15803D",
+                  border: `1px solid ${atFilingLimit ? "#FECACA" : "#BBF7D0"}`,
+                }}
+              >
+                {filingsUsed} / {companyLimit} {companyLimit === 1 ? "filing" : "filings"} used
+              </span>
+            )}
+          </div>
+        </div>
+        {showAddCompany && (
+          <Link
+            href="/onboarding"
+            style={{
+              display: "inline-flex",
               alignItems: "center",
-              justifyContent: "center",
+              gap: "6px",
+              backgroundColor: "#2563EB",
+              color: "#ffffff",
+              padding: "10px 18px",
+              borderRadius: "8px",
+              fontWeight: 600,
+              fontSize: "14px",
+              textDecoration: "none",
+              transition: "all 200ms",
               flexShrink: 0,
             }}
           >
-            <Building2 size={20} color="#2563EB" strokeWidth={2} />
-          </div>
-          <div>
-            <h2
-              style={{
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "#1E293B",
-                margin: 0,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              {company.companyName}
-            </h2>
-            <p style={{ fontSize: "13px", color: "#94A3B8", margin: 0, marginTop: "2px" }}>
-              Corporation Tax account
-            </p>
-          </div>
-        </div>
-
-        {/* Company details grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
-            gap: "20px",
-            marginBottom: "24px",
-          }}
-        >
-          <div>
-            <p
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "#94A3B8",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                margin: "0 0 4px 0",
-              }}
-            >
-              Unique Tax Reference
-            </p>
-            <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
-              {company.uniqueTaxReference}
-            </p>
-          </div>
-
-          <div>
-            <p
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "#94A3B8",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                margin: "0 0 4px 0",
-              }}
-            >
-              Companies House Number
-            </p>
-            <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
-              {company.companyRegistrationNumber}
-            </p>
-          </div>
-
-          <div>
-            <p
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "#94A3B8",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                margin: "0 0 4px 0",
-              }}
-            >
-              Accounting Period
-            </p>
-            <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
-              {formatDate(company.accountingPeriodStart)} &ndash;{" "}
-              {formatDate(company.accountingPeriodEnd)}
-            </p>
-          </div>
-
-          <div>
-            <p
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "#94A3B8",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                margin: "0 0 4px 0",
-              }}
-            >
-              Filing Deadline
-            </p>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Calendar
-                size={15}
-                color={deadlineIsPast ? "#DC2626" : deadlineIsUrgent ? "#D97706" : "#64748B"}
-                strokeWidth={2}
-              />
-              <p
-                style={{
-                  fontSize: "15px",
-                  color: deadlineIsPast ? "#DC2626" : deadlineIsUrgent ? "#D97706" : "#1E293B",
-                  margin: 0,
-                  fontWeight: 600,
-                }}
-              >
-                {formatDate(filingDeadline)}
-              </p>
-              {deadlineIsUrgent && (
-                <span
-                  style={{
-                    display: "inline-block",
-                    padding: "2px 8px",
-                    borderRadius: "9999px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    backgroundColor: "#FEFCE8",
-                    color: "#A16207",
-                  }}
-                >
-                  {daysUntilDeadline}d left
-                </span>
-              )}
-              {deadlineIsPast && (
-                <span
-                  style={{
-                    display: "inline-block",
-                    padding: "2px 8px",
-                    borderRadius: "9999px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    backgroundColor: "#FEF2F2",
-                    color: "#B91C1C",
-                  }}
-                >
-                  Overdue
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Action section */}
-        <div
-          style={{
-            paddingTop: "20px",
-            borderTop: "1px solid #F1F5F9",
-          }}
-        >
-          {canFile && !blockingFiling ? (
-            <Link
-              href={`/file/${company.id}`}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                backgroundColor: "#F97316",
-                color: "#ffffff",
-                padding: "12px 24px",
-                borderRadius: "8px",
-                fontWeight: 600,
-                fontSize: "15px",
-                textDecoration: "none",
-                transition: "all 200ms",
-              }}
-            >
-              <FileText size={17} strokeWidth={2} />
-              File nil CT600 now
-            </Link>
-          ) : isPollingTimeout && blockingFiling ? (
-            <div>
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "#A16207",
-                  margin: "0 0 12px 0",
-                  fontWeight: 500,
-                }}
-              >
-                Your filing was submitted but HMRC has not yet confirmed the result. Check the current status below.
-              </p>
-              <CheckStatusButton filingId={blockingFiling.id} />
-            </div>
-          ) : isFilingInProgress ? (
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "10px 16px",
-                backgroundColor: "#EFF6FF",
-                border: "1px solid #BFDBFE",
-                borderRadius: "8px",
-                fontSize: "14px",
-                color: "#1D4ED8",
-                fontWeight: 500,
-              }}
-            >
-              <FileText size={16} strokeWidth={2} />
-              Filing in progress &mdash; we will notify you when HMRC responds.
-            </div>
-          ) : !canFile ? (
-            <p style={{ fontSize: "14px", color: "#64748B", margin: 0 }}>
-              <span style={{ fontWeight: 600, color: "#475569" }}>Subscribe to file.</span>{" "}
-              An active subscription is required to submit your CT600 return to HMRC.
-            </p>
-          ) : null}
-        </div>
+            <Plus size={16} strokeWidth={2.5} />
+            Add company
+          </Link>
+        )}
       </div>
 
-      {/* Filing history */}
-      <div
-        style={{
-          backgroundColor: "#ffffff",
-          borderRadius: "12px",
-          padding: "28px",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "17px",
-            fontWeight: 700,
-            color: "#1E293B",
-            margin: "0 0 20px 0",
-            letterSpacing: "-0.01em",
-          }}
-        >
-          Filing history
-        </h2>
+      {/* Company cards */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        {companies.map((company) => {
+          const accountsDeadline = calculateAccountsDeadline(company.accountingPeriodEnd);
+          const ct600Deadline = calculateCT600Deadline(company.accountingPeriodEnd);
 
-        {company.filings.length === 0 ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "40px 0",
-              color: "#94A3B8",
-            }}
-          >
-            <FileText
-              size={36}
-              strokeWidth={1.5}
-              color="#CBD5E1"
-              style={{ display: "block", margin: "0 auto 12px" }}
-            />
-            <p style={{ fontSize: "15px", margin: 0, fontWeight: 500 }}>No filings yet</p>
-            <p style={{ fontSize: "13px", margin: "4px 0 0", color: "#CBD5E1" }}>
-              Your submitted returns will appear here.
-            </p>
-          </div>
-        ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table
+          const accountsFiling = company.filings.find(
+            (f) => f.filingType === "accounts" && f.periodEnd.getTime() === company.accountingPeriodEnd.getTime()
+          );
+          const ct600Filing = company.filings.find(
+            (f) => f.filingType === "ct600" && f.periodEnd.getTime() === company.accountingPeriodEnd.getTime()
+          );
+
+          const accountsDaysLeft = Math.ceil(
+            (accountsDeadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          );
+          const ct600DaysLeft = Math.ceil(
+            (ct600Deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          );
+
+          return (
+            <div
+              key={company.id}
               style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: "14px",
+                backgroundColor: "#ffffff",
+                borderRadius: "12px",
+                padding: "28px",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                transition: "box-shadow 200ms, transform 200ms",
               }}
             >
-              <thead>
-                <tr>
-                  {["Period", "Status", "Filed"].map((heading) => (
-                    <th
-                      key={heading}
-                      style={{
-                        textAlign: "left",
-                        padding: "0 0 12px",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                        color: "#94A3B8",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                        borderBottom: "1px solid #F1F5F9",
-                        paddingRight: "24px",
-                      }}
-                    >
-                      {heading}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {company.filings.map((filing, index) => (
-                  <tr
-                    key={filing.id}
+              {/* Card header */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginBottom: "24px",
+                  paddingBottom: "20px",
+                  borderBottom: "1px solid #F1F5F9",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "10px",
+                    backgroundColor: "#EFF6FF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <Building2 size={20} color="#2563EB" strokeWidth={2} />
+                </div>
+                <div>
+                  <h2
                     style={{
-                      borderBottom:
-                        index < company.filings.length - 1
-                          ? "1px solid #F8FAFC"
-                          : "none",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "#1E293B",
+                      margin: 0,
+                      letterSpacing: "-0.01em",
                     }}
                   >
-                    <td
-                      style={{
-                        padding: "14px 24px 14px 0",
-                        color: "#1E293B",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {formatDate(filing.periodStart)} &ndash; {formatDate(filing.periodEnd)}
-                    </td>
-                    <td style={{ padding: "14px 24px 14px 0" }}>
-                      <FilingStatusBadge status={filing.status} />
-                    </td>
-                    <td
-                      style={{
-                        padding: "14px 0",
-                        color: filing.submittedAt ? "#475569" : "#94A3B8",
-                      }}
-                    >
-                      {filing.submittedAt ? formatDate(filing.submittedAt) : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                    {company.companyName}
+                  </h2>
+                  <p style={{ fontSize: "13px", color: "#94A3B8", margin: 0, marginTop: "2px" }}>
+                    {company.registeredForCorpTax && company.uniqueTaxReference
+                      ? `UTR: ${company.uniqueTaxReference} · ` : ""}
+                    {company.companyRegistrationNumber}
+                  </p>
+                </div>
+              </div>
+
+              {/* Accounting period */}
+              <div style={{ marginBottom: "20px" }}>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "#94A3B8",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    margin: "0 0 4px 0",
+                  }}
+                >
+                  Accounting Period
+                </p>
+                <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
+                  {formatDate(company.accountingPeriodStart)} &ndash;{" "}
+                  {formatDate(company.accountingPeriodEnd)}
+                </p>
+              </div>
+
+              {/* Filing rows */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                  paddingTop: "20px",
+                  borderTop: "1px solid #F1F5F9",
+                }}
+              >
+                {/* Accounts row */}
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 16px",
+                  backgroundColor: "#F8FAFC",
+                  borderRadius: "8px",
+                }}>
+                  <div>
+                    <p style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", margin: "0 0 2px 0" }}>
+                      Annual Accounts
+                    </p>
+                    <p style={{
+                      fontSize: "12px",
+                      color: accountsDaysLeft <= 0 ? "#DC2626" : accountsDaysLeft <= 30 ? "#D97706" : "#64748B",
+                      margin: 0,
+                    }}>
+                      Due: {formatDate(accountsDeadline)}
+                      {accountsDaysLeft <= 30 && accountsDaysLeft > 0 && ` (${accountsDaysLeft}d left)`}
+                      {accountsDaysLeft <= 0 && " (Overdue)"}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {accountsFiling ? (
+                      <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
+                    ) : canFile && !atFilingLimit ? (
+                      <Link
+                        href={`/file/${company.id}/accounts`}
+                        style={{
+                          display: "inline-flex", alignItems: "center", gap: "6px",
+                          backgroundColor: "#F97316", color: "#ffffff",
+                          padding: "6px 14px", borderRadius: "6px",
+                          fontWeight: 600, fontSize: "13px", textDecoration: "none",
+                        }}
+                      >
+                        File
+                      </Link>
+                    ) : null}
+                  </div>
+                </div>
+
+                {/* CT600 row — only if registered for Corp Tax */}
+                {company.registeredForCorpTax && (
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "12px 16px",
+                    backgroundColor: "#F8FAFC",
+                    borderRadius: "8px",
+                  }}>
+                    <div>
+                      <p style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", margin: "0 0 2px 0" }}>
+                        CT600
+                      </p>
+                      <p style={{
+                        fontSize: "12px",
+                        color: ct600DaysLeft <= 0 ? "#DC2626" : ct600DaysLeft <= 30 ? "#D97706" : "#64748B",
+                        margin: 0,
+                      }}>
+                        Due: {formatDate(ct600Deadline)}
+                        {ct600DaysLeft <= 30 && ct600DaysLeft > 0 && ` (${ct600DaysLeft}d left)`}
+                        {ct600DaysLeft <= 0 && " (Overdue)"}
+                      </p>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      {ct600Filing ? (
+                        <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                      ) : canFile && !atFilingLimit ? (
+                        <Link
+                          href={`/file/${company.id}/ct600`}
+                          style={{
+                            display: "inline-flex", alignItems: "center", gap: "6px",
+                            backgroundColor: "#F97316", color: "#ffffff",
+                            padding: "6px 14px", borderRadius: "6px",
+                            fontWeight: 600, fontSize: "13px", textDecoration: "none",
+                          }}
+                        >
+                          File
+                        </Link>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
