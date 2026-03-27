@@ -64,15 +64,14 @@ export default function LandingPage() {
             style={{ color: "#1E293B" }}
           >
             File your dormant company{" "}
-            <span style={{ color: "#2563EB" }}>CT600</span> in one click
+            <span style={{ color: "#2563EB" }}>accounts</span> in minutes
           </h1>
           <p
             className="text-xl leading-relaxed mb-10 max-w-2xl mx-auto"
             style={{ color: "#475569" }}
           >
-            Your company is dormant — but HMRC still requires a tax return.
-            DormantFile handles the whole process in under two minutes, so you
-            can get on with your life.
+            Annual accounts with Companies House, plus Corporation Tax returns
+            with HMRC — all from one dashboard. No accounting knowledge required.
           </p>
           <Link
             href="/register"
@@ -90,7 +89,7 @@ export default function LandingPage() {
             className="mt-5 text-sm"
             style={{ color: "#64748B" }}
           >
-            HMRC&apos;s free filing service has closed. We make it simple again.
+            From Companies House accounts to HMRC tax returns — we handle it all.
           </p>
         </div>
       </section>
@@ -128,10 +127,10 @@ export default function LandingPage() {
               <FileCheck size={22} style={{ color: "#2563EB", flexShrink: 0 }} />
               <div>
                 <p className="font-semibold text-sm" style={{ color: "#1E293B" }}>
-                  Direct HMRC submission
+                  Direct submission
                 </p>
                 <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
-                  Filed directly via HMRC&apos;s official API.
+                  Filed directly with Companies House and HMRC via official APIs.
                 </p>
               </div>
             </div>
@@ -188,10 +187,10 @@ export default function LandingPage() {
                 3
               </div>
               <h3 className="font-semibold text-lg mb-2" style={{ color: "#1E293B" }}>
-                File in one click
+                File in minutes
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                Enter your Gateway credentials and we submit directly to HMRC.
+                We submit your accounts to Companies House and your CT600 to HMRC.
               </p>
             </div>
           </div>
@@ -214,9 +213,10 @@ export default function LandingPage() {
             company is inactive, but the filing obligations never stop.
           </p>
           <p className="text-lg leading-relaxed" style={{ color: "#475569" }}>
-            Every year HMRC requires a Corporation Tax return, even if there
-            is nothing to report. Until now, the free HMRC tool handled this.
-            With that service closed, directors are left hunting for accounting
+            Every year, Companies House requires annual accounts and HMRC
+            requires a Corporation Tax return, even if there is nothing to
+            report. Until now, the free HMRC tool handled the tax side. With
+            that service closed, directors are left hunting for accounting
             software designed for businesses with actual accounts — paying for
             far more than they need. DormantFile does one thing, and does it
             well.
@@ -226,66 +226,137 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section className="py-20 px-6">
-        <div className="max-w-md mx-auto">
+        <div className="max-w-5xl mx-auto">
           <h2
-            className="text-3xl font-bold text-center mb-10"
+            className="text-3xl font-bold text-center mb-4"
             style={{ color: "#1E293B" }}
           >
             Simple, transparent pricing
           </h2>
-          <div
-            className="rounded-xl p-8"
-            style={{
-              border: "2px solid #2563EB",
-              backgroundColor: "#ffffff",
-            }}
+          <p
+            className="text-center text-base mb-12 max-w-xl mx-auto"
+            style={{ color: "#64748B" }}
           >
-            <div className="text-center mb-8">
-              <p className="text-5xl font-bold mb-1" style={{ color: "#1E293B" }}>
-                £19
-              </p>
-              <p className="text-sm" style={{ color: "#64748B" }}>
-                per company, per year
-              </p>
-            </div>
-            <ul className="space-y-3 mb-8">
-              {[
-                "Nil CT600 filing for one dormant company",
-                "Direct submission to HMRC",
-                "Email deadline reminders",
-                "Filing confirmation receipt",
-                "Credentials never stored",
-              ].map((feature) => (
-                <li key={feature} className="flex items-start gap-3">
-                  <CheckCircle
-                    size={18}
-                    style={{ color: "#2563EB", flexShrink: 0, marginTop: 1 }}
-                  />
-                  <span className="text-sm" style={{ color: "#475569" }}>
-                    {feature}
+            One dormant company or a hundred — pick the plan that fits.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              {
+                name: "Basic",
+                price: "19",
+                period: "per year",
+                description: "1 dormant company",
+                features: [
+                  "Annual accounts + CT600 filing for one company",
+                  "Direct submission to CH and HMRC",
+                  "Email deadline reminders",
+                  "Filing confirmation receipt",
+                ],
+                highlighted: false,
+              },
+              {
+                name: "Multiple",
+                price: "39",
+                period: "per year",
+                description: "Up to 10 companies",
+                features: [
+                  "Everything in Basic",
+                  "File for up to 10 dormant companies",
+                  "Manage all companies from one dashboard",
+                  "Individual filing per company",
+                ],
+                highlighted: true,
+              },
+              {
+                name: "Bulk",
+                price: "49",
+                period: "per year",
+                description: "Up to 100 companies",
+                features: [
+                  "Everything in Multiple",
+                  "File for up to 100 dormant companies",
+                  "Ideal for company secretaries",
+                  "Priority support",
+                ],
+                highlighted: false,
+              },
+            ].map((plan) => (
+              <div
+                key={plan.name}
+                className="rounded-xl p-7 flex flex-col"
+                style={{
+                  border: plan.highlighted ? "2px solid #2563EB" : "1px solid #E2E8F0",
+                  backgroundColor: "#ffffff",
+                  position: "relative",
+                }}
+              >
+                {plan.highlighted && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "-12px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      backgroundColor: "#2563EB",
+                      color: "#ffffff",
+                      padding: "3px 14px",
+                      borderRadius: "9999px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Most popular
                   </span>
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/register"
-              className="block w-full text-center font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
-              style={{
-                backgroundColor: "#F97316",
-                color: "#ffffff",
-                padding: "14px 24px",
-                borderRadius: "8px",
-              }}
-            >
-              Get started
-            </Link>
-            <p
-              className="text-xs text-center mt-4"
-              style={{ color: "#94A3B8" }}
-            >
-              Compare to £100+ for most accounting software
-            </p>
+                )}
+                <p className="font-semibold text-sm mb-1" style={{ color: "#2563EB" }}>
+                  {plan.name}
+                </p>
+                <div className="mb-1">
+                  <span className="text-4xl font-bold" style={{ color: "#1E293B" }}>
+                    £{plan.price}
+                  </span>
+                  <span className="text-sm ml-1" style={{ color: "#64748B" }}>
+                    {plan.period}
+                  </span>
+                </div>
+                <p className="text-sm mb-6" style={{ color: "#64748B" }}>
+                  {plan.description}
+                </p>
+                <ul className="space-y-2.5 mb-7 flex-1">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2.5">
+                      <CheckCircle
+                        size={16}
+                        style={{ color: "#2563EB", flexShrink: 0, marginTop: 2 }}
+                      />
+                      <span className="text-sm" style={{ color: "#475569" }}>
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/register"
+                  className="block w-full text-center font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+                  style={{
+                    backgroundColor: plan.highlighted ? "#F97316" : "#2563EB",
+                    color: "#ffffff",
+                    padding: "12px 24px",
+                    borderRadius: "8px",
+                  }}
+                >
+                  Get started
+                </Link>
+              </div>
+            ))}
           </div>
+          <p
+            className="text-xs text-center mt-6"
+            style={{ color: "#94A3B8" }}
+          >
+            Compare to £100+ for most accounting software. All plans include credentials-never-stored security.
+          </p>
         </div>
       </section>
 
@@ -308,8 +379,12 @@ export default function LandingPage() {
                 a: "Yes. Your HMRC Gateway credentials are used only at the moment of submission and are never written to our database. All data is transmitted over TLS and stored securely.",
               },
               {
-                q: "What is a nil CT600?",
-                a: "A nil CT600 is a Corporation Tax return filed for a company that had no income or expenditure during the accounting period — it confirms to HMRC that the company was dormant. You are still required to file one even if there is nothing to report.",
+                q: "What filings does DormantFile handle?",
+                a: "DormantFile handles two filings: annual accounts with Companies House (required for all companies) and a nil CT600 Corporation Tax return with HMRC (for companies registered for Corporation Tax). Both confirm that your company was dormant during the period.",
+              },
+              {
+                q: "What if my company isn&apos;t registered for Corporation Tax?",
+                a: "No problem — most dormant companies only need to file annual accounts with Companies House. You can add Corporation Tax filing later if needed.",
               },
               {
                 q: "Can I use this if my company is trading?",
@@ -317,7 +392,7 @@ export default function LandingPage() {
               },
               {
                 q: "What happens after I file?",
-                a: "You will receive an acknowledgement from HMRC, which we display in your dashboard and send to you by email. Your filing record is stored so you have a history of past submissions.",
+                a: "You will receive acknowledgements from Companies House and HMRC, which we display in your dashboard and send to you by email. Your filing records are stored so you have a history of past submissions.",
               },
             ].map(({ q, a }) => (
               <div
@@ -347,7 +422,7 @@ export default function LandingPage() {
       >
         <div className="max-w-3xl mx-auto">
           <h2 className="text-4xl font-bold mb-6 text-white">
-            Ready to stop worrying about your CT600?
+            Ready to stop worrying about your dormant company filings?
           </h2>
           <p className="text-lg mb-10" style={{ color: "#94A3B8" }}>
             Set up in minutes. File in seconds. Done for the year.
