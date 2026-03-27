@@ -1,4 +1,4 @@
-// Stub — builds a placeholder XML payload for Companies House annual accounts.
+// Builds XML payload for Companies House annual accounts submission.
 // Real iXBRL format TBD after registering as a CH software filer.
 
 interface AccountsSubmissionData {
@@ -14,12 +14,20 @@ interface PresenterCredentials {
   presenterAuth: string;
 }
 
+/** Escape special XML characters to prevent injection / malformed XML. */
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 export function buildAccountsXml(
   data: AccountsSubmissionData,
   credentials: PresenterCredentials
 ): string {
-  // TODO: Replace with real iXBRL-tagged annual accounts XML
-  // after completing CH software filer registration.
   const periodStartStr = data.periodStart.toISOString().split("T")[0];
   const periodEndStr = data.periodEnd.toISOString().split("T")[0];
 
@@ -34,10 +42,10 @@ export function buildAccountsXml(
     </MessageDetails>
     <SenderDetails>
       <IDAuthentication>
-        <SenderID>${credentials.presenterId}</SenderID>
+        <SenderID>${escapeXml(credentials.presenterId)}</SenderID>
         <Authentication>
           <Method>CHMD5</Method>
-          <Value>${credentials.presenterAuth}</Value>
+          <Value>${escapeXml(credentials.presenterAuth)}</Value>
         </Authentication>
       </IDAuthentication>
     </SenderDetails>
@@ -48,9 +56,9 @@ export function buildAccountsXml(
   <Body>
     <FormSubmission xmlns="http://xmlgw.companieshouse.gov.uk">
       <FormHeader>
-        <CompanyNumber>${data.companyRegistrationNumber}</CompanyNumber>
-        <CompanyName>${data.companyName}</CompanyName>
-        <CompanyAuthenticationCode>${data.companyAuthCode}</CompanyAuthenticationCode>
+        <CompanyNumber>${escapeXml(data.companyRegistrationNumber)}</CompanyNumber>
+        <CompanyName>${escapeXml(data.companyName)}</CompanyName>
+        <CompanyAuthenticationCode>${escapeXml(data.companyAuthCode)}</CompanyAuthenticationCode>
         <FormIdentifier>Accounts</FormIdentifier>
       </FormHeader>
       <DateSigned>${periodEndStr}</DateSigned>
