@@ -6,6 +6,7 @@ import { Building2, Plus } from "lucide-react";
 import Link from "next/link";
 import SubscriptionBanner from "@/components/subscription-banner";
 import FilingStatusBadge from "@/components/filing-status-badge";
+import EnableCorpTax from "@/components/enable-corp-tax";
 import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 
@@ -66,7 +67,7 @@ export default async function DashboardPage() {
   const atFilingLimit = filingsUsed >= companyLimit && companyLimit > 0;
 
   return (
-    <div>
+    <div style={{ maxWidth: "640px", margin: "0 auto" }}>
       <SubscriptionBanner status={user.subscriptionStatus} />
 
       {/* Page heading */}
@@ -276,7 +277,22 @@ export default async function DashboardPage() {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     {accountsFiling ? (
-                      <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
+                      <>
+                        <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
+                        {(accountsFiling.status === "failed" || accountsFiling.status === "rejected") && canFile && (
+                          <Link
+                            href={`/file/${company.id}/accounts`}
+                            style={{
+                              display: "inline-flex", alignItems: "center", gap: "4px",
+                              backgroundColor: "#F97316", color: "#ffffff",
+                              padding: "4px 10px", borderRadius: "6px",
+                              fontWeight: 600, fontSize: "12px", textDecoration: "none",
+                            }}
+                          >
+                            Retry
+                          </Link>
+                        )}
+                      </>
                     ) : canFile && !atFilingLimit ? (
                       <Link
                         href={`/file/${company.id}/accounts`}
@@ -293,7 +309,10 @@ export default async function DashboardPage() {
                   </div>
                 </div>
 
-                {/* CT600 row — only if registered for Corp Tax */}
+                {/* CT600 row — or enable prompt */}
+                {!company.registeredForCorpTax && (
+                  <EnableCorpTax companyId={company.id} />
+                )}
                 {company.registeredForCorpTax && (
                   <div style={{
                     display: "flex",
@@ -319,7 +338,22 @@ export default async function DashboardPage() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       {ct600Filing ? (
-                        <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                        <>
+                          <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                          {(ct600Filing.status === "failed" || ct600Filing.status === "rejected") && canFile && (
+                            <Link
+                              href={`/file/${company.id}/ct600`}
+                              style={{
+                                display: "inline-flex", alignItems: "center", gap: "4px",
+                                backgroundColor: "#F97316", color: "#ffffff",
+                                padding: "4px 10px", borderRadius: "6px",
+                                fontWeight: 600, fontSize: "12px", textDecoration: "none",
+                              }}
+                            >
+                              Retry
+                            </Link>
+                          )}
+                        </>
                       ) : canFile && !atFilingLimit ? (
                         <Link
                           href={`/file/${company.id}/ct600`}

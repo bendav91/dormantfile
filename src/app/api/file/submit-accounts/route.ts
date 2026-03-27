@@ -102,7 +102,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
-  // Clean up stale pending filings (older than 5 minutes — never reached CH)
+  // Clean up retryable filings (failed/rejected are terminal — safe to replace)
+  // and stale pending filings (older than 5 minutes — never reached CH)
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
   await prisma.filing.deleteMany({
     where: {
@@ -110,8 +111,10 @@ export async function POST(req: NextRequest) {
       filingType: "accounts",
       periodStart: company.accountingPeriodStart,
       periodEnd: company.accountingPeriodEnd,
-      status: "pending",
-      createdAt: { lt: fiveMinutesAgo },
+      OR: [
+        { status: { in: ["failed", "rejected"] } },
+        { status: "pending", createdAt: { lt: fiveMinutesAgo } },
+      ],
     },
   });
 

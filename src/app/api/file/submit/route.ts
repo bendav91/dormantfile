@@ -101,7 +101,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "This company is not registered for Corporation Tax" }, { status: 400 });
   }
 
-  // Clean up stale pending filings (older than 5 minutes — never reached HMRC)
+  // Clean up retryable filings (failed/rejected are terminal — safe to replace)
+  // and stale pending filings (older than 5 minutes — never reached HMRC)
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
   await prisma.filing.deleteMany({
     where: {
@@ -109,8 +110,10 @@ export async function POST(req: NextRequest) {
       filingType: "ct600",
       periodStart: company.accountingPeriodStart,
       periodEnd: company.accountingPeriodEnd,
-      status: "pending",
-      createdAt: { lt: fiveMinutesAgo },
+      OR: [
+        { status: { in: ["failed", "rejected"] } },
+        { status: "pending", createdAt: { lt: fiveMinutesAgo } },
+      ],
     },
   });
 
