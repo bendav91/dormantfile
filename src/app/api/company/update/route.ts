@@ -22,7 +22,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "UTR is required when enabling Corporation Tax" }, { status: 400 });
   }
 
-  if (registeredForCorpTax && !validateUTR(uniqueTaxReference)) {
+  if (uniqueTaxReference && !validateUTR(uniqueTaxReference)) {
     return NextResponse.json({ error: "UTR must be exactly 10 digits" }, { status: 400 });
   }
 
@@ -34,8 +34,23 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
+  // Case 1: Corp Tax already enabled — allow UTR update only
   if (company.registeredForCorpTax) {
-    return NextResponse.json({ error: "Corporation Tax is already enabled for this company" }, { status: 409 });
+    if (!uniqueTaxReference) {
+      return NextResponse.json({ error: "UTR is required" }, { status: 400 });
+    }
+
+    await prisma.company.update({
+      where: { id: companyId },
+      data: { uniqueTaxReference },
+    });
+
+    return NextResponse.json({ success: true });
+  }
+
+  // Case 2: Enabling Corp Tax for the first time
+  if (!registeredForCorpTax) {
+    return NextResponse.json({ error: "No changes to apply" }, { status: 400 });
   }
 
   const ct600Deadline = calculateCT600Deadline(company.accountingPeriodEnd);

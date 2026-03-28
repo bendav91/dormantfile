@@ -7,6 +7,7 @@ import Link from "next/link";
 import SubscriptionBanner from "@/components/subscription-banner";
 import FilingStatusBadge from "@/components/filing-status-badge";
 import EnableCorpTax from "@/components/enable-corp-tax";
+import EditUTR from "@/components/edit-utr";
 import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
@@ -244,7 +245,7 @@ export default async function DashboardPage() {
                   </h2>
                   <p style={{ fontSize: "13px", color: "#94A3B8", margin: 0, marginTop: "2px" }}>
                     {company.registeredForCorpTax && company.uniqueTaxReference
-                      ? `UTR: ${company.uniqueTaxReference} · ` : ""}
+                      ? <><EditUTR companyId={company.id} currentUTR={company.uniqueTaxReference} /> &middot; </> : ""}
                     {company.companyRegistrationNumber}
                   </p>
                 </div>
