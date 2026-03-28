@@ -23,7 +23,7 @@ function formatDate(date: Date): string {
 
 const PAGE_SIZE = 10;
 
-type FilterType = "overdue" | "due-soon" | "recently-filed" | "";
+type FilterType = "overdue" | "due-soon" | "recently-filed" | "accepted" | "rejected" | "failed" | "";
 
 interface DashboardProps {
   searchParams: Promise<{ page?: string; q?: string; filter?: string }>;
@@ -60,7 +60,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
   const { page: pageParam, q: searchQuery, filter: filterParam } = await searchParams;
   const search = searchQuery?.trim() || "";
-  const filter = (["overdue", "due-soon", "recently-filed"].includes(filterParam ?? "") ? filterParam : "") as FilterType;
+  const validFilters = ["overdue", "due-soon", "recently-filed", "accepted", "rejected", "failed"];
+  const filter = (validFilters.includes(filterParam ?? "") ? filterParam : "") as FilterType;
 
   // For overdue/due-soon filters, we need to compute deadlines in JS then filter by ID.
   // Fetch all company IDs + period ends for this user (lightweight query).
@@ -101,6 +102,16 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       distinct: ["companyId"],
     });
     filterIds = recentFilings.map((f) => f.companyId);
+  } else if (filter === "accepted" || filter === "rejected" || filter === "failed") {
+    const matchingFilings = await prisma.filing.findMany({
+      where: {
+        company: { userId: user.id, deletedAt: null },
+        status: filter,
+      },
+      select: { companyId: true },
+      distinct: ["companyId"],
+    });
+    filterIds = matchingFilings.map((f) => f.companyId);
   }
 
   const baseWhere = {
@@ -266,6 +277,9 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               { key: "overdue", label: "Overdue" },
               { key: "due-soon", label: "Due soon" },
               { key: "recently-filed", label: "Recently filed" },
+              { key: "accepted", label: "Accepted" },
+              { key: "rejected", label: "Rejected" },
+              { key: "failed", label: "Failed" },
             ] as const).map((f) => {
               const isActive = filter === f.key;
               const params = new URLSearchParams();
