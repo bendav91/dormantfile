@@ -23,8 +23,10 @@ function formatDate(date: Date): string {
 
 const PAGE_SIZE = 10;
 
+type FilterType = "overdue" | "due-soon" | "recently-filed" | "";
+
 interface DashboardProps {
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; filter?: string }>;
 }
 
 export default async function DashboardPage({ searchParams }: DashboardProps) {
@@ -56,12 +58,47 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
     redirect("/onboarding");
   }
 
-  const { page: pageParam, q: searchQuery } = await searchParams;
+  const { page: pageParam, q: searchQuery, filter: filterParam } = await searchParams;
   const search = searchQuery?.trim() || "";
+  const filter = (["overdue", "due-soon", "recently-filed"].includes(filterParam ?? "") ? filterParam : "") as FilterType;
+
+  // For overdue/due-soon filters, we need to compute deadlines in JS then filter by ID.
+  // Fetch all company IDs + period ends for this user (lightweight query).
+  let filterIds: string[] | null = null;
+  if (filter === "overdue" || filter === "due-soon") {
+    const allCompanies = await prisma.company.findMany({
+      where: { userId: user.id, deletedAt: null },
+      select: { id: true, accountingPeriodEnd: true },
+    });
+    const now = Date.now();
+    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+
+    filterIds = allCompanies
+      .filter((c) => {
+        const deadline = calculateAccountsDeadline(c.accountingPeriodEnd).getTime();
+        if (filter === "overdue") return deadline < now;
+        // due-soon: deadline is in the future but within 30 days
+        return deadline >= now && deadline <= now + thirtyDaysMs;
+      })
+      .map((c) => c.id);
+  } else if (filter === "recently-filed") {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const recentFilings = await prisma.filing.findMany({
+      where: {
+        company: { userId: user.id, deletedAt: null },
+        status: "accepted",
+        confirmedAt: { gte: thirtyDaysAgo },
+      },
+      select: { companyId: true },
+      distinct: ["companyId"],
+    });
+    filterIds = recentFilings.map((f) => f.companyId);
+  }
 
   const baseWhere = {
     userId: user.id,
     deletedAt: null,
+    ...(filterIds !== null ? { id: { in: filterIds } } : {}),
     ...(search
       ? {
           OR: [
@@ -72,7 +109,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       : {}),
   };
 
-  const totalCompanies = search
+  const totalCompanies = search || filter
     ? await prisma.company.count({ where: baseWhere })
     : allCompanyCount;
 
@@ -211,11 +248,48 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         )}
       </div>
 
-      {/* Search - show when there are enough companies to paginate, or when a search is active */}
-      {(allCompanyCount > PAGE_SIZE || search) && <CompanySearch />}
+      {/* Search and filters - show when there are enough companies to paginate, or when a search/filter is active */}
+      {(allCompanyCount > PAGE_SIZE || search || filter) && (
+        <>
+          <CompanySearch />
+          <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
+            {([
+              { key: "", label: "All" },
+              { key: "overdue", label: "Overdue" },
+              { key: "due-soon", label: "Due soon" },
+              { key: "recently-filed", label: "Recently filed" },
+            ] as const).map((f) => {
+              const isActive = filter === f.key;
+              const params = new URLSearchParams();
+              if (f.key) params.set("filter", f.key);
+              if (search) params.set("q", search);
+              const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
+              return (
+                <Link
+                  key={f.key}
+                  href={href}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: "6px",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    transition: "all 200ms",
+                    backgroundColor: isActive ? "#2563EB" : "#ffffff",
+                    color: isActive ? "#ffffff" : "#475569",
+                    border: `1px solid ${isActive ? "#2563EB" : "#E2E8F0"}`,
+                  }}
+                >
+                  {f.label}
+                </Link>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* No results */}
-      {companies.length === 0 && search && (
+      {companies.length === 0 && (search || filter) && (
         <div
           style={{
             textAlign: "center",
@@ -224,10 +298,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           }}
         >
           <p style={{ fontSize: "15px", margin: "0 0 4px 0", fontWeight: 500 }}>
-            No companies matching &ldquo;{search}&rdquo;
+            {search ? <>No companies matching &ldquo;{search}&rdquo;</> : "No companies match this filter"}
           </p>
           <p style={{ fontSize: "13px", margin: 0 }}>
-            Try a different name or registration number.
+            {search ? "Try a different name or registration number." : "Try a different filter or check back later."}
           </p>
         </div>
       )}
@@ -409,7 +483,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         >
           {currentPage > 1 && (
             <Link
-              href={`/dashboard?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}`}
+              href={`/dashboard?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${filter ? `&filter=${filter}` : ""}`}
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
@@ -429,7 +503,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           </span>
           {currentPage < totalPages && (
             <Link
-              href={`/dashboard?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}`}
+              href={`/dashboard?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${filter ? `&filter=${filter}` : ""}`}
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
