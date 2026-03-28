@@ -1,123 +1,68 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getPageBySlug } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
 import { FAQAccordion } from "@/components/marketing/FAQAccordion";
 import { FAQPageJsonLd, BreadcrumbJsonLd } from "@/lib/content/json-ld";
 
-export const metadata: Metadata = {
-  title: "FAQ | DormantFile",
-  description:
-    "Frequently asked questions about DormantFile: filing, security, pricing, and managing your account.",
-  openGraph: {
-    title: "FAQ | DormantFile",
-    description:
-      "Frequently asked questions about DormantFile.",
-    type: "website",
-    siteName: "DormantFile",
-  },
-};
+const SLUG = "faq";
 
-const faqCategories = [
-  {
-    name: "Filing",
-    items: [
-      { question: "What filings does DormantFile handle?", answer: <>DormantFile handles two filings: <a href="/guides/how-to-file-dormant-company-accounts" style={{ color: "#2563EB" }}>annual dormant accounts</a> submitted to Companies House and a <a href="/guides/how-to-file-nil-ct600" style={{ color: "#2563EB" }}>nil CT600 Corporation Tax return</a> submitted to HMRC. Both confirm your company was dormant during the accounting period.</> },
-      { question: "What if my company isn't registered for Corporation Tax?", answer: "No problem. Many dormant companies only need to file annual accounts with Companies House. If your company isn't registered for Corporation Tax, you can skip the CT600 entirely. DormantFile handles both scenarios." },
-      { question: "Can I use this if my company is trading?", answer: "No. DormantFile is designed exclusively for genuinely dormant companies - those with no income, expenditure, or assets. If your company has traded during the period, you need a qualified accountant." },
-      { question: "What happens after I file?", answer: "Companies House and HMRC will process your submission. Once accepted, we show the confirmation in your dashboard and send you an email. Your filing records are kept so you have a permanent history." },
-      { question: "How long does filing take?", answer: "The actual filing process takes under 2 minutes. You click file, enter your credentials (for HMRC) or authentication code (for Companies House), and we handle the rest." },
-      { question: "What do I need before I start?", answer: "For accounts: your company registration number and Companies House authentication code. For CT600: your Unique Taxpayer Reference (UTR) and HMRC Government Gateway credentials. You'll also need your accounting period dates." },
-      { question: "What accounting periods can I file for?", answer: "You can file for any accounting period where your company was dormant. DormantFile calculates your deadlines based on the period dates you enter." },
-    ],
-  },
-  {
-    name: "Security",
-    items: [
-      { question: "Is my data secure?", answer: <>Yes. All data is transmitted over TLS encryption. Your DormantFile password is hashed with bcrypt. Your HMRC Gateway credentials are used once during submission and never stored in our database. Read our <a href="/security" style={{ color: "#2563EB" }}>security page</a> for full details.</> },
-      { question: "Are my HMRC credentials stored?", answer: <>No. Your HMRC Government Gateway user ID and password are held in server memory only for the duration of the submission request. They are transmitted directly to HMRC and discarded immediately after HMRC responds. See our <a href="/security" style={{ color: "#2563EB" }}>security page</a>.</> },
-      { question: "What data do you collect?", answer: "We collect your email, a hashed password, company details (name, registration number, UTR, accounting dates), and filing records. Payment is handled by Stripe - we never see your card details." },
-    ],
-  },
-  {
-    name: "Pricing",
-    items: [
-      { question: "How much does it cost?", answer: <>Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Agent is £49/year for up to 100 companies. All plans include both accounts and CT600 filing. See our <a href="/pricing" style={{ color: "#2563EB" }}>pricing page</a> for the full comparison.</> },
-      { question: "Is there a free trial?", answer: "We don't currently offer a free trial, but the Basic plan is just £19/year - less than what most accountants charge for a single nil filing." },
-      { question: "Can I cancel anytime?", answer: "Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period. No refunds for partial periods." },
-      { question: "What happens if my subscription lapses?", answer: "If your subscription expires, you won't be able to file new returns. Your account and filing history remain accessible. You can resubscribe at any time to resume filing." },
-    ],
-  },
-  {
-    name: "Account",
-    items: [
-      { question: "Can I manage multiple companies?", answer: "Yes, on the Multiple or Agent plan. Each company has its own filing record, deadlines, and reminders. You manage them all from a single dashboard." },
-      { question: "How do I add or remove a company?", answer: "Add a company from your dashboard by entering its registration number. Remove a company from your settings - the filing history is preserved." },
-      { question: "How do I delete my account?", answer: "You can delete your account from the settings page. This removes all your personal data and company records. This action is permanent and cannot be undone." },
-    ],
-  },
-];
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPageBySlug(SLUG);
+  if (!page) return {};
+  const { title, metaTitle, description, openGraph } = page.frontmatter;
+  const resolvedTitle = metaTitle || `${title} | DormantFile`;
+  return {
+    title: resolvedTitle,
+    description,
+    openGraph: {
+      title: openGraph?.title || resolvedTitle,
+      description: openGraph?.description || description,
+      type: (openGraph?.type as "website" | "article") || "website",
+      siteName: "DormantFile",
+    },
+  };
+}
 
-// Plain-text answers for JSON-LD structured data (FAQPage schema requires strings, not JSX)
-const faqJsonLdItems = [
-  { question: "What filings does DormantFile handle?", answer: "DormantFile handles two filings: annual dormant accounts submitted to Companies House and a nil CT600 Corporation Tax return submitted to HMRC. Both confirm your company was dormant during the accounting period." },
-  { question: "What if my company isn't registered for Corporation Tax?", answer: "No problem. Many dormant companies only need to file annual accounts with Companies House. If your company isn't registered for Corporation Tax, you can skip the CT600 entirely." },
-  { question: "Can I use this if my company is trading?", answer: "No. DormantFile is designed exclusively for genuinely dormant companies - those with no income, expenditure, or assets. If your company has traded during the period, you need a qualified accountant." },
-  { question: "What happens after I file?", answer: "Companies House and HMRC will process your submission. Once accepted, we show the confirmation in your dashboard and send you an email." },
-  { question: "How long does filing take?", answer: "The actual filing process takes under 2 minutes. You click file, enter your credentials, and we handle the rest." },
-  { question: "What do I need before I start?", answer: "For accounts: your company registration number and Companies House authentication code. For CT600: your UTR and HMRC Government Gateway credentials." },
-  { question: "What accounting periods can I file for?", answer: "You can file for any accounting period where your company was dormant." },
-  { question: "Is my data secure?", answer: "Yes. All data is transmitted over TLS encryption. Your DormantFile password is hashed with bcrypt. Your HMRC Gateway credentials are used once during submission and never stored." },
-  { question: "Are my HMRC credentials stored?", answer: "No. Your credentials are held in server memory only for the duration of the submission request and discarded immediately after HMRC responds." },
-  { question: "What data do you collect?", answer: "We collect your email, a hashed password, company details, and filing records. Payment is handled by Stripe - we never see your card details." },
-  { question: "How much does it cost?", answer: "Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Agent is £49/year for up to 100 companies." },
-  { question: "Is there a free trial?", answer: "We don't currently offer a free trial, but the Basic plan is just £19/year." },
-  { question: "Can I cancel anytime?", answer: "Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period." },
-  { question: "What happens if my subscription lapses?", answer: "You won't be able to file new returns. Your account and filing history remain accessible. You can resubscribe at any time." },
-  { question: "Can I manage multiple companies?", answer: "Yes, on the Multiple or Agent plan. Each company has its own filing record, deadlines, and reminders." },
-  { question: "How do I add or remove a company?", answer: "Add a company from your dashboard by entering its registration number. Remove a company from your settings." },
-  { question: "How do I delete my account?", answer: "You can delete your account from the settings page. This removes all your personal data and company records permanently." },
-];
+export default async function FAQPage() {
+  const page = await getPageBySlug(SLUG);
+  if (!page) notFound();
 
-export default function FAQPage() {
+  const { title, showCTA, breadcrumbs, faqCategories = [] } = page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+
+  // Flatten categories into a flat array for JSON-LD structured data
+  const faqJsonLdItems = faqCategories.flatMap((cat) =>
+    cat.items.map((item) => ({ question: item.question, answer: item.answer }))
+  );
+
   return (
     <>
       <FAQPageJsonLd items={faqJsonLdItems} />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: baseUrl },
-          { name: "FAQ" },
+          ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
         ]}
       />
-      <Breadcrumbs items={[{ label: "FAQ" }]} />
-      <h1
-        style={{
-          fontSize: "36px",
-          fontWeight: 700,
-          color: "#1E293B",
-          margin: "0 0 12px 0",
-          letterSpacing: "-0.02em",
-        }}
-      >
-        Frequently Asked Questions
-      </h1>
-      <p
-        style={{
-          fontSize: "15px",
-          lineHeight: 1.7,
-          color: "#475569",
-          margin: "0 0 32px 0",
-        }}
-      >
-        Everything you need to know about using DormantFile. Can&apos;t find your answer?{" "}
-        <a href="/contact" style={{ color: "#2563EB" }}>
-          Get in touch
-        </a>.
-      </p>
-
-      <FAQAccordion categories={faqCategories} />
-
-      <ContentCTA />
+      <Breadcrumbs items={breadcrumbs} />
+      <article>
+        <h1
+          style={{
+            fontSize: "36px",
+            fontWeight: 700,
+            color: "#1E293B",
+            margin: "0 0 12px 0",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {title}
+        </h1>
+        {page.content}
+        <FAQAccordion categories={faqCategories} />
+      </article>
+      {showCTA && <ContentCTA />}
     </>
   );
 }
