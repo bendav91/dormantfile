@@ -2,12 +2,16 @@ import Link from "next/link";
 
 const footerLinks = [
   { href: "/about", label: "About" },
+  { href: "/guides", label: "Guides" },
+  { href: "/answers", label: "Answers" },
   { href: "/security", label: "Security" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy", label: "Privacy" },
   { href: "/cookies", label: "Cookies" },
   { href: "/terms", label: "Terms" },
+  { href: "/acceptable-use", label: "Acceptable Use" },
+  { href: "/refund", label: "Refund Policy" },
 ];
 
 export function MarketingFooter() {
