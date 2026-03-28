@@ -10,14 +10,20 @@ openGraph:
   title: "Security | DormantFile"
   description: "How DormantFile handles your data and HMRC credentials. Your Gateway password is used once and never stored."
   type: "website"
+securityCards:
+  - icon: "Shield"
+    title: "Credentials never stored"
+    text: "Your HMRC Government Gateway user ID and password are used at the moment of submission only. They are transmitted directly to HMRC over an encrypted TLS connection and are immediately discarded from server memory once HMRC responds. They are never written to our database."
+  - icon: "Lock"
+    title: "Encryption in transit"
+    text: "All data between your browser and our servers is encrypted using TLS. Your HMRC credentials travel over the same encrypted channel to HMRC's own servers. At no point is sensitive data transmitted in plain text."
+  - icon: "Server"
+    title: "Secure password storage"
+    text: "Your DormantFile account password (not your HMRC password - that's never stored) is hashed using bcrypt before it's saved. We never store your password in plain text. Even if our database were compromised, your password could not be recovered."
+  - icon: "Eye"
+    title: "Minimal cookies"
+    text: "One essential session cookie to keep you logged in, plus an optional analytics cookie - only loaded if you consent. No advertising or third-party tracking. See our cookie policy for details."
 ---
-
-<SecurityCards cards={[
-  { icon: "Shield", title: "Credentials never stored", text: "Your HMRC Government Gateway user ID and password are used at the moment of submission only. They are transmitted directly to HMRC over an encrypted TLS connection and are immediately discarded from server memory once HMRC responds. They are never written to our database." },
-  { icon: "Lock", title: "Encryption in transit", text: "All data between your browser and our servers is encrypted using TLS. Your HMRC credentials travel over the same encrypted channel to HMRC's own servers. At no point is sensitive data transmitted in plain text." },
-  { icon: "Server", title: "Secure password storage", text: "Your DormantFile account password (not your HMRC password - that's never stored) is hashed using bcrypt before it's saved. We never store your password in plain text. Even if our database were compromised, your password could not be recovered." },
-  { icon: "Eye", title: "Minimal cookies", text: "One essential session cookie to keep you logged in, plus an optional analytics cookie - only loaded if you consent. No advertising or third-party tracking. See our cookie policy for details." }
-]} />
 
 ## What data we store
 

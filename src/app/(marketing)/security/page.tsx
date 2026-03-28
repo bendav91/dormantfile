@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getPageBySlug } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
+import { SecurityCards } from "@/components/marketing/mdx/SecurityCards";
 import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
 
 const SLUG = "security";
@@ -28,9 +29,8 @@ export default async function SecurityPage() {
   const page = await getPageBySlug(SLUG);
   if (!page) notFound();
 
-  const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } = page.frontmatter;
+  const { title, subtitle, showCTA, breadcrumbs, securityCards = [] } = page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const align = centeredHeading ? "center" as const : undefined;
 
   return (
     <>
@@ -49,21 +49,16 @@ export default async function SecurityPage() {
             color: "#1E293B",
             margin: "0 0 12px 0",
             letterSpacing: "-0.02em",
-            textAlign: align,
           }}
         >
           {title}
         </h1>
-        {showUpdatedAt && updatedAt && (
-          <p style={{ fontSize: "14px", color: "#94A3B8", margin: "0 0 40px 0" }}>
-            Last updated: {new Date(updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
-          </p>
-        )}
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "#475569", marginBottom: "32px", textAlign: align }}>
+          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "#475569", marginBottom: "32px" }}>
             {subtitle}
           </p>
         )}
+        <SecurityCards cards={securityCards} />
         {page.content}
       </article>
       {showCTA && <ContentCTA />}

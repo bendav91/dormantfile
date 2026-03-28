@@ -36,17 +36,42 @@ export interface FAQCategoryDef {
   items: FAQItemDef[];
 }
 
+export interface PlanDef {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  highlighted?: boolean;
+}
+
+export interface ComparisonRowDef {
+  method: string;
+  cost: string;
+  time: string;
+  notes: string;
+}
+
+export interface SecurityCardDef {
+  icon: string;
+  title: string;
+  text: string;
+}
+
 export interface PageFrontmatter {
   title: string;
-  metaTitle?: string;       // full title override — use when title alone would double up (e.g. "About DormantFile | DormantFile")
-  subtitle?: string;        // plain-text subtitle rendered below h1 (pricing, how-it-works, security)
+  metaTitle?: string;
+  subtitle?: string;
   description: string;
   updatedAt: string;
   breadcrumbs: BreadcrumbDef[];
   showCTA?: boolean;
-  showUpdatedAt?: boolean;   // render "Last updated" line (privacy, terms, cookies)
-  centeredHeading?: boolean; // center h1 + subtitle (pricing)
+  showUpdatedAt?: boolean;
+  centeredHeading?: boolean;
   faqCategories?: FAQCategoryDef[];
+  plans?: PlanDef[];
+  comparisonRows?: ComparisonRowDef[];
+  securityCards?: SecurityCardDef[];
   openGraph?: {
     title?: string;
     description?: string;
