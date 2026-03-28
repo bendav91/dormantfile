@@ -1,0 +1,82 @@
+---
+title: "Privacy Policy"
+description: "How DormantFile collects, uses, and protects your personal data."
+updatedAt: "2026-03-27"
+breadcrumbs:
+  - label: "Privacy Policy"
+showCTA: false
+showUpdatedAt: true
+---
+
+DormantFile ("we", "us", "our") is committed to protecting your personal data. This policy explains what information we collect, why we collect it, and how we keep it safe. It applies to all users of the DormantFile website and service.
+
+## 1. Data controller
+
+DormantFile is the data controller for the personal data described in this policy. If you have questions about how we handle your data, contact us at [privacy@dormantfile.co.uk](mailto:privacy@dormantfile.co.uk).
+
+## 2. What data we collect
+
+We collect the following categories of personal data:
+
+- **Account information** - your name, email address, and a securely hashed password.
+- **Company details** - company name, Companies House registration number, Unique Tax Reference (UTR), and accounting period dates.
+- **Filing records** - submission timestamps, HMRC correlation IDs, and response payloads for your CT600 filings.
+- **Payment information** - we do not store card details. All payment processing is handled by Stripe, who act as an independent data controller for payment data.
+- **HMRC Gateway credentials** - your Government Gateway user ID and password are used **only at the moment of filing** to authenticate with HMRC. They are transmitted directly to HMRC over TLS and are **never written to our database**.
+
+## 3. How we use your data
+
+We use your personal data to:
+
+- Create and manage your account.
+- Prepare and submit your nil CT600 return to HMRC on your behalf.
+- Send you email reminders before your filing deadline.
+- Send you filing confirmation emails after successful submission.
+- Process subscription payments via Stripe.
+- Maintain a record of your filing history for your reference.
+
+## 4. Legal basis for processing
+
+We process your personal data on the following legal bases under UK GDPR:
+
+- **Contract performance** - processing is necessary to provide the filing service you have subscribed to.
+- **Legitimate interests** - sending filing deadline reminders and maintaining service security.
+
+## 5. Third-party services
+
+We share data with the following third parties, only as necessary to provide the service:
+
+- **HMRC** - your company details and Gateway credentials are transmitted to HMRC to file your CT600 return.
+- **Stripe** - your email address is shared with Stripe to process subscription payments. Stripe acts as an independent data controller for payment data. See [Stripe's privacy policy](https://stripe.com/gb/privacy).
+- **Resend** - your email address is shared with Resend to deliver transactional emails (reminders and confirmations).
+
+## 6. Data storage and security
+
+Your data is stored in a PostgreSQL database. All data is encrypted in transit using TLS. Passwords are hashed using bcrypt before storage - we never store your password in plain text.
+
+Your HMRC Gateway credentials are never persisted. They are held in server memory only for the duration of the submission request and are discarded immediately after HMRC responds.
+
+## 7. Data retention
+
+We retain your account and filing data for as long as your account is active. If you cancel your subscription, we retain your data for a further 12 months to allow you to reactivate. After that period, or upon your written request, we delete all personal data associated with your account.
+
+## 8. Your rights
+
+Under UK GDPR, you have the right to:
+
+- Access the personal data we hold about you.
+- Rectify inaccurate personal data.
+- Request erasure of your personal data.
+- Object to or restrict processing of your data.
+- Request portability of your data in a machine-readable format.
+- Lodge a complaint with the Information Commissioner's Office (ICO).
+
+To exercise any of these rights, email us at [privacy@dormantfile.co.uk](mailto:privacy@dormantfile.co.uk).
+
+## 9. Cookies
+
+We use a small number of cookies to run the service and, with your consent, to understand how it is used. For full details, see our [cookie policy](/cookies).
+
+## 10. Changes to this policy
+
+We may update this privacy policy from time to time. We will notify you of material changes by email or by placing a notice on the website. Your continued use of the service after any changes constitutes acceptance of the updated policy.
