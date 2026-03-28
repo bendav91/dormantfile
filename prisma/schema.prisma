@@ -58,6 +58,7 @@ model Company {
   companyRegistrationNumber String
   uniqueTaxReference        String?
   registeredForCorpTax      Boolean    @default(false)
+  shareCapital              Int        @default(0)
   companyAuthCode           String?
   accountingPeriodStart     DateTime
   accountingPeriodEnd       DateTime

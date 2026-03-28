@@ -69,6 +69,7 @@ interface Props {
   companyRegistrationNumber: string;
   periodStart: string;
   periodEnd: string;
+  shareCapitalPence: number;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -102,12 +103,14 @@ function StepConfirm({
   companyRegistrationNumber,
   periodStart,
   periodEnd,
+  shareCapitalPence,
   onContinue,
 }: {
   companyName: string;
   companyRegistrationNumber: string;
   periodStart: string;
   periodEnd: string;
+  shareCapitalPence: number;
   onContinue: () => void;
 }) {
   return (
@@ -183,7 +186,7 @@ function StepConfirm({
           }}
         >
           <DetailRow label="Company number" value={companyRegistrationNumber} />
-          <DetailRow label="Filing type" value="Dormant accounts (nil balance sheet)" />
+          <DetailRow label="Filing type" value={shareCapitalPence > 0 ? `Dormant accounts (£${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital)` : "Dormant accounts (nil balance sheet)"} />
           <DetailRow label="Period start" value={periodStart} />
           <DetailRow label="Period end" value={periodEnd} />
         </div>
@@ -208,7 +211,9 @@ function StepConfirm({
             style={{ flexShrink: 0, marginTop: "1px" }}
           />
           <p style={{ fontSize: "14px", color: "#1E40AF", margin: 0, lineHeight: 1.5 }}>
-            This will submit dormant company accounts to Companies House confirming the company had nil assets, liabilities, and shareholder funds during this period.
+            {shareCapitalPence > 0
+              ? `This will submit dormant company accounts to Companies House with a balance sheet showing £${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital and no other assets, liabilities, or activity.`
+              : "This will submit dormant company accounts to Companies House confirming the company had nil assets, liabilities, and shareholder funds during this period."}
           </p>
         </div>
 
@@ -799,6 +804,7 @@ export default function AccountsFlow({
   companyRegistrationNumber,
   periodStart,
   periodEnd,
+  shareCapitalPence,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");
@@ -866,6 +872,7 @@ export default function AccountsFlow({
         companyRegistrationNumber={companyRegistrationNumber}
         periodStart={periodStart}
         periodEnd={periodEnd}
+        shareCapitalPence={shareCapitalPence}
         onContinue={() => setStep("authenticate")}
       />
     );

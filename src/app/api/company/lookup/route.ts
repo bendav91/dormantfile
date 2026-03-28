@@ -56,6 +56,23 @@ export async function GET(req: NextRequest) {
 
   const nextAccounts = data.accounts?.next_accounts;
 
+  // Extract total share capital in pence from the CH API confirmation statement capital array.
+  // The API returns an array of capital objects with currency and value fields.
+  let shareCapitalPence: number | null = null;
+  const capitalEntries = data.confirmation_statement?.statement_of_capital?.capital;
+  if (Array.isArray(capitalEntries)) {
+    const gbpEntry = capitalEntries.find(
+      (c: { currency?: string }) => c.currency === "GBP",
+    );
+    if (gbpEntry?.total_amount_unpaid != null || gbpEntry?.total_number_of_shares != null) {
+      // total_amount is the total nominal value in pounds (e.g. "1" for £1)
+      const pounds = parseFloat(gbpEntry.total_amount ?? "0");
+      if (!isNaN(pounds) && pounds >= 0) {
+        shareCapitalPence = Math.round(pounds * 100);
+      }
+    }
+  }
+
   return NextResponse.json({
     companyName: data.company_name,
     companyNumber: data.company_number,
@@ -65,5 +82,6 @@ export async function GET(req: NextRequest) {
     periodEndOn: nextAccounts?.period_end_on ?? null,
     accountsDueOn: nextAccounts?.due_on ?? null,
     accountsOverdue: nextAccounts?.overdue ?? false,
+    shareCapitalPence,
   });
 }

@@ -40,6 +40,11 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
   const instantStart = dayBefore(data.periodStart);
   const approvalDate = formatDate(new Date());
 
+  // Share capital in whole pounds (input is pence). Assuming paid-up shares:
+  // the share capital amount appears as current assets (cash) and as called up share capital.
+  const scPence = data.shareCapital ?? 0;
+  const sc = Math.round(scPence / 100); // whole pounds
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -146,8 +151,8 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
       </tr>
       <tr>
         <td>Total current assets</td>
-        <td class="amount"><ix:nonFraction name="uk-core:CurrentAssets" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
-        <td class="amount"><ix:nonFraction name="uk-core:CurrentAssets" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
+        <td class="amount"><ix:nonFraction name="uk-core:CurrentAssets" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></td>
+        <td class="amount"><ix:nonFraction name="uk-core:CurrentAssets" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></td>
       </tr>
       <tr>
         <td>Creditors: amounts falling due within one year</td>
@@ -156,13 +161,13 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
       </tr>
       <tr>
         <td><strong>Net current assets</strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:NetCurrentAssetsLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:NetCurrentAssetsLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="uk-core:NetCurrentAssetsLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="uk-core:NetCurrentAssetsLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
       </tr>
       <tr>
         <td><strong>Total assets less current liabilities</strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:TotalAssetsLessCurrentLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:TotalAssetsLessCurrentLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="uk-core:TotalAssetsLessCurrentLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="uk-core:TotalAssetsLessCurrentLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
       </tr>
       <tr>
         <td>Creditors: amounts falling due after more than one year</td>
@@ -171,8 +176,8 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
       </tr>
       <tr>
         <td><strong>Net assets</strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:NetAssetsLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:NetAssetsLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="uk-core:NetAssetsLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="uk-core:NetAssetsLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
       </tr>
     </tbody>
   </table>
@@ -182,7 +187,7 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
     <tbody>
       <tr>
         <td>Called up share capital</td>
-        <td class="amount"><ix:nonFraction name="uk-core:CalledUpShareCapital" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
+        <td class="amount"><ix:nonFraction name="uk-core:CalledUpShareCapital" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></td>
       </tr>
       <tr>
         <td>Profit and loss account</td>
@@ -190,7 +195,7 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
       </tr>
       <tr>
         <td><strong>Shareholders' funds</strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:ShareholderFunds" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="uk-core:ShareholderFunds" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
       </tr>
     </tbody>
   </table>

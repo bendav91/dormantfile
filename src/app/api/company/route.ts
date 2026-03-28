@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { companyRegistrationNumber, uniqueTaxReference, registeredForCorpTax } = body;
+  const { companyRegistrationNumber, uniqueTaxReference, registeredForCorpTax, shareCapital } = body;
 
   if (!companyRegistrationNumber) {
     return NextResponse.json({ error: "Registration number is required" }, { status: 400 });
@@ -143,6 +143,7 @@ export async function POST(req: NextRequest) {
         companyRegistrationNumber: companyRegistrationNumber.trim(),
         uniqueTaxReference: registeredForCorpTax ? uniqueTaxReference : null,
         registeredForCorpTax: !!registeredForCorpTax,
+        shareCapital: typeof shareCapital === "number" && shareCapital >= 0 ? Math.round(shareCapital) : 0,
         accountingPeriodStart: periodStart,
         accountingPeriodEnd: periodEnd,
         reminders: {

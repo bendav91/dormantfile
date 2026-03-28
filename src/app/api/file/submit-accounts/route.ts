@@ -173,6 +173,7 @@ export async function POST(req: NextRequest) {
     periodStart: company.accountingPeriodStart,
     periodEnd: company.accountingPeriodEnd,
     directorName: user.name,
+    shareCapital: company.shareCapital,
   });
 
   // Build XML

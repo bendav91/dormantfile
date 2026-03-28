@@ -125,6 +125,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
   const [periodEndOn, setPeriodEndOn] = useState<string | null>(null);
   const [uniqueTaxReference, setUniqueTaxReference] = useState("");
   const [registeredForCorpTax, setRegisteredForCorpTax] = useState(false);
+  const [shareCapitalPounds, setShareCapitalPounds] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "found" | "not_found" | "unavailable" | "error">("idle");
@@ -164,6 +165,9 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         setCompanyName(data.companyName);
         setPeriodStartOn(data.periodStartOn);
         setPeriodEndOn(data.periodEndOn);
+        if (data.shareCapitalPence != null && data.shareCapitalPence > 0) {
+          setShareCapitalPounds(String(data.shareCapitalPence / 100));
+        }
         setLookupStatus("found");
       } catch {
         setLookupStatus("error");
@@ -214,6 +218,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           companyRegistrationNumber,
           uniqueTaxReference: registeredForCorpTax ? uniqueTaxReference : undefined,
           registeredForCorpTax,
+          shareCapital: shareCapitalPounds ? Math.round(parseFloat(shareCapitalPounds) * 100) : 0,
         }),
       });
 
@@ -363,6 +368,23 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
               Next filing period from Companies House. This cannot be edited.
             </p>
           </div>
+        )}
+
+        {lookupStatus === "found" && (
+          <FormField
+            id="shareCapital"
+            label="Share capital (£)"
+            helpText="The total nominal value of shares issued by the company. Most dormant companies have £1. Leave as 0 if the company has no share capital."
+            icon={Hash}
+          >
+            <FocusableInput
+              id="shareCapital"
+              type="number"
+              value={shareCapitalPounds}
+              onChange={(e) => setShareCapitalPounds(e.target.value)}
+              placeholder="e.g. 1"
+            />
+          </FormField>
         )}
 
         {lookupStatus === "found" && (

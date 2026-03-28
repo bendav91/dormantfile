@@ -53,6 +53,7 @@ export default async function AccountsFilingPage({ params }: PageProps) {
         companyRegistrationNumber={company.companyRegistrationNumber}
         periodStart={formatDate(company.accountingPeriodStart)}
         periodEnd={formatDate(company.accountingPeriodEnd)}
+        shareCapitalPence={company.shareCapital}
       />
     </div>
   );
