@@ -111,7 +111,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const atFilingLimit = filingsUsed >= companyLimit && companyLimit > 0;
 
   return (
-    <div style={{ maxWidth: "640px", margin: "0 auto" }}>
+    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
       <SubscriptionBanner status={user.subscriptionStatus} />
 
       {canFile && companyLimit > 0 && allCompanyCount > companyLimit && (
@@ -233,7 +233,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       )}
 
       {/* Company cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))", gap: "16px" }}>
         {companies.map((company) => {
           const accountsDeadline = calculateAccountsDeadline(company.accountingPeriodEnd);
           const ct600Deadline = calculateCT600Deadline(company.accountingPeriodEnd);
@@ -252,33 +252,30 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             (ct600Deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           );
 
+          const filingBtnStyle: React.CSSProperties = {
+            display: "inline-flex", alignItems: "center",
+            backgroundColor: "#F97316", color: "#ffffff",
+            padding: "4px 10px", borderRadius: "5px",
+            fontWeight: 600, fontSize: "12px", textDecoration: "none",
+          };
+
           return (
             <div
               key={company.id}
               style={{
                 backgroundColor: "#ffffff",
-                borderRadius: "12px",
-                padding: "28px",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                transition: "box-shadow 200ms, transform 200ms",
+                borderRadius: "10px",
+                padding: "18px",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
               }}
             >
-              {/* Card header */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "24px",
-                  paddingBottom: "20px",
-                  borderBottom: "1px solid #F1F5F9",
-                }}
-              >
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
                 <div
                   style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "10px",
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "8px",
                     backgroundColor: "#EFF6FF",
                     display: "flex",
                     alignItems: "center",
@@ -286,21 +283,24 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     flexShrink: 0,
                   }}
                 >
-                  <Building2 size={20} color="#2563EB" strokeWidth={2} />
+                  <Building2 size={16} color="#2563EB" strokeWidth={2} />
                 </div>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <h2
                     style={{
-                      fontSize: "18px",
+                      fontSize: "14px",
                       fontWeight: 700,
                       color: "#1E293B",
                       margin: 0,
                       letterSpacing: "-0.01em",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {company.companyName}
                   </h2>
-                  <p style={{ fontSize: "13px", color: "#94A3B8", margin: 0, marginTop: "2px" }}>
+                  <p style={{ fontSize: "12px", color: "#94A3B8", margin: 0, marginTop: "1px" }}>
                     {company.registeredForCorpTax && company.uniqueTaxReference
                       ? <><EditUTR companyId={company.id} currentUTR={company.uniqueTaxReference} /> &middot; </> : ""}
                     {company.companyRegistrationNumber}
@@ -308,94 +308,50 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 </div>
               </div>
 
-              {/* Accounting period */}
-              <div style={{ marginBottom: "20px" }}>
-                <p
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "#94A3B8",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    margin: "0 0 4px 0",
-                  }}
-                >
-                  Accounting Period
-                </p>
-                <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
-                  {formatDate(company.accountingPeriodStart)} &ndash;{" "}
-                  {formatDate(company.accountingPeriodEnd)}
-                </p>
-              </div>
+              {/* Period */}
+              <p style={{ fontSize: "12px", color: "#64748B", margin: "0 0 12px 0" }}>
+                <span style={{ fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "10px" }}>Period </span>
+                {formatDate(company.accountingPeriodStart)} &ndash; {formatDate(company.accountingPeriodEnd)}
+              </p>
 
               {/* Filing rows */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                  paddingTop: "20px",
-                  borderTop: "1px solid #F1F5F9",
-                }}
-              >
-                {/* Accounts row */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                {/* Accounts */}
                 <div style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "12px 16px",
+                  padding: "8px 10px",
                   backgroundColor: "#F8FAFC",
-                  borderRadius: "8px",
+                  borderRadius: "6px",
                 }}>
                   <div>
-                    <p style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", margin: "0 0 2px 0" }}>
-                      Annual Accounts
-                    </p>
+                    <p style={{ fontSize: "12px", fontWeight: 600, color: "#1E293B", margin: 0 }}>Accounts</p>
                     <p style={{
-                      fontSize: "12px",
+                      fontSize: "11px",
                       color: accountsDaysLeft <= 0 ? "#DC2626" : accountsDaysLeft <= 30 ? "#D97706" : "#64748B",
                       margin: 0,
                     }}>
-                      Due: {formatDate(accountsDeadline)}
-                      {accountsDaysLeft <= 30 && accountsDaysLeft > 0 && ` (${accountsDaysLeft}d left)`}
+                      {formatDate(accountsDeadline)}
+                      {accountsDaysLeft <= 30 && accountsDaysLeft > 0 && ` (${accountsDaysLeft}d)`}
                       {accountsDaysLeft <= 0 && " (Overdue)"}
                     </p>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     {accountsFiling ? (
                       <>
                         <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
                         {(accountsFiling.status === "failed" || accountsFiling.status === "rejected") && canFile && (
-                          <Link
-                            href={`/file/${company.id}/accounts`}
-                            style={{
-                              display: "inline-flex", alignItems: "center", gap: "6px",
-                              backgroundColor: "#F97316", color: "#ffffff",
-                              padding: "6px 14px", borderRadius: "6px",
-                              fontWeight: 600, fontSize: "13px", textDecoration: "none",
-                            }}
-                          >
-                            Retry
-                          </Link>
+                          <Link href={`/file/${company.id}/accounts`} style={filingBtnStyle}>Retry</Link>
                         )}
                       </>
                     ) : canFile && !atFilingLimit ? (
-                      <Link
-                        href={`/file/${company.id}/accounts`}
-                        style={{
-                          display: "inline-flex", alignItems: "center", gap: "6px",
-                          backgroundColor: "#F97316", color: "#ffffff",
-                          padding: "6px 14px", borderRadius: "6px",
-                          fontWeight: 600, fontSize: "13px", textDecoration: "none",
-                        }}
-                      >
-                        File
-                      </Link>
+                      <Link href={`/file/${company.id}/accounts`} style={filingBtnStyle}>File</Link>
                     ) : null}
                   </div>
                 </div>
 
-                {/* CT600 row - or enable prompt */}
+                {/* CT600 */}
                 {!company.registeredForCorpTax && (
                   <EnableCorpTax companyId={company.id} />
                 )}
@@ -404,54 +360,32 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    padding: "12px 16px",
+                    padding: "8px 10px",
                     backgroundColor: "#F8FAFC",
-                    borderRadius: "8px",
+                    borderRadius: "6px",
                   }}>
                     <div>
-                      <p style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B", margin: "0 0 2px 0" }}>
-                        CT600
-                      </p>
+                      <p style={{ fontSize: "12px", fontWeight: 600, color: "#1E293B", margin: 0 }}>CT600</p>
                       <p style={{
-                        fontSize: "12px",
+                        fontSize: "11px",
                         color: ct600DaysLeft <= 0 ? "#DC2626" : ct600DaysLeft <= 30 ? "#D97706" : "#64748B",
                         margin: 0,
                       }}>
-                        Due: {formatDate(ct600Deadline)}
-                        {ct600DaysLeft <= 30 && ct600DaysLeft > 0 && ` (${ct600DaysLeft}d left)`}
+                        {formatDate(ct600Deadline)}
+                        {ct600DaysLeft <= 30 && ct600DaysLeft > 0 && ` (${ct600DaysLeft}d)`}
                         {ct600DaysLeft <= 0 && " (Overdue)"}
                       </p>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       {ct600Filing ? (
                         <>
                           <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
                           {(ct600Filing.status === "failed" || ct600Filing.status === "rejected") && canFile && (
-                            <Link
-                              href={`/file/${company.id}/ct600`}
-                              style={{
-                                display: "inline-flex", alignItems: "center", gap: "4px",
-                                backgroundColor: "#F97316", color: "#ffffff",
-                                padding: "4px 10px", borderRadius: "6px",
-                                fontWeight: 600, fontSize: "12px", textDecoration: "none",
-                              }}
-                            >
-                              Retry
-                            </Link>
+                            <Link href={`/file/${company.id}/ct600`} style={filingBtnStyle}>Retry</Link>
                           )}
                         </>
                       ) : canFile && !atFilingLimit ? (
-                        <Link
-                          href={`/file/${company.id}/ct600`}
-                          style={{
-                            display: "inline-flex", alignItems: "center", gap: "6px",
-                            backgroundColor: "#F97316", color: "#ffffff",
-                            padding: "6px 14px", borderRadius: "6px",
-                            fontWeight: 600, fontSize: "13px", textDecoration: "none",
-                          }}
-                        >
-                          File
-                        </Link>
+                        <Link href={`/file/${company.id}/ct600`} style={filingBtnStyle}>File</Link>
                       ) : null}
                     </div>
                   </div>
