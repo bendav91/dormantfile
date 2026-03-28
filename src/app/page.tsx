@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
 import Link from "next/link";
 import {
@@ -9,12 +10,47 @@ import {
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { FAQPageJsonLd } from "@/lib/content/json-ld";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
 });
+
+export const metadata: Metadata = {
+  title: "DormantFile — Dormant Company Filing Made Simple",
+  description: "File your dormant company accounts and nil CT600 tax returns online. Direct submission to Companies House and HMRC from one dashboard. From £19/year.",
+  openGraph: {
+    title: "DormantFile — Dormant Company Filing Made Simple",
+    description: "File your dormant company accounts and nil CT600 tax returns online. From £19/year.",
+    type: "website",
+    siteName: "DormantFile",
+  },
+};
+
+const faqItems = [
+  {
+    question: "Is my data secure?",
+    answer: "Yes. Your HMRC Gateway credentials are used only at the moment of submission and are never written to our database. All data is transmitted over TLS and stored securely.",
+  },
+  {
+    question: "What filings does DormantFile handle?",
+    answer: "DormantFile handles two filings: annual accounts to Companies House (required for all companies) and a nil CT600 Corporation Tax return to HMRC (for companies registered for Corporation Tax). Both confirm that your company was dormant during the period.",
+  },
+  {
+    question: "What if my company isn't registered for Corporation Tax?",
+    answer: "No problem — most dormant companies only need to file annual accounts with Companies House. You can add Corporation Tax filing later if needed.",
+  },
+  {
+    question: "Can I use this if my company is trading?",
+    answer: "No. DormantFile is designed exclusively for genuinely dormant companies with no income, expenditure, or assets. If your company has been trading, you will need a full accountant.",
+  },
+  {
+    question: "What happens after I file?",
+    answer: "You receive acknowledgements from Companies House and HMRC, which we display in your dashboard and send to you by email. Your filing records are stored so you have a history of past submissions.",
+  },
+];
 
 export default function LandingPage() {
   return (
@@ -32,15 +68,16 @@ export default function LandingPage() {
             className="text-5xl sm:text-6xl font-bold leading-tight tracking-tight mb-6"
             style={{ color: "#1E293B" }}
           >
-            File your dormant company{" "}
-            <span style={{ color: "#2563EB" }}>accounts</span> in minutes
+            Dormant company filing,{" "}
+            <span style={{ color: "#2563EB" }}>sorted</span>
           </h1>
           <p
             className="text-xl leading-relaxed mb-10 max-w-2xl mx-auto"
             style={{ color: "#475569" }}
           >
-            Annual accounts with Companies House, plus Corporation Tax returns
-            with HMRC - all from one dashboard. No accounting knowledge required.
+            Annual accounts to Companies House and nil Corporation Tax returns
+            to HMRC — filed directly from one dashboard. No accounting knowledge
+            needed.
           </p>
           <Link
             href="/register"
@@ -58,7 +95,8 @@ export default function LandingPage() {
             className="mt-5 text-sm"
             style={{ color: "#64748B" }}
           >
-            From Companies House accounts to HMRC tax returns - we handle it all.
+            For genuinely dormant companies only — no trading activity, no
+            assets, no income.
           </p>
         </div>
       </section>
@@ -99,7 +137,7 @@ export default function LandingPage() {
                   Direct submission
                 </p>
                 <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
-                  Filed directly with Companies House and HMRC - no middlemen.
+                  Filed directly with Companies House and HMRC — no middlemen.
                 </p>
               </div>
             </div>
@@ -129,7 +167,8 @@ export default function LandingPage() {
                 Add your company
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                Enter your companies house number, we locate the rest. No data entry required.
+                Enter your company number — we look up the rest from Companies
+                House. No data entry needed.
               </p>
             </div>
             {/* Step 2 */}
@@ -144,7 +183,8 @@ export default function LandingPage() {
                 We remind you
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                Email reminders as your dormant filing deadline approaches.
+                Email reminders at 90, 30, 14, 7, 3, and 1 day before each
+                filing deadline.
               </p>
             </div>
             {/* Step 3 */}
@@ -159,7 +199,8 @@ export default function LandingPage() {
                 File in minutes
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                File dormant accounts and nil tax returns in minutes - no hassle - every year!
+                Submit your dormant accounts and nil CT600 return directly to
+                Companies House and HMRC.
               </p>
             </div>
           </div>
@@ -182,22 +223,19 @@ export default function LandingPage() {
       >
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6" style={{ color: "#1E293B" }}>
-            Stuck with a company you can&apos;t close?
+            CATO closed. Now what?
           </h2>
           <p className="text-lg leading-relaxed mb-4" style={{ color: "#475569" }}>
-            Thousands of UK directors keep dormant limited companies on the
-            register - a side project that never took off, a holding structure
-            no longer needed, or a company waiting on a future venture. The
-            company is inactive, but the filing obligations never stop.
+            On 31 March 2026, HMRC shut down its free Corporation Tax filing
+            tool (CATO). Thousands of directors of dormant companies — side
+            projects, holding structures, companies kept for future use — lost
+            their only free way to file a CT600 return.
           </p>
           <p className="text-lg leading-relaxed" style={{ color: "#475569" }}>
-            Every year, Companies House requires annual accounts and HMRC
-            requires a Corporation Tax return, even if there is nothing to
-            report. Until now, the free HMRC tool handled the tax side. With
-            that service closed, directors are left hunting for accounting
-            software designed for businesses with actual accounts - paying for
-            far more than they need. DormantFile does one thing, and does it
-            well.
+            DormantFile was built as the direct replacement. We handle both of
+            the filings a dormant company needs: annual accounts to Companies
+            House and nil CT600 returns to HMRC. One dashboard, under two
+            minutes, from £19 a year.
           </p>
         </div>
       </section>
@@ -215,7 +253,7 @@ export default function LandingPage() {
             className="text-center text-base mb-12 max-w-xl mx-auto"
             style={{ color: "#64748B" }}
           >
-            One dormant company or a hundred - pick the plan that fits.
+            One dormant company or a hundred — pick the plan that fits.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
@@ -339,6 +377,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
+      <FAQPageJsonLd items={faqItems} />
       <section
         style={{ backgroundColor: "#ffffff", borderTop: "1px solid #E2E8F0" }}
         className="py-20 px-6"
@@ -351,30 +390,9 @@ export default function LandingPage() {
             Common questions
           </h2>
           <div className="space-y-8">
-            {[
-              {
-                q: "Is my data secure?",
-                a: "Yes. Your HMRC Gateway credentials are used only at the moment of submission and are never written to our database. All data is transmitted over TLS and stored securely.",
-              },
-              {
-                q: "What filings does DormantFile handle?",
-                a: "DormantFile handles two filings: annual accounts with Companies House (required for all companies) and a nil CT600 Corporation Tax return with HMRC (for companies registered for Corporation Tax). Both confirm that your company was dormant during the period.",
-              },
-              {
-                q: "What if my company isn't registered for Corporation Tax?",
-                a: "No problem - most dormant companies only need to file annual accounts with Companies House. You can add Corporation Tax filing later if needed.",
-              },
-              {
-                q: "Can I use this if my company is trading?",
-                a: "No. DormantFile is designed exclusively for genuinely dormant companies with no income, expenditure, or assets. If your company has been trading, you will need a full accountant.",
-              },
-              {
-                q: "What happens after I file?",
-                a: "You will receive acknowledgements from Companies House and HMRC, which we display in your dashboard and send to you by email. Your filing records are stored so you have a history of past submissions.",
-              },
-            ].map(({ q, a }) => (
+            {faqItems.map(({ question, answer }) => (
               <div
-                key={q}
+                key={question}
                 style={{ borderBottom: "1px solid #E2E8F0" }}
                 className="pb-8"
               >
@@ -382,10 +400,10 @@ export default function LandingPage() {
                   className="font-semibold text-lg mb-2"
                   style={{ color: "#1E293B" }}
                 >
-                  {q}
+                  {question}
                 </h3>
                 <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-                  {a}
+                  {answer}
                 </p>
               </div>
             ))}
@@ -400,7 +418,7 @@ export default function LandingPage() {
       >
         <div className="max-w-3xl mx-auto">
           <h2 className="text-4xl font-bold mb-6 text-white">
-            Ready to stop worrying about your dormant company filings?
+            Ready to file your dormant company returns?
           </h2>
           <p className="text-lg mb-10" style={{ color: "#94A3B8" }}>
             Set up in minutes. File in seconds. Done for the year.
