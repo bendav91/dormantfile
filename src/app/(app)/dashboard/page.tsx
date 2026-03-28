@@ -68,17 +68,25 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   if (filter === "overdue" || filter === "due-soon") {
     const allCompanies = await prisma.company.findMany({
       where: { userId: user.id, deletedAt: null },
-      select: { id: true, accountingPeriodEnd: true },
+      select: { id: true, accountingPeriodEnd: true, registeredForCorpTax: true },
     });
     const now = Date.now();
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
 
     filterIds = allCompanies
       .filter((c) => {
-        const deadline = calculateAccountsDeadline(c.accountingPeriodEnd).getTime();
-        if (filter === "overdue") return deadline < now;
-        // due-soon: deadline is in the future but within 30 days
-        return deadline >= now && deadline <= now + thirtyDaysMs;
+        const accountsDeadline = calculateAccountsDeadline(c.accountingPeriodEnd).getTime();
+        const ct600Deadline = c.registeredForCorpTax
+          ? calculateCT600Deadline(c.accountingPeriodEnd).getTime()
+          : null;
+
+        if (filter === "overdue") {
+          return accountsDeadline < now || (ct600Deadline !== null && ct600Deadline < now);
+        }
+        // due-soon: either deadline is in the future but within 30 days
+        const accountsDueSoon = accountsDeadline >= now && accountsDeadline <= now + thirtyDaysMs;
+        const ct600DueSoon = ct600Deadline !== null && ct600Deadline >= now && ct600Deadline <= now + thirtyDaysMs;
+        return accountsDueSoon || ct600DueSoon;
       })
       .map((c) => c.id);
   } else if (filter === "recently-filed") {
