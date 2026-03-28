@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "UTR is required for companies registered for Corporation Tax" }, { status: 400 });
   }
 
-  // Check for duplicate company
+  // Check for duplicate active company
   const duplicate = await prisma.company.findFirst({
     where: {
       userId: session.user.id,
@@ -143,7 +143,40 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // Check if a soft-deleted record exists for this company — restore it instead of creating a new row
+  // (the unique constraint on [userId, companyRegistrationNumber] prevents creating a second row)
+  const softDeleted = await prisma.company.findFirst({
+    where: {
+      userId: session.user.id,
+      companyRegistrationNumber: companyRegistrationNumber.trim(),
+      deletedAt: { not: null },
+    },
+  });
+
   try {
+    if (softDeleted) {
+      // Delete old reminders and restore the company with fresh data
+      await prisma.reminder.deleteMany({ where: { companyId: softDeleted.id } });
+
+      const company = await prisma.company.update({
+        where: { id: softDeleted.id },
+        data: {
+          companyName,
+          uniqueTaxReference: registeredForCorpTax ? uniqueTaxReference : null,
+          registeredForCorpTax: !!registeredForCorpTax,
+          shareCapital: typeof shareCapital === "number" && shareCapital >= 0 ? Math.round(shareCapital) : 0,
+          accountingPeriodStart: periodStart,
+          accountingPeriodEnd: periodEnd,
+          deletedAt: null,
+          reminders: {
+            create: reminderData,
+          },
+        },
+      });
+
+      return NextResponse.json({ id: company.id }, { status: 201 });
+    }
+
     const company = await prisma.company.create({
       data: {
         userId: session.user.id,
