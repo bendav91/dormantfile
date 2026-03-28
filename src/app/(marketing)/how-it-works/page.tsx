@@ -35,7 +35,7 @@ const steps = [
     number: 2,
     title: "Add your company",
     description:
-      "Enter your company registration number — we look up the company name automatically via Companies House. Add your UTR (Unique Taxpayer Reference) and accounting period dates.",
+      "Enter your company registration number - we look up the company name automatically via Companies House. Add your UTR (Unique Taxpayer Reference) and accounting period dates.",
   },
   {
     number: 3,
@@ -59,7 +59,7 @@ const steps = [
     number: 6,
     title: "File your CT600",
     description:
-      "If your company is registered for Corporation Tax, click to file your nil CT600. Enter your HMRC Government Gateway credentials — we submit directly to HMRC via their GovTalk API. Your credentials are used once and never stored.",
+      "If your company is registered for Corporation Tax, click to file your nil CT600. Enter your HMRC Government Gateway credentials - we submit directly to HMRC via their GovTalk API. Your credentials are used once and never stored.",
   },
   {
     number: 7,
@@ -92,7 +92,7 @@ export default function HowItWorksPage() {
         How it works
       </h1>
       <p style={{ ...paragraph, fontSize: "17px", marginBottom: "32px" }}>
-        From sign-up to filed — the whole process takes under 5 minutes.
+        From sign-up to filed - the whole process takes under 5 minutes.
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -150,7 +150,7 @@ export default function HowItWorksPage() {
       >
         <p style={{ ...paragraph, margin: 0 }}>
           <strong style={{ color: "#1E293B" }}>Not registered for Corporation Tax?</strong>{" "}
-          That&apos;s fine — many dormant companies only need to file annual accounts with Companies House. You can skip the CT600 step entirely. Read our guide on{" "}
+          That&apos;s fine - many dormant companies only need to file annual accounts with Companies House. You can skip the CT600 step entirely. Read our guide on{" "}
           <Link href="/guides/do-i-need-ct600-dormant-company" style={{ color: "#2563EB" }}>
             whether you need a CT600
           </Link>{" "}

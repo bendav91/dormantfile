@@ -73,7 +73,7 @@ export default function SecurityPage() {
           {
             icon: <Server size={24} style={{ color: "#2563EB" }} />,
             title: "Secure password storage",
-            text: "Your DormantFile account password (not your HMRC password — that's never stored) is hashed using bcrypt before it's saved. We never store your password in plain text. Even if our database were compromised, your password could not be recovered.",
+            text: "Your DormantFile account password (not your HMRC password - that's never stored) is hashed using bcrypt before it's saved. We never store your password in plain text. Even if our database were compromised, your password could not be recovered.",
           },
           {
             icon: <Eye size={24} style={{ color: "#2563EB" }} />,
@@ -113,16 +113,16 @@ export default function SecurityPage() {
       <h2 style={heading}>Third-party services</h2>
       <ul style={{ paddingLeft: "24px", margin: "0 0 16px 0" }}>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>HMRC</strong> — receives your company details and Gateway credentials during filing.
+          <strong style={{ color: "#1E293B" }}>HMRC</strong> - receives your company details and Gateway credentials during filing.
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Companies House</strong> — receives your company details and authentication code during accounts filing.
+          <strong style={{ color: "#1E293B" }}>Companies House</strong> - receives your company details and authentication code during accounts filing.
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Stripe</strong> — processes payments. They hold card details, not us.
+          <strong style={{ color: "#1E293B" }}>Stripe</strong> - processes payments. They hold card details, not us.
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Resend</strong> — delivers transactional emails (reminders, confirmations).
+          <strong style={{ color: "#1E293B" }}>Resend</strong> - delivers transactional emails (reminders, confirmations).
         </li>
       </ul>
 

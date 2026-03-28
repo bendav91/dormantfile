@@ -66,26 +66,26 @@ export default function PrivacyPolicyPage() {
       <p style={paragraph}>We collect the following categories of personal data:</p>
       <ul style={{ paddingLeft: "24px", margin: "0 0 16px 0" }}>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>Account information</strong> —
+          <strong style={{ color: "#1E293B" }}>Account information</strong> -
           your name, email address, and a securely hashed password.
         </li>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>Company details</strong> —
+          <strong style={{ color: "#1E293B" }}>Company details</strong> -
           company name, Companies House registration number, Unique Tax
           Reference (UTR), and accounting period dates.
         </li>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>Filing records</strong> —
+          <strong style={{ color: "#1E293B" }}>Filing records</strong> -
           submission timestamps, HMRC correlation IDs, and response payloads
           for your CT600 filings.
         </li>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>Payment information</strong> —
+          <strong style={{ color: "#1E293B" }}>Payment information</strong> -
           we do not store card details. All payment processing is handled by
           Stripe, who act as an independent data controller for payment data.
         </li>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>HMRC Gateway credentials</strong> —
+          <strong style={{ color: "#1E293B" }}>HMRC Gateway credentials</strong> -
           your Government Gateway user ID and password are used{" "}
           <strong style={{ color: "#1E293B" }}>only at the moment of filing</strong>{" "}
           to authenticate with HMRC. They are transmitted directly to HMRC over
@@ -110,12 +110,12 @@ export default function PrivacyPolicyPage() {
       </p>
       <ul style={{ paddingLeft: "24px", margin: "0 0 16px 0" }}>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>Contract performance</strong> —
+          <strong style={{ color: "#1E293B" }}>Contract performance</strong> -
           processing is necessary to provide the filing service you have
           subscribed to.
         </li>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>Legitimate interests</strong> —
+          <strong style={{ color: "#1E293B" }}>Legitimate interests</strong> -
           sending filing deadline reminders and maintaining service security.
         </li>
       </ul>
@@ -124,12 +124,12 @@ export default function PrivacyPolicyPage() {
       <p style={paragraph}>We share data with the following third parties, only as necessary to provide the service:</p>
       <ul style={{ paddingLeft: "24px", margin: "0 0 16px 0" }}>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>HMRC</strong> — your company
+          <strong style={{ color: "#1E293B" }}>HMRC</strong> - your company
           details and Gateway credentials are transmitted to HMRC to file your
           CT600 return.
         </li>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>Stripe</strong> — your email
+          <strong style={{ color: "#1E293B" }}>Stripe</strong> - your email
           address is shared with Stripe to process subscription payments. Stripe
           acts as an independent data controller for payment data. See{" "}
           <a
@@ -142,7 +142,7 @@ export default function PrivacyPolicyPage() {
           </a>.
         </li>
         <li style={listItem}>
-          <strong style={{ color: "#1E293B" }}>Resend</strong> — your email
+          <strong style={{ color: "#1E293B" }}>Resend</strong> - your email
           address is shared with Resend to deliver transactional emails
           (reminders and confirmations).
         </li>
@@ -151,7 +151,7 @@ export default function PrivacyPolicyPage() {
       <h2 style={sectionHeading}>6. Data storage and security</h2>
       <p style={paragraph}>
         Your data is stored in a PostgreSQL database. All data is encrypted in
-        transit using TLS. Passwords are hashed using bcrypt before storage — we
+        transit using TLS. Passwords are hashed using bcrypt before storage - we
         never store your password in plain text.
       </p>
       <p style={paragraph}>

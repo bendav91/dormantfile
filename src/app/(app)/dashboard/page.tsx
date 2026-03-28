@@ -337,7 +337,7 @@ export default async function DashboardPage() {
                   </div>
                 </div>
 
-                {/* CT600 row — or enable prompt */}
+                {/* CT600 row - or enable prompt */}
                 {!company.registeredForCorpTax && (
                   <EnableCorpTax companyId={company.id} />
                 )}

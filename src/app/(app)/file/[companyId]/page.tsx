@@ -179,7 +179,7 @@ export default async function FilingSelector({ params }: PageProps) {
           )}
         </div>
 
-        {/* CT600 card — only if registered for Corp Tax */}
+        {/* CT600 card - only if registered for Corp Tax */}
         {company.registeredForCorpTax && (
           <div
             style={{

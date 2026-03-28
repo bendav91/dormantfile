@@ -61,7 +61,7 @@ export default function TermsOfServicePage() {
       </p>
       <p style={paragraph}>
         The service is designed exclusively for companies that are genuinely
-        dormant — with no income, expenditure, or assets during the accounting
+        dormant - with no income, expenditure, or assets during the accounting
         period. If your company has been trading, you must use a qualified
         accountant.
       </p>
@@ -101,9 +101,9 @@ export default function TermsOfServicePage() {
 
       <h2 style={sectionHeading}>5. Accuracy of information</h2>
       <p style={paragraph}>
-        You are responsible for ensuring that all information you provide —
+        You are responsible for ensuring that all information you provide -
         including your company name, registration number, UTR, and accounting
-        period dates — is accurate and complete. DormantFile is not responsible
+        period dates - is accurate and complete. DormantFile is not responsible
         for filings made with incorrect information.
       </p>
 

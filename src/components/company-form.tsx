@@ -283,7 +283,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           )}
           {lookupStatus === "error" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "#DC2626" }}>Lookup failed — please try again or check the number.</span>
+              <span style={{ fontSize: "13px", color: "#DC2626" }}>Lookup failed - please try again or check the number.</span>
             </div>
           )}
           {lookupStatus === "unavailable" && (

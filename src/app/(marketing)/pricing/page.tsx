@@ -79,7 +79,7 @@ const billingFaq = [
   { q: "Can I cancel anytime?", a: "Yes. Cancel via the billing portal and your subscription remains active until the end of the current billing period. No refunds for partial periods." },
   { q: "Can I upgrade or downgrade?", a: "Yes. Upgrade immediately or downgrade at the end of your billing period via your account settings." },
   { q: "What payment methods do you accept?", a: "We accept all major credit and debit cards via Stripe. We don't currently accept bank transfers or direct debits." },
-  { q: "Do you offer refunds?", a: "We don't offer refunds for partial billing periods. If you're unsure, start with Basic — you can always upgrade later." },
+  { q: "Do you offer refunds?", a: "We don't offer refunds for partial billing periods. If you're unsure, start with Basic - you can always upgrade later." },
 ];
 
 export default function PricingPage() {
@@ -106,7 +106,7 @@ export default function PricingPage() {
         Simple, transparent pricing
       </h1>
       <p style={{ ...paragraph, textAlign: "center", marginBottom: "32px" }}>
-        One dormant company or a hundred — pick the plan that fits.
+        One dormant company or a hundred - pick the plan that fits.
       </p>
 
       {/* Pricing cards */}

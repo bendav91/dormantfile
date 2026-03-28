@@ -39,7 +39,7 @@ export default function LandingPage() {
             style={{ color: "#475569" }}
           >
             Annual accounts with Companies House, plus Corporation Tax returns
-            with HMRC — all from one dashboard. No accounting knowledge required.
+            with HMRC - all from one dashboard. No accounting knowledge required.
           </p>
           <Link
             href="/register"
@@ -57,7 +57,7 @@ export default function LandingPage() {
             className="mt-5 text-sm"
             style={{ color: "#64748B" }}
           >
-            From Companies House accounts to HMRC tax returns — we handle it all.
+            From Companies House accounts to HMRC tax returns - we handle it all.
           </p>
         </div>
       </section>
@@ -98,7 +98,7 @@ export default function LandingPage() {
                   Direct submission
                 </p>
                 <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
-                  Filed directly with Companies House and HMRC — no middlemen.
+                  Filed directly with Companies House and HMRC - no middlemen.
                 </p>
               </div>
             </div>
@@ -185,7 +185,7 @@ export default function LandingPage() {
           </h2>
           <p className="text-lg leading-relaxed mb-4" style={{ color: "#475569" }}>
             Thousands of UK directors keep dormant limited companies on the
-            register — a side project that never took off, a holding structure
+            register - a side project that never took off, a holding structure
             no longer needed, or a company waiting on a future venture. The
             company is inactive, but the filing obligations never stop.
           </p>
@@ -194,7 +194,7 @@ export default function LandingPage() {
             requires a Corporation Tax return, even if there is nothing to
             report. Until now, the free HMRC tool handled the tax side. With
             that service closed, directors are left hunting for accounting
-            software designed for businesses with actual accounts — paying for
+            software designed for businesses with actual accounts - paying for
             far more than they need. DormantFile does one thing, and does it
             well.
           </p>
@@ -214,7 +214,7 @@ export default function LandingPage() {
             className="text-center text-base mb-12 max-w-xl mx-auto"
             style={{ color: "#64748B" }}
           >
-            One dormant company or a hundred — pick the plan that fits.
+            One dormant company or a hundred - pick the plan that fits.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
@@ -360,8 +360,8 @@ export default function LandingPage() {
                 a: "DormantFile handles two filings: annual accounts with Companies House (required for all companies) and a nil CT600 Corporation Tax return with HMRC (for companies registered for Corporation Tax). Both confirm that your company was dormant during the period.",
               },
               {
-                q: "What if my company isn&apos;t registered for Corporation Tax?",
-                a: "No problem — most dormant companies only need to file annual accounts with Companies House. You can add Corporation Tax filing later if needed.",
+                q: "What if my company isn't registered for Corporation Tax?",
+                a: "No problem - most dormant companies only need to file annual accounts with Companies House. You can add Corporation Tax filing later if needed.",
               },
               {
                 q: "Can I use this if my company is trading?",

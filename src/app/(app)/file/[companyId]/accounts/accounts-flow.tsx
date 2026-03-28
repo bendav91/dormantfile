@@ -700,7 +700,7 @@ function StepResult({
                 Companies House is still processing
               </h2>
               <p style={{ fontSize: "15px", color: "#A16207", margin: 0, lineHeight: 1.6 }}>
-                Your accounts have been submitted but Companies House has not yet confirmed the outcome. You can check the status from your dashboard — it may take a few more minutes.
+                Your accounts have been submitted but Companies House has not yet confirmed the outcome. You can check the status from your dashboard - it may take a few more minutes.
               </p>
             </div>
           </div>

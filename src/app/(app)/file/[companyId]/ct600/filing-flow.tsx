@@ -808,7 +808,7 @@ function StepResult({
                 HMRC is still processing
               </h2>
               <p style={{ fontSize: "15px", color: "#A16207", margin: 0, lineHeight: 1.6 }}>
-                Your return has been submitted but HMRC has not yet confirmed the outcome. You can check the status from your dashboard — it may take a few more minutes.
+                Your return has been submitted but HMRC has not yet confirmed the outcome. You can check the status from your dashboard - it may take a few more minutes.
               </p>
             </div>
           </div>
