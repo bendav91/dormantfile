@@ -8,6 +8,7 @@ import SubscriptionBanner from "@/components/subscription-banner";
 import FilingStatusBadge from "@/components/filing-status-badge";
 import EnableCorpTax from "@/components/enable-corp-tax";
 import EditUTR from "@/components/edit-utr";
+import CompanySearch from "@/components/company-search";
 import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
@@ -23,7 +24,7 @@ function formatDate(date: Date): string {
 const PAGE_SIZE = 10;
 
 interface DashboardProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }
 
 export default async function DashboardPage({ searchParams }: DashboardProps) {
@@ -47,20 +48,39 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const freshUser = await prisma.user.findUnique({ where: { id: user.id } });
   if (freshUser) Object.assign(user, freshUser);
 
-  const totalCompanies = await prisma.company.count({
+  const allCompanyCount = await prisma.company.count({
     where: { userId: user.id, deletedAt: null },
   });
 
-  if (totalCompanies === 0) {
+  if (allCompanyCount === 0) {
     redirect("/onboarding");
   }
 
-  const { page: pageParam } = await searchParams;
-  const totalPages = Math.ceil(totalCompanies / PAGE_SIZE);
+  const { page: pageParam, q: searchQuery } = await searchParams;
+  const search = searchQuery?.trim() || "";
+
+  const baseWhere = {
+    userId: user.id,
+    deletedAt: null,
+    ...(search
+      ? {
+          OR: [
+            { companyName: { contains: search, mode: "insensitive" as const } },
+            { companyRegistrationNumber: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+  };
+
+  const totalCompanies = search
+    ? await prisma.company.count({ where: baseWhere })
+    : allCompanyCount;
+
+  const totalPages = Math.max(1, Math.ceil(totalCompanies / PAGE_SIZE));
   const currentPage = Math.max(1, Math.min(totalPages, parseInt(pageParam ?? "1", 10) || 1));
 
   const companies = await prisma.company.findMany({
-    where: { userId: user.id, deletedAt: null },
+    where: baseWhere,
     include: {
       filings: {
         orderBy: { createdAt: "desc" },
@@ -73,7 +93,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   });
 
   const canFile = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
-  const showAddCompany = canAddCompany(user.subscriptionTier, totalCompanies);
+  const showAddCompany = canAddCompany(user.subscriptionTier, allCompanyCount);
   const companyLimit = getCompanyLimit(user.subscriptionTier);
 
   // Count filings used in current billing period
@@ -94,7 +114,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
     <div style={{ maxWidth: "640px", margin: "0 auto" }}>
       <SubscriptionBanner status={user.subscriptionStatus} />
 
-      {canFile && companyLimit > 0 && totalCompanies > companyLimit && (
+      {canFile && companyLimit > 0 && allCompanyCount > companyLimit && (
         <div
           style={{
             display: "flex",
@@ -109,7 +129,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         >
           <AlertTriangle size={18} color="#CA8A04" strokeWidth={2} style={{ flexShrink: 0, marginTop: "1px" }} />
           <p style={{ fontSize: "14px", color: "#713F12", margin: 0, fontWeight: 500 }}>
-            You have {totalCompanies} {totalCompanies === 1 ? "company" : "companies"} but your {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period. Remove companies or upgrade your plan from{" "}
+            You have {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"} but your {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period. Remove companies or upgrade your plan from{" "}
             <a href="/choose-plan" style={{ color: "#92400E", fontWeight: 600 }}>Change plan</a>.
           </p>
         </div>
@@ -131,7 +151,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "2px" }}>
             <p style={{ fontSize: "15px", color: "#64748B", margin: 0 }}>
-              {totalCompanies} {totalCompanies === 1 ? "company" : "companies"}
+              {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"}
               {companyLimit > 0 && ` / ${companyLimit}`}
             </p>
             <span
@@ -190,6 +210,27 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           </Link>
         )}
       </div>
+
+      {/* Search - show when there are enough companies to paginate, or when a search is active */}
+      {(allCompanyCount > PAGE_SIZE || search) && <CompanySearch />}
+
+      {/* No results */}
+      {companies.length === 0 && search && (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "48px 24px",
+            color: "#64748B",
+          }}
+        >
+          <p style={{ fontSize: "15px", margin: "0 0 4px 0", fontWeight: 500 }}>
+            No companies matching &ldquo;{search}&rdquo;
+          </p>
+          <p style={{ fontSize: "13px", margin: 0 }}>
+            Try a different name or registration number.
+          </p>
+        </div>
+      )}
 
       {/* Company cards */}
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
@@ -434,7 +475,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         >
           {currentPage > 1 && (
             <Link
-              href={`/dashboard?page=${currentPage - 1}`}
+              href={`/dashboard?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}`}
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
@@ -454,7 +495,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           </span>
           {currentPage < totalPages && (
             <Link
-              href={`/dashboard?page=${currentPage + 1}`}
+              href={`/dashboard?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}`}
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
