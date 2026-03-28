@@ -128,7 +128,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
   const [shareCapitalPounds, setShareCapitalPounds] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
-  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "found" | "not_found" | "unavailable" | "error">("idle");
+  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "found" | "not_found" | "dissolved" | "unavailable" | "error">("idle");
   const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -162,6 +162,11 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           return;
         }
         const data = await res.json();
+        if (data.companyStatus === "dissolved" || data.companyStatus === "converted-closed") {
+          setCompanyName(data.companyName);
+          setLookupStatus("dissolved");
+          return;
+        }
         setCompanyName(data.companyName);
         setPeriodStartOn(data.periodStartOn);
         setPeriodEndOn(data.periodEndOn);
@@ -279,6 +284,13 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
               <CheckCircle2 size={13} color="#16A34A" strokeWidth={2} />
               <span style={{ fontSize: "13px", color: "#16A34A" }}>Found: {companyName}</span>
+            </div>
+          )}
+          {lookupStatus === "dissolved" && (
+            <div style={{ marginTop: "2px" }}>
+              <span style={{ fontSize: "13px", color: "#DC2626" }}>
+                {companyName} has been dissolved and cannot be added. DormantFile is for active dormant companies only.
+              </span>
             </div>
           )}
           {lookupStatus === "not_found" && (

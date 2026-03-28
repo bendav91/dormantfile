@@ -121,6 +121,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "This company is not registered for Corporation Tax" }, { status: 400 });
   }
 
+  // Check company is still active at Companies House before filing
+  const chApiKey = process.env.COMPANIES_HOUSE_API_KEY;
+  if (chApiKey) {
+    try {
+      const chBasicAuth = Buffer.from(`${chApiKey}:`).toString("base64");
+      const statusRes = await fetch(
+        `${process.env.COMPANY_INFORMATION_API_ENDPOINT}/company/${encodeURIComponent(company.companyRegistrationNumber)}`,
+        { headers: { Authorization: `Basic ${chBasicAuth}` } }
+      );
+      if (statusRes.ok) {
+        const chData = await statusRes.json();
+        if (chData.company_status === "dissolved" || chData.company_status === "converted-closed") {
+          return NextResponse.json(
+            { error: "This company has been dissolved at Companies House and can no longer file returns." },
+            { status: 400 }
+          );
+        }
+      }
+    } catch {
+      // Non-blocking: if the status check fails, allow the filing to proceed —
+      // HMRC will reject it if the company is dissolved.
+    }
+  }
+
   // Clean up retryable filings (failed/rejected are terminal — safe to replace)
   // and stale pending filings (older than 5 minutes — never reached HMRC)
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);

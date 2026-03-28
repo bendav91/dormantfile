@@ -70,10 +70,18 @@ export async function POST(req: NextRequest) {
     const chData = await chRes.json();
     companyName = chData.company_name;
 
+    const companyStatus: string | undefined = chData.company_status;
+    if (companyStatus === "dissolved" || companyStatus === "converted-closed") {
+      return NextResponse.json(
+        { error: "This company has been dissolved and cannot be added. DormantFile is for active dormant companies only." },
+        { status: 400 }
+      );
+    }
+
     const nextAccounts = chData.accounts?.next_accounts;
     if (!nextAccounts?.period_end_on) {
       return NextResponse.json(
-        { error: "Companies House has no upcoming accounting period for this company" },
+        { error: "Companies House has no upcoming accounting period for this company. It may already be filed or the company may be dissolved." },
         { status: 400 }
       );
     }
