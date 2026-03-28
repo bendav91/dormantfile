@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
           data: { subscriptionStatus: "cancelling" },
         });
       } else if (subscription.status === "active") {
-        // User reactivated before period end
+        // User reactivated before period end, or tier changed (upgrade/downgrade took effect)
         const tier = subscription.items.data.length
           ? tierFromPriceId(subscription.items.data[0].price.id)
           : undefined;
@@ -69,6 +69,8 @@ export async function POST(req: NextRequest) {
           data: {
             subscriptionStatus: "active",
             ...(tier ? { subscriptionTier: tier } : {}),
+            // Reset agent filing preference when leaving agent tier
+            ...(tier && tier !== "agent" ? { filingAsAgent: false } : {}),
           },
         });
       }
@@ -111,14 +113,20 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Reset tier on cancellation
+      // Reset tier and agent preference on cancellation
       if (status === "cancelled") {
         updateData.subscriptionTier = "none";
       }
 
+      // Reset agent filing preference when tier changes away from agent
+      const resetAgent = updateData.subscriptionTier && updateData.subscriptionTier !== "agent";
+
       await prisma.user.updateMany({
         where: { stripeCustomerId: customerId },
-        data: updateData,
+        data: {
+          ...updateData,
+          ...(resetAgent ? { filingAsAgent: false } : {}),
+        },
       });
     }
   }

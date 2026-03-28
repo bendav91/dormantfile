@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { SubscriptionTier } from "@prisma/client";
 
@@ -50,6 +51,7 @@ const PLANS = [
 ];
 
 export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState<SubscriptionTier | null>(null);
   const [error, setError] = useState("");
   const [downgradeSuccess, setDowngradeSuccess] = useState("");
@@ -81,7 +83,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
           return;
         }
 
-        window.location.href = "/dashboard";
+        router.push(tier === "agent" ? "/agent-setup" : "/dashboard");
       } else {
         // New subscriber: go through Stripe checkout
         const res = await fetch("/api/stripe/create-checkout", {
@@ -99,7 +101,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
 
         const { url } = await res.json();
         if (url) {
-          window.location.href = url;
+          location.assign(url);
         } else {
           setError("No checkout URL returned. Please try again.");
           setLoading(null);
