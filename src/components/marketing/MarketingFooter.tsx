@@ -6,6 +6,7 @@ const footerLinks = [
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy", label: "Privacy" },
+  { href: "/cookies", label: "Cookies" },
   { href: "/terms", label: "Terms" },
 ];
 

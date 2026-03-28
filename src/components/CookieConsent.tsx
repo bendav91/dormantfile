@@ -21,8 +21,10 @@ export function CookieConsent() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-4 shadow-lg sm:flex sm:items-center sm:justify-between sm:px-8">
       <p className="text-sm text-gray-600">
-        We use cookies for analytics to help improve our service. No advertising
-        or third-party tracking.
+        We use cookies for analytics to help improve our service.{" "}
+        <a href="/cookies" className="underline hover:text-gray-900">
+          Learn more
+        </a>
       </p>
       <div className="mt-3 flex gap-3 sm:mt-0 sm:shrink-0">
         <button

@@ -18,7 +18,7 @@ enum SubscriptionTier {
   none
   basic
   multi
-  bulk
+  agent @map("bulk")
 }
 
 enum FilingStatus {
@@ -44,6 +44,7 @@ model User {
   subscriptionStatus SubscriptionStatus @default(none)
   subscriptionTier   SubscriptionTier   @default(none)
   subscriptionPeriodStart DateTime?
+  filingAsAgent      Boolean            @default(false)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   companies          Company[]
@@ -57,6 +58,7 @@ model Company {
   companyRegistrationNumber String
   uniqueTaxReference        String?
   registeredForCorpTax      Boolean    @default(false)
+  companyAuthCode           String?
   accountingPeriodStart     DateTime
   accountingPeriodEnd       DateTime
   deletedAt                 DateTime?
@@ -70,18 +72,20 @@ model Company {
 }
 
 model Filing {
-  id                  String       @id @default(cuid())
-  companyId           String
-  filingType          FilingType
-  periodStart         DateTime
-  periodEnd           DateTime
-  status              FilingStatus @default(pending)
-  hmrcCorrelationId   String?
-  hmrcResponsePayload String?
-  submittedAt         DateTime?
-  confirmedAt         DateTime?
-  createdAt           DateTime     @default(now())
-  company             Company      @relation(fields: [companyId], references: [id])
+  id              String       @id @default(cuid())
+  companyId       String
+  filingType      FilingType
+  periodStart     DateTime
+  periodEnd       DateTime
+  status          FilingStatus @default(pending)
+  correlationId   String?      @map("hmrcCorrelationId")
+  responsePayload String?      @map("hmrcResponsePayload")
+  irmark          String?
+  pollInterval    Int?
+  submittedAt     DateTime?
+  confirmedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  company         Company      @relation(fields: [companyId], references: [id])
 
   @@unique([companyId, periodStart, periodEnd, filingType])
 }

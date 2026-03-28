@@ -1,5 +1,13 @@
-// Stub — submits to Companies House Software Filing API and polls for response.
-// Real implementation TBD after CH software filer registration.
+/**
+ * Companies House XML Gateway submission and polling client.
+ *
+ * Note: The CH REST API (developer-specs.company-information.service.gov.uk)
+ * exists and uses OAuth 2.0, but does not yet support accounts filing.
+ * The XML Gateway remains the production route for accounts.
+ */
+
+import { XMLParser } from "fast-xml-parser";
+import { buildPollXml } from "./xml-builder";
 
 interface PresenterCredentials {
   presenterId: string;
@@ -17,15 +25,40 @@ interface PollResult {
   message?: string;
 }
 
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: "@_",
+});
+
 export async function submitToCompaniesHouse(
   xml: string,
   endpoint: string,
-  credentials: PresenterCredentials
+  _credentials: PresenterCredentials
 ): Promise<SubmissionResult> {
-  // TODO: Implement real HTTP POST to CH endpoint
-  throw new Error(
-    "Companies House submission not yet implemented — awaiting software filer registration"
-  );
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/xml" },
+    body: xml,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Companies House submission failed with status ${response.status}`);
+  }
+
+  const responseXml = await response.text();
+  const parsed = parser.parse(responseXml);
+
+  const correlationId =
+    parsed?.GovTalkMessage?.Header?.MessageDetails?.CorrelationID;
+
+  if (!correlationId) {
+    throw new Error("No correlation ID found in Companies House response");
+  }
+
+  return {
+    submissionId: String(correlationId),
+    pollEndpoint: endpoint,
+  };
 }
 
 export async function pollCompaniesHouse(
@@ -33,8 +66,44 @@ export async function pollCompaniesHouse(
   pollEndpoint: string,
   credentials: PresenterCredentials
 ): Promise<PollResult> {
-  // TODO: Implement real polling
-  throw new Error(
-    "Companies House polling not yet implemented — awaiting software filer registration"
-  );
+  const pollXml = buildPollXml(submissionId, credentials);
+
+  const response = await fetch(pollEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/xml" },
+    body: pollXml,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Companies House poll failed with status ${response.status}`);
+  }
+
+  const responseXml = await response.text();
+  const parsed = parser.parse(responseXml);
+
+  const qualifier =
+    parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
+
+  if (qualifier === "error") {
+    const errors = parsed?.GovTalkMessage?.GovTalkErrors?.Error;
+    const errorText = Array.isArray(errors)
+      ? errors.map((e: { Text?: string }) => e.Text).filter(Boolean).join("; ")
+      : errors?.Text ?? "Unknown error";
+
+    return {
+      status: "rejected",
+      message: errorText,
+      responsePayload: responseXml,
+    };
+  }
+
+  if (qualifier === "response") {
+    return {
+      status: "accepted",
+      message: "Submission accepted",
+      responsePayload: responseXml,
+    };
+  }
+
+  return { status: "pending" };
 }

@@ -6,10 +6,12 @@ import { buildGovTalkMessage } from "@/lib/hmrc/xml-builder";
 import { submitToHmrc, pollHmrc } from "@/lib/hmrc/submission-client";
 import { getCompanyLimit } from "@/lib/subscription";
 import { rollForwardPeriod } from "@/lib/roll-forward";
+import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
+import { generateDormantTaxComputationsIxbrl } from "@/lib/ixbrl/tax-computations";
 import type { VendorCredentials } from "@/lib/hmrc/types";
 
 const POLL_TIMEOUT_MS = 120_000;
-const POLL_INTERVAL_MS = 5_000;
+const DEFAULT_POLL_INTERVAL_MS = 5_000;
 
 function getVendorCredentials(): VendorCredentials {
   const vendorId = process.env.HMRC_VENDOR_ID;
@@ -72,18 +74,36 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { companyId?: string; gatewayUsername?: string; gatewayPassword?: string };
+  let body: {
+    companyId?: string;
+    gatewayUsername?: string;
+    gatewayPassword?: string;
+    agentGatewayId?: string;
+    agentGatewayPassword?: string;
+  };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { companyId, gatewayUsername, gatewayPassword } = body;
+  const { companyId, gatewayUsername, gatewayPassword, agentGatewayId, agentGatewayPassword } = body;
+  const isAgentFiling = !!(agentGatewayId && agentGatewayPassword);
 
-  if (!companyId || !gatewayUsername || !gatewayPassword) {
+  if (!companyId) {
+    return NextResponse.json({ error: "companyId is required" }, { status: 400 });
+  }
+
+  if (isAgentFiling) {
+    if (user.subscriptionTier !== "agent" || !user.filingAsAgent) {
+      return NextResponse.json(
+        { error: "Agent filing requires an Agent plan with agent mode enabled" },
+        { status: 403 }
+      );
+    }
+  } else if (!gatewayUsername || !gatewayPassword) {
     return NextResponse.json(
-      { error: "companyId, gatewayUsername, and gatewayPassword are required" },
+      { error: "gatewayUsername and gatewayPassword are required" },
       { status: 400 }
     );
   }
@@ -163,21 +183,49 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Generate iXBRL documents
+  const accountsIxbrl = generateDormantAccountsIxbrl({
+    companyName: company.companyName,
+    companyRegistrationNumber: company.companyRegistrationNumber,
+    periodStart: company.accountingPeriodStart,
+    periodEnd: company.accountingPeriodEnd,
+    directorName: user.name,
+  });
+
+  const computationsIxbrl = generateDormantTaxComputationsIxbrl({
+    companyName: company.companyName,
+    companyRegistrationNumber: company.companyRegistrationNumber,
+    uniqueTaxReference: company.uniqueTaxReference!,
+    periodStart: company.accountingPeriodStart,
+    periodEnd: company.accountingPeriodEnd,
+  });
+
+  const isTest = endpoint.includes("test");
+
   // Build XML
   let govTalkXml: string;
+  let irmarkValue: string | undefined;
   try {
-    govTalkXml = buildGovTalkMessage(
-      {
+    govTalkXml = await buildGovTalkMessage({
+      ct600: {
         companyName: company.companyName,
+        companyRegistrationNumber: company.companyRegistrationNumber,
         uniqueTaxReference: company.uniqueTaxReference!,
         periodStart: company.accountingPeriodStart,
         periodEnd: company.accountingPeriodEnd,
         declarantName: user.name,
-        declarantStatus: "Director",
+        declarantStatus: isAgentFiling ? "Agent" : "Director",
       },
-      { gatewayUsername, gatewayPassword },
-      vendor
-    );
+      credentials: { gatewayUsername: gatewayUsername!, gatewayPassword: gatewayPassword! },
+      vendor,
+      accountsIxbrl,
+      computationsIxbrl,
+      isTest,
+      agent: isAgentFiling ? { agentGatewayId: agentGatewayId!, agentGatewayPassword: agentGatewayPassword! } : undefined,
+    });
+    // Extract IRmark from the built XML for permanent storage
+    const irmarkMatch = govTalkXml.match(/<IRmark[^>]*>([^<]+)<\/IRmark>/);
+    if (irmarkMatch) irmarkValue = irmarkMatch[1];
   } catch (err) {
     await prisma.filing.update({
       where: { id: filing.id },
@@ -192,11 +240,13 @@ export async function POST(req: NextRequest) {
   // Submit to HMRC
   let correlationId: string;
   let pollEndpoint: string;
+  let hmrcPollInterval = DEFAULT_POLL_INTERVAL_MS;
 
   try {
     const submissionResult = await submitToHmrc(govTalkXml, endpoint);
     correlationId = submissionResult.correlationId;
     pollEndpoint = submissionResult.endpoint;
+    hmrcPollInterval = submissionResult.pollInterval * 1000;
   } catch (err) {
     await prisma.filing.update({
       where: { id: filing.id },
@@ -214,16 +264,18 @@ export async function POST(req: NextRequest) {
     where: { id: filing.id },
     data: {
       status: "submitted",
-      hmrcCorrelationId: correlationId,
+      correlationId: correlationId,
+      irmark: irmarkValue,
+      pollInterval: Math.round(hmrcPollInterval / 1000),
       submittedAt: new Date(),
     },
   });
 
-  // Poll for response
+  // Poll for response using interval from HMRC
   const deadline = Date.now() + POLL_TIMEOUT_MS;
 
   while (Date.now() < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+    await new Promise((resolve) => setTimeout(resolve, hmrcPollInterval));
 
     let pollResult: Awaited<ReturnType<typeof pollHmrc>>;
 
@@ -240,7 +292,7 @@ export async function POST(req: NextRequest) {
         data: {
           status: "accepted",
           confirmedAt: new Date(),
-          hmrcResponsePayload: pollResult.responsePayload,
+          responsePayload: pollResult.responsePayload,
         },
       });
 
@@ -261,7 +313,7 @@ export async function POST(req: NextRequest) {
         where: { id: filing.id },
         data: {
           status: "rejected",
-          hmrcResponsePayload: pollResult.responsePayload,
+          responsePayload: pollResult.responsePayload,
         },
       });
 

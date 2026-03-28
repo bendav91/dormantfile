@@ -11,11 +11,17 @@ export interface VendorCredentials {
 
 export interface CT600Data {
   companyName: string;
+  companyRegistrationNumber: string;
   uniqueTaxReference: string;
   periodStart: Date;
   periodEnd: Date;
   declarantName: string;
   declarantStatus: string;
+}
+
+export interface AgentCredentials {
+  agentGatewayId: string;
+  agentGatewayPassword: string;
 }
 
 export interface SubmissionResult {
@@ -28,6 +34,7 @@ export interface PollResult {
   status: "processing" | "accepted" | "rejected";
   message?: string;
   responsePayload?: string;
+  errorCode?: string;
 }
 
 export const HMRC_SUBMISSION_CLASS = "HMRC-CT-CT600-TIL";

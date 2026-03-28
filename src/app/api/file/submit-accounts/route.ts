@@ -6,8 +6,10 @@ import { buildAccountsXml } from "@/lib/companies-house/xml-builder";
 import { submitToCompaniesHouse, pollCompaniesHouse } from "@/lib/companies-house/submission-client";
 import { getCompanyLimit } from "@/lib/subscription";
 import { rollForwardPeriod } from "@/lib/roll-forward";
+import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
 
-const POLL_TIMEOUT_MS = 120_000;
+// CH typically processes within 24h, so keep inline polling brief
+const POLL_TIMEOUT_MS = 30_000;
 const POLL_INTERVAL_MS = 5_000;
 
 function getPresenterCredentials() {
@@ -164,6 +166,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Generate iXBRL accounts document
+  const accountsIxbrl = generateDormantAccountsIxbrl({
+    companyName: company.companyName,
+    companyRegistrationNumber: company.companyRegistrationNumber,
+    periodStart: company.accountingPeriodStart,
+    periodEnd: company.accountingPeriodEnd,
+    directorName: user.name,
+  });
+
   // Build XML
   let accountsXml: string;
   try {
@@ -174,6 +185,7 @@ export async function POST(req: NextRequest) {
         periodStart: company.accountingPeriodStart,
         periodEnd: company.accountingPeriodEnd,
         companyAuthCode,
+        accountsIxbrl,
       },
       credentials
     );
@@ -211,7 +223,7 @@ export async function POST(req: NextRequest) {
     where: { id: filing.id },
     data: {
       status: "submitted",
-      hmrcCorrelationId: submissionId,
+      correlationId: submissionId,
       submittedAt: new Date(),
     },
   });
@@ -237,7 +249,7 @@ export async function POST(req: NextRequest) {
         data: {
           status: "accepted",
           confirmedAt: new Date(),
-          hmrcResponsePayload: pollResult.responsePayload,
+          responsePayload: pollResult.responsePayload,
         },
       });
 
@@ -258,7 +270,7 @@ export async function POST(req: NextRequest) {
         where: { id: filing.id },
         data: {
           status: "rejected",
-          hmrcResponsePayload: pollResult.responsePayload,
+          responsePayload: pollResult.responsePayload,
         },
       });
 
@@ -278,5 +290,9 @@ export async function POST(req: NextRequest) {
     data: { status: "polling_timeout" },
   });
 
-  return NextResponse.json({ status: "polling_timeout", filingId: filing.id });
+  return NextResponse.json({
+    status: "polling_timeout",
+    filingId: filing.id,
+    message: "Companies House typically processes filings within 24 hours. We'll email you when it's confirmed.",
+  });
 }

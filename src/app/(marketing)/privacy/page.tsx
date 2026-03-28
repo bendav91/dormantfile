@@ -188,11 +188,12 @@ export default function PrivacyPolicyPage() {
 
       <h2 style={sectionHeading}>9. Cookies</h2>
       <p style={paragraph}>
-        We use a single, essential session cookie to keep you logged in. We
-        also use an optional analytics cookie (Google Analytics) to help us
-        improve our service — this is only set if you explicitly accept
-        cookies via our consent banner. We do not use advertising cookies or
-        any other third-party tracking.
+        We use a small number of cookies to run the service and, with your
+        consent, to understand how it is used. For full details, see our{" "}
+        <a href="/cookies" style={{ color: "#2563EB" }}>
+          cookie policy
+        </a>
+        .
       </p>
 
       <h2 style={sectionHeading}>10. Changes to this policy</h2>

@@ -36,15 +36,15 @@ const PLANS = [
     ],
   },
   {
-    tier: "bulk" as SubscriptionTier,
-    name: "Bulk",
+    tier: "agent" as SubscriptionTier,
+    name: "Agent",
     price: 49,
     description: "Up to 100 companies",
     features: [
       "Everything in Multiple",
       "File for up to 100 dormant companies",
-      "Ideal for company secretaries",
-      "Priority support",
+      "File as agent on behalf of clients",
+      "Ideal for accountants",
     ],
   },
 ];
@@ -151,7 +151,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
         {PLANS.map((plan) => {
           const isCurrent = plan.tier === currentTier;
           const isDowngrade = isUpgrade && (
-            (currentTier === "bulk" && plan.tier !== "bulk") ||
+            (currentTier === "agent" && plan.tier !== "agent") ||
             (currentTier === "multi" && plan.tier === "basic")
           );
           const isDisabled = loading !== null || isCurrent;

@@ -4,7 +4,7 @@ const TIER_LIMITS: Record<SubscriptionTier, number> = {
   none: 0,
   basic: 1,
   multi: 10,
-  bulk: 100,
+  agent: 100,
 };
 
 export function getCompanyLimit(tier: SubscriptionTier): number {
@@ -16,7 +16,7 @@ export function canAddCompany(tier: SubscriptionTier, currentCount: number): boo
 }
 
 export function tierFromPriceId(priceId: string): SubscriptionTier {
-  if (priceId === process.env.STRIPE_PRICE_ID_BULK) return "bulk";
+  if (priceId === process.env.STRIPE_PRICE_ID_AGENT) return "agent";
   if (priceId === process.env.STRIPE_PRICE_ID_MULTI) return "multi";
   if (priceId === process.env.STRIPE_PRICE_ID_BASIC) return "basic";
   // Fallback: legacy single price
@@ -30,8 +30,8 @@ export function priceIdFromTier(tier: SubscriptionTier): string | null {
       return process.env.STRIPE_PRICE_ID_BASIC || process.env.STRIPE_PRICE_ID || null;
     case "multi":
       return process.env.STRIPE_PRICE_ID_MULTI || null;
-    case "bulk":
-      return process.env.STRIPE_PRICE_ID_BULK || null;
+    case "agent":
+      return process.env.STRIPE_PRICE_ID_AGENT || null;
     default:
       return null;
   }
@@ -41,21 +41,21 @@ export const TIER_LABELS: Record<SubscriptionTier, string> = {
   none: "No plan",
   basic: "Basic",
   multi: "Multiple",
-  bulk: "Bulk",
+  agent: "Agent",
 };
 
 export const TIER_PRICES: Record<SubscriptionTier, number> = {
   none: 0,
   basic: 19,
   multi: 39,
-  bulk: 49,
+  agent: 49,
 };
 
 const TIER_RANK: Record<SubscriptionTier, number> = {
   none: 0,
   basic: 1,
   multi: 2,
-  bulk: 3,
+  agent: 3,
 };
 
 export function isUpgrade(from: SubscriptionTier, to: SubscriptionTier): boolean {

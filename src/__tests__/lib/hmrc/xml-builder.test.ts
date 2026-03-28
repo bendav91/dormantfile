@@ -1,9 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { buildGovTalkMessage, buildPollMessage } from "@/lib/hmrc/xml-builder";
 import type { CT600Data, HmrcCredentials, VendorCredentials } from "@/lib/hmrc/types";
 
 const ct600: CT600Data = {
   companyName: "Test Dormant Ltd",
+  companyRegistrationNumber: "12345678",
   uniqueTaxReference: "1234567890",
   periodStart: new Date("2024-01-01"),
   periodEnd: new Date("2024-12-31"),
@@ -22,16 +23,29 @@ const vendor: VendorCredentials = {
   senderPassword: "senderpass",
 };
 
+const accountsIxbrl = "<html><body>Accounts iXBRL</body></html>";
+const computationsIxbrl = "<html><body>Tax Computations iXBRL</body></html>";
+
 describe("buildGovTalkMessage", () => {
   let xml: string;
 
-  beforeEach(() => {
-    xml = buildGovTalkMessage(ct600, credentials, vendor);
+  beforeEach(async () => {
+    xml = await buildGovTalkMessage({
+      ct600,
+      credentials,
+      vendor,
+      accountsIxbrl,
+      computationsIxbrl,
+    });
   });
 
   it("produces a valid XML document with declaration", () => {
     expect(xml).toContain("<?xml");
     expect(xml).toContain("<GovTalkMessage");
+  });
+
+  it("includes EnvelopeVersion 2.0", () => {
+    expect(xml).toContain("<EnvelopeVersion>2.0</EnvelopeVersion>");
   });
 
   it("includes the correct HMRC submission class", () => {
@@ -43,7 +57,7 @@ describe("buildGovTalkMessage", () => {
     expect(xml).toContain("testpass");
   });
 
-  it("includes vendor credentials", () => {
+  it("includes vendor credentials in ChannelRouting", () => {
     expect(xml).toContain("vendor123");
   });
 
@@ -53,6 +67,10 @@ describe("buildGovTalkMessage", () => {
 
   it("includes the UTR", () => {
     expect(xml).toContain("1234567890");
+  });
+
+  it("includes the company registration number", () => {
+    expect(xml).toContain("<RegistrationNumber>12345678</RegistrationNumber>");
   });
 
   it("includes zero financial values for nil return", () => {
@@ -73,15 +91,44 @@ describe("buildGovTalkMessage", () => {
     expect(xml).toContain("2024-01-01");
     expect(xml).toContain("2024-12-31");
   });
+
+  it("includes base64-encoded iXBRL accounts attachment", () => {
+    const accountsBase64 = Buffer.from(accountsIxbrl).toString("base64");
+    expect(xml).toContain(accountsBase64);
+    expect(xml).toContain('Description="Annual Accounts"');
+  });
+
+  it("includes base64-encoded iXBRL computations attachment", () => {
+    const computationsBase64 = Buffer.from(computationsIxbrl).toString("base64");
+    expect(xml).toContain(computationsBase64);
+    expect(xml).toContain('Description="Tax Computation"');
+  });
+
+  it("sets GatewayTest to 0 by default (live mode)", () => {
+    expect(xml).toContain("<GatewayTest>0</GatewayTest>");
+  });
+
+  it("sets GatewayTest to 1 when isTest is true", async () => {
+    const testXml = await buildGovTalkMessage({
+      ct600,
+      credentials,
+      vendor,
+      accountsIxbrl,
+      computationsIxbrl,
+      isTest: true,
+    });
+    expect(testXml).toContain("<GatewayTest>1</GatewayTest>");
+  });
 });
 
 describe("buildPollMessage", () => {
   const correlationId = "abc-correlation-123";
 
-  it("produces valid XML", () => {
+  it("produces valid XML with EnvelopeVersion", () => {
     const xml = buildPollMessage(correlationId, vendor);
     expect(xml).toContain("<?xml");
     expect(xml).toContain("<GovTalkMessage");
+    expect(xml).toContain("<EnvelopeVersion>2.0</EnvelopeVersion>");
   });
 
   it("includes the correlation ID", () => {

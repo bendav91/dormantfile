@@ -77,8 +77,8 @@ export default function SecurityPage() {
           },
           {
             icon: <Eye size={24} style={{ color: "#2563EB" }} />,
-            title: "No tracking cookies",
-            text: "We use a single essential session cookie to keep you logged in. We offer an optional analytics cookie (Google Analytics) — only loaded if you consent. We do not use advertising cookies and never sell or share your data with advertisers.",
+            title: "Minimal cookies",
+            text: "One essential session cookie to keep you logged in, plus an optional analytics cookie — only loaded if you consent. No advertising or third-party tracking. See our cookie policy for details.",
           },
         ].map((item) => (
           <div

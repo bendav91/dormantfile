@@ -41,7 +41,7 @@ const steps = [
     number: 3,
     title: "Choose your plan",
     description:
-      "Pick the plan that fits: Basic for one company (£19/year), Multiple for up to 10 (£39/year), or Bulk for up to 100 (£49/year).",
+      "Pick the plan that fits: Basic for one company (£19/year), Multiple for up to 10 (£39/year), or Agent for up to 100 (£49/year).",
   },
   {
     number: 4,

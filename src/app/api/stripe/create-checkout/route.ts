@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   let tier: SubscriptionTier = "basic";
   try {
     const body = await req.json();
-    if (body.tier && ["basic", "multi", "bulk"].includes(body.tier)) {
+    if (body.tier && ["basic", "multi", "agent"].includes(body.tier)) {
       tier = body.tier as SubscriptionTier;
     }
   } catch {
@@ -63,7 +63,9 @@ export async function POST(req: NextRequest) {
       },
     ],
     metadata: { tier },
-    success_url: `${process.env.NEXTAUTH_URL}/dashboard`,
+    success_url: tier === "agent"
+      ? `${process.env.NEXTAUTH_URL}/agent-setup`
+      : `${process.env.NEXTAUTH_URL}/dashboard`,
     cancel_url: `${process.env.NEXTAUTH_URL}/choose-plan`,
   });
 

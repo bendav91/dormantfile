@@ -54,15 +54,15 @@ const plans = [
     highlighted: true,
   },
   {
-    name: "Bulk",
+    name: "Agent",
     price: "49",
     period: "per year",
     description: "Up to 100 companies",
     features: [
       "Everything in Multiple",
       "File for up to 100 dormant companies",
-      "Ideal for company secretaries",
-      "Priority support",
+      "File as agent on behalf of clients",
+      "Ideal for accountants",
     ],
     highlighted: false,
   },

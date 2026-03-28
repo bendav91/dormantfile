@@ -1,6 +1,11 @@
 import { XMLBuilder } from "fast-xml-parser";
 import { calculateIRmark } from "./irmark";
-import type { CT600Data, HmrcCredentials, VendorCredentials } from "./types";
+import type {
+  CT600Data,
+  HmrcCredentials,
+  VendorCredentials,
+  AgentCredentials,
+} from "./types";
 import { HMRC_SUBMISSION_CLASS } from "./types";
 
 const ATTR = "@_";
@@ -15,42 +20,60 @@ function makeBuilder(): XMLBuilder {
   return new XMLBuilder({
     ignoreAttributes: false,
     attributeNamePrefix: ATTR,
-    format: false, // compact — whitespace inside elements affects IRmark
+    format: false, // compact -- whitespace inside elements affects IRmark
     suppressEmptyNode: false,
   });
+}
+
+export interface GovTalkMessageOptions {
+  ct600: CT600Data;
+  credentials: HmrcCredentials;
+  vendor: VendorCredentials;
+  /** iXBRL accounts HTML document to attach */
+  accountsIxbrl: string;
+  /** iXBRL tax computations HTML document to attach */
+  computationsIxbrl: string;
+  /** Set to true when using the HMRC test endpoint */
+  isTest?: boolean;
+  /** Agent credentials -- if provided, files as agent instead of director */
+  agent?: AgentCredentials;
 }
 
 /**
  * Builds the GovTalk/IRenvelope Body XML string (without an IRmark element),
  * then calculates the IRmark over it, then returns the full GovTalk message
  * with the IRmark inserted.
+ *
+ * Includes iXBRL accounts and tax computations as base64-encoded attachments.
  */
-export function buildGovTalkMessage(
-  ct600: CT600Data,
-  credentials: HmrcCredentials,
-  vendor: VendorCredentials
-): string {
+export async function buildGovTalkMessage(
+  opts: GovTalkMessageOptions
+): Promise<string> {
   const builder = makeBuilder();
+  const { ct600, credentials, vendor, accountsIxbrl, computationsIxbrl, isTest, agent } = opts;
 
   const periodStart = formatDate(ct600.periodStart);
   const periodEnd = formatDate(ct600.periodEnd);
 
-  // ── Body ──────────────────────────────────────────────────────────────────
   // Build the Body without an IRmark first so we can hash it.
-  const bodyObj = buildBodyObject(ct600, periodStart, periodEnd);
+  const bodyObj = buildBodyObject(ct600, periodStart, periodEnd, accountsIxbrl, computationsIxbrl);
   const bodyXml = builder.build({ Body: bodyObj });
 
-  const irmark = calculateIRmark(bodyXml);
+  const irmark = await calculateIRmark(bodyXml);
 
-  // ── Full GovTalk message ──────────────────────────────────────────────────
+  // Determine SenderDetails credentials (agent vs director)
+  const senderCredentials = agent
+    ? { id: agent.agentGatewayId, password: agent.agentGatewayPassword }
+    : { id: credentials.gatewayUsername, password: credentials.gatewayPassword };
+
   const messageObj = {
     "?xml": { [`${ATTR}version`]: "1.0", [`${ATTR}encoding`]: "UTF-8" },
     GovTalkMessage: {
       [`${ATTR}xmlns`]: "http://www.govtalk.gov.uk/CM/envelope",
-      Header: buildHeaderObject(credentials, vendor, ct600),
+      EnvelopeVersion: "2.0",
+      Header: buildHeaderObject(senderCredentials, vendor, isTest),
       Body: {
         ...bodyObj,
-        // Inject IRmark into the body (inside the IRenvelope at top level).
         IRmark: {
           [`${ATTR}Type`]: "generic",
           "#text": irmark,
@@ -75,6 +98,7 @@ export function buildPollMessage(
     "?xml": { [`${ATTR}version`]: "1.0", [`${ATTR}encoding`]: "UTF-8" },
     GovTalkMessage: {
       [`${ATTR}xmlns`]: "http://www.govtalk.gov.uk/CM/envelope",
+      EnvelopeVersion: "2.0",
       Header: {
         MessageDetails: {
           Class: HMRC_SUBMISSION_CLASS,
@@ -113,9 +137,9 @@ export function buildPollMessage(
 // ─── Private helpers ─────────────────────────────────────────────────────────
 
 function buildHeaderObject(
-  credentials: HmrcCredentials,
+  sender: { id: string; password: string },
   vendor: VendorCredentials,
-  ct600: CT600Data
+  isTest?: boolean
 ) {
   return {
     MessageDetails: {
@@ -123,15 +147,15 @@ function buildHeaderObject(
       Qualifier: "request",
       Function: "submit",
       Transformation: "XML",
-      GatewayTest: "0",
+      GatewayTest: isTest ? "1" : "0",
     },
     SenderDetails: {
       IDAuthentication: {
-        SenderID: credentials.gatewayUsername,
+        SenderID: sender.id,
         Authentication: {
           Method: "clear",
           Role: "principal",
-          Value: credentials.gatewayPassword,
+          Value: sender.password,
         },
       },
     },
@@ -149,8 +173,13 @@ function buildHeaderObject(
 function buildBodyObject(
   ct600: CT600Data,
   periodStart: string,
-  periodEnd: string
+  periodEnd: string,
+  accountsIxbrl: string,
+  computationsIxbrl: string
 ) {
+  const accountsBase64 = Buffer.from(accountsIxbrl, "utf-8").toString("base64");
+  const computationsBase64 = Buffer.from(computationsIxbrl, "utf-8").toString("base64");
+
   return {
     [`${ATTR}xmlns`]: "http://www.govtalk.gov.uk/documents/IRenvelope",
     IRenvelope: {
@@ -183,7 +212,7 @@ function buildBodyObject(
         [`${ATTR}ReturnType`]: "original",
         CompanyInformation: {
           CompanyName: ct600.companyName,
-          RegistrationNumber: "",
+          RegistrationNumber: ct600.companyRegistrationNumber,
           Reference: {
             [`${ATTR}Type`]: "UTR",
             "#text": ct600.uniqueTaxReference,
@@ -205,6 +234,18 @@ function buildBodyObject(
           Date: formatDate(new Date()),
         },
       },
+      Attachment: [
+        {
+          [`${ATTR}Type`]: "ixbrl",
+          [`${ATTR}Description`]: "Annual Accounts",
+          "#text": accountsBase64,
+        },
+        {
+          [`${ATTR}Type`]: "ixbrl",
+          [`${ATTR}Description`]: "Tax Computation",
+          "#text": computationsBase64,
+        },
+      ],
     },
   };
 }

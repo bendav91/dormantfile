@@ -69,13 +69,27 @@ export async function pollHmrc(
 
   if (qualifier === "error") {
     const errors = parsed?.GovTalkMessage?.GovTalkErrors?.Error;
-    const errorText = Array.isArray(errors)
-      ? errors.map((e: { Text?: string }) => e.Text).filter(Boolean).join("; ")
-      : errors?.Text ?? "Unknown error";
+    const errorList = Array.isArray(errors) ? errors : errors ? [errors] : [];
+    const errorText = errorList
+      .map((e: { Text?: string }) => e.Text)
+      .filter(Boolean)
+      .join("; ") || "Unknown error";
+
+    // Extract error codes for specific handling
+    const errorCodes = errorList
+      .map((e: { Number?: string | number }) => String(e.Number ?? ""))
+      .filter(Boolean);
+
+    // 1046 = UTR not enrolled on Government Gateway
+    const is1046 = errorCodes.includes("1046");
+    const message = is1046
+      ? "Your UTR is not enrolled for Corporation Tax on your Government Gateway account. You need to enrol at HMRC's online services before you can file."
+      : errorText;
 
     return {
       status: "rejected",
-      message: errorText,
+      message,
+      errorCode: errorCodes[0],
       responsePayload: responseXml,
     };
   }

@@ -8,6 +8,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -245,15 +246,15 @@ export default function LandingPage() {
                 highlighted: true,
               },
               {
-                name: "Bulk",
+                name: "Agent",
                 price: "49",
                 period: "per year",
                 description: "Up to 100 companies",
                 features: [
                   "Everything in Multiple",
                   "File for up to 100 dormant companies",
-                  "Ideal for company secretaries",
-                  "Priority support",
+                  "File as agent on behalf of clients",
+                  "Ideal for accountants",
                 ],
                 highlighted: false,
               },
@@ -420,35 +421,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer
-        style={{ backgroundColor: "#F1F5F9", borderTop: "1px solid #E2E8F0" }}
-        className="py-8 px-6"
-      >
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-wrap justify-center gap-6 mb-4">
-            {[
-              { href: "/about", label: "About" },
-              { href: "/security", label: "Security" },
-              { href: "/faq", label: "FAQ" },
-              { href: "/contact", label: "Contact" },
-              { href: "/privacy", label: "Privacy" },
-              { href: "/terms", label: "Terms" },
-            ].map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm transition-colors duration-200"
-                style={{ color: "#64748B" }}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-          <p className="text-center text-xs" style={{ color: "#94A3B8" }}>
-            DormantFile is not an accountancy firm. We provide a software tool only.
-          </p>
-        </div>
-      </footer>
+      <MarketingFooter />
     </div>
   );
 }

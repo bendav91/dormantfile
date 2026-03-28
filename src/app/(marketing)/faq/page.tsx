@@ -41,7 +41,7 @@ const faqCategories = [
   {
     name: "Pricing",
     items: [
-      { question: "How much does it cost?", answer: <>Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Bulk is £49/year for up to 100 companies. All plans include both accounts and CT600 filing. See our <a href="/pricing" style={{ color: "#2563EB" }}>pricing page</a> for the full comparison.</> },
+      { question: "How much does it cost?", answer: <>Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Agent is £49/year for up to 100 companies. All plans include both accounts and CT600 filing. See our <a href="/pricing" style={{ color: "#2563EB" }}>pricing page</a> for the full comparison.</> },
       { question: "Is there a free trial?", answer: "We don't currently offer a free trial, but the Basic plan is just £19/year - less than what most accountants charge for a single nil filing." },
       { question: "Can I cancel anytime?", answer: "Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period. No refunds for partial periods." },
       { question: "What happens if my subscription lapses?", answer: "If your subscription expires, you won't be able to file new returns. Your account and filing history remain accessible. You can resubscribe at any time to resume filing." },
@@ -50,7 +50,7 @@ const faqCategories = [
   {
     name: "Account",
     items: [
-      { question: "Can I manage multiple companies?", answer: "Yes, on the Multiple or Bulk plan. Each company has its own filing record, deadlines, and reminders. You manage them all from a single dashboard." },
+      { question: "Can I manage multiple companies?", answer: "Yes, on the Multiple or Agent plan. Each company has its own filing record, deadlines, and reminders. You manage them all from a single dashboard." },
       { question: "How do I add or remove a company?", answer: "Add a company from your dashboard by entering its registration number. Remove a company from your settings - the filing history is preserved." },
       { question: "How do I delete my account?", answer: "You can delete your account from the settings page. This removes all your personal data and company records. This action is permanent and cannot be undone." },
     ],
@@ -69,11 +69,11 @@ const faqJsonLdItems = [
   { question: "Is my data secure?", answer: "Yes. All data is transmitted over TLS encryption. Your DormantFile password is hashed with bcrypt. Your HMRC Gateway credentials are used once during submission and never stored." },
   { question: "Are my HMRC credentials stored?", answer: "No. Your credentials are held in server memory only for the duration of the submission request and discarded immediately after HMRC responds." },
   { question: "What data do you collect?", answer: "We collect your email, a hashed password, company details, and filing records. Payment is handled by Stripe - we never see your card details." },
-  { question: "How much does it cost?", answer: "Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Bulk is £49/year for up to 100 companies." },
+  { question: "How much does it cost?", answer: "Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Agent is £49/year for up to 100 companies." },
   { question: "Is there a free trial?", answer: "We don't currently offer a free trial, but the Basic plan is just £19/year." },
   { question: "Can I cancel anytime?", answer: "Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period." },
   { question: "What happens if my subscription lapses?", answer: "You won't be able to file new returns. Your account and filing history remain accessible. You can resubscribe at any time." },
-  { question: "Can I manage multiple companies?", answer: "Yes, on the Multiple or Bulk plan. Each company has its own filing record, deadlines, and reminders." },
+  { question: "Can I manage multiple companies?", answer: "Yes, on the Multiple or Agent plan. Each company has its own filing record, deadlines, and reminders." },
   { question: "How do I add or remove a company?", answer: "Add a company from your dashboard by entering its registration number. Remove a company from your settings." },
   { question: "How do I delete my account?", answer: "You can delete your account from the settings page. This removes all your personal data and company records permanently." },
 ];

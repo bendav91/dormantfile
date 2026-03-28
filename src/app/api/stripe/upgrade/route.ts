@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const tier = body.tier as SubscriptionTier;
 
-  if (!tier || !["basic", "multi", "bulk"].includes(tier)) {
+  if (!tier || !["basic", "multi", "agent"].includes(tier)) {
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
   }
 
