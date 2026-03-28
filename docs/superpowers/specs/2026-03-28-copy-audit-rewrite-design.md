@@ -17,6 +17,8 @@ Full audit and rewrite of all website copy across two workstreams: legal pages a
 
 **Pre-launch status:** No legal entity established yet. Legal pages will use placeholders for entity name, registered address, and ICO registration number.
 
+**Implementation status:** Both filings (accounts and CT600) are fully implemented in the codebase — UI flows, API routes, XML builders, submission clients, and polling. The copy can accurately describe both filings as working features.
+
 ## Decisions
 
 ### Brand voice
@@ -54,6 +56,9 @@ Legal pages first (they define the guardrails), then marketing pages, then conte
 - Add entity placeholders: `[TRADING NAME]`, `[REGISTERED ADDRESS]`
 - Add "entire agreement" clause
 - Add force majeure covering HMRC/Companies House outages
+- Add ADR disclosure (Alternative Dispute Resolution for Consumer Disputes Regulations 2015) — state whether or not we participate in ADR, and name an ADR entity if applicable
+- Add complaints procedure section
+- Comply with Electronic Commerce (EC Directive) Regulations 2002 information requirements
 
 **Solicitor review flags:**
 - Limitation of liability enforceability
@@ -73,7 +78,7 @@ Legal pages first (they define the guardrails), then marketing pages, then conte
 
 **Rewrite scope:**
 - Data controller with entity placeholder
-- Per-activity lawful basis table (account creation = contract, reminders = legitimate interests, analytics = consent)
+- Per-activity lawful basis table (account creation = contract, reminders = legitimate interests, analytics cookies = PECR consent for cookie placement, legitimate interests for data processing)
 - Add Companies House as data recipient (authentication code + company details)
 - Add international transfer section (Stripe US, Resend US — covered by adequacy decisions or SCCs)
 - Add explicit data retention periods per data type
@@ -114,7 +119,7 @@ Legal pages first (they define the guardrails), then marketing pages, then conte
 - If filing submitted within 14 days: reasonable deduction or full waiver of refund right (with prior consent)
 - After 14 days: no refund for partial periods
 - How to cancel: billing portal
-- What happens to data post-cancellation: retained 12 months then deleted (consistent with privacy policy)
+- What happens to data post-cancellation: account data retained 12 months then deleted; filing records may need longer retention (HMRC expects 6 years of records) — privacy policy and refund policy must be consistent on this
 - How to request earlier deletion
 
 ## Workstream 2: Marketing Pages
@@ -129,7 +134,8 @@ Legal pages first (they define the guardrails), then marketing pages, then conte
 - Add dormant-only scope statement prominently
 - Sharpen all section copy for voice consistency
 - Ensure FAQ section has FAQ schema markup
-- Add meta title and description
+- Add meta title and description (via Next.js `metadata` export in TSX — not MDX frontmatter)
+- Add FAQPageJsonLd component to the homepage FAQ section
 - Verify all pricing matches confirmed figures
 - Ensure internal links to how-it-works, pricing, security, guides
 
@@ -141,7 +147,7 @@ Legal pages first (they define the guardrails), then marketing pages, then conte
 
 **Changes:**
 - Shift from "I" to "we" voice
-- Keep founding story but frame as company origin
+- Rewrite founding story as "Our founder built..." framing, then "we" for the rest of the page
 - Add mention of reminder functionality
 - Ensure both filings described accurately
 - Add internal links to security, pricing, how-it-works
@@ -256,7 +262,8 @@ Legal pages first (they define the guardrails), then marketing pages, then conte
 - Both filings always described together
 - Dormant-only caveat on every service description page
 - CATO closure in past tense
-- "used once and never stored" for credentials
+- HMRC Gateway credentials: "used once and never stored" — applies to HMRC only
+- Companies House authentication code: entered at point of filing, transmitted to CH, not persisted in our database — distinct from HMRC credential handling, described separately
 - Reminder intervals: 90, 30, 14, 7, 3, 1 days
 - Filing time: "under 2 minutes"
 
@@ -264,7 +271,9 @@ Legal pages first (they define the guardrails), then marketing pages, then conte
 - 1 new component: `HowToJsonLd` in `src/lib/content/json-ld.tsx`
 - New MDX files for new content articles
 - New MDX files for new legal pages (acceptable use, refund/cancellation)
-- Route shells for new legal pages if not already covered by the existing page system
+- New Next.js route shells for acceptable-use and refund pages under `src/app/(marketing)/`
+- Update MarketingFooter to add links for new legal pages
+- Update sitemap.ts to include new pages
 
 ### Out of scope
 - Application code changes
@@ -290,6 +299,8 @@ Plus:
 ## Pre-Launch Requirements (flagged for action)
 
 1. Establish a legal entity (limited company or register as sole trader)
-2. Register with ICO (£40/year)
+2. Register with ICO (£40/year) — required before processing any personal data, including beta testing
 3. Fill all `[PLACEHOLDER]` values in legal pages
 4. Professional solicitor review of: limitation of liability, cooling-off waiver, HMRC agent registration question
+5. Once revenue exceeds VAT threshold (currently £90,000), displayed prices must either include VAT or carry a "prices exclude VAT" note — flag for future
+6. Comply with Electronic Commerce (EC Directive) Regulations 2002: display legal name, geographic address, email, and VAT number (when applicable) on the site
