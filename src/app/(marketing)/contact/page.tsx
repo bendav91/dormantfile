@@ -1,86 +1,72 @@
 import type { Metadata } from "next";
-import { Mail } from "lucide-react";
+import { notFound } from "next/navigation";
+import { getPageBySlug } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
-import { ContactForm } from "@/components/marketing/ContactForm";
+import { ContentCTA } from "@/components/marketing/ContentCTA";
 import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
 
-export const metadata: Metadata = {
-  title: "Contact | DormantFile",
-  description:
-    "Get in touch with DormantFile. We typically respond within one working day.",
-  openGraph: {
-    title: "Contact | DormantFile",
-    description: "Get in touch with DormantFile.",
-    type: "website",
-    siteName: "DormantFile",
-  },
-};
+const SLUG = "contact";
 
-const paragraph: React.CSSProperties = {
-  fontSize: "15px",
-  lineHeight: 1.7,
-  color: "#475569",
-  margin: "0 0 16px 0",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await getPageBySlug(SLUG);
+  if (!page) return {};
+  const { title, metaTitle, description, openGraph } = page.frontmatter;
+  const resolvedTitle = metaTitle || `${title} | DormantFile`;
+  return {
+    title: resolvedTitle,
+    description,
+    openGraph: {
+      title: openGraph?.title || resolvedTitle,
+      description: openGraph?.description || description,
+      type: (openGraph?.type as "website" | "article") || "website",
+      siteName: "DormantFile",
+    },
+  };
+}
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const page = await getPageBySlug(SLUG);
+  if (!page) notFound();
+
+  const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } = page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  const align = centeredHeading ? "center" as const : undefined;
+
   return (
     <>
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: baseUrl },
-          { name: "Contact" },
+          ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
         ]}
       />
-      <Breadcrumbs items={[{ label: "Contact" }]} />
-      <h1
-        style={{
-          fontSize: "36px",
-          fontWeight: 700,
-          color: "#1E293B",
-          margin: "0 0 12px 0",
-          letterSpacing: "-0.02em",
-        }}
-      >
-        Contact us
-      </h1>
-      <p style={paragraph}>
-        Have a question or need help? We typically respond within one working day.
-      </p>
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.75rem",
-          padding: "1rem",
-          backgroundColor: "#EFF6FF",
-          borderRadius: "0.5rem",
-          border: "1px solid #DBEAFE",
-          marginBottom: "2rem",
-        }}
-      >
-        <Mail size={20} style={{ color: "#2563EB", flexShrink: 0 }} />
-        <a
-          href="mailto:hello@dormantfile.co.uk"
-          style={{ color: "#2563EB", fontWeight: 500, fontSize: "15px" }}
+      <Breadcrumbs items={breadcrumbs} />
+      <article>
+        <h1
+          style={{
+            fontSize: "36px",
+            fontWeight: 700,
+            color: "#1E293B",
+            margin: "0 0 12px 0",
+            letterSpacing: "-0.02em",
+            textAlign: align,
+          }}
         >
-          hello@dormantfile.co.uk
-        </a>
-      </div>
-
-      <h2
-        style={{
-          fontSize: "18px",
-          fontWeight: 600,
-          color: "#1E293B",
-          margin: "0 0 12px 0",
-        }}
-      >
-        Or send us a message
-      </h2>
-      <ContactForm />
+          {title}
+        </h1>
+        {showUpdatedAt && updatedAt && (
+          <p style={{ fontSize: "14px", color: "#94A3B8", margin: "0 0 40px 0" }}>
+            Last updated: {new Date(updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        )}
+        {subtitle && (
+          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "#475569", marginBottom: "32px", textAlign: align }}>
+            {subtitle}
+          </p>
+        )}
+        {page.content}
+      </article>
+      {showCTA && <ContentCTA />}
     </>
   );
 }
