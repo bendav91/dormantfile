@@ -1,90 +1,175 @@
 ---
 title: "Terms of Service"
-description: "Terms and conditions for using the DormantFile service."
-updatedAt: "2026-03-27"
+description: "Terms and conditions for using DormantFile, the dormant company filing service."
+updatedAt: "2026-03-28"
 breadcrumbs:
   - label: "Terms of Service"
 showCTA: false
 showUpdatedAt: true
+openGraph:
+  title: "Terms of Service | DormantFile"
+  description: "Terms and conditions for using DormantFile."
+  type: "website"
 ---
 
-These terms govern your use of the DormantFile website and service. By creating an account or using the service, you agree to be bound by these terms. If you do not agree, do not use the service.
+These terms govern your use of the DormantFile website and service. By creating an account or using the service, you agree to be bound by these terms. If you do not agree, please do not use the service.
 
 ## 1. About the service
 
-DormantFile provides a software tool that enables directors of dormant UK limited companies to file nil CT600 (Corporation Tax) returns with HMRC. We are **not an accountancy firm**, tax adviser, or regulated financial services provider. We provide software only.
+DormantFile provides a software tool that enables directors of dormant UK limited companies to:
 
-The service is designed exclusively for companies that are genuinely dormant - with no income, expenditure, or assets during the accounting period. If your company has been trading, you must use a qualified accountant.
+- File **dormant company accounts (AA02)** with Companies House.
+- File **nil CT600 Corporation Tax returns** with HMRC.
+
+We are **not an accountancy firm**, tax adviser, or regulated financial services provider. We provide software only.
+
+The service is designed exclusively for companies that are genuinely dormant — with no income, expenditure, or assets beyond the initial subscriber share during the accounting period. If your company has been trading or holds material assets, you must use a qualified accountant.
 
 ## 2. Eligibility
 
 To use DormantFile, you must:
 
 - Be a director or authorised officer of a UK limited company registered at Companies House.
-- Have a valid HMRC Government Gateway account for Corporation Tax.
 - Confirm that your company was genuinely dormant during the accounting period being filed.
+- **For CT600 filings:** hold a valid HMRC Government Gateway account for Corporation Tax.
+- **For accounts filings:** hold a valid Companies House authentication code for your company.
 
 ## 3. Your account
 
-You are responsible for maintaining the security of your account credentials and for all activity that occurs under your account. You must notify us immediately if you become aware of any unauthorised use of your account.
+You are responsible for maintaining the security of your account credentials and for all activity that occurs under your account. You must notify us immediately at [hello@dormantfile.co.uk](mailto:hello@dormantfile.co.uk) if you become aware of any unauthorised use.
 
-## 4. HMRC credentials
+## 4. How the service works
 
-To file your CT600, you must provide your HMRC Government Gateway user ID and password. These credentials are:
+DormantFile submits filings to HMRC and Companies House on your behalf. The two filing types handle your credentials differently:
+
+### Companies House accounts (AA02)
+
+When you file dormant accounts, you provide your six-character Companies House authentication code. This code is:
+
+- Entered at the point of filing.
+- Transmitted to Companies House as part of the submission.
+- **Not stored in our database.**
+
+### HMRC CT600
+
+When you file a nil CT600 return, you provide your HMRC Government Gateway user ID and password. These credentials are:
 
 - Used only at the moment of submission to authenticate with HMRC.
 - Transmitted directly to HMRC over an encrypted (TLS) connection.
-- Never written to our database or stored on our servers.
-- Discarded from server memory immediately after the submission completes.
+- **Never written to our database or stored on our servers.**
+- Discarded from server memory immediately after HMRC responds.
 
-By providing your credentials, you authorise DormantFile to submit a nil CT600 return to HMRC on your behalf for the specified accounting period.
+By providing your credentials for either filing type, you authorise DormantFile to submit the relevant return on your behalf for the specified accounting period.
+
+For more detail on how we handle your data, see our [privacy policy](/privacy) and [security practices](/security).
 
 ## 5. Accuracy of information
 
-You are responsible for ensuring that all information you provide - including your company name, registration number, UTR, and accounting period dates - is accurate and complete. DormantFile is not responsible for filings made with incorrect information.
+You are responsible for ensuring that all information you provide is accurate and complete. This includes your company name, company registration number, Unique Taxpayer Reference (UTR), accounting period dates, Companies House authentication code, and HMRC Gateway credentials.
+
+DormantFile is not responsible for filings made with incorrect information.
 
 ## 6. Subscription and payment
 
-The service operates on a paid annual subscription. The current price is displayed on our website at the time of purchase. Payments are processed securely by Stripe.
+The service operates on a paid annual subscription. Current prices are displayed on our website at the time of purchase. Payments are processed securely by [Stripe](https://stripe.com).
 
 - Your subscription renews automatically each year unless cancelled.
 - You may cancel at any time via the billing portal. Cancellation takes effect at the end of your current billing period.
 - We do not offer refunds for partial billing periods.
 
-## 7. Service availability
+For full details, see our [refund and cancellation policy](/refund).
 
-We aim to keep the service available at all times but do not guarantee uninterrupted access. The service depends on HMRC's systems being operational. We are not liable for downtime caused by HMRC maintenance, outages, or changes to their API.
+## 7. Your right to cancel
 
-## 8. Limitation of liability
+Under the Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013, you have the right to cancel your subscription within 14 days of the date of purchase, without giving a reason.
+
+When you subscribe, you may give your explicit consent for the service to begin immediately — before the 14-day cooling-off period expires. If you do so and a filing is submitted to HMRC or Companies House within that 14-day period, you lose your right to cancel under these regulations, as the service has been fully performed with your prior consent.
+
+If no filing has been submitted and you cancel within 14 days, you are entitled to a full refund less a proportionate amount for any service already provided.
+
+For full details, see our [refund and cancellation policy](/refund).
+
+## 8. Not professional advice
+
+DormantFile is software, not an accountancy practice, tax adviser, or regulated financial services provider. We do not provide accounting, tax, or legal advice.
+
+Filing via DormantFile is done on your own authority as a company director or authorised officer. You are responsible for determining whether your company qualifies as dormant under the Companies Act 2006.
+
+If you are in any doubt about your company's dormancy status, consult a qualified accountant before using the service.
+
+## 9. Service availability
+
+We aim to keep the service available at all times but do not guarantee uninterrupted access. The service depends on HMRC and Companies House systems being operational. We are not liable for downtime caused by third-party maintenance, outages, or changes to their APIs or filing gateways.
+
+## 10. Limitation of liability
 
 To the fullest extent permitted by law:
 
-- DormantFile is provided "as is" without warranties of any kind, whether express or implied.
-- We are not liable for any penalties, fines, or charges imposed by HMRC, including late-filing penalties, that arise from your use of the service.
-- Our total liability to you for any claim arising from the service is limited to the amount you have paid us in the 12 months preceding the claim.
-- We are not liable for indirect, incidental, or consequential damages.
+- The service is provided "as is" without warranties of any kind, whether express or implied.
+- We are not liable for any penalties, fines, or charges imposed by HMRC or Companies House — including late-filing penalties — that arise from your use of the service.
+- Our total liability to you for any claim arising from the service is limited to the total fees you have paid us in the 12 months preceding the claim.
+- We are not liable for any indirect, incidental, special, or consequential damages, including loss of profit, data, or business opportunity.
 
-## 9. Your responsibilities
+**Nothing in these terms limits or excludes our liability for:**
+
+- Death or personal injury caused by our negligence.
+- Fraud or fraudulent misrepresentation.
+- Any other liability that cannot be limited or excluded under the laws of England and Wales.
+
+## 11. Force majeure
+
+We are not liable for any failure or delay in performing our obligations where that failure or delay results from events beyond our reasonable control. This includes, but is not limited to: HMRC or Companies House outages, changes in government policy or filing requirements, internet or telecommunications disruptions, power failures, and acts of God.
+
+## 12. Your responsibilities
 
 You agree that:
 
-- You will only use the service for genuinely dormant companies.
+- You will only use the service for genuinely dormant companies with nil balances.
 - You will not use the service to file fraudulent or misleading returns.
-- You remain ultimately responsible for your company's tax obligations.
-- You will check that your filing has been accepted by HMRC and follow up on any rejections.
+- You remain ultimately responsible for your company's tax and filing obligations.
+- You will check that your filing has been accepted by HMRC or Companies House and follow up on any rejections or queries.
 
-## 10. Termination
+## 13. Termination
 
-We may suspend or terminate your account if you breach these terms or use the service in a way that is harmful, fraudulent, or illegal. You may close your account at any time by contacting us.
+We may suspend or terminate your account if you breach these terms or use the service in a way that is harmful, fraudulent, or illegal. We will give you reasonable notice where practicable.
 
-## 11. Changes to these terms
+You may close your account at any time by contacting us or using the account settings in the application.
 
-We may update these terms from time to time. We will notify you of material changes by email or by placing a notice on the website. Continued use of the service after changes constitutes acceptance of the updated terms.
+## 14. Complaints
 
-## 12. Governing law
+If you are unhappy with any aspect of the service, please contact us at [hello@dormantfile.co.uk](mailto:hello@dormantfile.co.uk). We will acknowledge your complaint and aim to resolve it promptly.
 
-These terms are governed by and construed in accordance with the laws of England and Wales. Any disputes shall be subject to the exclusive jurisdiction of the courts of England and Wales.
+If you are dissatisfied with our response, you may escalate the matter through the dispute resolution process described below.
 
-## 13. Contact
+## 15. Dispute resolution
+
+In accordance with the Alternative Dispute Resolution for Consumer Disputes (Competent Authorities and Information) Regulations 2015, we are required to inform you that alternative dispute resolution (ADR) is available for consumer disputes.
+
+[ADR DECISION PENDING — state whether you will use an ADR entity before launch]
+
+You may also use the European Commission's Online Dispute Resolution platform, where applicable, although this is no longer available to UK consumers following the UK's departure from the EU.
+
+## 16. Changes to these terms
+
+We may update these terms from time to time. We will notify you of material changes by email or by placing a notice on the website. Your continued use of the service after changes take effect constitutes acceptance of the updated terms.
+
+If you do not agree with the updated terms, you should stop using the service and close your account.
+
+## 17. Electronic Commerce Regulations
+
+In compliance with the Electronic Commerce (EC Directive) Regulations 2002, we provide the following information:
+
+- **Service provider:** [TRADING NAME]
+- **Registered address:** [REGISTERED ADDRESS]
+- **Contact email:** [hello@dormantfile.co.uk](mailto:hello@dormantfile.co.uk)
+- **VAT number:** [VAT NUMBER IF APPLICABLE]
+
+## 18. Governing law
+
+These terms are governed by and construed in accordance with the laws of England and Wales. Any disputes arising from or in connection with these terms shall be subject to the exclusive jurisdiction of the courts of England and Wales.
+
+If you are a consumer, you also benefit from any mandatory provisions of the law of the country in which you are resident, and nothing in these terms affects your rights as a consumer to rely on such provisions.
+
+## 19. Contact
 
 If you have questions about these terms, contact us at [hello@dormantfile.co.uk](mailto:hello@dormantfile.co.uk).
