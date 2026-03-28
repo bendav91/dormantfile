@@ -124,6 +124,13 @@ export default function RegisterPage() {
           </p>
         )}
 
+        <p className="text-xs text-gray-500 leading-relaxed">
+          By creating an account, you agree to our{" "}
+          <Link href="/terms" className="text-blue-600 hover:text-blue-700 underline">Terms of Service</Link>,{" "}
+          <Link href="/privacy" className="text-blue-600 hover:text-blue-700 underline">Privacy Policy</Link>, and{" "}
+          <Link href="/acceptable-use" className="text-blue-600 hover:text-blue-700 underline">Acceptable Use Policy</Link>.
+        </p>
+
         <button
           type="submit"
           disabled={loading}
