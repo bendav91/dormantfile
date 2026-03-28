@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { compileMDX } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 import { mdxComponents } from "@/components/marketing/MDXComponents";
 import type { ContentFrontmatter, ContentItem, PageFrontmatter } from "./types";
 
@@ -43,7 +44,7 @@ export async function getContentBySlug(
 
   const { content, frontmatter } = await compileMDX<ContentFrontmatter>({
     source: fileContent,
-    options: { parseFrontmatter: true },
+    options: { parseFrontmatter: true, mdxOptions: { remarkPlugins: [remarkGfm] } },
     components: mdxComponents,
   });
 
@@ -74,7 +75,7 @@ export async function getPageBySlug(slug: string, contentDir = DEFAULT_CONTENT_D
 
   const { content, frontmatter } = await compileMDX<PageFrontmatter>({
     source: fileContent,
-    options: { parseFrontmatter: true },
+    options: { parseFrontmatter: true, mdxOptions: { remarkPlugins: [remarkGfm] } },
     components: mdxComponents,
   });
 

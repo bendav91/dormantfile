@@ -2,7 +2,7 @@ import { Mail } from "lucide-react";
 
 export function EmailLink({ email }: { email: string }) {
   return (
-    <div
+    <span
       style={{
         display: "flex",
         alignItems: "center",
@@ -18,6 +18,6 @@ export function EmailLink({ email }: { email: string }) {
       <a href={`mailto:${email}`} style={{ color: "#2563EB", fontWeight: 500, fontSize: "15px" }}>
         {email}
       </a>
-    </div>
+    </span>
   );
 }
