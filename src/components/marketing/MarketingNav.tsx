@@ -86,6 +86,7 @@ export function MarketingNav() {
               >
                 {[
                   { href: "/guides", label: "Guides" },
+                  { href: "/answers", label: "Answers" },
                   { href: "/faq", label: "FAQ" },
                   { href: "/security", label: "Security" },
                 ].map((item) => (

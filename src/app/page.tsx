@@ -72,7 +72,7 @@ export default function LandingPage() {
             <span style={{ color: "#2563EB" }}>sorted</span>
           </h1>
           <p
-            className="text-xl leading-relaxed mb-10 max-w-2xl mx-auto"
+            className="text-xl leading-relaxed mb-10 max-w-2xl mx-auto text-balance"
             style={{ color: "#475569" }}
           >
             Annual accounts to Companies House and nil Corporation Tax returns
