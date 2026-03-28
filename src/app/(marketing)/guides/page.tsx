@@ -8,11 +8,11 @@ import type { ContentCategory } from "@/lib/content/types";
 export const metadata: Metadata = {
   title: "Guides | DormantFile",
   description:
-    "Guides for UK dormant company directors: filing accounts, CT600 returns, deadlines, penalties, and more.",
+    "Step-by-step guides for dormant company directors: how to file accounts, nil CT600 returns, deadlines, penalties, and costs.",
   openGraph: {
     title: "Guides | DormantFile",
     description:
-      "Guides for UK dormant company directors: filing accounts, CT600 returns, deadlines, penalties, and more.",
+      "Step-by-step guides for dormant company directors: filing, deadlines, penalties, and costs.",
     type: "website",
     siteName: "DormantFile",
   },
@@ -59,7 +59,7 @@ export default function GuidesIndexPage() {
         Guides
       </h1>
       <p className="text-base mb-10" style={{ color: "#64748B" }}>
-        Everything you need to know about filing for a dormant UK company.
+        Step-by-step guides covering dormant company accounts, nil CT600 returns, filing deadlines, penalties, and costs.
       </p>
 
       {grouped.map((group) => (

@@ -7,11 +7,11 @@ import { ContentCTA } from "@/components/marketing/ContentCTA";
 export const metadata: Metadata = {
   title: "Answers | DormantFile",
   description:
-    "Quick answers to common questions about dormant company filing: CT600, UTR numbers, deadlines, and more.",
+    "Plain-English answers to common dormant company questions: CT600, UTR numbers, authentication codes, deadlines, and more.",
   openGraph: {
     title: "Answers | DormantFile",
     description:
-      "Quick answers to common questions about dormant company filing.",
+      "Plain-English answers to common dormant company filing questions.",
     type: "website",
     siteName: "DormantFile",
   },
@@ -30,8 +30,8 @@ export default function AnswersIndexPage() {
         Quick Answers
       </h1>
       <p className="text-base mb-10" style={{ color: "#64748B" }}>
-        Short explanations of the terms and concepts you&apos;ll come across
-        when filing for a dormant company.
+        Plain-English explanations of the terms and concepts you&apos;ll encounter
+        when filing for a dormant UK company.
       </p>
 
       <ul
