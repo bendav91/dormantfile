@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 
 interface FAQItemData {
   question: string;
-  answer: React.ReactNode;
+  answer: string;
 }
 
 function FAQItem({ question, answer }: FAQItemData) {

@@ -1,4 +1,12 @@
 import Link from "next/link";
+import { PricingCards } from "@/components/marketing/mdx/PricingCards";
+import { ComparisonTable } from "@/components/marketing/mdx/ComparisonTable";
+import { Steps, Step } from "@/components/marketing/mdx/Steps";
+import { SecurityCards } from "@/components/marketing/mdx/SecurityCards";
+import { Callout } from "@/components/marketing/mdx/Callout";
+import { EmailLink } from "@/components/marketing/mdx/EmailLink";
+import { ContactForm } from "@/components/marketing/ContactForm";
+import { ContentCTA } from "@/components/marketing/ContentCTA";
 
 export const mdxComponents = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -45,4 +53,13 @@ export const mdxComponents = {
   td: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
     <td style={{ padding: "0.75rem", borderBottom: "1px solid #E2E8F0", color: "#475569" }} {...props} />
   ),
+  PricingCards,
+  ComparisonTable,
+  Steps,
+  Step,
+  SecurityCards,
+  Callout,
+  EmailLink,
+  ContactForm,
+  ContentCTA,
 };
