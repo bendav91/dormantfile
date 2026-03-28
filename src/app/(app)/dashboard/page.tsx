@@ -455,12 +455,15 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     <p style={{ fontSize: "12px", fontWeight: 600, color: "#1E293B", margin: 0 }}>Accounts</p>
                     <p style={{
                       fontSize: "11px",
-                      color: accountsDaysLeft <= 0 ? "#DC2626" : accountsDaysLeft <= 30 ? "#D97706" : "#64748B",
+                      color: accountsFiling?.status === "accepted" ? "#64748B"
+                        : accountsDaysLeft <= 0 ? "#DC2626"
+                        : accountsDaysLeft <= 30 ? "#D97706"
+                        : "#64748B",
                       margin: 0,
                     }}>
                       {formatDate(accountsDeadline)}
-                      {accountsDaysLeft <= 30 && accountsDaysLeft > 0 && ` (${accountsDaysLeft}d)`}
-                      {accountsDaysLeft <= 0 && " (Overdue)"}
+                      {accountsFiling?.status !== "accepted" && accountsDaysLeft <= 30 && accountsDaysLeft > 0 && ` (${accountsDaysLeft}d)`}
+                      {accountsFiling?.status !== "accepted" && accountsDaysLeft <= 0 && " (Overdue)"}
                     </p>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -494,12 +497,15 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                       <p style={{ fontSize: "12px", fontWeight: 600, color: "#1E293B", margin: 0 }}>CT600</p>
                       <p style={{
                         fontSize: "11px",
-                        color: ct600DaysLeft <= 0 ? "#DC2626" : ct600DaysLeft <= 30 ? "#D97706" : "#64748B",
+                        color: ct600Filing?.status === "accepted" ? "#64748B"
+                          : ct600DaysLeft <= 0 ? "#DC2626"
+                          : ct600DaysLeft <= 30 ? "#D97706"
+                          : "#64748B",
                         margin: 0,
                       }}>
                         {formatDate(ct600Deadline)}
-                        {ct600DaysLeft <= 30 && ct600DaysLeft > 0 && ` (${ct600DaysLeft}d)`}
-                        {ct600DaysLeft <= 0 && " (Overdue)"}
+                        {ct600Filing?.status !== "accepted" && ct600DaysLeft <= 30 && ct600DaysLeft > 0 && ` (${ct600DaysLeft}d)`}
+                        {ct600Filing?.status !== "accepted" && ct600DaysLeft <= 0 && " (Overdue)"}
                       </p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
