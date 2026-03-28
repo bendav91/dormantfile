@@ -7,6 +7,7 @@ import {
   CheckCircle,
   ArrowRight,
 } from "lucide-react";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -21,40 +22,7 @@ export default function LandingPage() {
       style={{ backgroundColor: "#F8FAFC", color: "#1E293B" }}
     >
       {/* Navigation */}
-      <nav
-        style={{ backgroundColor: "#ffffff", borderBottom: "1px solid #E2E8F0" }}
-        className="sticky top-0 z-50"
-      >
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span
-            className="text-xl font-semibold"
-            style={{ color: "#2563EB" }}
-          >
-            DormantFile
-          </span>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/login"
-              className="text-sm font-medium transition-colors duration-200 nav-signin-link"
-              style={{ color: "#1E293B" }}
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/register"
-              className="text-sm font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5"
-              style={{
-                backgroundColor: "#F97316",
-                color: "#ffffff",
-                padding: "10px 20px",
-                borderRadius: "8px",
-              }}
-            >
-              Get started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav />
 
       {/* Hero Section */}
       <section className="py-24 px-6">

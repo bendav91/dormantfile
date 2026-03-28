@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 export function MarketingNav() {
   const [resourcesOpen, setResourcesOpen] = useState(false);
@@ -33,8 +34,9 @@ export function MarketingNav() {
         <Link
           href="/"
           className="text-xl font-semibold"
-          style={{ color: "#2563EB", textDecoration: "none" }}
+          style={{ color: "#2563EB", textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}
         >
+          <Logo size={24} />
           DormantFile
         </Link>
         <div className="flex items-center gap-6">

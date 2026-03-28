@@ -2,9 +2,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { IBM_Plex_Sans } from "next/font/google";
-import { FileText, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import Link from "next/link";
 import SignOutButton from "@/components/sign-out-button";
+import { Logo } from "@/components/Logo";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -51,7 +52,7 @@ export default async function AppLayout({
               textDecoration: "none",
             }}
           >
-            <FileText size={22} color="#2563EB" strokeWidth={2} />
+            <Logo size={22} />
             <span
               style={{
                 fontSize: "18px",
