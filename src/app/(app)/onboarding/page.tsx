@@ -27,7 +27,8 @@ export default async function OnboardingPage() {
   });
 
   const hasCompanies = activeCompanyCount > 0;
-  const isFirstCompany = !hasCompanies;
+  const hasSubscription = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
+  const isFirstCompany = !hasCompanies && !hasSubscription;
 
   // If they already have companies but can't add more, send them back
   if (hasCompanies && !canAddCompany(user.subscriptionTier, activeCompanyCount)) {
@@ -36,7 +37,7 @@ export default async function OnboardingPage() {
 
   return (
     <div style={{ maxWidth: "640px", margin: "0 auto" }}>
-      {hasCompanies && (
+      {(hasCompanies || hasSubscription) && (
         <Link
           href="/dashboard"
           style={{
@@ -63,7 +64,7 @@ export default async function OnboardingPage() {
             letterSpacing: "-0.02em",
           }}
         >
-          {isFirstCompany ? "Add your company" : "Add another company"}
+          {hasCompanies ? "Add another company" : "Add your company"}
         </h1>
         <p
           style={{
