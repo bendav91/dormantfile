@@ -348,6 +348,13 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             (ct600Deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           );
 
+          // How many periods behind is this company?
+          // Compare current period end to today — each year gap = 1 period behind.
+          const now = new Date();
+          const periodsBehind = Math.max(0, now.getUTCFullYear() - company.accountingPeriodEnd.getUTCFullYear() + (
+            now.getTime() > new Date(Date.UTC(now.getUTCFullYear(), company.accountingPeriodEnd.getUTCMonth(), company.accountingPeriodEnd.getUTCDate())).getTime() ? 1 : 0
+          ) - 1);
+
           const filingBtnStyle: React.CSSProperties = {
             display: "inline-flex", alignItems: "center",
             backgroundColor: "#F97316", color: "#ffffff",
@@ -405,10 +412,33 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               </div>
 
               {/* Period */}
-              <p style={{ fontSize: "12px", color: "#64748B", margin: "0 0 12px 0" }}>
+              <p style={{ fontSize: "12px", color: "#64748B", margin: periodsBehind > 0 ? "0 0 4px 0" : "0 0 12px 0" }}>
                 <span style={{ fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "10px" }}>Period </span>
                 {formatDate(company.accountingPeriodStart)} &ndash; {formatDate(company.accountingPeriodEnd)}
               </p>
+
+              {/* Periods behind warning */}
+              {periodsBehind > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "6px 10px",
+                    backgroundColor: "#FEF2F2",
+                    border: "1px solid #FECACA",
+                    borderRadius: "6px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <AlertTriangle size={13} color="#DC2626" strokeWidth={2} style={{ flexShrink: 0 }} />
+                  <p style={{ fontSize: "11px", color: "#991B1B", margin: 0, fontWeight: 500 }}>
+                    {periodsBehind === 1
+                      ? "1 period behind — file this period to advance to the next"
+                      : `${periodsBehind} periods behind — each filing advances the period by one year`}
+                  </p>
+                </div>
+              )}
 
               {/* Filing rows */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
