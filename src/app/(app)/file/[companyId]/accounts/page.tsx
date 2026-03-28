@@ -29,7 +29,7 @@ export default async function AccountsFilingPage({ params }: PageProps) {
   if (!company) redirect("/dashboard");
 
   return (
-    <div style={{ maxWidth: "640px", margin: "0 auto" }}>
+    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
       <nav
         style={{
           display: "flex",

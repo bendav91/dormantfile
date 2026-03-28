@@ -22,7 +22,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div style={{ maxWidth: "640px", margin: "0 auto" }}>
+    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
       <div style={{ marginBottom: "32px" }}>
         <h1
           style={{

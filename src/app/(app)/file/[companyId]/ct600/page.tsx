@@ -30,7 +30,7 @@ export default async function CT600FilingPage({ params }: PageProps) {
   if (!company.registeredForCorpTax) redirect(`/file/${companyId}`);
 
   return (
-    <div style={{ maxWidth: "640px", margin: "0 auto" }}>
+    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
       <nav
         style={{
           display: "flex",

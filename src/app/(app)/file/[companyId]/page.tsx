@@ -51,7 +51,7 @@ export default async function FilingSelector({ params }: PageProps) {
   const ct600Blocked = ct600Filing && BLOCKED_STATUSES.includes(ct600Filing.status);
 
   return (
-    <div style={{ maxWidth: "640px", margin: "0 auto" }}>
+    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
       {/* Back link */}
       <Link
         href="/dashboard"
