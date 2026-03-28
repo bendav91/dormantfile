@@ -95,3 +95,37 @@ export function OrganizationJsonLd() {
     />
   );
 }
+
+interface HowToStep {
+  name: string;
+  text: string;
+}
+
+export function HowToJsonLd({
+  name,
+  description,
+  steps,
+}: {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+}) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name,
+    description,
+    step: steps.map((step, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: step.name,
+      text: step.text,
+    })),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}

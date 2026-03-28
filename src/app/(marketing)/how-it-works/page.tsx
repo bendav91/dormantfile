@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getPageBySlug } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
-import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
+import { BreadcrumbJsonLd, HowToJsonLd } from "@/lib/content/json-ld";
 
 const SLUG = "how-it-works";
 
@@ -24,6 +24,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const howToSteps = [
+  { name: "Create your account", text: "Sign up with your email address and set a password." },
+  { name: "Add your company", text: "Enter your company registration number. We look up the company name from Companies House. Add your UTR and accounting period dates." },
+  { name: "Choose your plan", text: "Pick Basic for one company, Multiple for up to 10, or Agent for up to 100." },
+  { name: "Get deadline reminders", text: "We calculate your filing deadlines and send email reminders at 90, 30, 14, 7, 3, and 1 day before they are due." },
+  { name: "File your accounts", text: "Submit dormant accounts to Companies House. Enter your authentication code and we handle the rest." },
+  { name: "File your CT600", text: "Submit a nil CT600 to HMRC. Enter your Government Gateway credentials — used once and never stored." },
+  { name: "Get confirmation", text: "Once accepted, we show confirmation in your dashboard and send you an email." },
+];
+
 export default async function HowItWorksPage() {
   const page = await getPageBySlug(SLUG);
   if (!page) notFound();
@@ -39,6 +49,11 @@ export default async function HowItWorksPage() {
           { name: "Home", url: baseUrl },
           ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
         ]}
+      />
+      <HowToJsonLd
+        name="How to file dormant company accounts and nil CT600 returns"
+        description="Step-by-step guide to filing for a dormant UK limited company using DormantFile."
+        steps={howToSteps}
       />
       <Breadcrumbs items={breadcrumbs} />
       <article>
