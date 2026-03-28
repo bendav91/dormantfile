@@ -30,7 +30,7 @@ export function MarketingNav() {
       }}
       className="sticky top-0 z-50"
     >
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-[960px] mx-auto px-6 py-4 flex items-center justify-between">
         <Link
           href="/"
           className="text-xl font-semibold"

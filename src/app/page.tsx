@@ -63,7 +63,7 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-[960px] mx-auto text-center">
           <h1
             className="text-5xl sm:text-6xl font-bold leading-tight tracking-tight mb-6"
             style={{ color: "#1E293B" }}
@@ -106,7 +106,7 @@ export default function LandingPage() {
         style={{ backgroundColor: "#ffffff", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0" }}
         className="py-10 px-6"
       >
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[960px] mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center sm:text-left">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
               <Shield size={22} style={{ color: "#2563EB", flexShrink: 0 }} />
@@ -147,7 +147,7 @@ export default function LandingPage() {
 
       {/* How It Works */}
       <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[960px] mx-auto">
           <h2
             className="text-3xl font-bold text-center mb-14"
             style={{ color: "#1E293B" }}
@@ -221,7 +221,7 @@ export default function LandingPage() {
         style={{ backgroundColor: "#EFF6FF", borderTop: "1px solid #DBEAFE", borderBottom: "1px solid #DBEAFE" }}
         className="py-20 px-6"
       >
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-[960px] mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6" style={{ color: "#1E293B" }}>
             CATO closed. Now what?
           </h2>
@@ -242,7 +242,7 @@ export default function LandingPage() {
 
       {/* Pricing */}
       <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-[960px] mx-auto">
           <h2
             className="text-3xl font-bold text-center mb-4"
             style={{ color: "#1E293B" }}
@@ -382,7 +382,7 @@ export default function LandingPage() {
         style={{ backgroundColor: "#ffffff", borderTop: "1px solid #E2E8F0" }}
         className="py-20 px-6"
       >
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-[960px] mx-auto">
           <h2
             className="text-3xl font-bold text-center mb-12"
             style={{ color: "#1E293B" }}
@@ -416,7 +416,7 @@ export default function LandingPage() {
         style={{ backgroundColor: "#1E293B" }}
         className="py-24 px-6 text-center"
       >
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-[960px] mx-auto">
           <h2 className="text-4xl font-bold mb-6 text-white">
             Ready to file your dormant company returns?
           </h2>

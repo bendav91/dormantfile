@@ -21,7 +21,7 @@ export default function MarketingLayout({
       <MarketingNav />
       <main
         style={{
-          maxWidth: "48rem",
+          maxWidth: "960px",
           width: "100%",
           margin: "0 auto",
           padding: "2.5rem 1.5rem",

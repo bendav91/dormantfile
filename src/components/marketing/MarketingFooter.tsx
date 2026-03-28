@@ -23,7 +23,7 @@ export function MarketingFooter() {
       }}
       className="py-8 px-6"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-[960px] mx-auto">
         <div className="flex flex-wrap justify-center gap-6 mb-4">
           {footerLinks.map((link) => (
             <Link
