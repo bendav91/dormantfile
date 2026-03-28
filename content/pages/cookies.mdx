@@ -1,37 +1,54 @@
 ---
 title: "Cookie Policy"
-description: "How DormantFile uses cookies. We use one essential session cookie and an optional analytics cookie with your consent."
+description: "How DormantFile uses cookies. We use essential session cookies and optional analytics cookies with your consent."
 updatedAt: "2026-03-28"
 breadcrumbs:
   - label: "Cookie Policy"
 showCTA: false
 showUpdatedAt: true
+openGraph:
+  title: "Cookie Policy | DormantFile"
+  description: "How DormantFile uses cookies."
+  type: "website"
 ---
 
-DormantFile uses a minimal number of cookies. This page explains what each cookie does, why we use it, and how you can control your preferences.
+Cookies are small text files placed on your device when you visit a website. They help the site work properly and can provide information to the site owner. You can read more about cookies in the [ICO's guidance on cookies](https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/guide-to-pecr/cookies-and-similar-technologies/).
+
+This page explains which cookies DormantFile sets, why we use them, and how you can control your preferences.
 
 ## Essential cookies
 
-These cookies are required for the site to function and cannot be switched off.
+These cookies are required for the site to function. They cannot be switched off.
 
-- **Session cookie** - keeps you logged in while you use DormantFile. This cookie is deleted when you sign out or close your browser.
-- **Cookie consent preference** - remembers whether you have accepted or declined optional cookies so we don't ask you again. Stored in your browser's local storage.
+| Cookie | Purpose | Duration | Type |
+| --- | --- | --- | --- |
+| `next-auth.session-token` | Keeps you logged in | Session (deleted on sign-out or browser close) | Essential |
+| `next-auth.csrf-token` | Prevents cross-site request forgery | Session | Essential |
+| `next-auth.callback-url` | Remembers where to redirect you after login | Session | Essential |
 
-## Analytics cookies (optional)
+## Cookie consent
 
-We use Google Analytics to understand how people use DormantFile so we can improve the service. These cookies are **only set if you click "Accept"** on our cookie consent banner. If you decline, no analytics cookies are placed and no data is sent to Google.
+Your consent preference (accept or decline) is stored in your browser's local storage rather than in a cookie. This lets us remember your choice without setting an additional cookie.
 
-- **_ga** - distinguishes unique visitors. Expires after 2 years.
-- **_ga_\*** - maintains session state. Expires after 2 years.
+## Analytics cookies (optional, consent required)
 
-Google Analytics data is used in aggregate to see which pages are visited and how the service is used. We do not use it to identify individual users.
+We use Google Analytics to understand how people use DormantFile so we can improve the service.
+
+| Cookie | Purpose | Duration | Type |
+| --- | --- | --- | --- |
+| `_ga` | Distinguishes unique visitors (Google Analytics) | 2 years | Analytics |
+| `_ga_*` | Maintains session state (Google Analytics) | 2 years | Analytics |
+
+Analytics cookies are **only set if you click "Accept"** on our cookie consent banner. If you decline, no analytics cookies are placed and no data is sent to Google. Google Analytics data is used in aggregate to see which pages are visited and how the service is used. We do not use it to identify individual users.
 
 ## Advertising cookies
 
 We do not use any advertising or third-party tracking cookies. We do not sell or share your data with advertisers.
 
-## Managing your preferences
+## How to manage your preferences
 
-You can change your cookie preference at any time by clearing your browser's local storage for this site - the consent banner will reappear on your next visit. You can also block or delete cookies through your browser settings.
+You can change your cookie preference at any time by clearing your browser's local storage for this site. The consent banner will reappear on your next visit, and you can make a new choice.
 
-For more information about how we handle your data, see our [privacy policy](/privacy).
+You can also block or delete cookies through your browser settings. Be aware that blocking essential cookies may prevent you from signing in.
+
+For more information about how we handle your data, see our [privacy policy](/privacy). For general guidance on cookies, visit the [ICO's cookie guidance](https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/guide-to-pecr/cookies-and-similar-technologies/).
