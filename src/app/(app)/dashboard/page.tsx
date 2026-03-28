@@ -20,7 +20,13 @@ function formatDate(date: Date): string {
   });
 }
 
-export default async function DashboardPage() {
+const PAGE_SIZE = 10;
+
+interface DashboardProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function DashboardPage({ searchParams }: DashboardProps) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -41,6 +47,18 @@ export default async function DashboardPage() {
   const freshUser = await prisma.user.findUnique({ where: { id: user.id } });
   if (freshUser) Object.assign(user, freshUser);
 
+  const totalCompanies = await prisma.company.count({
+    where: { userId: user.id, deletedAt: null },
+  });
+
+  if (totalCompanies === 0) {
+    redirect("/onboarding");
+  }
+
+  const { page: pageParam } = await searchParams;
+  const totalPages = Math.ceil(totalCompanies / PAGE_SIZE);
+  const currentPage = Math.max(1, Math.min(totalPages, parseInt(pageParam ?? "1", 10) || 1));
+
   const companies = await prisma.company.findMany({
     where: { userId: user.id, deletedAt: null },
     include: {
@@ -50,14 +68,12 @@ export default async function DashboardPage() {
       },
     },
     orderBy: { createdAt: "asc" },
+    skip: (currentPage - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
   });
 
-  if (companies.length === 0) {
-    redirect("/onboarding");
-  }
-
   const canFile = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
-  const showAddCompany = canAddCompany(user.subscriptionTier, companies.length);
+  const showAddCompany = canAddCompany(user.subscriptionTier, totalCompanies);
   const companyLimit = getCompanyLimit(user.subscriptionTier);
 
   // Count filings used in current billing period
@@ -78,7 +94,7 @@ export default async function DashboardPage() {
     <div style={{ maxWidth: "640px", margin: "0 auto" }}>
       <SubscriptionBanner status={user.subscriptionStatus} />
 
-      {canFile && companyLimit > 0 && companies.length > companyLimit && (
+      {canFile && companyLimit > 0 && totalCompanies > companyLimit && (
         <div
           style={{
             display: "flex",
@@ -93,7 +109,7 @@ export default async function DashboardPage() {
         >
           <AlertTriangle size={18} color="#CA8A04" strokeWidth={2} style={{ flexShrink: 0, marginTop: "1px" }} />
           <p style={{ fontSize: "14px", color: "#713F12", margin: 0, fontWeight: 500 }}>
-            You have {companies.length} {companies.length === 1 ? "company" : "companies"} but your {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period. Remove companies or upgrade your plan from{" "}
+            You have {totalCompanies} {totalCompanies === 1 ? "company" : "companies"} but your {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period. Remove companies or upgrade your plan from{" "}
             <a href="/choose-plan" style={{ color: "#92400E", fontWeight: 600 }}>Change plan</a>.
           </p>
         </div>
@@ -115,7 +131,7 @@ export default async function DashboardPage() {
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "2px" }}>
             <p style={{ fontSize: "15px", color: "#64748B", margin: 0 }}>
-              {companies.length} {companies.length === 1 ? "company" : "companies"}
+              {totalCompanies} {totalCompanies === 1 ? "company" : "companies"}
               {companyLimit > 0 && ` / ${companyLimit}`}
             </p>
             <span
@@ -404,6 +420,57 @@ export default async function DashboardPage() {
           );
         })}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            marginTop: "32px",
+          }}
+        >
+          {currentPage > 1 && (
+            <Link
+              href={`/dashboard?page=${currentPage - 1}`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#2563EB",
+                border: "1px solid #BFDBFE",
+                textDecoration: "none",
+                transition: "all 200ms",
+              }}
+            >
+              Previous
+            </Link>
+          )}
+          <span style={{ fontSize: "14px", color: "#64748B" }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          {currentPage < totalPages && (
+            <Link
+              href={`/dashboard?page=${currentPage + 1}`}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#2563EB",
+                border: "1px solid #BFDBFE",
+                textDecoration: "none",
+                transition: "all 200ms",
+              }}
+            >
+              Next
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }
