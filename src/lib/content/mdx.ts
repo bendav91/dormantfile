@@ -3,7 +3,7 @@ import path from "path";
 import matter from "gray-matter";
 import { compileMDX } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/components/marketing/MDXComponents";
-import type { ContentFrontmatter, ContentItem } from "./types";
+import type { ContentFrontmatter, ContentItem, PageFrontmatter } from "./types";
 
 const DEFAULT_CONTENT_DIR = path.join(process.cwd(), "content");
 
@@ -64,6 +64,21 @@ export async function getGuideBySlug(slug: string) {
 
 export async function getAnswerBySlug(slug: string) {
   return getContentBySlug("answers", slug);
+}
+
+export async function getPageBySlug(slug: string, contentDir = DEFAULT_CONTENT_DIR) {
+  const filePath = path.join(contentDir, "pages", `${slug}.mdx`);
+  if (!fs.existsSync(filePath)) return null;
+
+  const fileContent = fs.readFileSync(filePath, "utf-8");
+
+  const { content, frontmatter } = await compileMDX<PageFrontmatter>({
+    source: fileContent,
+    options: { parseFrontmatter: true },
+    components: mdxComponents,
+  });
+
+  return { content, frontmatter, slug };
 }
 
 export function getRelatedContent(
