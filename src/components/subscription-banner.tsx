@@ -32,6 +32,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           </div>
           <button
             onClick={handlePortal}
+            className="focus-ring"
             style={{
               backgroundColor: "#CA8A04",
               color: "#ffffff",
@@ -41,7 +42,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
               fontSize: "14px",
               border: "none",
               cursor: "pointer",
-              transition: "all 200ms",
+              transition: "opacity 200ms, background-color 200ms",
               whiteSpace: "nowrap",
               flexShrink: 0,
             }}
@@ -95,6 +96,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
         </div>
         <button
           onClick={handleCheckout}
+          className="focus-ring"
           style={{
             backgroundColor: "#F97316",
             color: "#ffffff",
@@ -104,7 +106,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
             fontSize: "14px",
             border: "none",
             cursor: "pointer",
-            transition: "all 200ms",
+            transition: "opacity 200ms, background-color 200ms",
             whiteSpace: "nowrap",
             flexShrink: 0,
           }}
@@ -144,6 +146,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
         </div>
         <button
           onClick={handlePortal}
+          className="focus-ring"
           style={{
             backgroundColor: "#DC2626",
             color: "#ffffff",
@@ -153,7 +156,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
             fontSize: "14px",
             border: "none",
             cursor: "pointer",
-            transition: "all 200ms",
+            transition: "opacity 200ms, background-color 200ms",
             whiteSpace: "nowrap",
             flexShrink: 0,
           }}
@@ -193,6 +196,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
         </div>
         <button
           onClick={handleCheckout}
+          className="focus-ring"
           style={{
             backgroundColor: "#475569",
             color: "#ffffff",
@@ -202,7 +206,7 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
             fontSize: "14px",
             border: "none",
             cursor: "pointer",
-            transition: "all 200ms",
+            transition: "opacity 200ms, background-color 200ms",
             whiteSpace: "nowrap",
             flexShrink: 0,
           }}

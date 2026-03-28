@@ -84,9 +84,11 @@ export default async function AppLayout({
                 height: "32px",
                 borderRadius: "8px",
                 color: "#64748B",
-                transition: "all 200ms",
+                transition: "color 200ms, background-color 200ms",
               }}
               title="Account settings"
+              aria-label="Account settings"
+              className="focus-ring"
             >
               <Settings size={18} strokeWidth={2} />
             </Link>
@@ -96,6 +98,7 @@ export default async function AppLayout({
       </nav>
 
       <main
+        id="main-content"
         style={{
           maxWidth: "960px",
           margin: "0 auto",

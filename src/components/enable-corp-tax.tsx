@@ -64,6 +64,7 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
         </p>
         <button
           onClick={() => setExpanded(true)}
+          className="focus-ring"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -76,7 +77,7 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
             fontSize: "13px",
             border: "1px solid #BFDBFE",
             cursor: "pointer",
-            transition: "all 200ms",
+            transition: "background-color 200ms, color 200ms",
           }}
         >
           <Plus size={13} strokeWidth={2.5} />
@@ -117,6 +118,9 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
         }}
         placeholder="e.g. 1234567890"
         autoFocus
+        autoComplete="off"
+        spellCheck={false}
+        className="focus-ring-input"
         style={{
           width: "100%",
           padding: "10px 14px",
@@ -126,7 +130,6 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
           borderColor: error ? "#EF4444" : "#94A3B8",
           borderRadius: "6px",
           fontSize: "14px",
-          outline: "none",
           boxSizing: "border-box",
         }}
       />
@@ -140,6 +143,7 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
         <button
           onClick={handleSave}
           disabled={saving}
+          className="focus-ring"
           style={{
             backgroundColor: saving ? "#CBD5E1" : "#2563EB",
             color: "#ffffff",
@@ -151,7 +155,7 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
             cursor: saving ? "not-allowed" : "pointer",
           }}
         >
-          {saving ? "Saving..." : "Enable CT600"}
+          {saving ? "Saving\u2026" : "Enable CT600"}
         </button>
         <button
           onClick={() => {
@@ -160,6 +164,7 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
             setError("");
           }}
           disabled={saving}
+          className="focus-ring"
           style={{
             backgroundColor: "transparent",
             color: "#64748B",

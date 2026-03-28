@@ -29,13 +29,13 @@ export function CookieConsent() {
       <div className="mt-3 flex gap-3 sm:mt-0 sm:shrink-0">
         <button
           onClick={() => respond(false)}
-          className="rounded-md px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
+          className="rounded-md px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2"
         >
           Decline
         </button>
         <button
           onClick={() => respond(true)}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         >
           Accept
         </button>

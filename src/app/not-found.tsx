@@ -47,6 +47,7 @@ export default function NotFoundPage() {
       </p>
       <Link
         href="/"
+        className="focus-ring"
         style={{
           marginTop: "32px",
           backgroundColor: "#2563EB",
@@ -56,7 +57,7 @@ export default function NotFoundPage() {
           fontWeight: 600,
           fontSize: "14px",
           textDecoration: "none",
-          transition: "all 200ms",
+          transition: "background-color 200ms, color 200ms",
         }}
       >
         Go home

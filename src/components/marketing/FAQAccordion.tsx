@@ -10,11 +10,16 @@ interface FAQItemData {
 
 function FAQItem({ question, answer }: FAQItemData) {
   const [open, setOpen] = useState(false);
+  const panelId = `faq-${question.toLowerCase().replace(/\W+/g, "-").slice(0, 40)}`;
+  const triggerId = `${panelId}-trigger`;
 
   return (
     <div style={{ borderBottom: "1px solid #E2E8F0" }}>
       <button
+        id={triggerId}
         onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-controls={panelId}
         style={{
           width: "100%",
           textAlign: "left",
@@ -44,6 +49,9 @@ function FAQItem({ question, answer }: FAQItemData) {
       </button>
       {open && (
         <div
+          id={panelId}
+          role="region"
+          aria-labelledby={triggerId}
           style={{
             paddingBottom: "1rem",
             color: "#475569",

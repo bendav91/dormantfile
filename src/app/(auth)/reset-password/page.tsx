@@ -93,17 +93,18 @@ function ResetPasswordForm() {
             placeholder="At least 8 characters"
             minLength={8}
             required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            autoComplete="new-password"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
           />
           <p className="text-xs text-gray-500 mt-1">Must include at least one letter and one number.</p>
         </div>
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+        {error && <p role="alert" className="text-red-600 text-sm mb-4">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+          className="w-full bg-blue-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         >
-          {loading ? "Resetting..." : "Reset password"}
+          {loading ? "Resetting\u2026" : "Reset password"}
         </button>
       </form>
     </div>
@@ -112,7 +113,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="text-center text-gray-500">Loading...</div>}>
+    <Suspense fallback={<div className="text-center text-gray-500">Loading\u2026</div>}>
       <ResetPasswordForm />
     </Suspense>
   );

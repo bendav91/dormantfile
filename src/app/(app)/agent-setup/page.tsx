@@ -53,6 +53,7 @@ export default function AgentSetupPage() {
 
       {error && (
         <div
+          role="alert"
           style={{
             padding: "12px 16px",
             backgroundColor: "#FEF2F2",
@@ -71,6 +72,7 @@ export default function AgentSetupPage() {
         <button
           onClick={() => handleChoice(true)}
           disabled={loading}
+          className="focus-ring"
           style={{
             padding: "24px 20px",
             borderRadius: "12px",
@@ -81,7 +83,7 @@ export default function AgentSetupPage() {
             flexDirection: "column",
             alignItems: "center",
             gap: "12px",
-            transition: "all 200ms",
+            transition: "border-color 200ms",
           }}
           onMouseEnter={(e) => {
             if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = "#2563EB";
@@ -103,6 +105,7 @@ export default function AgentSetupPage() {
         <button
           onClick={() => handleChoice(false)}
           disabled={loading}
+          className="focus-ring"
           style={{
             padding: "24px 20px",
             borderRadius: "12px",
@@ -113,7 +116,7 @@ export default function AgentSetupPage() {
             flexDirection: "column",
             alignItems: "center",
             gap: "12px",
-            transition: "all 200ms",
+            transition: "border-color 200ms",
           }}
           onMouseEnter={(e) => {
             if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = "#2563EB";
@@ -137,12 +140,6 @@ export default function AgentSetupPage() {
         You can change this anytime in Settings.
       </p>
 
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }

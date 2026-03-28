@@ -81,7 +81,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+            className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
             style={{
               backgroundColor: "#F97316",
               color: "#ffffff",
@@ -354,7 +354,7 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href="/register"
-                  className="block w-full text-center font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+                  className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
                   style={{
                     backgroundColor: plan.highlighted ? "#F97316" : "#2563EB",
                     color: "#ffffff",
@@ -425,7 +425,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/register"
-            className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+            className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
             style={{
               backgroundColor: "#F97316",
               color: "#ffffff",

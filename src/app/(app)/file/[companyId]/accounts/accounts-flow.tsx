@@ -219,6 +219,7 @@ function StepConfirm({
 
         <button
           onClick={onContinue}
+          className="focus-ring"
           style={primaryButtonStyle}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -305,6 +306,8 @@ function StepAuthenticate({
             }}
             placeholder="e.g. A1B2C3"
             autoComplete="off"
+            spellCheck={false}
+            className="focus-ring-input"
             style={{
               width: "100%",
               padding: "12px 14px",
@@ -316,7 +319,6 @@ function StepAuthenticate({
               borderStyle: "solid",
               borderColor: error ? "#EF4444" : "#94A3B8",
               borderRadius: "8px",
-              outline: "none",
               transition: "border-color 200ms",
               boxSizing: "border-box",
             }}
@@ -328,7 +330,7 @@ function StepAuthenticate({
             }}
           />
           {error && (
-            <p style={{ fontSize: "13px", color: "#EF4444", margin: "8px 0 0 0" }}>
+            <p role="alert" style={{ fontSize: "13px", color: "#EF4444", margin: "8px 0 0 0" }}>
               {error}
             </p>
           )}
@@ -360,6 +362,7 @@ function StepAuthenticate({
 
         <button
           onClick={handleSubmit}
+          className="focus-ring"
           style={primaryButtonStyle}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -417,7 +420,7 @@ function StepSubmitting() {
               borderRadius: "50%",
               border: "4px solid #E2E8F0",
               borderTopColor: "#2563EB",
-              animation: "accounts-spin 0.9s linear infinite",
+              animation: "spin 0.9s linear infinite",
             }}
           />
 
@@ -431,7 +434,7 @@ function StepSubmitting() {
                 letterSpacing: "-0.01em",
               }}
             >
-              Submitting to Companies House...
+              Submitting to Companies House\u2026
             </p>
             <p
               style={{
@@ -493,10 +496,6 @@ function StepSubmitting() {
       </div>
 
       <style>{`
-        @keyframes accounts-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
         @keyframes accounts-fade-in {
           from { opacity: 0; transform: translateY(6px); }
           to { opacity: 1; transform: translateY(0); }
@@ -566,6 +565,7 @@ function StepResult({
           </div>
           <button
             onClick={onDashboard}
+            className="focus-ring"
             style={secondaryButtonStyle}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -643,6 +643,7 @@ function StepResult({
           </div>
           <button
             onClick={onTryAgain}
+            className="focus-ring"
             style={primaryButtonStyle}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -711,6 +712,7 @@ function StepResult({
           </div>
           <button
             onClick={onDashboard}
+            className="focus-ring"
             style={secondaryButtonStyle}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -779,6 +781,7 @@ function StepResult({
         </div>
         <button
           onClick={onTryAgain}
+          className="focus-ring"
           style={primaryButtonStyle}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";

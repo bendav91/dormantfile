@@ -257,7 +257,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               fontWeight: 600,
               fontSize: "14px",
               textDecoration: "none",
-              transition: "all 200ms",
+              transition: "opacity 200ms, background-color 200ms",
               flexShrink: 0,
             }}
           >
@@ -296,7 +296,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     fontSize: "13px",
                     fontWeight: 600,
                     textDecoration: "none",
-                    transition: "all 200ms",
+                    transition: "opacity 200ms, background-color 200ms",
                     backgroundColor: isActive ? "#2563EB" : "#ffffff",
                     color: isActive ? "#ffffff" : "#475569",
                     border: `1px solid ${isActive ? "#2563EB" : "#E2E8F0"}`,
@@ -550,7 +550,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 color: "#2563EB",
                 border: "1px solid #BFDBFE",
                 textDecoration: "none",
-                transition: "all 200ms",
+                transition: "opacity 200ms, background-color 200ms",
               }}
             >
               Previous
@@ -570,7 +570,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 color: "#2563EB",
                 border: "1px solid #BFDBFE",
                 textDecoration: "none",
-                transition: "all 200ms",
+                transition: "opacity 200ms, background-color 200ms",
               }}
             >
               Next

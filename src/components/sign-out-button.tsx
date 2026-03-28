@@ -8,6 +8,8 @@ export default function SignOutButton() {
     <button
       onClick={() => signOut({ callbackUrl: "/" })}
       title="Sign out"
+      aria-label="Sign out"
+      className="focus-ring"
       style={{
         display: "flex",
         alignItems: "center",
@@ -19,7 +21,7 @@ export default function SignOutButton() {
         backgroundColor: "transparent",
         border: "none",
         cursor: "pointer",
-        transition: "all 200ms",
+        transition: "color 200ms, background-color 200ms",
       }}
     >
       <LogOut size={18} strokeWidth={2} />

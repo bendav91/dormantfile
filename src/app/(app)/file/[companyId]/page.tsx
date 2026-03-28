@@ -170,7 +170,7 @@ export default async function FilingSelector({ params }: PageProps) {
                 fontWeight: 600,
                 fontSize: "14px",
                 textDecoration: "none",
-                transition: "all 200ms",
+                transition: "opacity 200ms, background-color 200ms",
               }}
             >
               <FileText size={16} strokeWidth={2} />
@@ -235,7 +235,7 @@ export default async function FilingSelector({ params }: PageProps) {
                   fontWeight: 600,
                   fontSize: "14px",
                   textDecoration: "none",
-                  transition: "all 200ms",
+                  transition: "opacity 200ms, background-color 200ms",
                 }}
               >
                 <FileText size={16} strokeWidth={2} />

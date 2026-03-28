@@ -26,7 +26,7 @@ export function ContentCTA() {
       </p>
       <Link
         href="/register"
-        className="inline-block font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+        className="inline-block font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
         style={{
           backgroundColor: "#F97316",
           color: "#ffffff",

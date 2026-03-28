@@ -20,6 +20,7 @@ export default function MarketingLayout({
     >
       <MarketingNav />
       <main
+        id="main-content"
         style={{
           maxWidth: "960px",
           width: "100%",

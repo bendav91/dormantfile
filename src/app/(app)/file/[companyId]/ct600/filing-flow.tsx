@@ -25,7 +25,6 @@ const inputStyle: React.CSSProperties = {
   fontSize: "16px",
   color: "#1E293B",
   backgroundColor: "#ffffff",
-  outline: "none",
   transition: "border-color 200ms, box-shadow 200ms",
   boxSizing: "border-box",
 };
@@ -104,6 +103,7 @@ function FocusableInput({
   onChange,
   placeholder,
   autoComplete,
+  spellCheck,
   hasError,
 }: {
   id: string;
@@ -112,6 +112,7 @@ function FocusableInput({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   autoComplete?: string;
+  spellCheck?: boolean;
   hasError?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
@@ -125,6 +126,8 @@ function FocusableInput({
       onChange={onChange}
       placeholder={placeholder}
       autoComplete={autoComplete}
+      spellCheck={spellCheck}
+      className="focus-ring-input"
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       style={{
@@ -277,6 +280,7 @@ function StepConfirm({
 
         <button
           onClick={onContinue}
+          className="focus-ring"
           style={primaryButtonStyle}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -326,6 +330,7 @@ function StepCredentials({
       <div style={{ marginBottom: "28px" }}>
         <button
           onClick={onBack}
+          className="focus-ring"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -415,10 +420,11 @@ function StepCredentials({
                 onChange={(e) => setGatewayUsername(e.target.value)}
                 placeholder="Enter your User ID"
                 autoComplete="username"
+                spellCheck={false}
                 hasError={!!errors.username}
               />
               {errors.username ? (
-                <p style={{ fontSize: "13px", color: "#DC2626", margin: 0 }}>{errors.username}</p>
+                <p role="alert" style={{ fontSize: "13px", color: "#DC2626", margin: 0 }}>{errors.username}</p>
               ) : (
                 <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
                   Your 12-digit Government Gateway User ID from HMRC.
@@ -451,7 +457,7 @@ function StepCredentials({
                 hasError={!!errors.password}
               />
               {errors.password ? (
-                <p style={{ fontSize: "13px", color: "#DC2626", margin: 0 }}>{errors.password}</p>
+                <p role="alert" style={{ fontSize: "13px", color: "#DC2626", margin: 0 }}>{errors.password}</p>
               ) : (
                 <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
                   The password associated with your Government Gateway account.
@@ -462,6 +468,7 @@ function StepCredentials({
 
           <button
             type="submit"
+            className="focus-ring"
             style={primaryButtonStyle}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -520,7 +527,7 @@ function StepSubmitting() {
               borderRadius: "50%",
               border: "4px solid #E2E8F0",
               borderTopColor: "#2563EB",
-              animation: "filing-spin 0.9s linear infinite",
+              animation: "spin 0.9s linear infinite",
             }}
           />
 
@@ -534,7 +541,7 @@ function StepSubmitting() {
                 letterSpacing: "-0.01em",
               }}
             >
-              Submitting to HMRC...
+              Submitting to HMRC\u2026
             </p>
             <p
               style={{
@@ -596,10 +603,6 @@ function StepSubmitting() {
       </div>
 
       <style>{`
-        @keyframes filing-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
         @keyframes filing-fade-in {
           from { opacity: 0; transform: translateY(6px); }
           to { opacity: 1; transform: translateY(0); }
@@ -669,6 +672,7 @@ function StepResult({
           </div>
           <button
             onClick={onDashboard}
+            className="focus-ring"
             style={secondaryButtonStyle}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -746,6 +750,7 @@ function StepResult({
           </div>
           <button
             onClick={onTryAgain}
+            className="focus-ring"
             style={primaryButtonStyle}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -814,6 +819,7 @@ function StepResult({
           </div>
           <button
             onClick={onDashboard}
+            className="focus-ring"
             style={secondaryButtonStyle}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -882,6 +888,7 @@ function StepResult({
         </div>
         <button
           onClick={onTryAgain}
+          className="focus-ring"
           style={primaryButtonStyle}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";

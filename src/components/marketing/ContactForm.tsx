@@ -47,33 +47,46 @@ export function ContactForm() {
       onSubmit={handleSubmit}
       style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
     >
+      <label htmlFor="contact-name" className="sr-only">Your name</label>
       <input
+        id="contact-name"
         type="text"
         placeholder="Your name"
         value={form.name}
         onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
         required
+        autoComplete="name"
+        className="focus-ring-input"
         style={inputStyle}
       />
+      <label htmlFor="contact-email" className="sr-only">Your email</label>
       <input
+        id="contact-email"
         type="email"
         placeholder="Your email"
         value={form.email}
         onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
         required
+        autoComplete="email"
+        spellCheck={false}
+        className="focus-ring-input"
         style={inputStyle}
       />
+      <label htmlFor="contact-message" className="sr-only">Your message</label>
       <textarea
+        id="contact-message"
         placeholder="Your message"
         value={form.message}
         onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
         required
         rows={5}
+        className="focus-ring-input"
         style={{ ...inputStyle, resize: "vertical" }}
       />
       <button
         type="submit"
         disabled={status === "sending"}
+        className="focus-ring"
         style={{
           backgroundColor: "#2563EB",
           color: "#ffffff",
@@ -87,10 +100,10 @@ export function ContactForm() {
           fontFamily: "inherit",
         }}
       >
-        {status === "sending" ? "Sending..." : "Send message"}
+        {status === "sending" ? "Sending\u2026" : "Send message"}
       </button>
       {status === "error" && (
-        <p style={{ color: "#DC2626", fontSize: "14px" }}>
+        <p role="alert" style={{ color: "#DC2626", fontSize: "14px" }}>
           Something went wrong. Please try emailing us directly.
         </p>
       )}

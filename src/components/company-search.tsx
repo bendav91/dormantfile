@@ -52,7 +52,9 @@ export default function CompanySearch() {
         type="text"
         value={value}
         onChange={(e) => handleChange(e.target.value)}
-        placeholder="Search by company name or number..."
+        placeholder="Search by company name or number\u2026"
+        aria-label="Search by company name or number"
+        className="focus-ring-input"
         style={{
           width: "100%",
           padding: "10px 40px 10px 40px",
@@ -63,20 +65,15 @@ export default function CompanySearch() {
           borderStyle: "solid",
           borderColor: "#E2E8F0",
           borderRadius: "8px",
-          outline: "none",
           boxSizing: "border-box",
           transition: "border-color 200ms",
-        }}
-        onFocus={(e) => {
-          e.currentTarget.style.borderColor = "#2563EB";
-        }}
-        onBlur={(e) => {
-          e.currentTarget.style.borderColor = "#E2E8F0";
         }}
       />
       {value && (
         <button
           onClick={handleClear}
+          aria-label="Clear search"
+          className="focus-ring"
           style={{
             position: "absolute",
             right: "10px",

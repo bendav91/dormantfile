@@ -61,6 +61,8 @@ export default function EditUTR({
       <button
         onClick={() => setEditing(true)}
         title="Edit UTR"
+        aria-label="Edit UTR"
+        className="focus-ring"
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -98,6 +100,9 @@ export default function EditUTR({
           }
         }}
         autoFocus
+        autoComplete="off"
+        spellCheck={false}
+        className="focus-ring-input"
         style={{
           width: "90px",
           padding: "2px 6px",
@@ -107,7 +112,6 @@ export default function EditUTR({
           borderStyle: "solid",
           borderColor: error ? "#EF4444" : "#94A3B8",
           borderRadius: "4px",
-          outline: "none",
           boxSizing: "border-box",
         }}
       />
@@ -115,6 +119,8 @@ export default function EditUTR({
         onClick={handleSave}
         disabled={saving}
         title="Save"
+        aria-label="Save"
+        className="focus-ring"
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -135,6 +141,8 @@ export default function EditUTR({
         }}
         disabled={saving}
         title="Cancel"
+        aria-label="Cancel"
+        className="focus-ring"
         style={{
           display: "inline-flex",
           alignItems: "center",

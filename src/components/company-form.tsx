@@ -20,8 +20,7 @@ const inputStyle: React.CSSProperties = {
   fontSize: "16px",
   color: "#1E293B",
   backgroundColor: "#ffffff",
-  outline: "none",
-  transition: "all 200ms",
+  transition: "border-color 200ms, box-shadow 200ms",
   boxSizing: "border-box",
 };
 
@@ -79,6 +78,8 @@ function FocusableInput({
   placeholder,
   maxLength,
   hasError,
+  autoComplete,
+  spellCheck,
 }: {
   id: string;
   type?: string;
@@ -87,6 +88,8 @@ function FocusableInput({
   placeholder: string;
   maxLength?: number;
   hasError?: boolean;
+  autoComplete?: string;
+  spellCheck?: boolean;
 }) {
   const [focused, setFocused] = useState(false);
 
@@ -99,6 +102,9 @@ function FocusableInput({
       onChange={onChange}
       placeholder={placeholder}
       maxLength={maxLength}
+      autoComplete={autoComplete}
+      spellCheck={spellCheck}
+      className="focus-ring-input"
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       style={{
@@ -273,11 +279,13 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
             placeholder="e.g. 12345678"
             maxLength={8}
             hasError={!!errors.companyRegistrationNumber}
+            autoComplete="off"
+            spellCheck={false}
           />
           {lookupStatus === "loading" && (
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
               <Loader2 size={13} color="#64748B" strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
-              <span style={{ fontSize: "13px", color: "#64748B" }}>Looking up company...</span>
+              <span style={{ fontSize: "13px", color: "#64748B" }}>Looking up company\u2026</span>
             </div>
           )}
           {lookupStatus === "found" && (
@@ -444,6 +452,8 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
                   placeholder="e.g. 1234567890"
                   maxLength={10}
                   hasError={!!errors.uniqueTaxReference}
+                  autoComplete="off"
+                  spellCheck={false}
                 />
               </FormField>
             )}
@@ -452,6 +462,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
 
         {errors.general && (
           <div
+            role="alert"
             style={{
               padding: "12px 16px",
               backgroundColor: "#FEF2F2",
@@ -468,6 +479,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         <button
           type="submit"
           disabled={loading}
+          className="focus-ring"
           style={{
             backgroundColor: loading ? "#CBD5E1" : "#F97316",
             color: "#ffffff",
@@ -477,7 +489,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
             fontSize: "16px",
             border: "none",
             cursor: loading ? "not-allowed" : "pointer",
-            transition: "all 200ms",
+            transition: "opacity 200ms, transform 200ms",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -496,7 +508,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           }}
         >
           {loading && <Loader2 size={18} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />}
-          {loading ? "Processing..." : isFirstCompany ? "Continue to Payment" : "Add Company"}
+          {loading ? "Processing\u2026" : isFirstCompany ? "Continue to Payment" : "Add Company"}
         </button>
 
         <p style={{ fontSize: "13px", color: "#94A3B8", textAlign: "center", margin: 0 }}>
@@ -504,12 +516,6 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         </p>
       </div>
 
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </form>
   );
 }

@@ -54,6 +54,7 @@ export default function ErrorPage({
       <div style={{ display: "flex", gap: "12px", marginTop: "32px" }}>
         <button
           onClick={reset}
+          className="focus-ring"
           style={{
             backgroundColor: "#2563EB",
             color: "#ffffff",
@@ -63,13 +64,14 @@ export default function ErrorPage({
             fontSize: "14px",
             border: "none",
             cursor: "pointer",
-            transition: "all 200ms",
+            transition: "background-color 200ms, color 200ms",
           }}
         >
           Try again
         </button>
         <a
           href="/"
+          className="focus-ring"
           style={{
             backgroundColor: "transparent",
             color: "#2563EB",
@@ -79,7 +81,7 @@ export default function ErrorPage({
             fontSize: "14px",
             border: "2px solid #2563EB",
             textDecoration: "none",
-            transition: "all 200ms",
+            transition: "background-color 200ms, color 200ms",
           }}
         >
           Go home

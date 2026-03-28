@@ -117,6 +117,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
     <>
       {error && (
         <div
+          role="alert"
           style={{
             padding: "12px 16px",
             backgroundColor: "#FEF2F2",
@@ -134,6 +135,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
 
       {downgradeSuccess && (
         <div
+          role="status"
           style={{
             padding: "12px 16px",
             backgroundColor: "#F0FDF4",
@@ -243,6 +245,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                 <button
                   onClick={() => handleSelect(plan.tier)}
                   disabled={isDisabled}
+                  className="focus-ring"
                   style={{
                     padding: "10px 20px",
                     borderRadius: "8px",
@@ -250,7 +253,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                     fontSize: "14px",
                     border: "none",
                     cursor: isDisabled ? "not-allowed" : "pointer",
-                    transition: "all 200ms",
+                    transition: "opacity 200ms, transform 200ms",
                     backgroundColor: isDowngrade
                       ? "#64748B"
                       : plan.popular
@@ -295,10 +298,6 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
       )}
 
       <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
         @media (max-width: 640px) {
           div[style*="grid-template-columns: repeat(3"] {
             grid-template-columns: 1fr !important;

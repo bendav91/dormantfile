@@ -67,6 +67,7 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
       <button
         onClick={handleCheckStatus}
         disabled={loading}
+        className="focus-ring"
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -79,7 +80,7 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
           fontSize: "14px",
           border: "none",
           cursor: loading ? "not-allowed" : "pointer",
-          transition: "all 200ms",
+          transition: "opacity 200ms, background-color 200ms",
           alignSelf: "flex-start",
         }}
         onMouseEnter={(e) => {
@@ -94,11 +95,12 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
         ) : (
           <RefreshCw size={16} strokeWidth={2} />
         )}
-        {loading ? "Checking..." : "Check status with HMRC"}
+        {loading ? "Checking\u2026" : "Check status with HMRC"}
       </button>
 
       {result && (
         <div
+          aria-live="polite"
           style={{
             padding: "10px 14px",
             backgroundColor: resultColors[result.type].bg,
@@ -113,12 +115,6 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
         </div>
       )}
 
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }

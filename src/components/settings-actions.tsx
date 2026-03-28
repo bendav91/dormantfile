@@ -108,6 +108,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
           </p>
           <button
             onClick={handleManageBilling}
+            className="focus-ring"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -120,7 +121,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
               fontSize: "14px",
               border: "none",
               cursor: "pointer",
-              transition: "all 200ms",
+              transition: "opacity 200ms, transform 200ms, background-color 200ms",
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
@@ -137,6 +138,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
           {hasSubscription && (
             <Link
               href="/choose-plan"
+              className="focus-ring"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -149,7 +151,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                 fontSize: "14px",
                 border: "2px solid #2563EB",
                 textDecoration: "none",
-                transition: "all 200ms",
+                transition: "opacity 200ms, transform 200ms, background-color 200ms",
                 marginLeft: "10px",
               }}
             >
@@ -188,6 +190,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
 
           {removeError && (
             <div
+              role="alert"
               style={{
                 padding: "12px 16px",
                 backgroundColor: "#FEF2F2",
@@ -229,6 +232,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                     <button
                       onClick={() => handleRemoveCompany(company.id)}
                       disabled={removingCompanyId === company.id}
+                      className="focus-ring"
                       style={{
                         backgroundColor: "#DC2626",
                         color: "#ffffff",
@@ -238,14 +242,15 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                         fontSize: "13px",
                         border: "none",
                         cursor: removingCompanyId === company.id ? "not-allowed" : "pointer",
-                        transition: "all 200ms",
+                        transition: "opacity 200ms, transform 200ms, background-color 200ms",
                       }}
                     >
-                      {removingCompanyId === company.id ? "..." : "Yes"}
+                      {removingCompanyId === company.id ? "\u2026" : "Yes"}
                     </button>
                     <button
                       onClick={() => setConfirmRemoveId(null)}
                       disabled={removingCompanyId === company.id}
+                      className="focus-ring"
                       style={{
                         backgroundColor: "transparent",
                         color: "#64748B",
@@ -255,7 +260,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                         fontSize: "13px",
                         border: "1px solid #CBD5E1",
                         cursor: "pointer",
-                        transition: "all 200ms",
+                        transition: "opacity 200ms, transform 200ms, background-color 200ms",
                       }}
                     >
                       No
@@ -264,6 +269,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                 ) : (
                   <button
                     onClick={() => setConfirmRemoveId(company.id)}
+                    className="focus-ring"
                     style={{
                       backgroundColor: "transparent",
                       color: "#DC2626",
@@ -273,7 +279,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                       fontSize: "13px",
                       border: "1px solid #FECACA",
                       cursor: "pointer",
-                      transition: "all 200ms",
+                      transition: "opacity 200ms, transform 200ms, background-color 200ms",
                     }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2";
@@ -320,6 +326,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
 
         {error && (
           <div
+            role="alert"
             style={{
               padding: "12px 16px",
               backgroundColor: "#FEF2F2",
@@ -337,6 +344,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
         {!showConfirm ? (
           <button
             onClick={() => setShowConfirm(true)}
+            className="focus-ring"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -349,7 +357,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
               fontSize: "14px",
               border: "2px solid #DC2626",
               cursor: "pointer",
-              transition: "all 200ms",
+              transition: "opacity 200ms, transform 200ms, background-color 200ms",
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2";
@@ -383,6 +391,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleting}
+                className="focus-ring"
                 style={{
                   backgroundColor: deleting ? "#CBD5E1" : "#DC2626",
                   color: "#ffffff",
@@ -392,14 +401,15 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                   fontSize: "14px",
                   border: "none",
                   cursor: deleting ? "not-allowed" : "pointer",
-                  transition: "all 200ms",
+                  transition: "opacity 200ms, transform 200ms, background-color 200ms",
                 }}
               >
-                {deleting ? "Deleting..." : "Yes, delete everything"}
+                {deleting ? "Deleting\u2026" : "Yes, delete everything"}
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
                 disabled={deleting}
+                className="focus-ring"
                 style={{
                   backgroundColor: "transparent",
                   color: "#475569",
@@ -409,7 +419,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                   fontSize: "14px",
                   border: "1px solid #CBD5E1",
                   cursor: "pointer",
-                  transition: "all 200ms",
+                  transition: "opacity 200ms, transform 200ms, background-color 200ms",
                 }}
               >
                 Cancel

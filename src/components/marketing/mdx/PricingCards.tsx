@@ -66,7 +66,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
           </ul>
           <Link
             href="/register"
-            className="block w-full text-center font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90"
+            className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
             style={{
               backgroundColor: plan.highlighted ? "#F97316" : "#2563EB",
               color: "#ffffff",

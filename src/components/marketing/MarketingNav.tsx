@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
@@ -8,6 +8,12 @@ import { Logo } from "@/components/Logo";
 export function MarketingNav() {
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const closeDropdown = useCallback(() => {
+    setResourcesOpen(false);
+    triggerRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -49,7 +55,16 @@ export function MarketingNav() {
           </Link>
           <div ref={dropdownRef} style={{ position: "relative" }}>
             <button
+              ref={triggerRef}
               onClick={() => setResourcesOpen(!resourcesOpen)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape" && resourcesOpen) {
+                  closeDropdown();
+                }
+              }}
+              aria-expanded={resourcesOpen}
+              aria-haspopup="true"
+              aria-controls="resources-menu"
               className="text-sm font-medium transition-colors duration-200 flex items-center gap-1"
               style={{
                 color: "#1E293B",
@@ -70,6 +85,13 @@ export function MarketingNav() {
             </button>
             {resourcesOpen && (
               <div
+                id="resources-menu"
+                role="menu"
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    closeDropdown();
+                  }
+                }}
                 style={{
                   position: "absolute",
                   top: "100%",
@@ -93,6 +115,7 @@ export function MarketingNav() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    role="menuitem"
                     onClick={() => setResourcesOpen(false)}
                     className="block text-sm transition-colors duration-200"
                     style={{
@@ -116,7 +139,7 @@ export function MarketingNav() {
           </Link>
           <Link
             href="/register"
-            className="text-sm font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+            className="text-sm font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5"
             style={{
               backgroundColor: "#F97316",
               color: "#ffffff",
