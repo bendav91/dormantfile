@@ -34,7 +34,7 @@ export default async function AppLayout({
       >
         <div
           style={{
-            maxWidth: "56rem",
+            maxWidth: "960px",
             margin: "0 auto",
             padding: "0 1.5rem",
             display: "flex",
@@ -97,7 +97,7 @@ export default async function AppLayout({
 
       <main
         style={{
-          maxWidth: "56rem",
+          maxWidth: "960px",
           margin: "0 auto",
           padding: "2.5rem 1.5rem",
         }}

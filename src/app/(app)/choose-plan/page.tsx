@@ -23,7 +23,7 @@ export default async function ChoosePlanPage() {
   const isUpgrade = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
       <div style={{ marginBottom: "32px", textAlign: "center" }}>
         <h1
           style={{
