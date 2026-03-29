@@ -191,3 +191,21 @@ input[type="search"]::-webkit-search-cancel-button {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* Mobile: shorten segmented tab labels */
+@media (max-width: 639px) {
+  .segmented-tab-label-full {
+    display: none;
+  }
+  .segmented-tab-label-short {
+    display: inline;
+  }
+  .add-company-label {
+    display: none;
+  }
+}
+@media (min-width: 640px) {
+  .segmented-tab-label-short {
+    display: none;
+  }
+}

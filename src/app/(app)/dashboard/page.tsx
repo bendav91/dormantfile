@@ -237,7 +237,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             }}
           >
             <Plus size={16} strokeWidth={2.5} />
-            Add company
+            <span className="add-company-label">Add company</span>
           </Link>
         )}
       </div>
@@ -253,6 +253,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               borderRadius: "8px",
               padding: "3px",
               marginBottom: "10px",
+              overflowX: "auto",
             }}
           >
             {([
@@ -289,6 +290,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   }}
                 >
                   <span className="segmented-tab-label-full">{f.label}</span>
+                  <span className="segmented-tab-label-short">{f.mobileLabel}</span>
                   {" "}
                   {showUrgentBadge ? (
                     <span
