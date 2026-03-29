@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { resend } from "@/lib/email/client";
 import { buildReminderEmail, type ReminderSection } from "@/lib/email/templates";
+import { isPreviewMode } from "@/lib/launch-mode";
 
 // Upcoming: remind at these days-before-deadline thresholds.
 // Overdue: remind at these days-after-deadline thresholds.
@@ -65,6 +66,10 @@ export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (isPreviewMode) {
+    return NextResponse.json({ sent: 0, skipped: "preview mode" });
   }
 
   const now = new Date();
