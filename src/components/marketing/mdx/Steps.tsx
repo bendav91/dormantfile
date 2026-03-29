@@ -47,16 +47,15 @@ export function Steps({ children }: { children: React.ReactNode }) {
               >
                 {title}
               </h3>
-              <p
+              <div
                 style={{
                   fontSize: "15px",
                   lineHeight: 1.7,
                   color: "var(--color-text-body)",
-                  margin: 0,
                 }}
               >
                 {desc}
-              </p>
+              </div>
             </div>
           </div>
         );

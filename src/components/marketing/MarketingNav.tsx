@@ -46,8 +46,7 @@ export function MarketingNav() {
             gap: "8px",
           }}
         >
-          <Logo size={24} />
-          DormantFile
+          <Logo height={24} />
         </Link>
         <div className="flex items-center gap-6">
           <Link

@@ -1,3 +1,5 @@
+import { Logo } from "@/components/Logo";
+
 interface BrandPanelProps {
   variant: "register" | "returning";
 }
@@ -24,12 +26,9 @@ export function BrandPanel({ variant }: BrandPanelProps) {
         background: "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
       }}
     >
-      <p
-        className="text-xs font-semibold tracking-[0.2em] uppercase mb-6"
-        style={{ color: "var(--color-primary)" }}
-      >
-        DormantFile
-      </p>
+      <div className="mb-6">
+        <Logo height={18} />
+      </div>
 
       <h2
         className="text-2xl lg:text-3xl font-bold mb-2 leading-tight"
@@ -96,12 +95,7 @@ export function BrandPanelMobile() {
         background: "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
       }}
     >
-      <p
-        className="text-xs font-semibold tracking-[0.2em] uppercase"
-        style={{ color: "var(--color-primary)" }}
-      >
-        DormantFile
-      </p>
+      <Logo height={16} />
       <p className="text-sm mt-1" style={{ color: "var(--color-text-secondary)" }}>
         Affordable dormant company filing
       </p>

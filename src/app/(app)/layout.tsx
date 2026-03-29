@@ -59,17 +59,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               textDecoration: "none",
             }}
           >
-            <Logo size={22} />
-            <span
-              style={{
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "var(--color-text-primary)",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              DormantFile
-            </span>
+            <Logo height={22} />
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <span

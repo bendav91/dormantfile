@@ -1,16 +1,24 @@
+import { FilingCounter } from "@/components/marketing/FilingCounter";
+import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { MicroTrust } from "@/components/marketing/MicroTrust";
+import { Testimonials } from "@/components/marketing/Testimonials";
+import { TrustBadges } from "@/components/marketing/TrustBadges";
+import { TrustSection } from "@/components/marketing/TrustSection";
+import { FAQPageJsonLd } from "@/lib/content/json-ld";
+import { isFilingLive } from "@/lib/launch-mode";
+import {
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  FileCheck,
+  KeyRound,
+  RotateCcw,
+  Shield,
+} from "lucide-react";
 import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
 import Link from "next/link";
-import { Shield, Clock, FileCheck, CheckCircle, ArrowRight, KeyRound, RotateCcw } from "lucide-react";
-import { MarketingNav } from "@/components/marketing/MarketingNav";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { FAQPageJsonLd } from "@/lib/content/json-ld";
-import { isFilingLive } from "@/lib/launch-mode";
-import { MicroTrust } from "@/components/marketing/MicroTrust";
-import { TrustSection } from "@/components/marketing/TrustSection";
-import { TrustBadges } from "@/components/marketing/TrustBadges";
-import { FilingCounter } from "@/components/marketing/FilingCounter";
-import { Testimonials } from "@/components/marketing/Testimonials";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
