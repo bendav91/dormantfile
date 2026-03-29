@@ -66,6 +66,30 @@ export default function FilingsTab({
     transition: "opacity 200ms",
   };
 
+  const [activeTab, setActiveTab] = useState<"outstanding" | "completed">("outstanding");
+
+  const segmentContainerStyle: React.CSSProperties = {
+    display: "flex",
+    backgroundColor: "var(--color-bg-inset)",
+    borderRadius: "10px",
+    padding: "4px",
+    marginBottom: "20px",
+  };
+
+  const segmentButtonStyle = (isActive: boolean): React.CSSProperties => ({
+    flex: 1,
+    padding: "8px 16px",
+    borderRadius: "8px",
+    fontSize: "13px",
+    fontWeight: 600,
+    border: "none",
+    cursor: "pointer",
+    transition: "background-color 200ms, color 200ms, box-shadow 200ms",
+    backgroundColor: isActive ? "var(--color-bg-card)" : "transparent",
+    color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+    boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+  });
+
   return (
     <>
       {/* Disclosure territory warning */}
@@ -107,7 +131,25 @@ export default function FilingsTab({
         </div>
       )}
 
+      {/* Sub-tab bar */}
+      <div style={segmentContainerStyle}>
+        <button
+          style={segmentButtonStyle(activeTab === "outstanding")}
+          onClick={() => setActiveTab("outstanding")}
+        >
+          Outstanding ({incompletePeriods.length})
+        </button>
+        <button
+          style={segmentButtonStyle(activeTab === "completed")}
+          onClick={() => setActiveTab("completed")}
+        >
+          Completed ({completePeriods.length})
+        </button>
+      </div>
+
       {/* Outstanding periods */}
+      {activeTab === "outstanding" && (
+      <>
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {incompletePeriods.map((period, index) => {
           const accountsFiling = getFilingForPeriod(period, "accounts");
@@ -396,71 +438,8 @@ export default function FilingsTab({
         })}
       </div>
 
-      {/* Completed periods */}
-      {completePeriods.length > 0 && (
-        <>
-          <h3
-            style={{
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "var(--color-text-secondary)",
-              margin: "32px 0 12px 0",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-            }}
-          >
-            Completed periods
-          </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {completePeriods.map((period) => (
-              <div
-                key={period.periodEnd.toISOString()}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 16px",
-                  backgroundColor: "var(--color-bg-card)",
-                  borderRadius: "10px",
-                  border: "1px solid var(--color-border)",
-                  opacity: 0.7,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ color: "var(--color-success)", display: "flex" }}>
-                    <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
-                  </span>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      color: "var(--color-text-secondary)",
-                      margin: 0,
-                    }}
-                  >
-                    {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
-                  </p>
-                </div>
-                <span
-                  style={{
-                    padding: "2px 8px",
-                    borderRadius: "9999px",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    backgroundColor: "var(--color-success-bg)",
-                    color: "var(--color-success)",
-                  }}
-                >
-                  Complete
-                </span>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* No periods - company is up to date */}
-      {incompletePeriods.length === 0 && completePeriods.length === 0 && (
+      {/* Outstanding empty state */}
+      {incompletePeriods.length === 0 && (
         <div
           style={{
             textAlign: "center",
@@ -494,6 +473,8 @@ export default function FilingsTab({
             No outstanding accounting periods for this company.
           </p>
         </div>
+      )}
+      </>
       )}
     </>
   );
