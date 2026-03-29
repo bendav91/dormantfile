@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { getOutstandingPeriods } from "@/lib/periods";
 import FilingsTab from "@/components/filings-tab";
+import SettingsTab from "@/components/settings-tab";
 
 interface PageProps {
   params: Promise<{ companyId: string }>;
@@ -34,6 +35,10 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
     company.filings,
   );
   const incompletePeriods = periods.filter((p) => !p.isComplete);
+
+  const activeCT600Count = company.filings.filter(
+    (f) => f.filingType === "ct600" && ["submitted", "pending", "polling_timeout"].includes(f.status),
+  ).length;
 
   const { tab: tabParam } = await searchParams;
   const tab = ["filings", "settings", "overview"].includes(tabParam ?? "") ? tabParam! : "filings";
@@ -126,7 +131,14 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
         />
       )}
       {tab === "settings" && (
-        <p style={{ color: "var(--color-text-secondary)", padding: "40px 0", textAlign: "center" }}>Coming soon</p>
+        <SettingsTab
+          companyId={companyId}
+          companyName={company.companyName}
+          registeredForCorpTax={company.registeredForCorpTax}
+          uniqueTaxReference={company.uniqueTaxReference}
+          shareCapital={company.shareCapital}
+          activeCT600Count={activeCT600Count}
+        />
       )}
       {tab === "overview" && (
         <p style={{ color: "var(--color-text-secondary)", padding: "40px 0", textAlign: "center" }}>Coming soon</p>
