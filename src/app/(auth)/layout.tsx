@@ -7,7 +7,7 @@ export default async function AuthRootLayout({ children }: { children: React.Rea
   const session = await getServerSession(authOptions);
 
   if (session?.user) {
-    redirect("/dashboard");
+    redirect(session.user.emailVerified ? "/dashboard" : "/verify-email");
   }
 
   return <AuthLayout>{children}</AuthLayout>;
