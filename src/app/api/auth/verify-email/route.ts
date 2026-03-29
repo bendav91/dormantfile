@@ -23,15 +23,19 @@ export async function POST(req: Request) {
     where: { token: hashedToken },
   });
 
-  if (!record || record.usedAt || record.expiresAt < new Date()) {
-    console.error("verify-email failed:", {
-      tokenLength: token.length,
-      hashPrefix: hashedToken.slice(0, 8),
-      found: !!record,
-      usedAt: record?.usedAt ?? null,
-      expiresAt: record?.expiresAt ?? null,
-      now: new Date().toISOString(),
+  if (!record || record.expiresAt < new Date()) {
+    return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
+  }
+
+  // Token already used — check if the user's email is already verified
+  if (record.usedAt) {
+    const user = await prisma.user.findUnique({
+      where: { id: record.userId },
+      select: { emailVerified: true },
     });
+    if (user?.emailVerified) {
+      return NextResponse.json({ success: true, alreadyVerified: true });
+    }
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
   }
 
