@@ -4,6 +4,14 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  BrandPanel,
+  BrandPanelMobile,
+  FormPanel,
+  AuthInput,
+  AuthButton,
+  AuthError,
+} from "@/components/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,86 +44,77 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Welcome back</h1>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          Sign in to your DormantFile account
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+      <BrandPanel variant="returning" />
+      <div className="flex flex-col" style={{ backgroundColor: "var(--color-bg-card)" }}>
+        <BrandPanelMobile />
+        <FormPanel>
+          <h1
+            className="text-2xl font-bold mb-1"
+            style={{ color: "var(--color-text-primary)" }}
           >
-            Email address
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            spellCheck={false}
-            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
-            placeholder="you@example.com"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
-            placeholder="••••••••"
-          />
-        </div>
-
-        {error && (
-          <p
-            role="alert"
-            className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2.5"
-          >
-            {error}
+            Sign in
+          </h1>
+          <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
+            Welcome back to DormantFile
           </p>
-        )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? "Signing in\u2026" : "Sign in"}
-        </button>
-      </form>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <AuthInput
+              id="email"
+              label="Email address"
+              type="email"
+              required
+              autoComplete="email"
+              spellCheck={false}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
 
-      <p className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
-        <Link href="/forgot-password" className="text-blue-600 dark:text-blue-400 hover:underline">
-          Forgot your password?
-        </Link>
-      </p>
+            <div>
+              <AuthInput
+                id="password"
+                label="Password"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+              />
+              <div className="mt-1 text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm hover:underline"
+                  style={{ color: "var(--color-primary)" }}
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+            </div>
 
-      <p className="mt-3 text-center text-sm text-gray-600 dark:text-gray-300">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/register"
-          className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-        >
-          Create one
-        </Link>
-      </p>
+            <AuthError message={error} />
+
+            <AuthButton type="submit" loading={loading} loadingText="Signing in…">
+              Sign in
+            </AuthButton>
+          </form>
+
+          <p
+            className="mt-6 text-center text-sm"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/register"
+              className="font-medium hover:underline"
+              style={{ color: "var(--color-primary)" }}
+            >
+              Create one
+            </Link>
+          </p>
+        </FormPanel>
+      </div>
     </>
   );
 }
