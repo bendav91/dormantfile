@@ -147,6 +147,14 @@ body {
   filter: brightness(0.95);
 }
 
+.hoverable-card:hover {
+  border-color: var(--color-primary-border) !important;
+  background-color: var(--color-bg-inset) !important;
+}
+.hoverable-card:active {
+  filter: brightness(0.97);
+}
+
 /* Suppress native search clear button (custom clear button used) */
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
