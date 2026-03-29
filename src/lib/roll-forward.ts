@@ -1,4 +1,4 @@
-import { resend } from "@/lib/email/client";
+import { sendEmail } from "@/lib/email/client";
 import { buildFilingConfirmationEmail } from "@/lib/email/templates";
 
 /**
@@ -30,12 +30,7 @@ export async function rollForwardPeriod(
       periodEnd: filedPeriodEnd,
       filingType,
     });
-    await resend.emails.send({
-      from: "DormantFile <noreply@dormantfile.com>",
-      to: userEmail,
-      subject,
-      html,
-    });
+    await sendEmail({ to: userEmail, subject, html });
   } catch {
     // Must not block
   }

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { validateEmail, validatePassword } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
 import { rateLimit } from "@/lib/rate-limit";
-import { resend } from "@/lib/email/client";
+import { sendEmail } from "@/lib/email/client";
 import { buildVerificationEmail } from "@/lib/email/templates";
 
 export async function POST(request: Request) {
@@ -79,12 +79,7 @@ export async function POST(request: Request) {
       const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL}/verify-email?token=${rawToken}`;
       const { subject, html } = buildVerificationEmail({ verifyUrl });
 
-      await resend.emails.send({
-        from: "DormantFile <noreply@dormantfile.co.uk>",
-        to: trimmedEmail,
-        subject,
-        html,
-      });
+      await sendEmail({ to: trimmedEmail, subject, html });
     } catch (err) {
       console.error("Failed to send verification email:", err);
     }

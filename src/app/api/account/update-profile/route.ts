@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { randomBytes, createHash } from "crypto";
-import { resend } from "@/lib/email/client";
+import { sendEmail } from "@/lib/email/client";
 import { buildEmailChangeEmail, buildEmailChangeNotificationEmail } from "@/lib/email/templates";
 
 export async function PATCH(req: Request) {
@@ -63,18 +63,8 @@ export async function PATCH(req: Request) {
       const notifyEmail = buildEmailChangeNotificationEmail({ newEmail: trimmedEmail });
 
       await Promise.all([
-        resend.emails.send({
-          from: "DormantFile <noreply@dormantfile.co.uk>",
-          to: trimmedEmail,
-          subject: changeEmail.subject,
-          html: changeEmail.html,
-        }),
-        resend.emails.send({
-          from: "DormantFile <noreply@dormantfile.co.uk>",
-          to: session.user.email!,
-          subject: notifyEmail.subject,
-          html: notifyEmail.html,
-        }),
+        sendEmail({ to: trimmedEmail, subject: changeEmail.subject, html: changeEmail.html }),
+        sendEmail({ to: session.user.email!, subject: notifyEmail.subject, html: notifyEmail.html }),
       ]);
     } catch (err) {
       console.error("Failed to send email change emails:", err);

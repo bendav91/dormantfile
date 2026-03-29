@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { resend } from "@/lib/email/client";
+import { sendEmail } from "@/lib/email/client";
 import { buildReminderEmail, type ReminderSection } from "@/lib/email/templates";
 import { isPreviewMode } from "@/lib/launch-mode";
 
@@ -190,12 +190,7 @@ export async function GET(req: NextRequest) {
         sections: emailSections,
       });
 
-      await resend.emails.send({
-        from: "DormantFile <noreply@dormantfile.com>",
-        to: userData.email,
-        subject,
-        html,
-      });
+      await sendEmail({ to: userData.email, subject, html });
 
       // Record one notification per filing so we don't re-send this tier
       await prisma.notification.createMany({

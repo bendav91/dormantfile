@@ -1,7 +1,5 @@
-import { Resend } from "resend";
 import { NextResponse } from "next/server";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { sendEmail } from "@/lib/email/client";
 
 export async function POST(request: Request) {
   const { name, email, message } = await request.json();
@@ -11,8 +9,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await resend.emails.send({
-      from: "DormantFile Contact <noreply@dormantfile.co.uk>",
+    await sendEmail({
       to: "hello@dormantfile.co.uk",
       replyTo: email,
       subject: `Contact form: ${name}`,

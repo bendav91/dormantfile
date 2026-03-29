@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
-import { resend } from "@/lib/email/client";
+import { sendEmail } from "@/lib/email/client";
 import { buildVerificationEmail } from "@/lib/email/templates";
 
 export async function POST() {
@@ -50,12 +50,7 @@ export async function POST() {
   const { subject, html } = buildVerificationEmail({ verifyUrl });
 
   try {
-    await resend.emails.send({
-      from: "DormantFile <noreply@dormantfile.co.uk>",
-      to: user.email,
-      subject,
-      html,
-    });
+    await sendEmail({ to: user.email, subject, html });
   } catch (err) {
     console.error("Failed to send verification email:", err);
   }

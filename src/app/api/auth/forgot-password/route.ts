@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { randomBytes, createHash } from "crypto";
 import { prisma } from "@/lib/db";
-import { Resend } from "resend";
+import { sendEmail } from "@/lib/email/client";
 import { buildPasswordResetEmail } from "@/lib/email/templates";
 import { rateLimit } from "@/lib/rate-limit";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
@@ -46,12 +44,7 @@ export async function POST(request: Request) {
     const { subject, html } = buildPasswordResetEmail({ resetUrl });
 
     try {
-      await resend.emails.send({
-        from: "DormantFile <noreply@dormantfile.co.uk>",
-        to: user.email,
-        subject,
-        html,
-      });
+      await sendEmail({ to: user.email, subject, html });
     } catch {
       console.error("Failed to send password reset email");
     }
