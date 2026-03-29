@@ -6,21 +6,21 @@ export function ContentCTA() {
       style={{
         marginTop: "3rem",
         padding: "2rem",
-        backgroundColor: "#F8FAFC",
+        backgroundColor: "var(--color-bg-page)",
         borderRadius: "0.75rem",
         textAlign: "center",
-        border: "1px solid #E2E8F0",
+        border: "1px solid var(--color-border)",
       }}
     >
       <h3
         className="text-xl font-semibold mb-2"
-        style={{ color: "#1E293B" }}
+        style={{ color: "var(--color-text-primary)" }}
       >
         Ready to file your dormant company returns?
       </h3>
       <p
         className="mb-6"
-        style={{ color: "#64748B", fontSize: "0.9375rem" }}
+        style={{ color: "var(--color-text-secondary)", fontSize: "0.9375rem" }}
       >
         Set up in minutes. File in seconds. Done for the year.
       </p>
@@ -28,7 +28,7 @@ export function ContentCTA() {
         href="/register"
         className="inline-block font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
         style={{
-          backgroundColor: "#F97316",
+          backgroundColor: "var(--color-cta)",
           color: "#ffffff",
           padding: "12px 28px",
           borderRadius: "8px",

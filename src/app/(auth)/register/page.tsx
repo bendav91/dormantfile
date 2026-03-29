@@ -53,8 +53,8 @@ export default function RegisterPage() {
   return (
     <>
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Create your account</h1>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
           Start filing your dormant accounts in minutes.
         </p>
       </div>
@@ -63,7 +63,7 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
           >
             Full name
           </label>
@@ -74,7 +74,7 @@ export default function RegisterPage() {
             autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
             placeholder="Jane Smith"
           />
         </div>
@@ -82,7 +82,7 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
           >
             Email address
           </label>
@@ -94,7 +94,7 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             spellCheck={false}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
             placeholder="you@example.com"
           />
         </div>
@@ -102,7 +102,7 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
           >
             Password
           </label>
@@ -114,22 +114,22 @@ export default function RegisterPage() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500"
+            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
             placeholder="At least 8 characters"
           />
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2.5">
+          <p role="alert" className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2.5">
             {error}
           </p>
         )}
 
-        <p className="text-xs text-gray-500 leading-relaxed">
+        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
           By creating an account, you agree to our{" "}
-          <Link href="/terms" className="text-blue-600 hover:text-blue-700 underline">Terms of Service</Link>,{" "}
-          <Link href="/privacy" className="text-blue-600 hover:text-blue-700 underline">Privacy Policy</Link>, and{" "}
-          <Link href="/acceptable-use" className="text-blue-600 hover:text-blue-700 underline">Acceptable Use Policy</Link>.
+          <Link href="/terms" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">Terms of Service</Link>,{" "}
+          <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">Privacy Policy</Link>, and{" "}
+          <Link href="/acceptable-use" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">Acceptable Use Policy</Link>.
         </p>
 
         <button
@@ -141,11 +141,11 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-medium text-blue-600 hover:text-blue-700"
+          className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
         >
           Sign in
         </Link>

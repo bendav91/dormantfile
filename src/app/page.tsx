@@ -56,7 +56,7 @@ export default function LandingPage() {
   return (
     <div
       className={ibmPlexSans.className}
-      style={{ backgroundColor: "#F8FAFC", color: "#1E293B" }}
+      style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)" }}
     >
       {/* Navigation */}
       <MarketingNav />
@@ -66,14 +66,14 @@ export default function LandingPage() {
         <div className="max-w-[960px] mx-auto text-center">
           <h1
             className="text-5xl sm:text-6xl font-bold leading-tight tracking-tight mb-6"
-            style={{ color: "#1E293B" }}
+            style={{ color: "var(--color-text-primary)" }}
           >
             Dormant company filing,{" "}
-            <span style={{ color: "#2563EB" }}>sorted</span>
+            <span style={{ color: "var(--color-primary)" }}>sorted</span>
           </h1>
           <p
             className="text-xl leading-relaxed mb-10 max-w-2xl mx-auto text-balance"
-            style={{ color: "#475569" }}
+            style={{ color: "var(--color-text-body)" }}
           >
             Annual accounts to Companies House and nil Corporation Tax returns
             to HMRC — filed directly from one dashboard. No accounting knowledge
@@ -83,8 +83,8 @@ export default function LandingPage() {
             href="/register"
             className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
             style={{
-              backgroundColor: "#F97316",
-              color: "#ffffff",
+              backgroundColor: "var(--color-cta)",
+              color: "var(--color-bg-card)",
               padding: "16px 32px",
               borderRadius: "8px",
             }}
@@ -93,7 +93,7 @@ export default function LandingPage() {
           </Link>
           <p
             className="mt-5 text-sm"
-            style={{ color: "#64748B" }}
+            style={{ color: "var(--color-text-secondary)" }}
           >
             For genuinely dormant companies only — no trading activity, no
             assets, no income.
@@ -103,40 +103,40 @@ export default function LandingPage() {
 
       {/* Trust Indicators */}
       <section
-        style={{ backgroundColor: "#ffffff", borderTop: "1px solid #E2E8F0", borderBottom: "1px solid #E2E8F0" }}
+        style={{ backgroundColor: "var(--color-bg-card)", borderTop: "1px solid var(--color-border)", borderBottom: "1px solid var(--color-border)" }}
         className="py-10 px-6"
       >
         <div className="max-w-[960px] mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center sm:text-left">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-              <Shield size={22} style={{ color: "#2563EB", flexShrink: 0 }} />
+              <Shield size={22} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#1E293B" }}>
+                <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
                   Credentials never stored
                 </p>
-                <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
+                <p className="text-sm mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
                   Your Gateway password is used once and discarded.
                 </p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-              <Clock size={22} style={{ color: "#2563EB", flexShrink: 0 }} />
+              <Clock size={22} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#1E293B" }}>
+                <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
                   File in under 2 minutes
                 </p>
-                <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
+                <p className="text-sm mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
                   No accounting knowledge required.
                 </p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-              <FileCheck size={22} style={{ color: "#2563EB", flexShrink: 0 }} />
+              <FileCheck size={22} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
               <div>
-                <p className="font-semibold text-sm" style={{ color: "#1E293B" }}>
+                <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
                   Direct submission
                 </p>
-                <p className="text-sm mt-0.5" style={{ color: "#64748B" }}>
+                <p className="text-sm mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
                   Filed directly with Companies House and HMRC — no middlemen.
                 </p>
               </div>
@@ -150,7 +150,7 @@ export default function LandingPage() {
         <div className="max-w-[960px] mx-auto">
           <h2
             className="text-3xl font-bold text-center mb-14"
-            style={{ color: "#1E293B" }}
+            style={{ color: "var(--color-text-primary)" }}
           >
             How it works
           </h2>
@@ -159,14 +159,14 @@ export default function LandingPage() {
             <div className="flex flex-col items-center text-center">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4 flex-shrink-0"
-                style={{ backgroundColor: "#2563EB" }}
+                style={{ backgroundColor: "var(--color-primary)" }}
               >
                 1
               </div>
-              <h3 className="font-semibold text-lg mb-2" style={{ color: "#1E293B" }}>
+              <h3 className="font-semibold text-lg mb-2" style={{ color: "var(--color-text-primary)" }}>
                 Add your company
               </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                 Enter your company number — we look up the rest from Companies
                 House. No data entry needed.
               </p>
@@ -175,14 +175,14 @@ export default function LandingPage() {
             <div className="flex flex-col items-center text-center">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4 flex-shrink-0"
-                style={{ backgroundColor: "#2563EB" }}
+                style={{ backgroundColor: "var(--color-primary)" }}
               >
                 2
               </div>
-              <h3 className="font-semibold text-lg mb-2" style={{ color: "#1E293B" }}>
+              <h3 className="font-semibold text-lg mb-2" style={{ color: "var(--color-text-primary)" }}>
                 We remind you
               </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                 Email reminders at 90, 30, 14, 7, 3, and 1 day before each
                 filing deadline.
               </p>
@@ -191,14 +191,14 @@ export default function LandingPage() {
             <div className="flex flex-col items-center text-center">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4 flex-shrink-0"
-                style={{ backgroundColor: "#2563EB" }}
+                style={{ backgroundColor: "var(--color-primary)" }}
               >
                 3
               </div>
-              <h3 className="font-semibold text-lg mb-2" style={{ color: "#1E293B" }}>
+              <h3 className="font-semibold text-lg mb-2" style={{ color: "var(--color-text-primary)" }}>
                 File in minutes
               </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                 Submit your dormant accounts and nil CT600 return directly to
                 Companies House and HMRC.
               </p>
@@ -208,7 +208,7 @@ export default function LandingPage() {
             <Link
               href="/how-it-works"
               className="text-sm font-medium transition-colors duration-200"
-              style={{ color: "#2563EB" }}
+              style={{ color: "var(--color-primary)" }}
             >
               See the full walkthrough &rarr;
             </Link>
@@ -218,20 +218,20 @@ export default function LandingPage() {
 
       {/* Problem Statement */}
       <section
-        style={{ backgroundColor: "#EFF6FF", borderTop: "1px solid #DBEAFE", borderBottom: "1px solid #DBEAFE" }}
+        style={{ backgroundColor: "var(--color-primary-bg)", borderTop: "1px solid var(--color-primary-border)", borderBottom: "1px solid var(--color-primary-border)" }}
         className="py-20 px-6"
       >
         <div className="max-w-[960px] mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6" style={{ color: "#1E293B" }}>
+          <h2 className="text-3xl font-bold mb-6" style={{ color: "var(--color-text-primary)" }}>
             CATO closed. Now what?
           </h2>
-          <p className="text-lg leading-relaxed mb-4" style={{ color: "#475569" }}>
+          <p className="text-lg leading-relaxed mb-4" style={{ color: "var(--color-text-body)" }}>
             On 31 March 2026, HMRC shut down its free Corporation Tax filing
             tool (CATO). Thousands of directors of dormant companies — side
             projects, holding structures, companies kept for future use — lost
             their only free way to file a CT600 return.
           </p>
-          <p className="text-lg leading-relaxed" style={{ color: "#475569" }}>
+          <p className="text-lg leading-relaxed" style={{ color: "var(--color-text-body)" }}>
             DormantFile was built as the direct replacement. We handle both of
             the filings a dormant company needs: annual accounts to Companies
             House and nil CT600 returns to HMRC. One dashboard, under two
@@ -245,13 +245,13 @@ export default function LandingPage() {
         <div className="max-w-[960px] mx-auto">
           <h2
             className="text-3xl font-bold text-center mb-4"
-            style={{ color: "#1E293B" }}
+            style={{ color: "var(--color-text-primary)" }}
           >
             Simple, transparent pricing
           </h2>
           <p
             className="text-center text-base mb-12 max-w-xl mx-auto"
-            style={{ color: "#64748B" }}
+            style={{ color: "var(--color-text-secondary)" }}
           >
             One dormant company or a hundred — pick the plan that fits.
           </p>
@@ -301,8 +301,8 @@ export default function LandingPage() {
                 key={plan.name}
                 className="rounded-xl p-7 flex flex-col"
                 style={{
-                  border: plan.highlighted ? "2px solid #2563EB" : "1px solid #E2E8F0",
-                  backgroundColor: "#ffffff",
+                  border: plan.highlighted ? "2px solid var(--color-primary)" : "1px solid var(--color-border)",
+                  backgroundColor: "var(--color-bg-card)",
                   position: "relative",
                 }}
               >
@@ -313,8 +313,8 @@ export default function LandingPage() {
                       top: "-12px",
                       left: "50%",
                       transform: "translateX(-50%)",
-                      backgroundColor: "#2563EB",
-                      color: "#ffffff",
+                      backgroundColor: "var(--color-primary)",
+                      color: "var(--color-bg-card)",
                       padding: "3px 14px",
                       borderRadius: "9999px",
                       fontSize: "12px",
@@ -325,18 +325,18 @@ export default function LandingPage() {
                     Most popular
                   </span>
                 )}
-                <p className="font-semibold text-sm mb-1" style={{ color: "#2563EB" }}>
+                <p className="font-semibold text-sm mb-1" style={{ color: "var(--color-primary)" }}>
                   {plan.name}
                 </p>
                 <div className="mb-1">
-                  <span className="text-4xl font-bold" style={{ color: "#1E293B" }}>
+                  <span className="text-4xl font-bold" style={{ color: "var(--color-text-primary)" }}>
                     £{plan.price}
                   </span>
-                  <span className="text-sm ml-1" style={{ color: "#64748B" }}>
+                  <span className="text-sm ml-1" style={{ color: "var(--color-text-secondary)" }}>
                     {plan.period}
                   </span>
                 </div>
-                <p className="text-sm mb-6" style={{ color: "#64748B" }}>
+                <p className="text-sm mb-6" style={{ color: "var(--color-text-secondary)" }}>
                   {plan.description}
                 </p>
                 <ul className="space-y-2.5 mb-7 flex-1">
@@ -344,9 +344,9 @@ export default function LandingPage() {
                     <li key={feature} className="flex items-start gap-2.5">
                       <CheckCircle
                         size={16}
-                        style={{ color: "#2563EB", flexShrink: 0, marginTop: 2 }}
+                        style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: 2 }}
                       />
-                      <span className="text-sm" style={{ color: "#475569" }}>
+                      <span className="text-sm" style={{ color: "var(--color-text-body)" }}>
                         {feature}
                       </span>
                     </li>
@@ -356,8 +356,8 @@ export default function LandingPage() {
                   href="/register"
                   className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
                   style={{
-                    backgroundColor: plan.highlighted ? "#F97316" : "#2563EB",
-                    color: "#ffffff",
+                    backgroundColor: plan.highlighted ? "var(--color-cta)" : "var(--color-primary)",
+                    color: "var(--color-bg-card)",
                     padding: "12px 24px",
                     borderRadius: "8px",
                   }}
@@ -369,7 +369,7 @@ export default function LandingPage() {
           </div>
           <p
             className="text-xs text-center mt-6"
-            style={{ color: "#94A3B8" }}
+            style={{ color: "var(--color-text-muted)" }}
           >
             Compare to £100+ for most accounting software. All plans include credentials-never-stored security.
           </p>
@@ -379,13 +379,13 @@ export default function LandingPage() {
       {/* FAQ */}
       <FAQPageJsonLd items={faqItems} />
       <section
-        style={{ backgroundColor: "#ffffff", borderTop: "1px solid #E2E8F0" }}
+        style={{ backgroundColor: "var(--color-bg-card)", borderTop: "1px solid var(--color-border)" }}
         className="py-20 px-6"
       >
         <div className="max-w-[960px] mx-auto">
           <h2
             className="text-3xl font-bold text-center mb-12"
-            style={{ color: "#1E293B" }}
+            style={{ color: "var(--color-text-primary)" }}
           >
             Common questions
           </h2>
@@ -393,16 +393,16 @@ export default function LandingPage() {
             {faqItems.map(({ question, answer }) => (
               <div
                 key={question}
-                style={{ borderBottom: "1px solid #E2E8F0" }}
+                style={{ borderBottom: "1px solid var(--color-border)" }}
                 className="pb-8"
               >
                 <h3
                   className="font-semibold text-lg mb-2"
-                  style={{ color: "#1E293B" }}
+                  style={{ color: "var(--color-text-primary)" }}
                 >
                   {question}
                 </h3>
-                <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-secondary)" }}>
                   {answer}
                 </p>
               </div>
@@ -420,15 +420,15 @@ export default function LandingPage() {
           <h2 className="text-4xl font-bold mb-6 text-white">
             Ready to file your dormant company returns?
           </h2>
-          <p className="text-lg mb-10" style={{ color: "#94A3B8" }}>
+          <p className="text-lg mb-10" style={{ color: "var(--color-text-muted)" }}>
             Set up in minutes. File in seconds. Done for the year.
           </p>
           <Link
             href="/register"
             className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
             style={{
-              backgroundColor: "#F97316",
-              color: "#ffffff",
+              backgroundColor: "var(--color-cta)",
+              color: "var(--color-bg-card)",
               padding: "16px 32px",
               borderRadius: "8px",
             }}

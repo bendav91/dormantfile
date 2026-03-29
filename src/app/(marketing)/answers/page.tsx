@@ -25,11 +25,11 @@ export default function AnswersIndexPage() {
       <Breadcrumbs items={[{ label: "Answers" }]} />
       <h1
         className="text-3xl sm:text-4xl font-bold leading-tight mb-3"
-        style={{ color: "#1E293B" }}
+        style={{ color: "var(--color-text-primary)" }}
       >
         Quick Answers
       </h1>
-      <p className="text-base mb-10" style={{ color: "#64748B" }}>
+      <p className="text-base mb-10" style={{ color: "var(--color-text-secondary)" }}>
         Plain-English explanations of the terms and concepts you&apos;ll encounter
         when filing for a dormant UK company.
       </p>
@@ -49,16 +49,16 @@ export default function AnswersIndexPage() {
             key={item.slug}
             style={{
               padding: "1rem",
-              border: "1px solid #E2E8F0",
+              border: "1px solid var(--color-border)",
               borderRadius: "0.5rem",
-              backgroundColor: "#ffffff",
+              backgroundColor: "var(--color-bg-card)",
             }}
           >
             <Link
               href={`/answers/${item.slug}`}
               style={{
                 textDecoration: "none",
-                color: "#2563EB",
+                color: "var(--color-primary)",
                 fontWeight: 500,
                 fontSize: "0.9375rem",
               }}
@@ -67,7 +67,7 @@ export default function AnswersIndexPage() {
             </Link>
             <p
               className="text-sm mt-1"
-              style={{ color: "#64748B", margin: 0 }}
+              style={{ color: "var(--color-text-secondary)", margin: 0 }}
             >
               {item.frontmatter.description}
             </p>

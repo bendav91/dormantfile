@@ -18,18 +18,18 @@ export function SecurityCards({ cards }: { cards: SecurityCard[] }) {
             key={card.title}
             style={{
               padding: "1.25rem",
-              border: "1px solid #E2E8F0",
+              border: "1px solid var(--color-border)",
               borderRadius: "0.5rem",
-              backgroundColor: "#ffffff",
+              backgroundColor: "var(--color-bg-card)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
-              {Icon && <Icon size={24} style={{ color: "#2563EB" }} />}
-              <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1E293B", margin: 0 }}>
+              {Icon && <Icon size={24} style={{ color: "var(--color-primary)" }} />}
+              <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>
                 {card.title}
               </h3>
             </div>
-            <p style={{ fontSize: "15px", lineHeight: 1.7, color: "#475569", margin: 0 }}>
+            <p style={{ fontSize: "15px", lineHeight: 1.7, color: "var(--color-text-body)", margin: 0 }}>
               {card.text}
             </p>
           </div>

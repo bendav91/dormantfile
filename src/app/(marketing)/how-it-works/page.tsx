@@ -61,7 +61,7 @@ export default async function HowItWorksPage() {
           style={{
             fontSize: "36px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 12px 0",
             letterSpacing: "-0.02em",
             textAlign: align,
@@ -70,12 +70,12 @@ export default async function HowItWorksPage() {
           {title}
         </h1>
         {showUpdatedAt && updatedAt && (
-          <p style={{ fontSize: "14px", color: "#94A3B8", margin: "0 0 40px 0" }}>
+          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", margin: "0 0 40px 0" }}>
             Last updated: {new Date(updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
           </p>
         )}
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "#475569", marginBottom: "32px", textAlign: align }}>
+          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "var(--color-text-body)", marginBottom: "32px", textAlign: align }}>
             {subtitle}
           </p>
         )}

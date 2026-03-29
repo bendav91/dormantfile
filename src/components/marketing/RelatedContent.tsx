@@ -14,12 +14,12 @@ export function RelatedContent({ items, type }: RelatedContentProps) {
       style={{
         marginTop: "2rem",
         paddingTop: "2rem",
-        borderTop: "1px solid #E2E8F0",
+        borderTop: "1px solid var(--color-border)",
       }}
     >
       <h3
         className="text-lg font-semibold mb-3"
-        style={{ color: "#1E293B" }}
+        style={{ color: "var(--color-text-primary)" }}
       >
         Related articles
       </h3>
@@ -38,7 +38,7 @@ export function RelatedContent({ items, type }: RelatedContentProps) {
             <Link
               href={`/${type}/${item.slug}`}
               style={{
-                color: "#2563EB",
+                color: "var(--color-primary)",
                 textDecoration: "none",
                 fontSize: "0.9375rem",
               }}

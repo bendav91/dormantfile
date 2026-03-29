@@ -77,11 +77,11 @@ export default async function GuidePage({ params }: Props) {
       <article>
         <h1
           className="text-3xl sm:text-4xl font-bold leading-tight mb-3"
-          style={{ color: "#1E293B" }}
+          style={{ color: "var(--color-text-primary)" }}
         >
           {guide.frontmatter.title}
         </h1>
-        <p className="text-sm mb-8" style={{ color: "#94A3B8" }}>
+        <p className="text-sm mb-8" style={{ color: "var(--color-text-muted)" }}>
           Updated{" "}
           {new Date(guide.frontmatter.updatedAt).toLocaleDateString("en-GB", {
             day: "numeric",

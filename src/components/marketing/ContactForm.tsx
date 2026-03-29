@@ -35,7 +35,7 @@ export function ContactForm() {
 
   const inputStyle: React.CSSProperties = {
     padding: "0.75rem",
-    border: "1px solid #E2E8F0",
+    border: "1px solid var(--color-border)",
     borderRadius: "0.5rem",
     fontSize: "15px",
     width: "100%",
@@ -88,7 +88,7 @@ export function ContactForm() {
         disabled={status === "sending"}
         className="focus-ring"
         style={{
-          backgroundColor: "#2563EB",
+          backgroundColor: "var(--color-primary)",
           color: "#ffffff",
           padding: "0.75rem",
           borderRadius: "0.5rem",
@@ -103,7 +103,7 @@ export function ContactForm() {
         {status === "sending" ? "Sending\u2026" : "Send message"}
       </button>
       {status === "error" && (
-        <p role="alert" style={{ color: "#DC2626", fontSize: "14px" }}>
+        <p role="alert" style={{ color: "var(--color-danger)", fontSize: "14px" }}>
           Something went wrong. Please try emailing us directly.
         </p>
       )}

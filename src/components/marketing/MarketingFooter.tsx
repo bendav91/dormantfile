@@ -18,8 +18,8 @@ export function MarketingFooter() {
   return (
     <footer
       style={{
-        backgroundColor: "#F1F5F9",
-        borderTop: "1px solid #E2E8F0",
+        backgroundColor: "var(--color-neutral-bg)",
+        borderTop: "1px solid var(--color-border)",
       }}
       className="py-8 px-6"
     >
@@ -30,7 +30,7 @@ export function MarketingFooter() {
               key={link.href}
               href={link.href}
               className="text-sm transition-colors duration-200"
-              style={{ color: "#64748B", textDecoration: "none" }}
+              style={{ color: "var(--color-text-secondary)", textDecoration: "none" }}
             >
               {link.label}
             </Link>
@@ -38,7 +38,7 @@ export function MarketingFooter() {
         </div>
         <p
           className="text-center text-xs"
-          style={{ color: "#94A3B8" }}
+          style={{ color: "var(--color-text-muted)" }}
         >
           &copy; {new Date().getFullYear()} DormantFile. Not an accountancy firm
           &mdash; software tool only.

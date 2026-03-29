@@ -46,7 +46,7 @@ export default async function SecurityPage() {
           style={{
             fontSize: "36px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 12px 0",
             letterSpacing: "-0.02em",
           }}
@@ -54,7 +54,7 @@ export default async function SecurityPage() {
           {title}
         </h1>
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "#475569", marginBottom: "32px" }}>
+          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "var(--color-text-body)", marginBottom: "32px" }}>
             {subtitle}
           </p>
         )}

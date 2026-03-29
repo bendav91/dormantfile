@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function MarketingNav() {
   const [resourcesOpen, setResourcesOpen] = useState(false);
@@ -31,8 +32,8 @@ export function MarketingNav() {
   return (
     <nav
       style={{
-        backgroundColor: "#ffffff",
-        borderBottom: "1px solid #E2E8F0",
+        backgroundColor: "var(--color-bg-card)",
+        borderBottom: "1px solid var(--color-border)",
       }}
       className="sticky top-0 z-50"
     >
@@ -40,7 +41,7 @@ export function MarketingNav() {
         <Link
           href="/"
           className="text-xl font-semibold"
-          style={{ color: "#2563EB", textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}
+          style={{ color: "var(--color-primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}
         >
           <Logo size={24} />
           DormantFile
@@ -49,7 +50,7 @@ export function MarketingNav() {
           <Link
             href="/pricing"
             className="text-sm font-medium transition-colors duration-200"
-            style={{ color: "#1E293B", textDecoration: "none" }}
+            style={{ color: "var(--color-text-primary)", textDecoration: "none" }}
           >
             Pricing
           </Link>
@@ -67,7 +68,7 @@ export function MarketingNav() {
               aria-controls="resources-menu"
               className="text-sm font-medium transition-colors duration-200 flex items-center gap-1"
               style={{
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 background: "none",
                 border: "none",
                 cursor: "pointer",
@@ -97,8 +98,8 @@ export function MarketingNav() {
                   top: "100%",
                   right: 0,
                   marginTop: "0.5rem",
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #E2E8F0",
+                  backgroundColor: "var(--color-bg-card)",
+                  border: "1px solid var(--color-border)",
                   borderRadius: "0.5rem",
                   boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
                   minWidth: "10rem",
@@ -120,7 +121,7 @@ export function MarketingNav() {
                     className="block text-sm transition-colors duration-200"
                     style={{
                       padding: "0.5rem 1rem",
-                      color: "#475569",
+                      color: "var(--color-text-body)",
                       textDecoration: "none",
                     }}
                   >
@@ -130,10 +131,11 @@ export function MarketingNav() {
               </div>
             )}
           </div>
+          <ThemeToggle />
           <Link
             href="/login"
             className="text-sm font-medium transition-colors duration-200 nav-signin-link"
-            style={{ color: "#1E293B", textDecoration: "none" }}
+            style={{ color: "var(--color-text-primary)", textDecoration: "none" }}
           >
             Sign in
           </Link>
@@ -141,7 +143,7 @@ export function MarketingNav() {
             href="/register"
             className="text-sm font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5"
             style={{
-              backgroundColor: "#F97316",
+              backgroundColor: "var(--color-cta)",
               color: "#ffffff",
               padding: "10px 20px",
               borderRadius: "8px",

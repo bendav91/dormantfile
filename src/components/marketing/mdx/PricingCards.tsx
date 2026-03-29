@@ -18,8 +18,8 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
           key={plan.name}
           className="rounded-xl p-7 flex flex-col"
           style={{
-            border: plan.highlighted ? "2px solid #2563EB" : "1px solid #E2E8F0",
-            backgroundColor: "#ffffff",
+            border: plan.highlighted ? "2px solid var(--color-primary)" : "1px solid var(--color-border)",
+            backgroundColor: "var(--color-bg-card)",
             position: "relative",
           }}
         >
@@ -30,8 +30,8 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
                 top: "-12px",
                 left: "50%",
                 transform: "translateX(-50%)",
-                backgroundColor: "#2563EB",
-                color: "#ffffff",
+                backgroundColor: "var(--color-primary)",
+                color: "var(--color-bg-card)",
                 padding: "3px 14px",
                 borderRadius: "9999px",
                 fontSize: "12px",
@@ -42,25 +42,25 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
               Most popular
             </span>
           )}
-          <p className="font-semibold text-sm mb-1" style={{ color: "#2563EB" }}>
+          <p className="font-semibold text-sm mb-1" style={{ color: "var(--color-primary)" }}>
             {plan.name}
           </p>
           <div className="mb-1">
-            <span className="text-4xl font-bold" style={{ color: "#1E293B" }}>
+            <span className="text-4xl font-bold" style={{ color: "var(--color-text-primary)" }}>
               &pound;{plan.price}
             </span>
-            <span className="text-sm ml-1" style={{ color: "#64748B" }}>
+            <span className="text-sm ml-1" style={{ color: "var(--color-text-secondary)" }}>
               {plan.period}
             </span>
           </div>
-          <p className="text-sm mb-6" style={{ color: "#64748B" }}>
+          <p className="text-sm mb-6" style={{ color: "var(--color-text-secondary)" }}>
             {plan.description}
           </p>
           <ul className="space-y-2.5 mb-7 flex-1">
             {plan.features.map((feature) => (
               <li key={feature} className="flex items-start gap-2.5">
-                <CheckCircle size={16} style={{ color: "#2563EB", flexShrink: 0, marginTop: 2 }} />
-                <span className="text-sm" style={{ color: "#475569" }}>{feature}</span>
+                <CheckCircle size={16} style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: 2 }} />
+                <span className="text-sm" style={{ color: "var(--color-text-body)" }}>{feature}</span>
               </li>
             ))}
           </ul>
@@ -68,7 +68,7 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
             href="/register"
             className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
             style={{
-              backgroundColor: plan.highlighted ? "#F97316" : "#2563EB",
+              backgroundColor: plan.highlighted ? "var(--color-cta)" : "var(--color-primary)",
               color: "#ffffff",
               padding: "12px 24px",
               borderRadius: "8px",

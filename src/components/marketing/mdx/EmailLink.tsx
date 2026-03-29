@@ -8,14 +8,14 @@ export function EmailLink({ email }: { email: string }) {
         alignItems: "center",
         gap: "0.75rem",
         padding: "1rem",
-        backgroundColor: "#EFF6FF",
+        backgroundColor: "var(--color-primary-bg)",
         borderRadius: "0.5rem",
-        border: "1px solid #DBEAFE",
+        border: "1px solid var(--color-primary-border)",
         marginBottom: "2rem",
       }}
     >
-      <Mail size={20} style={{ color: "#2563EB", flexShrink: 0 }} />
-      <a href={`mailto:${email}`} style={{ color: "#2563EB", fontWeight: 500, fontSize: "15px" }}>
+      <Mail size={20} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
+      <a href={`mailto:${email}`} style={{ color: "var(--color-primary)", fontWeight: 500, fontSize: "15px" }}>
         {email}
       </a>
     </span>

@@ -51,7 +51,7 @@ export default async function PricingPage() {
           style={{
             fontSize: "36px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 12px 0",
             letterSpacing: "-0.02em",
             textAlign: align,
@@ -60,7 +60,7 @@ export default async function PricingPage() {
           {title}
         </h1>
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "#475569", marginBottom: "32px", textAlign: align }}>
+          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "var(--color-text-body)", marginBottom: "32px", textAlign: align }}>
             {subtitle}
           </p>
         )}

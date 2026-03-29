@@ -14,7 +14,7 @@ export default function NotFoundPage() {
       className={ibmPlexSans.className}
       style={{
         minHeight: "100vh",
-        backgroundColor: "#F8FAFC",
+        backgroundColor: "var(--color-bg-page)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -27,7 +27,7 @@ export default function NotFoundPage() {
         style={{
           fontSize: "72px",
           fontWeight: 700,
-          color: "#1E293B",
+          color: "var(--color-text-primary)",
           margin: "24px 0 0 0",
           letterSpacing: "-0.03em",
           lineHeight: 1,
@@ -38,7 +38,7 @@ export default function NotFoundPage() {
       <p
         style={{
           fontSize: "18px",
-          color: "#64748B",
+          color: "var(--color-text-secondary)",
           margin: "12px 0 0 0",
           textAlign: "center",
         }}
@@ -50,8 +50,8 @@ export default function NotFoundPage() {
         className="focus-ring"
         style={{
           marginTop: "32px",
-          backgroundColor: "#2563EB",
-          color: "#ffffff",
+          backgroundColor: "var(--color-primary)",
+          color: "var(--color-bg-card)",
           padding: "12px 24px",
           borderRadius: "8px",
           fontWeight: 600,

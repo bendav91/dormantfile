@@ -22,7 +22,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
         <li>
           <Link
             href="/"
-            style={{ color: "#64748B", textDecoration: "none" }}
+            style={{ color: "var(--color-text-secondary)", textDecoration: "none" }}
           >
             Home
           </Link>
@@ -36,18 +36,18 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
               gap: "0.5rem",
             }}
           >
-            <span aria-hidden="true" style={{ color: "#94A3B8" }}>
+            <span aria-hidden="true" style={{ color: "var(--color-text-muted)" }}>
               ›
             </span>
             {item.href ? (
               <Link
                 href={item.href}
-                style={{ color: "#64748B", textDecoration: "none" }}
+                style={{ color: "var(--color-text-secondary)", textDecoration: "none" }}
               >
                 {item.label}
               </Link>
             ) : (
-              <span style={{ color: "#475569" }}>{item.label}</span>
+              <span style={{ color: "var(--color-text-body)" }}>{item.label}</span>
             )}
           </li>
         ))}

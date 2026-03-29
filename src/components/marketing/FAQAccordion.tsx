@@ -14,7 +14,7 @@ function FAQItem({ question, answer }: FAQItemData) {
   const triggerId = `${panelId}-trigger`;
 
   return (
-    <div style={{ borderBottom: "1px solid #E2E8F0" }}>
+    <div style={{ borderBottom: "1px solid var(--color-border)" }}>
       <button
         id={triggerId}
         onClick={() => setOpen(!open)}
@@ -32,7 +32,7 @@ function FAQItem({ question, answer }: FAQItemData) {
           alignItems: "center",
           fontSize: "15px",
           fontWeight: 500,
-          color: "#1E293B",
+          color: "var(--color-text-primary)",
           gap: "1rem",
         }}
       >
@@ -43,7 +43,7 @@ function FAQItem({ question, answer }: FAQItemData) {
             transform: open ? "rotate(180deg)" : "none",
             transition: "transform 0.2s",
             flexShrink: 0,
-            color: "#94A3B8",
+            color: "var(--color-text-muted)",
           }}
         />
       </button>
@@ -54,7 +54,7 @@ function FAQItem({ question, answer }: FAQItemData) {
           aria-labelledby={triggerId}
           style={{
             paddingBottom: "1rem",
-            color: "#475569",
+            color: "var(--color-text-body)",
             lineHeight: 1.7,
             fontSize: "15px",
           }}
@@ -81,7 +81,7 @@ export function FAQAccordion({ categories }: { categories: FAQCategory[] }) {
             style={{
               fontSize: "18px",
               fontWeight: 600,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
             }}
           >

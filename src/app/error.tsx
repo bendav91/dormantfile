@@ -20,7 +20,7 @@ export default function ErrorPage({
       className={ibmPlexSans.className}
       style={{
         minHeight: "100vh",
-        backgroundColor: "#F8FAFC",
+        backgroundColor: "var(--color-bg-page)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -28,12 +28,12 @@ export default function ErrorPage({
         padding: "24px",
       }}
     >
-      <AlertTriangle size={48} color="#F97316" strokeWidth={1.5} />
+      <AlertTriangle size={48} color="var(--color-cta)" strokeWidth={1.5} />
       <h1
         style={{
           fontSize: "28px",
           fontWeight: 700,
-          color: "#1E293B",
+          color: "var(--color-text-primary)",
           margin: "24px 0 0 0",
           letterSpacing: "-0.02em",
         }}
@@ -43,7 +43,7 @@ export default function ErrorPage({
       <p
         style={{
           fontSize: "16px",
-          color: "#64748B",
+          color: "var(--color-text-secondary)",
           margin: "8px 0 0 0",
           textAlign: "center",
           maxWidth: "400px",
@@ -56,8 +56,8 @@ export default function ErrorPage({
           onClick={reset}
           className="focus-ring"
           style={{
-            backgroundColor: "#2563EB",
-            color: "#ffffff",
+            backgroundColor: "var(--color-primary)",
+            color: "var(--color-bg-card)",
             padding: "12px 24px",
             borderRadius: "8px",
             fontWeight: 600,
@@ -74,12 +74,12 @@ export default function ErrorPage({
           className="focus-ring"
           style={{
             backgroundColor: "transparent",
-            color: "#2563EB",
+            color: "var(--color-primary)",
             padding: "12px 24px",
             borderRadius: "8px",
             fontWeight: 600,
             fontSize: "14px",
-            border: "2px solid #2563EB",
+            border: "2px solid var(--color-primary)",
             textDecoration: "none",
             transition: "background-color 200ms, color 200ms",
           }}

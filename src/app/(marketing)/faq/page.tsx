@@ -52,7 +52,7 @@ export default async function FAQPage() {
           style={{
             fontSize: "36px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 12px 0",
             letterSpacing: "-0.02em",
           }}

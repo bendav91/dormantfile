@@ -16,7 +16,7 @@ export default function MarketingLayout({
   return (
     <div
       className={ibmPlexSans.className}
-      style={{ backgroundColor: "#F8FAFC", color: "#1E293B", minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)", minHeight: "100vh", display: "flex", flexDirection: "column" }}
     >
       <MarketingNav />
       <main

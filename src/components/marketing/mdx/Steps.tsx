@@ -23,8 +23,8 @@ export function Steps({ children }: { children: React.ReactNode }) {
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                backgroundColor: "#2563EB",
-                color: "#ffffff",
+                backgroundColor: "var(--color-primary)",
+                color: "var(--color-bg-card)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -36,10 +36,10 @@ export function Steps({ children }: { children: React.ReactNode }) {
               {i + 1}
             </div>
             <div>
-              <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1E293B", margin: "0 0 4px 0" }}>
+              <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 4px 0" }}>
                 {title}
               </h3>
-              <p style={{ fontSize: "15px", lineHeight: 1.7, color: "#475569", margin: 0 }}>
+              <p style={{ fontSize: "15px", lineHeight: 1.7, color: "var(--color-text-body)", margin: 0 }}>
                 {desc}
               </p>
             </div>
