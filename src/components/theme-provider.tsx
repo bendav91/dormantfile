@@ -36,7 +36,7 @@ function applyTheme(resolved: "light" | "dark") {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("system");
+  const [theme, setThemeState] = useState<Theme>("light");
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
 
   const setTheme = useCallback((newTheme: Theme) => {
@@ -49,7 +49,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("theme") as Theme | null;
-    const initial = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
+    const initial = stored === "light" || stored === "dark" || stored === "system" ? stored : "light";
     setThemeState(initial);
     const resolved = resolveTheme(initial);
     setResolvedTheme(resolved);
