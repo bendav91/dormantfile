@@ -23,7 +23,7 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-const adapter = new PrismaPg({ connectionString: process.env.POSTGRES_URL_NON_POOLING });
+const adapter = new PrismaPg({ connectionString: process.env.POSTGRES_URL });
 const prisma = new PrismaClient({ adapter });
 const dryRun = process.argv.includes("--dry-run");
 

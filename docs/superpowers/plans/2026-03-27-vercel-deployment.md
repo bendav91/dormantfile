@@ -50,7 +50,7 @@ With:
 # For local development, both can point to the same local database URL.
 # On Vercel, these are auto-provisioned when a Postgres database is linked.
 POSTGRES_PRISMA_URL="postgresql://user:password@localhost:5432/nil_ct600"
-POSTGRES_URL_NON_POOLING="postgresql://user:password@localhost:5432/nil_ct600"
+POSTGRES_URL="postgresql://user:password@localhost:5432/nil_ct600"
 ```
 
 - [ ] **Step 2: Update .env**
@@ -59,14 +59,14 @@ In the local `.env` file, add the two new variables pointing to the existing loc
 
 ```
 POSTGRES_PRISMA_URL="postgresql://..."  # same value as current DATABASE_URL
-POSTGRES_URL_NON_POOLING="postgresql://..."  # same value as current DATABASE_URL
+POSTGRES_URL="postgresql://..."  # same value as current DATABASE_URL
 ```
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add .env.example
-git commit -m "chore: update env vars for Vercel Postgres (POSTGRES_PRISMA_URL, POSTGRES_URL_NON_POOLING)"
+git commit -m "chore: update env vars for Vercel Postgres (POSTGRES_PRISMA_URL)"
 ```
 
 Note: `.env` is gitignored — only `.env.example` is committed.
@@ -95,7 +95,7 @@ With:
 datasource db {
   provider  = "postgresql"
   url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  directUrl = env("POSTGRES_URL")
 }
 ```
 
@@ -173,7 +173,7 @@ export default defineConfig({
 });
 ```
 
-This removes the `datasource.url` override. The Prisma CLI will now read `url` and `directUrl` from the schema, which means it uses `POSTGRES_URL_NON_POOLING` (the direct connection) for migrations.
+This removes the `datasource.url` override. The Prisma CLI will now read `url` and `directUrl` from the schema, which means it uses `POSTGRES_URL` (the direct connection) for migrations.
 
 - [ ] **Step 2: Verify Prisma can connect**
 

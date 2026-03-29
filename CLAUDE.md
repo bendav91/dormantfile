@@ -70,7 +70,7 @@ Prisma with PostgreSQL. Key models: `User`, `Company`, `Filing`, `Reminder`, `Pa
 
 - Migrations: `npx prisma migrate dev` (dev) / `npx prisma migrate deploy` (prod)
 - Generate client: `npx prisma generate`
-- Env var: `POSTGRES_URL_NON_POOLING` for migrations, pooled URL for runtime
+- Env var: `POSTGRES_URL` for migrations, pooled URL for runtime
 
 ## Testing
 
@@ -80,7 +80,7 @@ Tests live in `src/__tests__/` and mirror `src/lib/`. Run `npm test` before comm
 
 Env vars are in `.env` (local) — never commit secrets. Key vars:
 
-- `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`
+- `POSTGRES_URL`,
 - `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `RESEND_API_KEY`

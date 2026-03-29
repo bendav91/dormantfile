@@ -43,7 +43,7 @@ Create two Vercel Postgres databases, both in LHR1:
 1. **Production database** — linked to the production environment
 2. **Preview database** — linked to the preview environment
 
-Vercel auto-provisions `POSTGRES_URL`, `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`, and related variables when a database is linked to an environment.
+Vercel auto-provisions `POSTGRES_URL`, and related variables when a database is linked to an environment.
 
 ### Prisma Configuration Changes
 
@@ -57,7 +57,7 @@ The project currently uses `@prisma/adapter-pg` (a driver adapter) in `src/lib/d
 datasource db {
   provider  = "postgresql"
   url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  directUrl = env("POSTGRES_URL")
 }
 ```
 
@@ -94,7 +94,7 @@ export default defineConfig({
 
 **Remove dependencies** — uninstall `@prisma/adapter-pg`, `pg`, and `@types/pg` (the latter is in `dependencies`, not `devDependencies`) as they are no longer needed.
 
-For local development, set both `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` to the existing local database URL in `.env`.
+For local development, set both `POSTGRES_URL` to the existing local database URL in `.env`.
 
 ## Environment Variables
 
@@ -167,8 +167,8 @@ Vercel cron jobs only execute on the production deployment — preview environme
 2. **`src/lib/db.ts`** — remove `@prisma/adapter-pg` driver adapter, use standard `PrismaClient()`
 3. **`prisma.config.ts`** — remove the `datasource` override (let the schema handle URL resolution)
 4. **`package.json`** — uninstall `@prisma/adapter-pg` and `pg` (+ `@types/pg` if present)
-5. **`.env.example`** — replace `DATABASE_URL` with `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING`
-6. **`.env` / `.env.local`** — set `POSTGRES_PRISMA_URL` and `POSTGRES_URL_NON_POOLING` to the local database URL for development
+5. **`.env.example`** — replace `DATABASE_URL` with `POSTGRES_URL`
+6. **`.env` / `.env.local`** — set `POSTGRES_URL` to the local database URL for development
 
 ## Deployment Steps (Manual, One-Time)
 

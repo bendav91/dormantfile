@@ -2,7 +2,6 @@ declare namespace NodeJS {
   interface ProcessEnv {
     // Database
     POSTGRES_URL: string;
-    POSTGRES_URL_NON_POOLING: string;
 
     // Auth
     NEXTAUTH_SECRET: string;
