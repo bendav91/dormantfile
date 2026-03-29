@@ -23,12 +23,19 @@ const trustPoints = [
   },
 ];
 
-export function TrustSection() {
+export function TrustSection({ children }: { children?: React.ReactNode }) {
   return (
-    <section className="py-24 px-6">
+    <section
+      className="py-20 px-6"
+      style={{
+        backgroundColor: "var(--color-bg-card)",
+        borderTop: "1px solid var(--color-border)",
+        borderBottom: "1px solid var(--color-border)",
+      }}
+    >
       <div className="max-w-[960px] mx-auto">
         <h2
-          className="text-2xl font-bold text-center mb-16"
+          className="text-2xl font-bold text-center mb-10"
           style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
         >
           Why trust DormantFile?
@@ -38,7 +45,7 @@ export function TrustSection() {
           {/* Founder card */}
           <div
             style={{
-              backgroundColor: "var(--color-bg-card)",
+              backgroundColor: "var(--color-bg-page)",
               border: "1px solid var(--color-border)",
               borderRadius: "12px",
               padding: "2rem",
@@ -95,7 +102,7 @@ export function TrustSection() {
               <div
                 key={point.heading}
                 style={{
-                  backgroundColor: "var(--color-bg-card)",
+                  backgroundColor: "var(--color-bg-page)",
                   border: "1px solid var(--color-border)",
                   borderRadius: "12px",
                   padding: "1.25rem",
@@ -121,6 +128,7 @@ export function TrustSection() {
             ))}
           </div>
         </div>
+        {children}
       </div>
     </section>
   );

@@ -423,11 +423,10 @@ export default function LandingPage() {
       </section>
 
       {/* Trust Section */}
-      <TrustSection />
-      <div className="max-w-[960px] mx-auto px-6">
+      <TrustSection>
         <FilingCounter />
         <TrustBadges />
-      </div>
+      </TrustSection>
 
       {/* Testimonials (hidden until populated) */}
       <Testimonials />
