@@ -35,10 +35,7 @@ function calculateCT600Deadline(accountingPeriodEnd: Date): Date {
   return deadline;
 }
 
-function calculateAccountsDeadline(
-  accountingPeriodEnd: Date,
-  incorporationDate?: Date,
-): Date {
+function calculateAccountsDeadline(accountingPeriodEnd: Date, incorporationDate?: Date): Date {
   const deadline = new Date(accountingPeriodEnd);
   const targetMonth = deadline.getUTCMonth() + 9;
   const originalDate = deadline.getUTCDate();
@@ -104,10 +101,8 @@ function getOutstandingPeriods(
   const lastPeriodEnd = allPeriodEnds.length > 0 ? allPeriodEnds[allPeriodEnds.length - 1] : null;
 
   while (pEnd.getTime() <= now.getTime()) {
-    const isFirstPeriod =
-      dateOfCreation != null && pStart.getTime() === dateOfCreation.getTime();
-    const isLastPeriod =
-      lastPeriodEnd != null && pEnd.getTime() === lastPeriodEnd.getTime();
+    const isFirstPeriod = dateOfCreation != null && pStart.getTime() === dateOfCreation.getTime();
+    const isLastPeriod = lastPeriodEnd != null && pEnd.getTime() === lastPeriodEnd.getTime();
 
     let accountsDeadline: Date;
     if (isLastPeriod && accountsDueOn) {

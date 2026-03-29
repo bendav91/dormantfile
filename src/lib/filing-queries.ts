@@ -112,12 +112,13 @@ export function buildPeriodViews(filings: FilingRecord[]): PeriodView[] {
   }
 
   // Compute hasEarlierGaps: true if any earlier period is incomplete
+  // (suppressed periods are intentionally skipped and don't count as gaps)
   let hasSeenIncomplete = false;
   for (const period of periods) {
     if (hasSeenIncomplete) {
       period.hasEarlierGaps = true;
     }
-    if (!period.isComplete) {
+    if (!period.isComplete && !period.isSuppressed) {
       hasSeenIncomplete = true;
     }
   }

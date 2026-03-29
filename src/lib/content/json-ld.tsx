@@ -1,5 +1,3 @@
-import Script from "next/script";
-
 interface ArticleJsonLdProps {
   headline: string;
   datePublished: string;
@@ -19,7 +17,7 @@ export function ArticleJsonLd({ headline, datePublished, dateModified, url }: Ar
     publisher: { "@type": "Organization", name: "DormantFile" },
   };
   return (
-    <Script id={`ld-${data["@type"].toLowerCase()}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -40,7 +38,7 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
     })),
   };
   return (
-    <Script id={`ld-${data["@type"].toLowerCase()}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -63,7 +61,7 @@ export function FAQPageJsonLd({ items }: { items: FAQItem[] }) {
     })),
   };
   return (
-    <Script id={`ld-${data["@type"].toLowerCase()}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -77,7 +75,7 @@ export function OrganizationJsonLd() {
       "Dormant company filing made simple. File your annual accounts and nil CT600 returns online.",
   };
   return (
-    <Script id={`ld-${data["@type"].toLowerCase()}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -108,6 +106,6 @@ export function HowToJsonLd({
     })),
   };
   return (
-    <Script id={`ld-${data["@type"].toLowerCase()}`} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }

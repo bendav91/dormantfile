@@ -169,10 +169,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Clean up retryable filings (failed/rejected are terminal — safe to replace)
-  // and stale pending filings (older than 5 minutes — never reached HMRC)
+  // Reset retryable filings back to outstanding so they can be resubmitted,
+  // and reset stale pending filings (older than 5 minutes — never reached HMRC)
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-  await prisma.filing.deleteMany({
+  await prisma.filing.updateMany({
     where: {
       companyId,
       filingType: "ct600",
@@ -182,6 +182,14 @@ export async function POST(req: NextRequest) {
         { status: { in: ["failed", "rejected"] } },
         { status: "pending", createdAt: { lt: fiveMinutesAgo } },
       ],
+    },
+    data: {
+      status: "outstanding",
+      correlationId: null,
+      responsePayload: null,
+      irmark: null,
+      submittedAt: null,
+      confirmedAt: null,
     },
   });
 
@@ -206,15 +214,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Create filing record with "pending" status
-  const filing = await prisma.filing.create({
-    data: {
-      companyId,
-      filingType: "ct600",
-      periodStart: targetPeriodStart,
-      periodEnd: targetPeriodEnd,
-      status: "pending",
-    },
+  // Transition outstanding filing to "pending"
+  const filing = await prisma.filing.update({
+    where: { id: outstandingFiling.id },
+    data: { status: "pending" },
   });
 
   let vendor: VendorCredentials;

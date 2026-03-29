@@ -98,6 +98,32 @@ describe("buildPeriodViews", () => {
     vi.useRealTimers();
   });
 
+  it("does not count suppressed periods as earlier gaps", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-01"));
+
+    const filings = [
+      filing({
+        id: "a1",
+        periodStart: new Date("2023-04-01"),
+        periodEnd: new Date("2024-03-31"),
+        accountsDeadline: new Date("2024-12-31"),
+        suppressedAt: new Date("2026-01-01"),
+      }),
+      filing({
+        id: "a2",
+        periodStart: new Date("2024-04-01"),
+        periodEnd: new Date("2025-03-31"),
+        accountsDeadline: new Date("2025-12-31"),
+      }),
+    ];
+    const views = buildPeriodViews(filings);
+    expect(views[0].isSuppressed).toBe(true);
+    expect(views[1].hasEarlierGaps).toBe(false);
+
+    vi.useRealTimers();
+  });
+
   it("computes blocked and disclosure territory", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-29"));

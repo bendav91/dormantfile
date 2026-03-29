@@ -6,12 +6,23 @@ function formatUKDate(date: Date): string {
   });
 }
 
-interface ReminderEmailData {
+export interface ReminderCompany {
   companyName: string;
+  deadline: Date;
   daysUntilDeadline: number;
-  filingDeadline: Date;
   fileUrl: string;
-  filingType: "accounts" | "ct600";
+}
+
+export interface ReminderSection {
+  heading: string;
+  isOverdue: boolean;
+  companies: ReminderCompany[];
+}
+
+interface ReminderEmailData {
+  userName: string;
+  dashboardUrl: string;
+  sections: ReminderSection[];
 }
 
 interface ReminderEmailResult {
@@ -19,33 +30,71 @@ interface ReminderEmailResult {
   html: string;
 }
 
+function pluralise(n: number, singular: string, plural?: string): string {
+  return `${n} ${n === 1 ? singular : (plural ?? singular + "s")}`;
+}
+
 export function buildReminderEmail(data: ReminderEmailData): ReminderEmailResult {
-  const { companyName, daysUntilDeadline, filingDeadline, fileUrl, filingType } = data;
-  const deadlineFormatted = formatUKDate(filingDeadline);
+  const { userName, dashboardUrl, sections } = data;
+  const hasOverdue = sections.some((s) => s.isOverdue);
+  const totalCompanies = sections.reduce((sum, s) => sum + s.companies.length, 0);
 
-  const isAccounts = filingType === "accounts";
-  const filingLabel = isAccounts ? "Annual accounts" : "CT600";
-  const penaltyNote = isAccounts
-    ? "Companies House imposes a £150 penalty if accounts are filed late, rising to £750 after 3 months."
-    : "HMRC imposes an initial penalty of £100 if your CT600 is filed late. Further penalties apply after 3 and 6 months.";
+  const subject = hasOverdue
+    ? "Action required: You have overdue company filings"
+    : `Filing reminder: ${pluralise(totalCompanies, "company", "companies")} ${totalCompanies === 1 ? "needs" : "need"} attention`;
 
-  const subject = `${filingLabel} filing reminder: ${companyName} - ${daysUntilDeadline} days left`;
+  const sectionsHtml = sections
+    .map((section) => {
+      const rowsHtml = section.companies
+        .map((c) => {
+          const deadlineStr = formatUKDate(c.deadline);
+          const daysAbs = Math.abs(c.daysUntilDeadline);
+          const timing =
+            c.daysUntilDeadline < 0
+              ? `${pluralise(daysAbs, "day")} overdue`
+              : `${pluralise(daysAbs, "day")} remaining`;
+
+          return `<tr>
+            <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb;">
+              <strong style="color: #1a1a1a;">${c.companyName}</strong><br>
+              <span style="color: #666; font-size: 13px;">Deadline: ${deadlineStr} (${timing})</span>
+            </td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: right; vertical-align: middle;">
+              <a href="${c.fileUrl}" style="color: #2563eb; font-weight: 600; text-decoration: none; font-size: 13px;">File now</a>
+            </td>
+          </tr>`;
+        })
+        .join("");
+
+      return `<div style="margin-bottom: 28px;">
+        <h2 style="color: ${section.isOverdue ? "#dc2626" : "#1a1a1a"}; font-size: 16px; margin: 0 0 10px 0;">
+          ${section.heading} (${pluralise(section.companies.length, "company", "companies")})
+        </h2>
+        <table style="width: 100%; border-collapse: collapse; background: #f9fafb; border-radius: 8px; overflow: hidden;">
+          ${rowsHtml}
+        </table>
+      </div>`;
+    })
+    .join("");
+
+  const penaltyNote = hasOverdue
+    ? "Companies House imposes a &pound;150 penalty for late accounts, rising to &pound;375 after 1 month, &pound;750 after 3 months, and &pound;1,500 after 6 months."
+    : "Companies House imposes a &pound;150 penalty if accounts are filed late, rising to &pound;750 after 3 months.";
 
   const html = `
 <!DOCTYPE html>
 <html>
   <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-    <h1 style="color: #1a1a1a;">${filingLabel} Filing Reminder</h1>
-    <p>
-      This is a reminder that <strong>${companyName}</strong> has a ${filingLabel} filing
-      deadline of <strong>${deadlineFormatted}</strong>.
+    <h1 style="color: #1a1a1a; font-size: 22px;">Filing ${hasOverdue ? "Action Required" : "Reminders"}</h1>
+    <p>Hi ${userName},</p>
+    <p>Here's a summary of your companies that need filing attention:</p>
+    ${sectionsHtml}
+    <p style="color: #666; font-size: 14px;">
+      <strong>Note:</strong> ${penaltyNote}
     </p>
-    <p>
-      You have <strong>${daysUntilDeadline} days</strong> remaining to file.
-    </p>
-    <p>
+    <p style="margin-top: 24px;">
       <a
-        href="${fileUrl}"
+        href="${dashboardUrl}"
         style="
           display: inline-block;
           background-color: #2563eb;
@@ -56,11 +105,8 @@ export function buildReminderEmail(data: ReminderEmailData): ReminderEmailResult
           font-weight: bold;
         "
       >
-        File ${filingLabel} Now
+        View Dashboard
       </a>
-    </p>
-    <p style="color: #666; font-size: 14px;">
-      <strong>Note:</strong> ${penaltyNote}
     </p>
   </body>
 </html>

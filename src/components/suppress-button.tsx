@@ -8,12 +8,14 @@ interface SuppressButtonProps {
   companyId: string;
   periodEnd: string;
   isSuppressed: boolean;
+  onRestore?: () => void;
 }
 
 export default function SuppressButton({
   companyId,
   periodEnd,
   isSuppressed,
+  onRestore,
 }: SuppressButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -34,6 +36,7 @@ export default function SuppressButton({
         });
       }
       router.refresh();
+      if (isSuppressed && onRestore) onRestore();
     } finally {
       setLoading(false);
     }

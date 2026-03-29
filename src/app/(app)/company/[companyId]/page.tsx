@@ -188,9 +188,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
               .filter((f) => f.filingType === "accounts" && f.status === "accepted")
               .sort((a, b) => b.periodEnd.getTime() - a.periodEnd.getTime())[0]?.periodEnd ?? null
           }
-          accountsOverdue={
-            company.accountsDueOn ? company.accountsDueOn.getTime() < now : false
-          }
+          accountsOverdue={company.accountsDueOn ? company.accountsDueOn.getTime() < now : false}
           filings={company.filings}
         />
       )}

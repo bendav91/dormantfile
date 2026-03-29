@@ -9,31 +9,79 @@ import { describe, expect, it } from "vitest";
 
 describe("buildReminderEmail", () => {
   const data = {
-    companyName: "Acme Ltd",
-    daysUntilDeadline: 30,
-    filingDeadline: new Date("2027-03-31"),
-    fileUrl: "https://example.com/file/abc123",
-    filingType: "accounts" as const,
+    userName: "Ben",
+    dashboardUrl: "https://example.com/dashboard",
+    sections: [
+      {
+        heading: "Due within 30 days",
+        isOverdue: false,
+        companies: [
+          {
+            companyName: "Acme Ltd",
+            deadline: new Date("2027-03-31"),
+            daysUntilDeadline: 25,
+            fileUrl: "https://example.com/file/abc123",
+          },
+          {
+            companyName: "Beta Co",
+            deadline: new Date("2027-04-05"),
+            daysUntilDeadline: 30,
+            fileUrl: "https://example.com/file/def456",
+          },
+        ],
+      },
+    ],
   };
 
-  it("subject contains the company name", () => {
+  it("subject reflects the number of companies", () => {
     const { subject } = buildReminderEmail(data);
-    expect(subject).toContain("Acme Ltd");
+    expect(subject).toContain("2 companies");
   });
 
-  it("subject contains the days count", () => {
-    const { subject } = buildReminderEmail(data);
-    expect(subject).toContain("30");
-  });
-
-  it("html contains the company name", () => {
+  it("html contains all company names", () => {
     const { html } = buildReminderEmail(data);
     expect(html).toContain("Acme Ltd");
+    expect(html).toContain("Beta Co");
   });
 
-  it("html contains the file URL", () => {
+  it("html contains the section heading", () => {
+    const { html } = buildReminderEmail(data);
+    expect(html).toContain("Due within 30 days");
+  });
+
+  it("html contains file URLs", () => {
     const { html } = buildReminderEmail(data);
     expect(html).toContain("https://example.com/file/abc123");
+    expect(html).toContain("https://example.com/file/def456");
+  });
+
+  it("html contains the dashboard link", () => {
+    const { html } = buildReminderEmail(data);
+    expect(html).toContain("https://example.com/dashboard");
+  });
+
+  it("uses overdue subject when sections include overdue", () => {
+    const overdueData = {
+      ...data,
+      sections: [
+        {
+          heading: "Overdue: 7+ days past deadline",
+          isOverdue: true,
+          companies: [
+            {
+              companyName: "Late Corp",
+              deadline: new Date("2026-03-01"),
+              daysUntilDeadline: -28,
+              fileUrl: "https://example.com/file/late1",
+            },
+          ],
+        },
+      ],
+    };
+    const { subject, html } = buildReminderEmail(overdueData);
+    expect(subject).toContain("Action required");
+    expect(html).toContain("Late Corp");
+    expect(html).toContain("28 days overdue");
   });
 });
 

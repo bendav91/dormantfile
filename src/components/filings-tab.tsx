@@ -375,7 +375,7 @@ export default function FilingsTab({
                           >
                             Seek professional advice
                           </span>
-                        ) : accountsFiling ? (
+                        ) : accountsFiling && accountsFiling.status !== "outstanding" ? (
                           <>
                             <FilingStatusBadge
                               status={accountsFiling.status}
@@ -436,7 +436,7 @@ export default function FilingsTab({
                           </p>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          {ct600Filing ? (
+                          {ct600Filing && ct600Filing.status !== "outstanding" ? (
                             <>
                               <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
                               {(ct600Filing.status === "failed" ||
@@ -569,6 +569,11 @@ export default function FilingsTab({
                       companyId={companyId}
                       periodEnd={periodEndISO}
                       isSuppressed={true}
+                      onRestore={
+                        suppressedPeriods.length === 1
+                          ? () => setActiveTab("outstanding")
+                          : undefined
+                      }
                     />
                   </div>
 
