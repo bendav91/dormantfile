@@ -5,6 +5,8 @@ import { Shield, Clock, FileCheck, CheckCircle, ArrowRight } from "lucide-react"
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { FAQPageJsonLd } from "@/lib/content/json-ld";
+import { LaunchBanner } from "@/components/launch-banner";
+import { isPreviewMode } from "@/lib/launch-mode";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -59,6 +61,9 @@ export default function LandingPage() {
       className={ibmPlexSans.className}
       style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)" }}
     >
+      {/* Launch Banner */}
+      <LaunchBanner variant="marketing" />
+
       {/* Navigation */}
       <MarketingNav />
 
@@ -89,7 +94,7 @@ export default function LandingPage() {
               borderRadius: "8px",
             }}
           >
-            Start filing <ArrowRight size={18} />
+            {isPreviewMode ? "Get started" : "Start filing"} <ArrowRight size={18} />
           </Link>
           <p className="mt-5 text-sm" style={{ color: "var(--color-text-secondary)" }}>
             For genuinely dormant companies only — no trading activity, no assets, no income.
@@ -464,7 +469,7 @@ export default function LandingPage() {
               borderRadius: "8px",
             }}
           >
-            Start filing today <ArrowRight size={18} />
+            {isPreviewMode ? "Get started today" : "Start filing today"} <ArrowRight size={18} />
           </Link>
         </div>
       </section>
