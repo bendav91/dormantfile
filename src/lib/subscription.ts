@@ -19,15 +19,13 @@ export function tierFromPriceId(priceId: string): SubscriptionTier {
   if (priceId === process.env.STRIPE_PRICE_ID_AGENT) return "agent";
   if (priceId === process.env.STRIPE_PRICE_ID_MULTI) return "multi";
   if (priceId === process.env.STRIPE_PRICE_ID_BASIC) return "basic";
-  // Fallback: legacy single price
-  if (priceId === process.env.STRIPE_PRICE_ID) return "basic";
   return "none";
 }
 
 export function priceIdFromTier(tier: SubscriptionTier): string | null {
   switch (tier) {
     case "basic":
-      return process.env.STRIPE_PRICE_ID_BASIC || process.env.STRIPE_PRICE_ID || null;
+      return process.env.STRIPE_PRICE_ID_BASIC || null;
     case "multi":
       return process.env.STRIPE_PRICE_ID_MULTI || null;
     case "agent":
