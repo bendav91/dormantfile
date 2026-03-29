@@ -183,6 +183,18 @@ input[type="search"]::-webkit-search-cancel-button {
   outline: none;
 }
 
+/* Auth component helpers */
+.auth-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.auth-step-badge {
+  background-color: var(--color-bg-card);
+}
+.dark .auth-step-badge {
+  background-color: var(--color-bg-inset);
+}
+
 /* Reduced motion: disable animations and transitions */
 @media (prefers-reduced-motion: reduce) {
   *,
