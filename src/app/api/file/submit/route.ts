@@ -130,9 +130,9 @@ export async function POST(req: NextRequest) {
   if (!targetPeriod) {
     return NextResponse.json({ error: "Invalid period for this company" }, { status: 400 });
   }
-  if (targetPeriod.isDisclosureTerritory) {
+  if (targetPeriod.isBlockedTerritory) {
     return NextResponse.json(
-      { error: "This period ended more than 4 years ago. Very old returns may be rejected by HMRC. Please contact HMRC directly or consult an accountant." },
+      { error: "This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly." },
       { status: 400 },
     );
   }
