@@ -20,28 +20,31 @@ export async function rollForwardPeriod(
   registeredForCorpTax: boolean,
   filingType: "accounts" | "ct600",
   userEmail: string,
-  companyName: string
+  companyName: string,
+  options?: { skipEmail?: boolean }
 ): Promise<void> {
   // Send confirmation email first (non-blocking)
-  try {
-    const filedPeriodStart = new Date(filedPeriodEnd);
-    filedPeriodStart.setUTCFullYear(filedPeriodStart.getUTCFullYear() - 1);
-    filedPeriodStart.setUTCDate(filedPeriodStart.getUTCDate() + 1);
+  if (!options?.skipEmail) {
+    try {
+      const filedPeriodStart = new Date(filedPeriodEnd);
+      filedPeriodStart.setUTCFullYear(filedPeriodStart.getUTCFullYear() - 1);
+      filedPeriodStart.setUTCDate(filedPeriodStart.getUTCDate() + 1);
 
-    const { subject, html } = buildFilingConfirmationEmail({
-      companyName,
-      periodStart: filedPeriodStart,
-      periodEnd: filedPeriodEnd,
-      filingType,
-    });
-    await resend.emails.send({
-      from: "DormantFile <noreply@dormantfile.com>",
-      to: userEmail,
-      subject,
-      html,
-    });
-  } catch {
-    // Must not block
+      const { subject, html } = buildFilingConfirmationEmail({
+        companyName,
+        periodStart: filedPeriodStart,
+        periodEnd: filedPeriodEnd,
+        filingType,
+      });
+      await resend.emails.send({
+        from: "DormantFile <noreply@dormantfile.com>",
+        to: userEmail,
+        subject,
+        html,
+      });
+    } catch {
+      // Must not block
+    }
   }
 
   // Fetch the company's current stored period
