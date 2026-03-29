@@ -25,11 +25,29 @@ Read `src/app/api/company/update/route.ts` to understand the existing case struc
 
 - [ ] **Step 2: Restructure the route handler**
 
-Replace the entire handler body after the company fetch (from line 37 onward) with the new case structure. The key change is checking for disable intent (`registeredForCorpTax === false` with strict equality) BEFORE the existing UTR-required guard.
-
-New logic after the `if (!company)` check:
+Replace the **entire route handler** (lines 7-79) with the restructured version below. The key changes: (1) `shareCapital` added to destructured body, (2) top-level UTR validation removed (moved into individual cases), (3) disable-corp-tax case added before the existing UTR-required guard, (4) enable-corp-tax case has explicit `registeredForCorpTax === true` guard.
 
 ```typescript
+export async function PATCH(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { companyId, registeredForCorpTax, uniqueTaxReference, shareCapital } = body;
+
+  if (!companyId) {
+    return NextResponse.json({ error: "companyId is required" }, { status: 400 });
+  }
+
+  const company = await prisma.company.findFirst({
+    where: { id: companyId, userId: session.user.id, deletedAt: null },
+  });
+  if (!company) {
+    return NextResponse.json({ error: "Company not found" }, { status: 404 });
+  }
+
   // Case 0: Share capital update (can combine with other cases)
   if (typeof shareCapital === "number" && shareCapital >= 0) {
     await prisma.company.update({
@@ -38,7 +56,7 @@ New logic after the `if (!company)` check:
     });
   }
 
-  // Case 1: Disable Corp Tax (strict equality — must be explicitly false, not just absent)
+  // Case 1: Disable Corp Tax (strict equality — only when explicitly false)
   if (registeredForCorpTax === false && company.registeredForCorpTax) {
     await prisma.$transaction([
       prisma.company.update({
@@ -53,14 +71,7 @@ New logic after the `if (!company)` check:
   }
 
   // Case 2: Corp Tax already enabled — allow UTR update only
-  if (company.registeredForCorpTax) {
-    if (!uniqueTaxReference) {
-      // If no UTR and no share capital update, nothing to do
-      if (typeof shareCapital !== "number") {
-        return NextResponse.json({ error: "No changes to apply" }, { status: 400 });
-      }
-      return NextResponse.json({ success: true });
-    }
+  if (company.registeredForCorpTax && uniqueTaxReference) {
     if (!validateUTR(uniqueTaxReference)) {
       return NextResponse.json({ error: "UTR must be exactly 10 digits" }, { status: 400 });
     }
@@ -71,21 +82,47 @@ New logic after the `if (!company)` check:
     return NextResponse.json({ success: true });
   }
 
-  // Case 3: Enabling Corp Tax for the first time
-  if (!registeredForCorpTax) {
-    // If only a share capital update was done, return success
-    if (typeof shareCapital === "number") {
-      return NextResponse.json({ success: true });
+  // Case 3: Enable Corp Tax for the first time
+  if (registeredForCorpTax === true && !company.registeredForCorpTax) {
+    if (!uniqueTaxReference) {
+      return NextResponse.json({ error: "UTR is required when enabling Corporation Tax" }, { status: 400 });
     }
-    return NextResponse.json({ error: "No changes to apply" }, { status: 400 });
+    if (!validateUTR(uniqueTaxReference)) {
+      return NextResponse.json({ error: "UTR must be exactly 10 digits" }, { status: 400 });
+    }
+
+    const ct600Deadline = calculateCT600Deadline(company.accountingPeriodEnd);
+    const ct600ReminderAt = calculateNextReminderDate(ct600Deadline, 0);
+
+    await prisma.$transaction([
+      prisma.company.update({
+        where: { id: companyId },
+        data: {
+          registeredForCorpTax: true,
+          uniqueTaxReference: uniqueTaxReference,
+        },
+      }),
+      prisma.reminder.create({
+        data: {
+          companyId,
+          filingType: "ct600",
+          filingDeadline: ct600Deadline,
+          remindersSent: 0,
+          nextReminderAt: ct600ReminderAt,
+        },
+      }),
+    ]);
+    return NextResponse.json({ success: true });
   }
 
-  // ... existing enable logic (unchanged) ...
+  // If only a share capital update was done, return success
+  if (typeof shareCapital === "number") {
+    return NextResponse.json({ success: true });
+  }
+
+  return NextResponse.json({ error: "No changes to apply" }, { status: 400 });
+}
 ```
-
-Also add `shareCapital` to the destructured body: `const { companyId, registeredForCorpTax, uniqueTaxReference, shareCapital } = body;`
-
-Move the UTR validation (`if (uniqueTaxReference && !validateUTR(...)`) to Case 2 and Case 3 only (not top-level), so it doesn't block disable requests.
 
 - [ ] **Step 3: Run tests**
 
@@ -382,7 +419,7 @@ When `registeredForCorpTax`:
 - Visually separated with danger styling
 - "Remove company" button
 - Confirmation dialog: "This will remove [company name] from your account. Your filing history will be preserved."
-- Confirm: `DELETE` or existing soft-delete mechanism (check how the global settings page does it)
+- Confirm: `DELETE /api/company/remove` with `{ companyId }` body (existing endpoint, used by global settings page in `src/components/settings-actions.tsx`)
 - On success: `router.push("/dashboard")`
 
 Style all rows consistently: flex row with label on left, value + actions on right. Use `var(--color-*)` tokens throughout.
