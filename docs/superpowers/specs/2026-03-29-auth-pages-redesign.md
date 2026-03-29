@@ -20,12 +20,17 @@ Two equal-width columns, full viewport height:
 - **Left — Brand panel:** Soft gradient using `--color-primary-bg` to `--color-primary-border`. Contains logo, headline, 3-step process, trust signals.
 - **Right — Form panel:** `--color-bg-card` background. Contains the page-specific form, vertically centered.
 
-### Mobile (below md)
+### Mobile (below md, i.e. below 768px)
 
 Single column, stacked:
 
 - **Brand panel** collapses to a compact horizontal strip: just the "DormantFile" wordmark and one-line tagline ("Affordable dormant company filing"). No steps, no trust card.
 - **Form panel** takes the remaining space with vertical padding. Not vertically centered (avoids floating on short screens).
+
+### Accessibility
+
+- The layout wraps both panels in `<main id="main-content">` to preserve the existing skip-navigation target.
+- All form inputs retain `role`, `autoComplete`, and `spellCheck` attributes from the current implementation (e.g. `spellCheck={false}` on email inputs).
 
 ## Brand Panel Content
 
@@ -60,7 +65,7 @@ All pages share the split-screen shell. Below is the form panel content for each
 - **Heading:** "Sign in"
 - **Subheading:** "Welcome back to DormantFile"
 - **Fields:** Email, Password
-- **Link:** "Forgot your password?" — right-aligned below password field
+- **Link:** "Forgot your password?" — right-aligned below password field (moved from below submit button to above it)
 - **Button:** "Sign in"
 - **Footer:** "Don't have an account? Create one" (links to /register)
 
@@ -71,7 +76,7 @@ All pages share the split-screen shell. Below is the form panel content for each
 - **Fields:** Full name, Email, Password (helper: "Must be at least 8 characters")
 - **Button:** "Create account"
 - **Footer:** "Already have an account? Sign in" (links to /login)
-- **Small print:** Links to Terms, Privacy Policy, Acceptable Use Policy (below button)
+- **Small print:** Links to Terms, Privacy Policy, Acceptable Use Policy (above button, matching current placement — user sees terms before submitting)
 
 ### Forgot Password
 
@@ -86,10 +91,10 @@ All pages share the split-screen shell. Below is the form panel content for each
 
 - **Heading:** "Set a new password"
 - **Subheading:** "Choose a new password for your account"
-- **Fields:** New password (helper: "Must be at least 8 characters")
+- **Fields:** New password (helper: "Must include at least one letter and one number")
 - **Button:** "Reset password"
 - **Success state:** Heading swaps to "Password reset" with confirmation. "Sign in" button shown.
-- **Invalid token state:** Heading "Reset link expired" with message and "Request a new link" (links to /forgot-password).
+- **Invalid token state:** Heading "Invalid link" with message "This password reset link is invalid. Please request a new one." and "Request a new link" (links to /forgot-password). Covers both expired and missing tokens.
 
 ## Dark Mode
 
@@ -111,18 +116,28 @@ No new tokens or colours introduced.
 |-----------|------|-------|---------|
 | `AuthLayout.tsx` | Server | `children`, `variant: "register" \| "returning"` | Split-screen shell. Contains brand panel. Wraps form content. |
 | `BrandPanel.tsx` | Server | `variant: "register" \| "returning"` | Left panel: logo, headline, steps, trust signals. Handles mobile collapse. |
-| `AuthInput.tsx` | Client | `label`, `type`, `placeholder`, `helperText`, standard input props | Labelled input with consistent styling. |
-| `AuthButton.tsx` | Client | `children`, `loading`, `disabled` | Primary submit button with loading/disabled state. |
+| `AuthInput.tsx` | Server | `label`, `type`, `placeholder`, `helperText`, `...React.InputHTMLAttributes<HTMLInputElement>` | Labelled input with consistent styling. Pure presentational — no client hooks needed. Rendered inside client page components. |
+| `AuthButton.tsx` | Server | `children`, `loading`, `loadingText`, `disabled` | Primary submit button with loading/disabled state. `loadingText` displays during loading (e.g. "Signing in...", "Creating account..."). Pure presentational. |
+| `AuthError.tsx` | Server | `message: string \| null` | Styled error alert box. Uses `--color-danger-bg`, `--color-danger-border`, `--color-danger-text` tokens with `role="alert"`. Consistent across all four pages. |
+
+### Variant resolution
+
+`(auth)/layout.tsx` cannot determine the current route as a Server Component. Instead, each page passes `variant` directly to `BrandPanel`:
+
+- `register/page.tsx` renders `<BrandPanel variant="register" />` alongside its form.
+- All other pages render `<BrandPanel variant="returning" />`.
+
+`AuthLayout` does NOT receive a `variant` prop — it only provides the split-screen grid shell and wraps children. The brand panel is rendered by each page, not the layout.
 
 ### Modified files
 
 | File | Changes |
 |------|---------|
-| `(auth)/layout.tsx` | Session check stays. All markup replaced with `<AuthLayout>`. Passes `variant` based on route. |
-| `login/page.tsx` | Keeps state/logic. Inline markup replaced with `AuthInput`, `AuthButton`. |
-| `register/page.tsx` | Same treatment. |
-| `forgot-password/page.tsx` | Same treatment. |
-| `reset-password/page.tsx` | Same treatment. Suspense boundary stays. |
+| `(auth)/layout.tsx` | Session check stays. All markup replaced with `<AuthLayout>`. No variant logic — just the shell. |
+| `login/page.tsx` | Keeps state/logic. Renders `<BrandPanel variant="returning" />` + form using `AuthInput`, `AuthButton`, `AuthError`. Loading text: "Signing in..." |
+| `register/page.tsx` | Same treatment. Renders `<BrandPanel variant="register" />`. Loading text: "Creating account..." |
+| `forgot-password/page.tsx` | Same treatment. `variant="returning"`. Loading text: "Sending..." |
+| `reset-password/page.tsx` | Same treatment. `variant="returning"`. Loading text: "Resetting...". Suspense boundary stays; loading fallback uses the split-screen shell with a spinner in the form panel. |
 
 ### Behaviour preserved
 
@@ -137,4 +152,9 @@ All existing functionality is unchanged:
 - Redirect to `/dashboard` for authenticated users
 - Redirect to `/onboarding` after registration
 - `autoComplete` attributes on inputs
+- `spellCheck={false}` on email inputs
 - `minLength` validation on password fields
+
+### Migration note
+
+The current auth pages use hardcoded Tailwind colour classes (`bg-gray-50`, `dark:bg-slate-900`, `text-blue-600`, etc.). All hardcoded colours must be replaced with CSS custom property equivalents (`--color-*` tokens) during implementation. No hardcoded colour classes should remain in the auth files after this work.
