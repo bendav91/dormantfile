@@ -13,10 +13,10 @@ A single environment variable `NEXT_PUBLIC_LAUNCH_MODE=preview` gates all previe
 New file: `src/lib/launch-mode.ts`
 
 ```ts
-export const isPreviewMode = () => process.env.NEXT_PUBLIC_LAUNCH_MODE === 'preview'
+export const isPreviewMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'preview'
 ```
 
-Used server-side in page components and client-side (via the `NEXT_PUBLIC_` prefix).
+A build-time constant (Next.js inlines `NEXT_PUBLIC_` values). Works both server-side and client-side.
 
 ### 2. Marketing site banner
 
@@ -24,7 +24,9 @@ A `<LaunchBanner>` component rendered at the top of the marketing layout (`src/a
 
 > "We're launching soon — sign up now to be ready when filing goes live."
 
-Only renders when `isPreviewMode()` returns true.
+Only renders when `isPreviewMode` is true.
+
+Note: The homepage (`src/app/page.tsx`) lives outside the marketing layout — it renders its own `<MarketingNav>` and `<MarketingFooter>` directly. The `<LaunchBanner>` must also be added to the homepage above its nav, not just the marketing layout.
 
 ### 3. App banner
 
@@ -63,12 +65,22 @@ In `src/app/(app)/choose-plan/page.tsx`, when preview mode is active:
 
 The marketing pricing page needs no change — its CTAs link to `/register`, which is fine.
 
+### 7. Suppress SubscriptionBanner in preview mode
+
+The existing `SubscriptionBanner` (`src/components/subscription-banner.tsx`) shows "Choose a plan" for users on tier `"none"` and links to `/choose-plan`. In preview mode, that page has checkout disabled — creating a confusing dead end.
+
+In preview mode, suppress the `SubscriptionBanner` entirely. The `<LaunchBanner>` in the app layout already communicates the "coming soon" state, so no replacement is needed.
+
+### 8. Suppress reminder emails in preview mode
+
+The daily reminder cron (`/api/cron/reminders`) sends filing deadline emails. In preview mode, these would tell users about upcoming deadlines they can't act on. Check `isPreviewMode` at the top of the cron handler and skip sending when true.
+
 ## Going live
 
 1. Remove `NEXT_PUBLIC_LAUNCH_MODE` from Vercel environment variables (or set to any value other than `"preview"`)
 2. Redeploy
 
-No code changes required. The `isPreviewMode()` checks all return false:
+No code changes required. `isPreviewMode` evaluates to false:
 - Banners disappear
 - File buttons reappear
 - Checkout enables
@@ -79,7 +91,7 @@ No code changes required. The `isPreviewMode()` checks all return false:
 No special conversion code is needed. The existing infrastructure handles it:
 
 - Filing pages (`/file/[companyId]/accounts`, `/file/[companyId]/ct600`) require `subscriptionStatus === "active" || "cancelling"` — users without a plan get redirected to the dashboard
-- `SubscriptionBanner` on the dashboard already shows "Choose a plan" for users on tier `"none"`
+- `SubscriptionBanner` reappears on the dashboard, showing "Choose a plan" for users on tier `"none"`
 - Filing submission APIs return 403 without an active subscription
 - The choose-plan page and Stripe checkout are fully functional once preview mode is off
 
@@ -90,10 +102,12 @@ No special conversion code is needed. The existing infrastructure handles it:
 | `src/lib/launch-mode.ts` | New — `isPreviewMode()` helper |
 | `src/app/(marketing)/layout.tsx` | Add `<LaunchBanner>` above nav |
 | `src/app/(app)/layout.tsx` | Add `<LaunchBanner>` with app copy |
-| `src/app/page.tsx` | Conditional CTA copy |
+| `src/app/page.tsx` | Conditional CTA copy + `<LaunchBanner>` above nav |
 | `src/components/filings-tab.tsx` | Hide file/retry buttons in preview |
 | `src/app/(app)/choose-plan/page.tsx` | Disable checkout, show note |
 | `src/components/launch-banner.tsx` | New — banner component |
+| `src/components/subscription-banner.tsx` | Suppress in preview mode |
+| `src/app/api/cron/reminders/route.ts` | Skip sending in preview mode |
 
 ## Out of scope
 
