@@ -1,7 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   computeFirstPeriodEnd,
   detectAccountsGaps,
+  fetchFilingHistoryStrict,
 } from "@/lib/companies-house/filing-history";
 
 describe("computeFirstPeriodEnd", () => {
@@ -132,5 +133,63 @@ describe("detectAccountsGaps", () => {
     const map = result!.filedPeriodEnds;
     // Key is chDate.getTime(), value should be the computed period end 2021-03-31
     expect(map.get(chDate.getTime())).toEqual(new Date("2021-03-31"));
+  });
+});
+
+describe("fetchFilingHistoryStrict", () => {
+  beforeEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+  });
+
+  it("returns dates on successful response", async () => {
+    vi.stubEnv("COMPANIES_HOUSE_API_KEY", "test-key");
+    vi.stubEnv("COMPANY_INFORMATION_API_ENDPOINT", "https://api.test");
+
+    const mockResponse = {
+      items: [
+        {
+          type: "AA",
+          description_values: { made_up_date: "2023-12-31" },
+        },
+      ],
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify(mockResponse), { status: 200 }),
+    );
+
+    const result = await fetchFilingHistoryStrict("12345678");
+    expect(result).toEqual([new Date("2023-12-31")]);
+  });
+
+  it("throws on non-OK response", async () => {
+    vi.stubEnv("COMPANIES_HOUSE_API_KEY", "test-key");
+    vi.stubEnv("COMPANY_INFORMATION_API_ENDPOINT", "https://api.test");
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      new Response("Server Error", { status: 500 }),
+    );
+
+    await expect(fetchFilingHistoryStrict("12345678")).rejects.toThrow(
+      "CH filing history API returned 500",
+    );
+  });
+
+  it("throws on network error", async () => {
+    vi.stubEnv("COMPANIES_HOUSE_API_KEY", "test-key");
+    vi.stubEnv("COMPANY_INFORMATION_API_ENDPOINT", "https://api.test");
+
+    vi.spyOn(globalThis, "fetch").mockRejectedValueOnce(new Error("Network failure"));
+
+    await expect(fetchFilingHistoryStrict("12345678")).rejects.toThrow("Network failure");
+  });
+
+  it("throws when env vars are missing", async () => {
+    vi.stubEnv("COMPANIES_HOUSE_API_KEY", "");
+    vi.stubEnv("COMPANY_INFORMATION_API_ENDPOINT", "");
+
+    await expect(fetchFilingHistoryStrict("12345678")).rejects.toThrow(
+      "Companies House API is not configured",
+    );
   });
 });

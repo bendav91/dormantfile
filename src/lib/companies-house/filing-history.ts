@@ -49,6 +49,42 @@ export async function fetchFilingHistory(
   }
 }
 
+/**
+ * Same as fetchFilingHistory but throws on API failure instead of
+ * returning []. Used by resync where we need to distinguish
+ * "no filings" from "API down".
+ */
+export async function fetchFilingHistoryStrict(
+  companyNumber: string,
+): Promise<Date[]> {
+  const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
+  const endpoint = process.env.COMPANY_INFORMATION_API_ENDPOINT;
+  if (!apiKey || !endpoint) {
+    throw new Error("Companies House API is not configured");
+  }
+
+  const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
+
+  const res = await fetch(
+    `${endpoint}/company/${encodeURIComponent(companyNumber)}/filing-history?category=accounts&items_per_page=100`,
+    { headers: { Authorization: `Basic ${basicAuth}` } },
+  );
+
+  if (!res.ok) {
+    throw new Error(`CH filing history API returned ${res.status} for ${companyNumber}`);
+  }
+
+  const data = await res.json();
+  const items: Array<{
+    type?: string;
+    description_values?: { made_up_date?: string };
+  }> = data.items ?? [];
+
+  return items
+    .filter((item) => item.type?.startsWith("AA") && item.description_values?.made_up_date)
+    .map((item) => new Date(item.description_values!.made_up_date!));
+}
+
 export function computeFirstPeriodEnd(
   incorporationDate: Date,
   ardMonth: number, // 1-12
