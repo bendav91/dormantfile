@@ -2,12 +2,15 @@
 
 import { AlertTriangle } from "lucide-react";
 import { SubscriptionStatus } from "@prisma/client";
+import { isPreviewMode } from "@/lib/launch-mode";
 
 interface SubscriptionBannerProps {
   status: SubscriptionStatus;
 }
 
 export default function SubscriptionBanner({ status }: SubscriptionBannerProps) {
+  if (isPreviewMode) return null;
+
   if (status === "active" || status === "cancelling") {
     if (status === "cancelling") {
       return (
