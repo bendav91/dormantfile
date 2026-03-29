@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { buildReminderEmail, buildFilingConfirmationEmail } from "@/lib/email/templates";
+import { buildFilingConfirmationEmail, buildReminderEmail } from "@/lib/email/templates";
+import { describe, expect, it } from "vitest";
 
 describe("buildReminderEmail", () => {
   const data = {
@@ -7,6 +7,7 @@ describe("buildReminderEmail", () => {
     daysUntilDeadline: 30,
     filingDeadline: new Date("2027-03-31"),
     fileUrl: "https://example.com/file/abc123",
+    filingType: "accounts" as const,
   };
 
   it("subject contains the company name", () => {
@@ -35,6 +36,7 @@ describe("buildFilingConfirmationEmail", () => {
     companyName: "Acme Ltd",
     periodStart: new Date("2026-04-01"),
     periodEnd: new Date("2027-03-31"),
+    filingType: "accounts" as const,
   };
 
   it("subject contains the company name", () => {
