@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/poll-filings",
       "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/resync-filings",
+      "schedule": "0 7 * * *"
     }
   ]
 }
