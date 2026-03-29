@@ -2,12 +2,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Building2, Plus, AlertTriangle, ChevronRight } from "lucide-react";
+import { Building2, Plus, AlertTriangle, ChevronRight, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import SubscriptionBanner from "@/components/subscription-banner";
-import FilingStatusBadge from "@/components/filing-status-badge";
-import EnableCorpTax from "@/components/enable-corp-tax";
-import EditUTR from "@/components/edit-utr";
 import CompanySearch from "@/components/company-search";
 import SortDropdown, { type SortType } from "@/components/sort-dropdown";
 import {
@@ -347,17 +344,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))", gap: "16px" }}>
         {paginatedCompanies.map(({ company, periods, outstandingCount }) => {
 
-          // Show the current (oldest unfiled) period's deadlines and filings
+          // Show the current (oldest unfiled) period's deadlines
           const currentPeriod = periods.find((p) => !p.isComplete) ?? periods[0];
           const accountsDeadline = currentPeriod?.accountsDeadline ?? calculateAccountsDeadline(company.accountingPeriodEnd);
           const ct600Deadline = currentPeriod?.ct600Deadline ?? calculateCT600Deadline(company.accountingPeriodEnd);
-
-          const accountsFiling = company.filings.find(
-            (f) => f.filingType === "accounts" && f.periodEnd.getTime() === company.accountingPeriodEnd.getTime()
-          );
-          const ct600Filing = company.filings.find(
-            (f) => f.filingType === "ct600" && f.periodEnd.getTime() === company.accountingPeriodEnd.getTime()
-          );
 
           const accountsDaysLeft = Math.ceil(
             (accountsDeadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -366,216 +356,121 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             (ct600Deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           );
 
-          // For companies with multiple outstanding periods, link to the period selection page
-          const hasMultiplePeriods = outstandingCount > 1;
-          const fileHref = `/company/${company.id}`;
-
-          const filingBtnStyle: React.CSSProperties = {
-            display: "inline-flex", alignItems: "center",
-            backgroundColor: "var(--color-cta)", color: "var(--color-bg-card)",
-            padding: "4px 10px", borderRadius: "5px",
-            fontWeight: 600, fontSize: "12px", textDecoration: "none",
-          };
-
           return (
-            <div
+            <Link
               key={company.id}
+              href={`/company/${company.id}`}
+              className="focus-ring"
               style={{
+                display: "block",
                 backgroundColor: "var(--color-bg-card)",
                 borderRadius: "10px",
                 padding: "18px",
                 border: "1px solid var(--color-border)",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
+                textDecoration: "none",
+                color: "inherit",
+                transition: "background-color 200ms",
               }}
             >
-              {/* Header */}
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-                <div
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "8px",
-                    backgroundColor: "var(--color-primary-bg)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <span style={{ color: "var(--color-primary)", display: "flex" }}>
-                    <Building2 size={16} color="currentColor" strokeWidth={2} />
+              {/* Header — icon + name + CRN */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                <div style={{
+                  width: "32px", height: "32px", borderRadius: "8px",
+                  backgroundColor: outstandingCount === 0 ? "var(--color-success-bg)" : "var(--color-primary-bg)",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                }}>
+                  <span style={{ color: outstandingCount === 0 ? "var(--color-success)" : "var(--color-primary)", display: "flex" }}>
+                    {outstandingCount === 0
+                      ? <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
+                      : <Building2 size={16} color="currentColor" strokeWidth={2} />
+                    }
                   </span>
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <h2
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 700,
-                      color: "var(--color-text-primary)",
-                      margin: 0,
-                      letterSpacing: "-0.01em",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
+                  <h2 style={{
+                    fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)",
+                    margin: 0, letterSpacing: "-0.01em",
+                    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                  }}>
                     {company.companyName}
                   </h2>
                   <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: 0, marginTop: "1px" }}>
-                    {company.registeredForCorpTax && company.uniqueTaxReference
-                      ? <><EditUTR companyId={company.id} currentUTR={company.uniqueTaxReference} /> &middot; </> : ""}
                     {company.companyRegistrationNumber}
                   </p>
                 </div>
               </div>
 
-              {/* Period */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "0 0 12px 0" }}>
-                <p style={{ fontSize: "12px", color: "var(--color-text-secondary)", margin: 0 }}>
-                  <span style={{ fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "10px" }}>Period </span>
-                  {formatDate(company.accountingPeriodStart)} &ndash; {formatDate(company.accountingPeriodEnd)}
-                </p>
-                {outstandingCount > 1 && (
-                  <Link
-                    href={fileHref}
-                    className="focus-ring hoverable-pill"
-                    aria-label={`${outstandingCount} outstanding periods — view all`}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "2px",
-                      padding: "1px 4px 1px 6px",
-                      minHeight: "28px",
-                      borderRadius: "9999px",
-                      fontSize: "10px",
-                      fontWeight: 600,
-                      textDecoration: "none",
-                      backgroundColor: outstandingCount >= 4 ? "var(--color-danger-bg)" : "var(--color-warning-bg)",
-                      color: outstandingCount >= 4 ? "var(--color-danger)" : "var(--color-warning-text)",
-                      border: `1px solid ${outstandingCount >= 4 ? "var(--color-danger-border)" : "var(--color-warning-border)"}`,
-                    }}
-                  >
-                    {outstandingCount} outstanding
-                    <ChevronRight size={10} strokeWidth={2.5} />
-                  </Link>
-                )}
-              </div>
-
-              {/* Filing rows — show current (oldest) period */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {/* Accounts */}
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "8px 10px",
-                  backgroundColor: "var(--color-bg-inset)",
-                  borderRadius: "6px",
-                }}>
-                  <div>
-                    <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>Accounts</p>
-                    <p style={{
-                      fontSize: "12px",
-                      color: accountsFiling?.status === "accepted" ? "var(--color-text-secondary)"
-                        : accountsDaysLeft <= 0 ? "var(--color-danger)"
-                        : accountsDaysLeft <= 30 ? "var(--color-due-soon)"
-                        : "var(--color-text-secondary)",
-                      margin: 0,
-                    }}>
-                      Due {formatDate(accountsDeadline)}
-                      {accountsFiling?.status !== "accepted" && accountsDaysLeft <= 30 && accountsDaysLeft > 0 && ` (${accountsDaysLeft}d)`}
-                      {accountsFiling?.status !== "accepted" && accountsDaysLeft <= 0 && (() => {
-                        const yearsOverdue = Math.floor(-accountsDaysLeft / 365);
-                        return yearsOverdue >= 2 ? ` (${yearsOverdue} years overdue)` : " (Overdue)";
-                      })()}
-                    </p>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    {accountsFiling ? (
-                      <>
-                        <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
-                        {(accountsFiling.status === "failed" || accountsFiling.status === "rejected") && canFile && (
-                          <Link href={hasMultiplePeriods ? fileHref : `/file/${company.id}/accounts`} className="focus-ring hoverable-btn" style={filingBtnStyle}>Retry</Link>
-                        )}
-                      </>
-                    ) : !hasMultiplePeriods && canFile ? (
-                      <Link href={`/file/${company.id}/accounts`} className="focus-ring hoverable-btn" style={filingBtnStyle}>File</Link>
-                    ) : null}
-                  </div>
-                </div>
-
-                {/* CT600 */}
-                {!company.registeredForCorpTax && (
-                  <EnableCorpTax companyId={company.id} />
-                )}
-                {company.registeredForCorpTax && (
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "8px 10px",
-                    backgroundColor: "var(--color-bg-inset)",
-                    borderRadius: "6px",
+              {/* Deadline summary */}
+              {outstandingCount > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginBottom: "12px" }}>
+                  {/* Accounts deadline */}
+                  <p style={{
+                    fontSize: "12px", margin: 0, fontWeight: 600,
+                    color: accountsDaysLeft <= 0 ? "var(--color-danger)"
+                      : accountsDaysLeft <= 30 ? "var(--color-due-soon)"
+                      : "var(--color-text-secondary)",
                   }}>
-                    <div>
-                      <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>CT600</p>
-                      <p style={{
-                        fontSize: "12px",
-                        color: ct600Filing?.status === "accepted" ? "var(--color-text-secondary)"
-                          : ct600DaysLeft <= 0 ? "var(--color-danger)"
-                          : ct600DaysLeft <= 30 ? "var(--color-due-soon)"
-                          : "var(--color-text-secondary)",
-                        margin: 0,
-                      }}>
-                        Due {formatDate(ct600Deadline)}
-                        {ct600Filing?.status !== "accepted" && ct600DaysLeft <= 30 && ct600DaysLeft > 0 && ` (${ct600DaysLeft}d)`}
-                        {ct600Filing?.status !== "accepted" && ct600DaysLeft <= 0 && (() => {
-                          const yearsOverdue = Math.floor(-ct600DaysLeft / 365);
-                          return yearsOverdue >= 2 ? ` (${yearsOverdue} years overdue)` : " (Overdue)";
-                        })()}
-                      </p>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      {ct600Filing ? (
-                        <>
-                          <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
-                          {(ct600Filing.status === "failed" || ct600Filing.status === "rejected") && canFile && (
-                            <Link href={hasMultiplePeriods ? fileHref : `/file/${company.id}/ct600`} className="focus-ring hoverable-btn" style={filingBtnStyle}>Retry</Link>
-                          )}
-                        </>
-                      ) : !hasMultiplePeriods && canFile ? (
-                        <Link href={`/file/${company.id}/ct600`} className="focus-ring hoverable-btn" style={filingBtnStyle}>File</Link>
-                      ) : null}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Multi-period action */}
-              {hasMultiplePeriods && canFile && (
-                <Link
-                  href={fileHref}
-                  className="focus-ring hoverable-pill"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "4px",
-                    marginTop: "8px",
-                    padding: "8px 12px",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--color-primary)",
-                    backgroundColor: "var(--color-primary-bg)",
-                    textDecoration: "none",
-                  }}
-                >
-                  View all periods
-                  <ChevronRight size={13} strokeWidth={2} />
-                </Link>
+                    {accountsDaysLeft <= 0
+                      ? (() => {
+                          const yearsOverdue = Math.floor(-accountsDaysLeft / 365);
+                          return yearsOverdue >= 2
+                            ? `Accounts ${yearsOverdue} years overdue — due ${formatDate(accountsDeadline)}`
+                            : `Accounts overdue — due ${formatDate(accountsDeadline)}`;
+                        })()
+                      : accountsDaysLeft <= 30
+                        ? `Accounts due in ${accountsDaysLeft}d — ${formatDate(accountsDeadline)}`
+                        : `Accounts due ${formatDate(accountsDeadline)}`
+                    }
+                  </p>
+                  {/* CT600 deadline — only if registered */}
+                  {company.registeredForCorpTax && (
+                    <p style={{
+                      fontSize: "12px", margin: 0, fontWeight: 600,
+                      color: ct600DaysLeft <= 0 ? "var(--color-danger)"
+                        : ct600DaysLeft <= 30 ? "var(--color-due-soon)"
+                        : "var(--color-text-secondary)",
+                    }}>
+                      {ct600DaysLeft <= 0
+                        ? (() => {
+                            const yearsOverdue = Math.floor(-ct600DaysLeft / 365);
+                            return yearsOverdue >= 2
+                              ? `CT600 ${yearsOverdue} years overdue — due ${formatDate(ct600Deadline)}`
+                              : `CT600 overdue — due ${formatDate(ct600Deadline)}`;
+                          })()
+                        : ct600DaysLeft <= 30
+                          ? `CT600 due in ${ct600DaysLeft}d — ${formatDate(ct600Deadline)}`
+                          : `CT600 due ${formatDate(ct600Deadline)}`
+                      }
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div style={{ marginBottom: "12px" }}>
+                  <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-success)", margin: 0 }}>
+                    All caught up
+                  </p>
+                  <p style={{ fontSize: "11px", color: "var(--color-text-secondary)", margin: "2px 0 0 0" }}>
+                    Next period due {formatDate(accountsDeadline)}
+                  </p>
+                </div>
               )}
-            </div>
+
+              {/* Outstanding badge */}
+              {outstandingCount > 0 && (
+                <div style={{
+                  display: "inline-flex", alignItems: "center", gap: "2px",
+                  padding: "2px 6px 2px 8px", borderRadius: "9999px",
+                  fontSize: "10px", fontWeight: 600,
+                  backgroundColor: outstandingCount >= 4 ? "var(--color-danger-bg)" : "var(--color-warning-bg)",
+                  color: outstandingCount >= 4 ? "var(--color-danger)" : "var(--color-warning-text)",
+                  border: `1px solid ${outstandingCount >= 4 ? "var(--color-danger-border)" : "var(--color-warning-border)"}`,
+                }}>
+                  {outstandingCount} outstanding
+                  <span style={{ display: "flex" }}><ChevronRight size={10} strokeWidth={2.5} /></span>
+                </div>
+              )}
+            </Link>
           );
         })}
       </div>
