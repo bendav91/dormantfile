@@ -551,7 +551,7 @@ function StepSubmitting() {
                 letterSpacing: "-0.01em",
               }}
             >
-              Submitting to HMRC\u2026
+              {"Submitting to HMRC\u2026"}
             </p>
             <p
               style={{

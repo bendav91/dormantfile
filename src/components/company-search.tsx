@@ -60,7 +60,7 @@ export default function CompanySearch() {
         spellCheck={false}
         value={value}
         onChange={(e) => handleChange(e.target.value)}
-        placeholder="Search\u2026"
+        placeholder={"Search\u2026"}
         aria-label="Search by company name or number"
         className="focus-ring-input"
         style={{

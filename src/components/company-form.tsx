@@ -289,7 +289,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
               <span style={{ color: "var(--color-text-body)" }}>
                 <Loader2 size={13} color="currentColor" strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
               </span>
-              <span style={{ fontSize: "13px", color: "var(--color-text-body)" }}>Looking up company\u2026</span>
+              <span style={{ fontSize: "13px", color: "var(--color-text-body)" }}>{"Looking up company\u2026"}</span>
             </div>
           )}
           {lookupStatus === "found" && (

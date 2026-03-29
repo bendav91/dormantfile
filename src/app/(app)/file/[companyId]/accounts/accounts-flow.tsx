@@ -440,7 +440,7 @@ function StepSubmitting() {
                 letterSpacing: "-0.01em",
               }}
             >
-              Submitting to Companies House\u2026
+             {"Submitting to Companies House\u2026"}
             </p>
             <p
               style={{
