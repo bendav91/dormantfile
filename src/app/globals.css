@@ -125,6 +125,42 @@ body {
   outline-offset: 2px;
 }
 
+/* Hover/active states for inline-styled interactive elements */
+.hoverable-pill:hover {
+  filter: brightness(0.92);
+}
+.hoverable-pill:active {
+  filter: brightness(0.85);
+}
+
+.hoverable-btn:hover {
+  filter: brightness(1.12);
+}
+.hoverable-btn:active {
+  filter: brightness(0.95);
+}
+
+.hoverable-subtle:hover {
+  background-color: var(--color-bg-inset) !important;
+}
+.hoverable-subtle:active {
+  filter: brightness(0.95);
+}
+
+/* Suppress native search clear button (custom clear button used) */
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Dashboard filter/sort active pill hover states */
+.filter-pill.active:hover {
+  background-color: var(--color-primary-hover) !important;
+}
+.sort-pill.active:hover {
+  background-color: var(--color-text-body) !important;
+}
+
 /* Focus ring for inline-styled inputs */
 .focus-ring-input:focus-visible {
   border-color: var(--color-primary) !important;

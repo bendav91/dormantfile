@@ -1,6 +1,6 @@
-import { Shield, Lock, Eye, Server } from "lucide-react";
+import { Shield, Lock, Eye, Server, Key } from "lucide-react";
 
-const iconMap: Record<string, React.ElementType> = { Shield, Lock, Eye, Server };
+const iconMap: Record<string, React.ElementType> = { Shield, Lock, Eye, Server, Key };
 
 interface SecurityCard {
   icon: string;

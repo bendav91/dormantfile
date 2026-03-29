@@ -110,8 +110,9 @@ export function buildFilingConfirmationEmail(
       <strong>Accounting period:</strong> ${startFormatted} to ${endFormatted}
     </p>
     <p style="color: #666; font-size: 14px;">
-      Your next accounting period has been set up automatically. You will receive
-      a reminder when the next filing deadline is approaching.
+      If you have additional outstanding periods, they are available on your
+      dashboard. You will receive a reminder when the next filing deadline is
+      approaching.
     </p>
   </body>
 </html>

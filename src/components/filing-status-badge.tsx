@@ -51,9 +51,9 @@ export default function FilingStatusBadge({ status, filingType }: FilingStatusBa
     <span
       style={{
         display: "inline-block",
-        padding: "3px 10px",
+        padding: "2px 8px",
         borderRadius: "9999px",
-        fontSize: "13px",
+        fontSize: "12px",
         fontWeight: 600,
         backgroundColor: config.backgroundColor,
         color: config.color,

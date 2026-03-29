@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Building2, Plus, AlertTriangle } from "lucide-react";
+import { Building2, Plus, AlertTriangle, ArrowUpDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import SubscriptionBanner from "@/components/subscription-banner";
 import FilingStatusBadge from "@/components/filing-status-badge";
@@ -12,6 +12,7 @@ import CompanySearch from "@/components/company-search";
 import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
+import { getOutstandingPeriods, getIncompletePeriodsCount } from "@/lib/periods";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -24,9 +25,18 @@ function formatDate(date: Date): string {
 const PAGE_SIZE = 10;
 
 type FilterType = "overdue" | "due-soon" | "recently-filed" | "accepted" | "rejected" | "failed" | "";
+type SortType = "most-overdue" | "most-outstanding" | "name-asc" | "date-added-newest" | "date-added-oldest";
+
+const SORT_OPTIONS: { key: SortType; label: string }[] = [
+  { key: "most-overdue", label: "Most Overdue" },
+  { key: "most-outstanding", label: "Most Outstanding" },
+  { key: "name-asc", label: "A\u2013Z" },
+  { key: "date-added-newest", label: "Newest first" },
+  { key: "date-added-oldest", label: "Oldest first" },
+];
 
 interface DashboardProps {
-  searchParams: Promise<{ page?: string; q?: string; filter?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; filter?: string; sort?: string }>;
 }
 
 export default async function DashboardPage({ searchParams }: DashboardProps) {
@@ -58,36 +68,34 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
     redirect("/onboarding");
   }
 
-  const { page: pageParam, q: searchQuery, filter: filterParam } = await searchParams;
+  const { page: pageParam, q: searchQuery, filter: filterParam, sort: sortParam } = await searchParams;
   const search = searchQuery?.trim() || "";
   const validFilters = ["overdue", "due-soon", "recently-filed", "accepted", "rejected", "failed"];
   const filter = (validFilters.includes(filterParam ?? "") ? filterParam : "") as FilterType;
+  const validSorts: SortType[] = ["most-overdue", "most-outstanding", "name-asc", "date-added-newest", "date-added-oldest"];
+  const sort: SortType = validSorts.includes(sortParam as SortType) ? (sortParam as SortType) : "most-overdue";
 
-  // For overdue/due-soon filters, we need to compute deadlines in JS then filter by ID.
-  // Fetch all company IDs + period ends for this user (lightweight query).
+  // For overdue/due-soon filters, compute deadlines across ALL outstanding periods.
   let filterIds: string[] | null = null;
   if (filter === "overdue" || filter === "due-soon") {
     const allCompanies = await prisma.company.findMany({
       where: { userId: user.id, deletedAt: null },
-      select: { id: true, accountingPeriodEnd: true, registeredForCorpTax: true },
+      include: { filings: { select: { periodStart: true, periodEnd: true, filingType: true, status: true } } },
     });
     const now = Date.now();
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
 
     filterIds = allCompanies
       .filter((c) => {
-        const accountsDeadline = calculateAccountsDeadline(c.accountingPeriodEnd).getTime();
-        const ct600Deadline = c.registeredForCorpTax
-          ? calculateCT600Deadline(c.accountingPeriodEnd).getTime()
-          : null;
-
-        if (filter === "overdue") {
-          return accountsDeadline < now || (ct600Deadline !== null && ct600Deadline < now);
-        }
-        // due-soon: either deadline is in the future but within 30 days
-        const accountsDueSoon = accountsDeadline >= now && accountsDeadline <= now + thirtyDaysMs;
-        const ct600DueSoon = ct600Deadline !== null && ct600Deadline >= now && ct600Deadline <= now + thirtyDaysMs;
-        return accountsDueSoon || ct600DueSoon;
+        const periods = getOutstandingPeriods(c.accountingPeriodStart, c.accountingPeriodEnd, c.registeredForCorpTax, c.filings);
+        return periods.some((p) => {
+          if (p.isComplete) return false;
+          if (filter === "overdue") return p.isOverdue;
+          // due-soon: any deadline within 30 days
+          const accountsDueSoon = !p.accountsFiled && p.accountsDeadline.getTime() >= now && p.accountsDeadline.getTime() <= now + thirtyDaysMs;
+          const ct600DueSoon = c.registeredForCorpTax && !p.ct600Filed && p.ct600Deadline.getTime() >= now && p.ct600Deadline.getTime() <= now + thirtyDaysMs;
+          return accountsDueSoon || ct600DueSoon;
+        });
       })
       .map((c) => c.id);
   } else if (filter === "recently-filed") {
@@ -128,43 +136,57 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       : {}),
   };
 
-  const totalCompanies = search || filter
-    ? await prisma.company.count({ where: baseWhere })
-    : allCompanyCount;
-
-  const totalPages = Math.max(1, Math.ceil(totalCompanies / PAGE_SIZE));
-  const currentPage = Math.max(1, Math.min(totalPages, parseInt(pageParam ?? "1", 10) || 1));
-
-  const companies = await prisma.company.findMany({
+  // Fetch all matching companies (sorting requires computed data, so we sort in JS then paginate)
+  const allMatchingCompanies = await prisma.company.findMany({
     where: baseWhere,
     include: {
       filings: {
         orderBy: { createdAt: "desc" },
-        take: 5,
       },
     },
-    orderBy: { createdAt: "asc" },
-    skip: (currentPage - 1) * PAGE_SIZE,
-    take: PAGE_SIZE,
   });
+
+  // Pre-compute sort keys for each company
+  const companiesWithSortData = allMatchingCompanies.map((c) => {
+    const periods = getOutstandingPeriods(c.accountingPeriodStart, c.accountingPeriodEnd, c.registeredForCorpTax, c.filings);
+    const incompletePeriods = periods.filter((p) => !p.isComplete);
+    const outstandingCount = incompletePeriods.length;
+
+    // Earliest deadline across all outstanding periods (for "most overdue" sort)
+    let earliestDeadline = Infinity;
+    for (const p of incompletePeriods) {
+      if (!p.accountsFiled) earliestDeadline = Math.min(earliestDeadline, p.accountsDeadline.getTime());
+      if (c.registeredForCorpTax && !p.ct600Filed) earliestDeadline = Math.min(earliestDeadline, p.ct600Deadline.getTime());
+    }
+
+    return { company: c, periods, outstandingCount, earliestDeadline };
+  });
+
+  // Sort
+  companiesWithSortData.sort((a, b) => {
+    switch (sort) {
+      case "most-overdue":
+        return a.earliestDeadline - b.earliestDeadline;
+      case "most-outstanding":
+        return b.outstandingCount - a.outstandingCount || a.earliestDeadline - b.earliestDeadline;
+      case "name-asc":
+        return a.company.companyName.localeCompare(b.company.companyName);
+      case "date-added-newest":
+        return b.company.createdAt.getTime() - a.company.createdAt.getTime();
+      case "date-added-oldest":
+        return a.company.createdAt.getTime() - b.company.createdAt.getTime();
+    }
+  });
+
+  const totalCompanies = companiesWithSortData.length;
+  const totalPages = Math.max(1, Math.ceil(totalCompanies / PAGE_SIZE));
+  const currentPage = Math.max(1, Math.min(totalPages, parseInt(pageParam ?? "1", 10) || 1));
+  const paginatedCompanies = companiesWithSortData.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const canFile = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
   const showAddCompany = canAddCompany(user.subscriptionTier, allCompanyCount);
   const companyLimit = getCompanyLimit(user.subscriptionTier);
 
-  // Count filings used in current billing period
-  const periodStart = user.subscriptionPeriodStart ?? user.createdAt;
-  const filedCompanyIds = await prisma.filing.findMany({
-    where: {
-      company: { userId: user.id },
-      status: { in: ["submitted", "polling_timeout", "accepted"] },
-      createdAt: { gte: periodStart },
-    },
-    select: { companyId: true },
-    distinct: ["companyId"],
-  });
-  const filingsUsed = filedCompanyIds.length;
-  const atFilingLimit = filingsUsed >= companyLimit && companyLimit > 0;
 
   return (
     <div style={{ maxWidth: "960px", margin: "0 auto" }}>
@@ -228,21 +250,6 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             >
               {user.subscriptionTier === "none" ? "No plan" : `${TIER_LABELS[user.subscriptionTier]} plan`}
             </span>
-            {companyLimit > 0 && (
-              <span
-                style={{
-                  padding: "3px 10px",
-                  borderRadius: "9999px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  backgroundColor: atFilingLimit ? "var(--color-danger-bg)" : "var(--color-success-bg)",
-                  color: atFilingLimit ? "var(--color-danger)" : "var(--color-success)",
-                  border: `1px solid ${atFilingLimit ? "var(--color-danger-border)" : "var(--color-success-border)"}`,
-                }}
-              >
-                {filingsUsed} / {companyLimit} {companyLimit === 1 ? "filing" : "filings"} used
-              </span>
-            )}
           </div>
         </div>
         {showAddCompany && (
@@ -269,51 +276,89 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         )}
       </div>
 
-      {/* Search and filters - show when there are enough companies to paginate, or when a search/filter is active */}
-      {(allCompanyCount > PAGE_SIZE || search || filter) && (
+      {/* Search, filters, and sort — show when there are 2+ companies, or when a search/filter is active */}
+      {(allCompanyCount > 1 || search || filter) && (
         <>
           <CompanySearch />
-          <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
-            {([
-              { key: "", label: "All" },
-              { key: "overdue", label: "Overdue" },
-              { key: "due-soon", label: "Due soon" },
-              { key: "recently-filed", label: "Recently filed" },
-              { key: "accepted", label: "Accepted" },
-              { key: "rejected", label: "Rejected" },
-              { key: "failed", label: "Failed" },
-            ] as const).map((f) => {
-              const isActive = filter === f.key;
-              const params = new URLSearchParams();
-              if (f.key) params.set("filter", f.key);
-              if (search) params.set("q", search);
-              const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
-              return (
-                <Link
-                  key={f.key}
-                  href={href}
-                  style={{
-                    padding: "6px 14px",
-                    borderRadius: "6px",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    transition: "opacity 200ms, background-color 200ms",
-                    backgroundColor: isActive ? "var(--color-primary)" : "var(--color-bg-card)",
-                    color: isActive ? "var(--color-bg-card)" : "var(--color-text-body)",
-                    border: `1px solid ${isActive ? "var(--color-primary)" : "var(--color-border)"}`,
-                  }}
-                >
-                  {f.label}
-                </Link>
-              );
-            })}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", flexWrap: "wrap", gap: "8px" }}>
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              {([
+                { key: "", label: "All" },
+                { key: "overdue", label: "Overdue" },
+                { key: "due-soon", label: "Due Soon" },
+                { key: "recently-filed", label: "Recently Filed" },
+                { key: "accepted", label: "Accepted" },
+                { key: "rejected", label: "Rejected" },
+                { key: "failed", label: "Failed" },
+              ] as const).map((f) => {
+                const isActive = filter === f.key;
+                const params = new URLSearchParams();
+                if (f.key) params.set("filter", f.key);
+                if (search) params.set("q", search);
+                if (sort !== "most-overdue") params.set("sort", sort);
+                const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
+                return (
+                  <Link
+                    key={f.key}
+                    href={href}
+                    className={`focus-ring ${isActive ? "filter-pill active" : "hoverable-subtle filter-pill"}`}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      transition: "opacity 200ms, background-color 200ms",
+                      backgroundColor: isActive ? "var(--color-primary)" : "var(--color-bg-card)",
+                      color: isActive ? "var(--color-bg-card)" : "var(--color-text-body)",
+                      border: `1px solid ${isActive ? "var(--color-primary)" : "var(--color-border)"}`,
+                    }}
+                  >
+                    {f.label}
+                  </Link>
+                );
+              })}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "var(--color-text-muted)", display: "flex" }}>
+                <ArrowUpDown size={14} color="currentColor" strokeWidth={2} aria-hidden="true" />
+              </span>
+              <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                {SORT_OPTIONS.map((s) => {
+                  const isActive = sort === s.key;
+                  const params = new URLSearchParams();
+                  if (filter) params.set("filter", filter);
+                  if (search) params.set("q", search);
+                  if (s.key !== "most-overdue") params.set("sort", s.key);
+                  const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
+                  return (
+                    <Link
+                      key={s.key}
+                      href={href}
+                      className={`focus-ring ${isActive ? "sort-pill active" : "hoverable-subtle sort-pill"}`}
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: "5px",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        textDecoration: "none",
+                        backgroundColor: isActive ? "var(--color-text-secondary)" : "transparent",
+                        color: isActive ? "var(--color-bg-card)" : "var(--color-text-muted)",
+                        transition: "opacity 200ms, background-color 200ms",
+                      }}
+                    >
+                      {s.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </>
       )}
 
       {/* No results */}
-      {companies.length === 0 && (search || filter) && (
+      {totalCompanies === 0 && (search || filter) && (
         <div
           style={{
             textAlign: "center",
@@ -332,9 +377,12 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
       {/* Company cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))", gap: "16px" }}>
-        {companies.map((company) => {
-          const accountsDeadline = calculateAccountsDeadline(company.accountingPeriodEnd);
-          const ct600Deadline = calculateCT600Deadline(company.accountingPeriodEnd);
+        {paginatedCompanies.map(({ company, periods, outstandingCount }) => {
+
+          // Show the current (oldest unfiled) period's deadlines and filings
+          const currentPeriod = periods.find((p) => !p.isComplete) ?? periods[0];
+          const accountsDeadline = currentPeriod?.accountsDeadline ?? calculateAccountsDeadline(company.accountingPeriodEnd);
+          const ct600Deadline = currentPeriod?.ct600Deadline ?? calculateCT600Deadline(company.accountingPeriodEnd);
 
           const accountsFiling = company.filings.find(
             (f) => f.filingType === "accounts" && f.periodEnd.getTime() === company.accountingPeriodEnd.getTime()
@@ -350,12 +398,9 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             (ct600Deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           );
 
-          // How many periods behind is this company?
-          // Compare current period end to today — each year gap = 1 period behind.
-          const now = new Date();
-          const periodsBehind = Math.max(0, now.getUTCFullYear() - company.accountingPeriodEnd.getUTCFullYear() + (
-            now.getTime() > new Date(Date.UTC(now.getUTCFullYear(), company.accountingPeriodEnd.getUTCMonth(), company.accountingPeriodEnd.getUTCDate())).getTime() ? 1 : 0
-          ) - 1);
+          // For companies with multiple outstanding periods, link to the period selection page
+          const hasMultiplePeriods = outstandingCount > 1;
+          const fileHref = `/file/${company.id}`;
 
           const filingBtnStyle: React.CSSProperties = {
             display: "inline-flex", alignItems: "center",
@@ -371,6 +416,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 backgroundColor: "var(--color-bg-card)",
                 borderRadius: "10px",
                 padding: "18px",
+                border: "1px solid var(--color-border)",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
               }}
             >
@@ -416,37 +462,38 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               </div>
 
               {/* Period */}
-              <p style={{ fontSize: "12px", color: "var(--color-text-secondary)", margin: periodsBehind > 0 ? "0 0 4px 0" : "0 0 12px 0" }}>
-                <span style={{ fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "10px" }}>Period </span>
-                {formatDate(company.accountingPeriodStart)} &ndash; {formatDate(company.accountingPeriodEnd)}
-              </p>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "0 0 12px 0" }}>
+                <p style={{ fontSize: "12px", color: "var(--color-text-secondary)", margin: 0 }}>
+                  <span style={{ fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "10px" }}>Period </span>
+                  {formatDate(company.accountingPeriodStart)} &ndash; {formatDate(company.accountingPeriodEnd)}
+                </p>
+                {outstandingCount > 1 && (
+                  <Link
+                    href={fileHref}
+                    className="focus-ring hoverable-pill"
+                    aria-label={`${outstandingCount} outstanding periods — view all`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "2px",
+                      padding: "1px 4px 1px 6px",
+                      minHeight: "28px",
+                      borderRadius: "9999px",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      backgroundColor: outstandingCount >= 4 ? "var(--color-danger-bg)" : "var(--color-warning-bg)",
+                      color: outstandingCount >= 4 ? "var(--color-danger)" : "var(--color-warning-text)",
+                      border: `1px solid ${outstandingCount >= 4 ? "var(--color-danger-border)" : "var(--color-warning-border)"}`,
+                    }}
+                  >
+                    {outstandingCount} outstanding
+                    <ChevronRight size={10} strokeWidth={2.5} />
+                  </Link>
+                )}
+              </div>
 
-              {/* Periods behind warning */}
-              {periodsBehind > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    padding: "6px 10px",
-                    backgroundColor: "var(--color-danger-bg)",
-                    border: "1px solid var(--color-danger-border)",
-                    borderRadius: "6px",
-                    marginBottom: "12px",
-                  }}
-                >
-                  <span style={{ color: "var(--color-danger)", flexShrink: 0, display: "flex" }}>
-                    <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
-                  </span>
-                  <p style={{ fontSize: "11px", color: "var(--color-danger-text)", margin: 0, fontWeight: 500 }}>
-                    {periodsBehind === 1
-                      ? "1 period behind — file this period to advance to the next"
-                      : `${periodsBehind} periods behind — each filing advances the period by one year`}
-                  </p>
-                </div>
-              )}
-
-              {/* Filing rows */}
+              {/* Filing rows — show current (oldest) period */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {/* Accounts */}
                 <div style={{
@@ -460,16 +507,19 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   <div>
                     <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>Accounts</p>
                     <p style={{
-                      fontSize: "11px",
+                      fontSize: "12px",
                       color: accountsFiling?.status === "accepted" ? "var(--color-text-secondary)"
                         : accountsDaysLeft <= 0 ? "var(--color-danger)"
                         : accountsDaysLeft <= 30 ? "var(--color-due-soon)"
                         : "var(--color-text-secondary)",
                       margin: 0,
                     }}>
-                      {formatDate(accountsDeadline)}
+                      Due {formatDate(accountsDeadline)}
                       {accountsFiling?.status !== "accepted" && accountsDaysLeft <= 30 && accountsDaysLeft > 0 && ` (${accountsDaysLeft}d)`}
-                      {accountsFiling?.status !== "accepted" && accountsDaysLeft <= 0 && " (Overdue)"}
+                      {accountsFiling?.status !== "accepted" && accountsDaysLeft <= 0 && (() => {
+                        const yearsOverdue = Math.floor(-accountsDaysLeft / 365);
+                        return yearsOverdue >= 2 ? ` (${yearsOverdue} years overdue)` : " (Overdue)";
+                      })()}
                     </p>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -477,11 +527,11 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                       <>
                         <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
                         {(accountsFiling.status === "failed" || accountsFiling.status === "rejected") && canFile && (
-                          <Link href={`/file/${company.id}/accounts`} style={filingBtnStyle}>Retry</Link>
+                          <Link href={hasMultiplePeriods ? fileHref : `/file/${company.id}/accounts`} className="focus-ring hoverable-btn" style={filingBtnStyle}>Retry</Link>
                         )}
                       </>
-                    ) : canFile && !atFilingLimit ? (
-                      <Link href={`/file/${company.id}/accounts`} style={filingBtnStyle}>File</Link>
+                    ) : !hasMultiplePeriods && canFile ? (
+                      <Link href={`/file/${company.id}/accounts`} className="focus-ring hoverable-btn" style={filingBtnStyle}>File</Link>
                     ) : null}
                   </div>
                 </div>
@@ -502,16 +552,19 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     <div>
                       <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>CT600</p>
                       <p style={{
-                        fontSize: "11px",
+                        fontSize: "12px",
                         color: ct600Filing?.status === "accepted" ? "var(--color-text-secondary)"
                           : ct600DaysLeft <= 0 ? "var(--color-danger)"
                           : ct600DaysLeft <= 30 ? "var(--color-due-soon)"
                           : "var(--color-text-secondary)",
                         margin: 0,
                       }}>
-                        {formatDate(ct600Deadline)}
+                        Due {formatDate(ct600Deadline)}
                         {ct600Filing?.status !== "accepted" && ct600DaysLeft <= 30 && ct600DaysLeft > 0 && ` (${ct600DaysLeft}d)`}
-                        {ct600Filing?.status !== "accepted" && ct600DaysLeft <= 0 && " (Overdue)"}
+                        {ct600Filing?.status !== "accepted" && ct600DaysLeft <= 0 && (() => {
+                          const yearsOverdue = Math.floor(-ct600DaysLeft / 365);
+                          return yearsOverdue >= 2 ? ` (${yearsOverdue} years overdue)` : " (Overdue)";
+                        })()}
                       </p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -519,16 +572,41 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                         <>
                           <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
                           {(ct600Filing.status === "failed" || ct600Filing.status === "rejected") && canFile && (
-                            <Link href={`/file/${company.id}/ct600`} style={filingBtnStyle}>Retry</Link>
+                            <Link href={hasMultiplePeriods ? fileHref : `/file/${company.id}/ct600`} className="focus-ring hoverable-btn" style={filingBtnStyle}>Retry</Link>
                           )}
                         </>
-                      ) : canFile && !atFilingLimit ? (
-                        <Link href={`/file/${company.id}/ct600`} style={filingBtnStyle}>File</Link>
+                      ) : !hasMultiplePeriods && canFile ? (
+                        <Link href={`/file/${company.id}/ct600`} className="focus-ring hoverable-btn" style={filingBtnStyle}>File</Link>
                       ) : null}
                     </div>
                   </div>
                 )}
               </div>
+
+              {/* Multi-period action */}
+              {hasMultiplePeriods && canFile && (
+                <Link
+                  href={fileHref}
+                  className="focus-ring hoverable-pill"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    marginTop: "8px",
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: "var(--color-primary)",
+                    backgroundColor: "var(--color-primary-bg)",
+                    textDecoration: "none",
+                  }}
+                >
+                  View all periods
+                  <ChevronRight size={13} strokeWidth={2} />
+                </Link>
+              )}
             </div>
           );
         })}
@@ -547,7 +625,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         >
           {currentPage > 1 && (
             <Link
-              href={`/dashboard?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${filter ? `&filter=${filter}` : ""}`}
+              href={`/dashboard?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${filter ? `&filter=${filter}` : ""}${sort !== "most-overdue" ? `&sort=${sort}` : ""}`}
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
@@ -567,7 +645,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           </span>
           {currentPage < totalPages && (
             <Link
-              href={`/dashboard?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${filter ? `&filter=${filter}` : ""}`}
+              href={`/dashboard?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${filter ? `&filter=${filter}` : ""}${sort !== "most-overdue" ? `&sort=${sort}` : ""}`}
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",

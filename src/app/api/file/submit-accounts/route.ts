@@ -4,8 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { buildAccountsXml } from "@/lib/companies-house/xml-builder";
 import { submitToCompaniesHouse, pollCompaniesHouse } from "@/lib/companies-house/submission-client";
-import { getCompanyLimit } from "@/lib/subscription";
 import { rollForwardPeriod } from "@/lib/roll-forward";
+import { getOutstandingPeriods } from "@/lib/periods";
 import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
 
 // CH typically processes within 24h, so keep inline polling brief
@@ -51,28 +51,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Active subscription required" }, { status: 403 });
   }
 
-  // Count unique companies filed for in the current billing period
-  const periodStart = user.subscriptionPeriodStart ?? user.createdAt;
-  const filedCompanyIds = await prisma.filing.findMany({
-    where: {
-      company: { userId: session.user.id },
-      status: { in: ["submitted", "polling_timeout", "accepted"] },
-      createdAt: { gte: periodStart },
-    },
-    select: { companyId: true },
-    distinct: ["companyId"],
-  });
-  const filingLimit = getCompanyLimit(user.subscriptionTier);
-  const filingsUsed = filedCompanyIds.length;
-
-  if (filingsUsed >= filingLimit) {
-    return NextResponse.json(
-      { error: `You have used all ${filingLimit} filing${filingLimit === 1 ? "" : "s"} for this billing period. Upgrade your plan to file for more companies.` },
-      { status: 403 }
-    );
-  }
-
-  let body: { companyId?: string; companyAuthCode?: string };
+  let body: { companyId?: string; companyAuthCode?: string; periodStart?: string; periodEnd?: string };
   try {
     body = await req.json();
   } catch {
@@ -86,6 +65,17 @@ export async function POST(req: NextRequest) {
       { error: "companyId is required" },
       { status: 400 }
     );
+  }
+
+  if (!body.periodStart || !body.periodEnd) {
+    return NextResponse.json({ error: "periodStart and periodEnd are required" }, { status: 400 });
+  }
+
+  const targetPeriodStart = new Date(body.periodStart);
+  const targetPeriodEnd = new Date(body.periodEnd);
+
+  if (isNaN(targetPeriodStart.getTime()) || isNaN(targetPeriodEnd.getTime())) {
+    return NextResponse.json({ error: "Invalid period dates" }, { status: 400 });
   }
 
   if (!companyAuthCode || !/^[A-Za-z0-9]{6}$/.test(companyAuthCode)) {
@@ -102,6 +92,30 @@ export async function POST(req: NextRequest) {
 
   if (!company) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
+  }
+
+  // Validate the requested period is a legitimate outstanding period
+  const companyFilings = await prisma.filing.findMany({
+    where: { companyId },
+    select: { periodStart: true, periodEnd: true, filingType: true, status: true },
+  });
+  const periods = getOutstandingPeriods(
+    company.accountingPeriodStart,
+    company.accountingPeriodEnd,
+    company.registeredForCorpTax,
+    companyFilings,
+  );
+  const targetPeriod = periods.find(
+    (p) => p.periodStart.getTime() === targetPeriodStart.getTime() && p.periodEnd.getTime() === targetPeriodEnd.getTime(),
+  );
+  if (!targetPeriod) {
+    return NextResponse.json({ error: "Invalid period for this company" }, { status: 400 });
+  }
+  if (targetPeriod.isDisclosureTerritory) {
+    return NextResponse.json(
+      { error: "This period ended more than 4 years ago. Very old filings may be rejected by Companies House. Please contact Companies House directly or consult an accountant." },
+      { status: 400 },
+    );
   }
 
   // Check company is still active at Companies House before filing
@@ -135,8 +149,8 @@ export async function POST(req: NextRequest) {
     where: {
       companyId,
       filingType: "accounts",
-      periodStart: company.accountingPeriodStart,
-      periodEnd: company.accountingPeriodEnd,
+      periodStart: targetPeriodStart,
+      periodEnd: targetPeriodEnd,
       OR: [
         { status: { in: ["failed", "rejected"] } },
         { status: "pending", createdAt: { lt: fiveMinutesAgo } },
@@ -149,8 +163,8 @@ export async function POST(req: NextRequest) {
     where: {
       companyId,
       filingType: "accounts",
-      periodStart: company.accountingPeriodStart,
-      periodEnd: company.accountingPeriodEnd,
+      periodStart: targetPeriodStart,
+      periodEnd: targetPeriodEnd,
       status: { in: ["submitted", "polling_timeout", "accepted"] },
     },
   });
@@ -167,8 +181,8 @@ export async function POST(req: NextRequest) {
     data: {
       companyId,
       filingType: "accounts",
-      periodStart: company.accountingPeriodStart,
-      periodEnd: company.accountingPeriodEnd,
+      periodStart: targetPeriodStart,
+      periodEnd: targetPeriodEnd,
       status: "pending",
     },
   });
@@ -194,8 +208,8 @@ export async function POST(req: NextRequest) {
   const accountsIxbrl = generateDormantAccountsIxbrl({
     companyName: company.companyName,
     companyRegistrationNumber: company.companyRegistrationNumber,
-    periodStart: company.accountingPeriodStart,
-    periodEnd: company.accountingPeriodEnd,
+    periodStart: targetPeriodStart,
+    periodEnd: targetPeriodEnd,
     directorName: user.name,
     shareCapital: company.shareCapital,
   });
@@ -207,8 +221,8 @@ export async function POST(req: NextRequest) {
       {
         companyName: company.companyName,
         companyRegistrationNumber: company.companyRegistrationNumber,
-        periodStart: company.accountingPeriodStart,
-        periodEnd: company.accountingPeriodEnd,
+        periodStart: targetPeriodStart,
+        periodEnd: targetPeriodEnd,
         companyAuthCode,
         accountsIxbrl,
       },
@@ -280,7 +294,7 @@ export async function POST(req: NextRequest) {
 
       await rollForwardPeriod(
         companyId,
-        company.accountingPeriodEnd,
+        targetPeriodEnd,
         company.registeredForCorpTax,
         "accounts",
         user.email,

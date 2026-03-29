@@ -12,13 +12,15 @@ function formatDate(date: Date): string {
 
 interface PageProps {
   params: Promise<{ companyId: string }>;
+  searchParams: Promise<{ periodEnd?: string }>;
 }
 
-export default async function AccountsFilingPage({ params }: PageProps) {
+export default async function AccountsFilingPage({ params, searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
   const { companyId } = await params;
+  const { periodEnd: periodEndParam } = await searchParams;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling")) redirect("/dashboard");
@@ -27,6 +29,22 @@ export default async function AccountsFilingPage({ params }: PageProps) {
     where: { id: companyId, userId: session.user.id, deletedAt: null },
   });
   if (!company) redirect("/dashboard");
+
+  // Resolve target period from search param or fall back to company's current period
+  let periodStart: Date;
+  let periodEnd: Date;
+
+  if (periodEndParam) {
+    periodEnd = new Date(periodEndParam);
+    if (isNaN(periodEnd.getTime())) redirect(`/file/${companyId}`);
+    // Compute matching start: periodEnd - 1 year + 1 day
+    periodStart = new Date(periodEnd);
+    periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
+    periodStart.setUTCDate(periodStart.getUTCDate() + 1);
+  } else {
+    periodStart = company.accountingPeriodStart;
+    periodEnd = company.accountingPeriodEnd;
+  }
 
   return (
     <div style={{ maxWidth: "960px", margin: "0 auto" }}>
@@ -45,7 +63,7 @@ export default async function AccountsFilingPage({ params }: PageProps) {
         <span style={{ color: "var(--color-bg-disabled)" }}>
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>
-        <span style={{ color: "var(--color-text-secondary)", fontWeight: 500 }}>{company.companyName}</span>
+        <Link href={`/file/${companyId}`} style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}>{company.companyName}</Link>
         <span style={{ color: "var(--color-bg-disabled)" }}>
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>
@@ -55,8 +73,10 @@ export default async function AccountsFilingPage({ params }: PageProps) {
         companyId={company.id}
         companyName={company.companyName}
         companyRegistrationNumber={company.companyRegistrationNumber}
-        periodStart={formatDate(company.accountingPeriodStart)}
-        periodEnd={formatDate(company.accountingPeriodEnd)}
+        periodStart={formatDate(periodStart)}
+        periodEnd={formatDate(periodEnd)}
+        periodStartISO={periodStart.toISOString()}
+        periodEndISO={periodEnd.toISOString()}
         shareCapitalPence={company.shareCapital}
       />
     </div>

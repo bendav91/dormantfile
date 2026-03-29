@@ -17,8 +17,8 @@ const PLANS = [
     price: 19,
     description: "1 dormant company",
     features: [
-      "Nil CT600 filing for one company",
-      "Direct HMRC submission",
+      "Both filings — accounts and CT600",
+      "File any outstanding period",
       "Email deadline reminders",
       "Filing confirmation receipt",
     ],
@@ -33,7 +33,7 @@ const PLANS = [
       "Everything in Basic",
       "File for up to 10 dormant companies",
       "Manage all from one dashboard",
-      "Individual filing per company",
+      "Catch up on missed periods",
     ],
   },
   {

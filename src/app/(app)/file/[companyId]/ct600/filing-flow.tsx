@@ -92,6 +92,8 @@ interface Props {
   declarantName: string;
   periodStart: string;
   periodEnd: string;
+  periodStartISO: string;
+  periodEndISO: string;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -930,6 +932,8 @@ export default function FilingFlow({
   uniqueTaxReference,
   periodStart,
   periodEnd,
+  periodStartISO,
+  periodEndISO,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");
@@ -942,7 +946,7 @@ export default function FilingFlow({
       const res = await fetch("/api/file/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyId, gatewayUsername, gatewayPassword }),
+        body: JSON.stringify({ companyId, gatewayUsername, gatewayPassword, periodStart: periodStartISO, periodEnd: periodEndISO }),
       });
 
       const data = await res.json();

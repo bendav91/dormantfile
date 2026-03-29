@@ -76,8 +76,8 @@ export default function LandingPage() {
             style={{ color: "var(--color-text-body)" }}
           >
             Annual accounts to Companies House and nil Corporation Tax returns
-            to HMRC — filed directly from one dashboard. No accounting knowledge
-            needed.
+            to HMRC — filed directly from one dashboard. Catch up on missed
+            periods or stay current. No accounting knowledge needed.
           </p>
           <Link
             href="/register"
@@ -263,10 +263,10 @@ export default function LandingPage() {
                 period: "per year",
                 description: "1 dormant company",
                 features: [
-                  "Annual accounts + CT600 filing for one company",
+                  "Both filings — accounts and CT600",
+                  "File any outstanding period",
                   "Direct submission to CH and HMRC",
                   "Email deadline reminders",
-                  "Filing confirmation receipt",
                 ],
                 highlighted: false,
               },
@@ -279,7 +279,7 @@ export default function LandingPage() {
                   "Everything in Basic",
                   "File for up to 10 dormant companies",
                   "Manage all companies from one dashboard",
-                  "Individual filing per company",
+                  "Catch up on missed periods",
                 ],
                 highlighted: true,
               },

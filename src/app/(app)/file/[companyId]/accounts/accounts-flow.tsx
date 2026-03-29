@@ -69,6 +69,8 @@ interface Props {
   companyRegistrationNumber: string;
   periodStart: string;
   periodEnd: string;
+  periodStartISO: string;
+  periodEndISO: string;
   shareCapitalPence: number;
 }
 
@@ -819,6 +821,8 @@ export default function AccountsFlow({
   companyRegistrationNumber,
   periodStart,
   periodEnd,
+  periodStartISO,
+  periodEndISO,
   shareCapitalPence,
 }: Props) {
   const router = useRouter();
@@ -832,7 +836,7 @@ export default function AccountsFlow({
       const res = await fetch("/api/file/submit-accounts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyId, companyAuthCode }),
+        body: JSON.stringify({ companyId, companyAuthCode, periodStart: periodStartISO, periodEnd: periodEndISO }),
       });
 
       const data = await res.json();

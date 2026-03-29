@@ -54,27 +54,27 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "12px 16px",
-          backgroundColor: "var(--color-bg-page)",
-          borderRadius: "8px",
+          padding: "8px 10px",
+          backgroundColor: "var(--color-bg-inset)",
+          borderRadius: "6px",
         }}
       >
-        <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
+        <p style={{ fontSize: "12px", color: "var(--color-text-body)", margin: 0 }}>
           Registered for Corporation Tax?
         </p>
         <button
           onClick={() => setExpanded(true)}
-          className="focus-ring"
+          className="focus-ring hoverable-pill"
           style={{
             display: "inline-flex",
             alignItems: "center",
             gap: "6px",
             backgroundColor: "transparent",
             color: "var(--color-primary)",
-            padding: "6px 14px",
-            borderRadius: "6px",
+            padding: "6px 12px",
+            borderRadius: "5px",
             fontWeight: 600,
-            fontSize: "13px",
+            fontSize: "12px",
             border: "1px solid var(--color-primary-border)",
             cursor: "pointer",
             transition: "background-color 200ms, color 200ms",
@@ -90,9 +90,9 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
   return (
     <div
       style={{
-        padding: "14px 16px",
-        backgroundColor: "var(--color-bg-page)",
-        borderRadius: "8px",
+        padding: "10px",
+        backgroundColor: "var(--color-bg-inset)",
+        borderRadius: "6px",
         display: "flex",
         flexDirection: "column",
         gap: "10px",
@@ -102,7 +102,7 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
         <span style={{ color: "var(--color-primary)" }}>
           <FileDigit size={14} color="currentColor" strokeWidth={2} />
         </span>
-        <label htmlFor={`utr-${companyId}`} style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+        <label htmlFor={`utr-${companyId}`} style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)" }}>
           Unique Tax Reference (UTR)
         </label>
       </div>
@@ -149,10 +149,10 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
           style={{
             backgroundColor: saving ? "var(--color-bg-disabled)" : "var(--color-primary)",
             color: "var(--color-bg-card)",
-            padding: "6px 14px",
-            borderRadius: "6px",
+            padding: "6px 12px",
+            borderRadius: "5px",
             fontWeight: 600,
-            fontSize: "13px",
+            fontSize: "12px",
             border: "none",
             cursor: saving ? "not-allowed" : "pointer",
           }}
@@ -170,10 +170,10 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
           style={{
             backgroundColor: "transparent",
             color: "var(--color-text-body)",
-            padding: "6px 14px",
-            borderRadius: "6px",
+            padding: "6px 12px",
+            borderRadius: "5px",
             fontWeight: 600,
-            fontSize: "13px",
+            fontSize: "12px",
             border: "1px solid var(--color-bg-disabled)",
             cursor: "pointer",
           }}

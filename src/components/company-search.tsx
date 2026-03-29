@@ -18,6 +18,10 @@ export default function CompanySearch() {
   function navigate(query: string) {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
+    const currentFilter = searchParams.get("filter");
+    const currentSort = searchParams.get("sort");
+    if (currentFilter) params.set("filter", currentFilter);
+    if (currentSort) params.set("sort", currentSort);
     // Reset to page 1 on new search
     router.push(`/dashboard${params.toString() ? `?${params}` : ""}`);
   }
@@ -39,6 +43,7 @@ export default function CompanySearch() {
       <Search
         size={16}
         strokeWidth={2}
+        aria-hidden="true"
         style={{
           position: "absolute",
           left: "14px",
@@ -49,7 +54,10 @@ export default function CompanySearch() {
         }}
       />
       <input
-        type="text"
+        type="search"
+        name="search"
+        autoComplete="off"
+        spellCheck={false}
         value={value}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Search by company name or number\u2026"
@@ -74,6 +82,14 @@ export default function CompanySearch() {
           onClick={handleClear}
           aria-label="Clear search"
           className="focus-ring"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--color-text-body)";
+            e.currentTarget.style.backgroundColor = "var(--color-bg-inset)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--color-text-muted)";
+            e.currentTarget.style.backgroundColor = "transparent";
+          }}
           style={{
             position: "absolute",
             right: "10px",
@@ -83,9 +99,11 @@ export default function CompanySearch() {
             border: "none",
             cursor: "pointer",
             padding: "4px",
+            borderRadius: "4px",
             color: "var(--color-text-muted)",
             display: "flex",
             alignItems: "center",
+            transition: "color 200ms, background-color 200ms",
           }}
         >
           <X size={16} strokeWidth={2} />

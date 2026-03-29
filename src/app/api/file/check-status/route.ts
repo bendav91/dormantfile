@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
 
     await rollForwardPeriod(
       filing.companyId,
-      filing.company.accountingPeriodEnd,
+      filing.periodEnd,
       filing.company.registeredForCorpTax,
       filing.filingType as "accounts" | "ct600",
       filing.company.user.email,
