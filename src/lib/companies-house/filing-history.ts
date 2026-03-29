@@ -51,7 +51,7 @@ export function computeFirstPeriodEnd(
   ardMonth: number, // 1-12
   ardDay: number,
 ): Date {
-  let firstArd = new Date(
+  const firstArd = new Date(
     Date.UTC(incorporationDate.getUTCFullYear(), ardMonth - 1, ardDay),
   );
   if (firstArd.getTime() <= incorporationDate.getTime()) {
