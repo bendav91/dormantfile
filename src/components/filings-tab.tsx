@@ -1,9 +1,9 @@
-import Link from "next/link";
-import { Calendar, AlertTriangle, CheckCircle2 } from "lucide-react";
 import FilingStatusBadge from "@/components/filing-status-badge";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { type PeriodInfo } from "@/lib/periods";
 import { FilingStatus } from "@prisma/client";
+import { AlertTriangle, Calendar, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -12,8 +12,6 @@ function formatDate(date: Date): string {
 function formatShortDate(date: Date): string {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
-
-const BLOCKED_STATUSES: FilingStatus[] = ["submitted", "polling_timeout", "accepted", "pending"];
 
 interface Filing {
   id: string;
@@ -29,6 +27,7 @@ interface FilingsTabProps {
   registeredForCorpTax: boolean;
   periods: PeriodInfo[];
   filings: Filing[];
+  now: number;
 }
 
 export default function FilingsTab({
@@ -36,6 +35,7 @@ export default function FilingsTab({
   registeredForCorpTax,
   periods,
   filings,
+  now,
 }: FilingsTabProps) {
   const incompletePeriods = periods.filter((p) => !p.isComplete);
   const completePeriods = periods.filter((p) => p.isComplete);
@@ -107,9 +107,6 @@ export default function FilingsTab({
         {incompletePeriods.map((period, index) => {
           const accountsFiling = getFilingForPeriod(period, "accounts");
           const ct600Filing = getFilingForPeriod(period, "ct600");
-          const accountsBlocked =
-            accountsFiling && BLOCKED_STATUSES.includes(accountsFiling.status);
-          const ct600Blocked = ct600Filing && BLOCKED_STATUSES.includes(ct600Filing.status);
           const periodEndISO = period.periodEnd.toISOString().split("T")[0];
           const isFirst = index === 0;
 
@@ -274,7 +271,7 @@ export default function FilingsTab({
                         fontSize: "12px",
                         color: period.accountsFiled
                           ? "var(--color-text-secondary)"
-                          : period.accountsDeadline.getTime() < Date.now()
+                          : period.accountsDeadline.getTime() < now
                             ? "var(--color-danger)"
                             : "var(--color-text-secondary)",
                         margin: 0,
@@ -282,7 +279,7 @@ export default function FilingsTab({
                     >
                       Deadline: {formatShortDate(period.accountsDeadline)}
                       {!period.accountsFiled &&
-                        period.accountsDeadline.getTime() < Date.now() &&
+                        period.accountsDeadline.getTime() < now &&
                         " (Overdue)"}
                     </p>
                   </div>

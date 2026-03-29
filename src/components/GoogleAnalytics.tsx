@@ -1,22 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { GoogleAnalytics as GA } from "@next/third-parties/google";
 
+function subscribeConsent(cb: () => void) {
+  window.addEventListener("consent-updated", cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    window.removeEventListener("consent-updated", cb);
+    window.removeEventListener("storage", cb);
+  };
+}
+
 export function GoogleAnalytics() {
-  const [consented, setConsented] = useState(false);
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
-
-  useEffect(() => {
-    setConsented(localStorage.getItem("cookie-consent") === "accepted");
-
-    const handler = () => {
-      setConsented(localStorage.getItem("cookie-consent") === "accepted");
-    };
-
-    window.addEventListener("consent-updated", handler);
-    return () => window.removeEventListener("consent-updated", handler);
-  }, []);
+  const consented = useSyncExternalStore(
+    subscribeConsent,
+    () => localStorage.getItem("cookie-consent") === "accepted",
+    () => false
+  );
 
   if (!consented || !gaId) return null;
 

@@ -33,6 +33,7 @@ const parser = new XMLParser({
 export async function submitToCompaniesHouse(
   xml: string,
   endpoint: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _credentials: PresenterCredentials,
 ): Promise<SubmissionResult> {
   const response = await fetch(endpoint, {

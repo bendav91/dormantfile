@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { submitToHmrc, pollHmrc } from "@/lib/hmrc/submission-client";
+import { pollHmrc, submitToHmrc } from "@/lib/hmrc/submission-client";
 import type { VendorCredentials } from "@/lib/hmrc/types";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const vendor: VendorCredentials = {
   vendorId: "vendor123",

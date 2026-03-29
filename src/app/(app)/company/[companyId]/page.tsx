@@ -169,6 +169,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           registeredForCorpTax={company.registeredForCorpTax}
           periods={periods}
           filings={company.filings}
+          now={Date.now()}
         />
       )}
       {tab === "overview" && <OverviewTab companyNumber={company.companyRegistrationNumber} />}

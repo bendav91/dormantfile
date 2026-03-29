@@ -1,19 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+function subscribeCookieConsent(cb: () => void) {
+  window.addEventListener("consent-updated", cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    window.removeEventListener("consent-updated", cb);
+    window.removeEventListener("storage", cb);
+  };
+}
 
 export function CookieConsent() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("cookie-consent");
-    if (!stored) setVisible(true);
-  }, []);
+  const stored = useSyncExternalStore(
+    subscribeCookieConsent,
+    () => localStorage.getItem("cookie-consent"),
+    () => "pending" // SSR: assume pending so it renders nothing server-side
+  );
+  const visible = stored === null;
 
   function respond(accepted: boolean) {
     localStorage.setItem("cookie-consent", accepted ? "accepted" : "declined");
     window.dispatchEvent(new Event("consent-updated"));
-    setVisible(false);
   }
 
   if (!visible) return null;

@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
-  Building2,
-  ShieldCheck,
-  Lock,
-  Loader2,
-  CheckCircle2,
-  XCircle,
   AlertTriangle,
   ArrowLeft,
+  Building2,
+  CheckCircle2,
+  Lock,
+  ShieldCheck,
+  XCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // ─── Shared style constants ───────────────────────────────────────────────────
 

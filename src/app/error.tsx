@@ -1,7 +1,8 @@
 "use client";
 
-import { IBM_Plex_Sans } from "next/font/google";
 import { AlertTriangle } from "lucide-react";
+import { IBM_Plex_Sans } from "next/font/google";
+import Link from "next/link";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -69,7 +70,7 @@ export default function ErrorPage({
         >
           Try again
         </button>
-        <a
+        <Link
           href="/"
           className="focus-ring"
           style={{
@@ -85,7 +86,7 @@ export default function ErrorPage({
           }}
         >
           Go home
-        </a>
+        </Link>
       </div>
     </div>
   );

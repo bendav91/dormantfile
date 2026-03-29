@@ -25,7 +25,6 @@ export function buildReminderEmail(data: ReminderEmailData): ReminderEmailResult
 
   const isAccounts = filingType === "accounts";
   const filingLabel = isAccounts ? "Annual accounts" : "CT600";
-  const authority = isAccounts ? "Companies House" : "HMRC";
   const penaltyNote = isAccounts
     ? "Companies House imposes a £150 penalty if accounts are filed late, rising to £750 after 3 months."
     : "HMRC imposes an initial penalty of £100 if your CT600 is filed late. Further penalties apply after 3 and 6 months.";
