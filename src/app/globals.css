@@ -1,37 +1,134 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Core surface and text */
+  --color-bg-page: #F8FAFC;
+  --color-bg-card: #ffffff;
+  --color-bg-inset: #F8FAFC;
+  --color-bg-disabled: #CBD5E1;
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+  --color-text-primary: #1E293B;
+  --color-text-body: #475569;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-input-bg: #ffffff;
+  --color-input-border: #94A3B8;
+
+  /* Brand */
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-bg: #EFF6FF;
+  --color-primary-border: #DBEAFE;
+  --color-primary-text: #1E40AF;
+  --color-cta: #F97316;
+
+  /* Status: success */
+  --color-success: #15803D;
+  --color-success-bg: #F0FDF4;
+  --color-success-border: #BBF7D0;
+  --color-success-text: #166534;
+
+  /* Status: danger */
+  --color-danger: #DC2626;
+  --color-danger-bg: #FEF2F2;
+  --color-danger-border: #FECACA;
+  --color-danger-text: #7F1D1D;
+  --color-danger-deep: #B91C1C;
+
+  /* Status: warning */
+  --color-warning: #CA8A04;
+  --color-warning-bg: #FEFCE8;
+  --color-warning-border: #FDE047;
+  --color-warning-text: #713F12;
+  --color-warning-deep: #A16207;
+  --color-warning-link: #92400E;
+  --color-due-soon: #D97706;
+
+  /* Neutral status */
+  --color-neutral-bg: #F1F5F9;
+  --color-neutral-text: #475569;
+  --color-submitted-bg: #EFF6FF;
+  --color-submitted-text: #1D4ED8;
+
+  /* Backwards compat */
+  --background: var(--color-bg-page);
+  --foreground: var(--color-text-primary);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  /* Core surface and text */
+  --color-bg-page: #0F172A;
+  --color-bg-card: #1E293B;
+  --color-bg-inset: #334155;
+  --color-bg-disabled: #475569;
+  --color-border: #334155;
+  --color-border-subtle: #1E293B;
+  --color-text-primary: #F1F5F9;
+  --color-text-body: #CBD5E1;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+  --color-input-bg: #1E293B;
+  --color-input-border: #475569;
+
+  /* Brand */
+  --color-primary: #3B82F6;
+  --color-primary-hover: #60A5FA;
+  --color-primary-bg: #172554;
+  --color-primary-border: #1E40AF;
+  --color-primary-text: #93C5FD;
+  --color-cta: #F97316;
+
+  /* Status: success */
+  --color-success: #22C55E;
+  --color-success-bg: #052e16;
+  --color-success-border: #166534;
+  --color-success-text: #86EFAC;
+
+  /* Status: danger */
+  --color-danger: #EF4444;
+  --color-danger-bg: #450a0a;
+  --color-danger-border: #991B1B;
+  --color-danger-text: #FCA5A5;
+  --color-danger-deep: #F87171;
+
+  /* Status: warning */
+  --color-warning: #EAB308;
+  --color-warning-bg: #422006;
+  --color-warning-border: #854D0E;
+  --color-warning-text: #FDE68A;
+  --color-warning-deep: #FBBF24;
+  --color-warning-link: #F59E0B;
+  --color-due-soon: #F59E0B;
+
+  /* Neutral status */
+  --color-neutral-bg: #334155;
+  --color-neutral-text: #CBD5E1;
+  --color-submitted-bg: #172554;
+  --color-submitted-text: #93C5FD;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .nav-signin-link:hover {
-  color: #2563EB !important;
+  color: var(--color-primary) !important;
 }
 
 /* Focus ring for inline-styled buttons and links */
 .focus-ring:focus-visible {
-  outline: 2px solid #2563EB;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 /* Focus ring for inline-styled inputs */
 .focus-ring-input:focus-visible {
-  border-color: #2563EB !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent);
   outline: none;
 }
 
