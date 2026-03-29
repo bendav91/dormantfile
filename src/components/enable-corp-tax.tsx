@@ -55,11 +55,11 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "12px 16px",
-          backgroundColor: "#F8FAFC",
+          backgroundColor: "var(--color-bg-page)",
           borderRadius: "8px",
         }}
       >
-        <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
+        <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
           Registered for Corporation Tax?
         </p>
         <button
@@ -70,12 +70,12 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
             alignItems: "center",
             gap: "6px",
             backgroundColor: "transparent",
-            color: "#2563EB",
+            color: "var(--color-primary)",
             padding: "6px 14px",
             borderRadius: "6px",
             fontWeight: 600,
             fontSize: "13px",
-            border: "1px solid #BFDBFE",
+            border: "1px solid var(--color-primary-border)",
             cursor: "pointer",
             transition: "background-color 200ms, color 200ms",
           }}
@@ -91,7 +91,7 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
     <div
       style={{
         padding: "14px 16px",
-        backgroundColor: "#F8FAFC",
+        backgroundColor: "var(--color-bg-page)",
         borderRadius: "8px",
         display: "flex",
         flexDirection: "column",
@@ -99,8 +99,10 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <FileDigit size={14} color="#2563EB" strokeWidth={2} />
-        <label htmlFor={`utr-${companyId}`} style={{ fontSize: "13px", fontWeight: 600, color: "#1E293B" }}>
+        <span style={{ color: "var(--color-primary)" }}>
+          <FileDigit size={14} color="currentColor" strokeWidth={2} />
+        </span>
+        <label htmlFor={`utr-${companyId}`} style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)" }}>
           Unique Tax Reference (UTR)
         </label>
       </div>
@@ -124,19 +126,19 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
         style={{
           width: "100%",
           padding: "10px 14px",
-          color: "#1E293B",
+          color: "var(--color-text-primary)",
           borderWidth: "1px",
           borderStyle: "solid",
-          borderColor: error ? "#EF4444" : "#94A3B8",
+          borderColor: error ? "var(--color-danger)" : "var(--color-text-muted)",
           borderRadius: "6px",
           fontSize: "14px",
           boxSizing: "border-box",
         }}
       />
       {error && (
-        <p style={{ fontSize: "13px", color: "#EF4444", margin: 0 }}>{error}</p>
+        <p style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{error}</p>
       )}
-      <p style={{ fontSize: "12px", color: "#64748B", margin: 0 }}>
+      <p style={{ fontSize: "12px", color: "var(--color-text-body)", margin: 0 }}>
         Your 10-digit UTR from HMRC. This will add CT600 filing to this company.
       </p>
       <div style={{ display: "flex", gap: "8px" }}>
@@ -145,8 +147,8 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
           disabled={saving}
           className="focus-ring"
           style={{
-            backgroundColor: saving ? "#CBD5E1" : "#2563EB",
-            color: "#ffffff",
+            backgroundColor: saving ? "var(--color-bg-disabled)" : "var(--color-primary)",
+            color: "var(--color-bg-card)",
             padding: "6px 14px",
             borderRadius: "6px",
             fontWeight: 600,
@@ -167,12 +169,12 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
           className="focus-ring"
           style={{
             backgroundColor: "transparent",
-            color: "#64748B",
+            color: "var(--color-text-body)",
             padding: "6px 14px",
             borderRadius: "6px",
             fontWeight: 600,
             fontSize: "13px",
-            border: "1px solid #CBD5E1",
+            border: "1px solid var(--color-bg-disabled)",
             cursor: "pointer",
           }}
         >

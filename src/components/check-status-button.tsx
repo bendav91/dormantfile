@@ -57,9 +57,9 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
   }
 
   const resultColors: Record<string, { bg: string; text: string; border: string }> = {
-    accepted: { bg: "#F0FDF4", text: "#15803D", border: "#BBF7D0" },
-    rejected: { bg: "#FEF2F2", text: "#B91C1C", border: "#FECACA" },
-    processing: { bg: "#FEFCE8", text: "#A16207", border: "#FDE047" },
+    accepted: { bg: "var(--color-success-bg)", text: "var(--color-success)", border: "var(--color-success-border)" },
+    rejected: { bg: "var(--color-danger-bg)", text: "var(--color-danger-deep)", border: "var(--color-danger-border)" },
+    processing: { bg: "var(--color-warning-bg)", text: "var(--color-warning-deep)", border: "var(--color-warning-border)" },
   };
 
   return (
@@ -72,8 +72,8 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
           display: "inline-flex",
           alignItems: "center",
           gap: "8px",
-          backgroundColor: loading ? "#CBD5E1" : "#2563EB",
-          color: "#ffffff",
+          backgroundColor: loading ? "var(--color-bg-disabled)" : "var(--color-primary)",
+          color: "var(--color-bg-card)",
           padding: "10px 20px",
           borderRadius: "8px",
           fontWeight: 600,

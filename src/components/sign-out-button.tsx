@@ -17,7 +17,7 @@ export default function SignOutButton() {
         width: "32px",
         height: "32px",
         borderRadius: "8px",
-        color: "#64748B",
+        color: "var(--color-text-secondary)",
         backgroundColor: "transparent",
         border: "none",
         cursor: "pointer",

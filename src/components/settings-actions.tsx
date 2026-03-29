@@ -83,7 +83,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
       {hasStripeCustomer && (
         <div
           style={{
-            backgroundColor: "#ffffff",
+            backgroundColor: "var(--color-bg-card)",
             borderRadius: "12px",
             padding: "28px",
             boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -94,14 +94,14 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
             style={{
               fontSize: "17px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.01em",
             }}
           >
             Billing
           </h2>
-          <p style={{ fontSize: "14px", color: "#64748B", margin: "0 0 20px 0" }}>
+          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
             {hasSubscription
               ? "View invoices, update your payment method, or cancel your subscription."
               : "View your past invoices or resubscribe."}
@@ -113,8 +113,8 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
               display: "inline-flex",
               alignItems: "center",
               gap: "8px",
-              backgroundColor: "#2563EB",
-              color: "#ffffff",
+              backgroundColor: "var(--color-primary)",
+              color: "var(--color-bg-card)",
               padding: "10px 20px",
               borderRadius: "8px",
               fontWeight: 600,
@@ -144,12 +144,12 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                 alignItems: "center",
                 gap: "8px",
                 backgroundColor: "transparent",
-                color: "#2563EB",
+                color: "var(--color-primary)",
                 padding: "10px 20px",
                 borderRadius: "8px",
                 fontWeight: 600,
                 fontSize: "14px",
-                border: "2px solid #2563EB",
+                border: "2px solid var(--color-primary)",
                 textDecoration: "none",
                 transition: "opacity 200ms, transform 200ms, background-color 200ms",
                 marginLeft: "10px",
@@ -166,7 +166,7 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
       {companies.length > 0 && (
         <div
           style={{
-            backgroundColor: "#ffffff",
+            backgroundColor: "var(--color-bg-card)",
             borderRadius: "12px",
             padding: "28px",
             boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -177,14 +177,14 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
             style={{
               fontSize: "17px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.01em",
             }}
           >
             Companies
           </h2>
-          <p style={{ fontSize: "14px", color: "#64748B", margin: "0 0 20px 0" }}>
+          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
             Remove a company to delete its filing history and reminders. Your account and subscription remain active.
           </p>
 
@@ -193,11 +193,11 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
               role="alert"
               style={{
                 padding: "12px 16px",
-                backgroundColor: "#FEF2F2",
-                border: "1px solid #FECACA",
+                backgroundColor: "var(--color-danger-bg)",
+                border: "1px solid var(--color-danger-border)",
                 borderRadius: "8px",
                 fontSize: "14px",
-                color: "#DC2626",
+                color: "var(--color-danger)",
                 marginBottom: "16px",
               }}
             >
@@ -214,28 +214,30 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "14px 16px",
-                  backgroundColor: "#F8FAFC",
+                  backgroundColor: "var(--color-bg-page)",
                   borderRadius: "8px",
-                  border: "1px solid #E2E8F0",
+                  border: "1px solid var(--color-border)",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <Building2 size={16} color="#2563EB" strokeWidth={2} />
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#1E293B" }}>
+                  <span style={{ color: "var(--color-primary)" }}>
+                    <Building2 size={16} color="currentColor" strokeWidth={2} />
+                  </span>
+                  <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>
                     {company.name}
                   </span>
                 </div>
 
                 {confirmRemoveId === company.id ? (
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "13px", color: "#DC2626" }}>Remove?</span>
+                    <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>Remove?</span>
                     <button
                       onClick={() => handleRemoveCompany(company.id)}
                       disabled={removingCompanyId === company.id}
                       className="focus-ring"
                       style={{
-                        backgroundColor: "#DC2626",
-                        color: "#ffffff",
+                        backgroundColor: "var(--color-danger)",
+                        color: "var(--color-bg-card)",
                         padding: "6px 14px",
                         borderRadius: "6px",
                         fontWeight: 600,
@@ -253,12 +255,12 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                       className="focus-ring"
                       style={{
                         backgroundColor: "transparent",
-                        color: "#64748B",
+                        color: "var(--color-text-body)",
                         padding: "6px 14px",
                         borderRadius: "6px",
                         fontWeight: 600,
                         fontSize: "13px",
-                        border: "1px solid #CBD5E1",
+                        border: "1px solid var(--color-bg-disabled)",
                         cursor: "pointer",
                         transition: "opacity 200ms, transform 200ms, background-color 200ms",
                       }}
@@ -272,17 +274,17 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                     className="focus-ring"
                     style={{
                       backgroundColor: "transparent",
-                      color: "#DC2626",
+                      color: "var(--color-danger)",
                       padding: "4px 12px",
                       borderRadius: "6px",
                       fontWeight: 600,
                       fontSize: "13px",
-                      border: "1px solid #FECACA",
+                      border: "1px solid var(--color-danger-border)",
                       cursor: "pointer",
                       transition: "opacity 200ms, transform 200ms, background-color 200ms",
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2";
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-danger-bg)";
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
@@ -300,25 +302,25 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
       {/* Danger zone */}
       <div
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--color-bg-card)",
           borderRadius: "12px",
           padding: "28px",
           boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          border: "1px solid #FECACA",
+          border: "1px solid var(--color-danger-border)",
         }}
       >
         <h2
           style={{
             fontSize: "17px",
             fontWeight: 700,
-            color: "#DC2626",
+            color: "var(--color-danger)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.01em",
           }}
         >
           Danger zone
         </h2>
-        <p style={{ fontSize: "14px", color: "#64748B", margin: "0 0 20px 0" }}>
+        <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
           Permanently delete your account, all company data, and filing history.
           {hasSubscription && " Your subscription will be cancelled immediately."}
           {" "}This action cannot be undone.
@@ -329,11 +331,11 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
             role="alert"
             style={{
               padding: "12px 16px",
-              backgroundColor: "#FEF2F2",
-              border: "1px solid #FECACA",
+              backgroundColor: "var(--color-danger-bg)",
+              border: "1px solid var(--color-danger-border)",
               borderRadius: "8px",
               fontSize: "14px",
-              color: "#DC2626",
+              color: "var(--color-danger)",
               marginBottom: "16px",
             }}
           >
@@ -350,17 +352,17 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
               alignItems: "center",
               gap: "8px",
               backgroundColor: "transparent",
-              color: "#DC2626",
+              color: "var(--color-danger)",
               padding: "10px 20px",
               borderRadius: "8px",
               fontWeight: 600,
               fontSize: "14px",
-              border: "2px solid #DC2626",
+              border: "2px solid var(--color-danger)",
               cursor: "pointer",
               transition: "opacity 200ms, transform 200ms, background-color 200ms",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#FEF2F2";
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-danger-bg)";
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
@@ -373,14 +375,16 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
           <div
             style={{
               padding: "20px",
-              backgroundColor: "#FEF2F2",
-              border: "1px solid #FECACA",
+              backgroundColor: "var(--color-danger-bg)",
+              border: "1px solid var(--color-danger-border)",
               borderRadius: "8px",
             }}
           >
             <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "16px" }}>
-              <AlertTriangle size={18} color="#DC2626" strokeWidth={2} style={{ flexShrink: 0, marginTop: "1px" }} />
-              <p style={{ fontSize: "14px", color: "#7F1D1D", margin: 0, lineHeight: "1.5" }}>
+              <span style={{ color: "var(--color-danger)", flexShrink: 0, marginTop: "1px" }}>
+                <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
+              </span>
+              <p style={{ fontSize: "14px", color: "var(--color-danger-text)", margin: 0, lineHeight: "1.5" }}>
                 Are you sure? This will permanently delete your account,
                 {companies.length > 0 ? ` ${companies.length} ${companies.length === 1 ? "company" : "companies"},` : ""}
                 {" "}and all filing records. Your subscription will be
@@ -393,8 +397,8 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                 disabled={deleting}
                 className="focus-ring"
                 style={{
-                  backgroundColor: deleting ? "#CBD5E1" : "#DC2626",
-                  color: "#ffffff",
+                  backgroundColor: deleting ? "var(--color-bg-disabled)" : "var(--color-danger)",
+                  color: "var(--color-bg-card)",
                   padding: "10px 20px",
                   borderRadius: "8px",
                   fontWeight: 600,
@@ -412,12 +416,12 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                 className="focus-ring"
                 style={{
                   backgroundColor: "transparent",
-                  color: "#475569",
+                  color: "var(--color-text-body)",
                   padding: "10px 20px",
                   borderRadius: "8px",
                   fontWeight: 600,
                   fontSize: "14px",
-                  border: "1px solid #CBD5E1",
+                  border: "1px solid var(--color-bg-disabled)",
                   cursor: "pointer",
                   transition: "opacity 200ms, transform 200ms, background-color 200ms",
                 }}

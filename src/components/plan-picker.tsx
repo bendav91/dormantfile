@@ -120,11 +120,11 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
           role="alert"
           style={{
             padding: "12px 16px",
-            backgroundColor: "#FEF2F2",
-            border: "1px solid #FECACA",
+            backgroundColor: "var(--color-danger-bg)",
+            border: "1px solid var(--color-danger-border)",
             borderRadius: "8px",
             fontSize: "14px",
-            color: "#DC2626",
+            color: "var(--color-danger)",
             marginBottom: "24px",
             textAlign: "center",
           }}
@@ -138,11 +138,11 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
           role="status"
           style={{
             padding: "12px 16px",
-            backgroundColor: "#F0FDF4",
-            border: "1px solid #BBF7D0",
+            backgroundColor: "var(--color-success-bg)",
+            border: "1px solid var(--color-success-border)",
             borderRadius: "8px",
             fontSize: "14px",
-            color: "#166534",
+            color: "var(--color-success-text)",
             marginBottom: "24px",
             textAlign: "center",
           }}
@@ -164,10 +164,10 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
             <div
               key={plan.tier}
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: "var(--color-bg-card)",
                 borderRadius: "12px",
                 padding: "28px",
-                border: plan.popular ? "2px solid #2563EB" : "1px solid #E2E8F0",
+                border: plan.popular ? "2px solid var(--color-primary)" : "1px solid var(--color-border)",
                 display: "flex",
                 flexDirection: "column",
                 position: "relative",
@@ -180,8 +180,8 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                     top: "-12px",
                     left: "50%",
                     transform: "translateX(-50%)",
-                    backgroundColor: "#2563EB",
-                    color: "#ffffff",
+                    backgroundColor: "var(--color-primary)",
+                    color: "var(--color-bg-card)",
                     padding: "3px 14px",
                     borderRadius: "9999px",
                     fontSize: "12px",
@@ -193,18 +193,18 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                 </span>
               )}
 
-              <p style={{ fontSize: "14px", fontWeight: 600, color: "#2563EB", margin: "0 0 4px 0" }}>
+              <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-primary)", margin: "0 0 4px 0" }}>
                 {plan.name}
               </p>
               <div style={{ marginBottom: "4px" }}>
-                <span style={{ fontSize: "36px", fontWeight: 700, color: "#1E293B" }}>
+                <span style={{ fontSize: "36px", fontWeight: 700, color: "var(--color-text-primary)" }}>
                   £{plan.price}
                 </span>
-                <span style={{ fontSize: "14px", color: "#64748B", marginLeft: "4px" }}>
+                <span style={{ fontSize: "14px", color: "var(--color-text-body)", marginLeft: "4px" }}>
                   /year
                 </span>
               </div>
-              <p style={{ fontSize: "14px", color: "#64748B", margin: "0 0 24px 0" }}>
+              <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 24px 0" }}>
                 {plan.description}
               </p>
 
@@ -218,10 +218,12 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                       gap: "8px",
                       marginBottom: "10px",
                       fontSize: "14px",
-                      color: "#475569",
+                      color: "var(--color-text-body)",
                     }}
                   >
-                    <CheckCircle size={16} color="#2563EB" strokeWidth={2} style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: 2 }}>
+                      <CheckCircle size={16} color="currentColor" strokeWidth={2} />
+                    </span>
                     {feature}
                   </li>
                 ))}
@@ -235,8 +237,8 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                     fontWeight: 600,
                     fontSize: "14px",
                     textAlign: "center",
-                    backgroundColor: "#F1F5F9",
-                    color: "#64748B",
+                    backgroundColor: "var(--color-neutral-bg)",
+                    color: "var(--color-text-secondary)",
                   }}
                 >
                   Current plan
@@ -255,11 +257,11 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                     cursor: isDisabled ? "not-allowed" : "pointer",
                     transition: "opacity 200ms, transform 200ms",
                     backgroundColor: isDowngrade
-                      ? "#64748B"
+                      ? "var(--color-text-secondary)"
                       : plan.popular
-                        ? "#F97316"
-                        : "#2563EB",
-                    color: "#ffffff",
+                        ? "var(--color-cta)"
+                        : "var(--color-primary)",
+                    color: "var(--color-bg-card)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -292,7 +294,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
       </div>
 
       {isUpgrade && (
-        <p style={{ fontSize: "13px", color: "#94A3B8", textAlign: "center", marginTop: "20px" }}>
+        <p style={{ fontSize: "13px", color: "var(--color-text-muted)", textAlign: "center", marginTop: "20px" }}>
           Upgrades take effect immediately. Downgrades take effect at the end of your billing period.
         </p>
       )}

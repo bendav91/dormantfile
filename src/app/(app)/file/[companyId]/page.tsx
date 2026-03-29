@@ -60,7 +60,7 @@ export default async function FilingSelector({ params }: PageProps) {
           alignItems: "center",
           gap: "6px",
           fontSize: "14px",
-          color: "#64748B",
+          color: "var(--color-text-secondary)",
           textDecoration: "none",
           fontWeight: 500,
           marginBottom: "24px",
@@ -85,28 +85,30 @@ export default async function FilingSelector({ params }: PageProps) {
               width: "42px",
               height: "42px",
               borderRadius: "10px",
-              backgroundColor: "#EFF6FF",
+              backgroundColor: "var(--color-primary-bg)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
             }}
           >
-            <Building2 size={20} color="#2563EB" strokeWidth={2} />
+            <span style={{ color: "var(--color-primary)" }}>
+              <Building2 size={20} color="currentColor" strokeWidth={2} />
+            </span>
           </div>
           <div>
             <h1
               style={{
                 fontSize: "26px",
                 fontWeight: 700,
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 margin: 0,
                 letterSpacing: "-0.02em",
               }}
             >
               {company.companyName}
             </h1>
-            <p style={{ fontSize: "14px", color: "#64748B", margin: 0, marginTop: "2px" }}>
+            <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0, marginTop: "2px" }}>
               Period: {formatDate(company.accountingPeriodStart)} &ndash; {formatDate(company.accountingPeriodEnd)}
             </p>
           </div>
@@ -118,7 +120,7 @@ export default async function FilingSelector({ params }: PageProps) {
         {/* Accounts card */}
         <div
           style={{
-            backgroundColor: "#ffffff",
+            backgroundColor: "var(--color-bg-card)",
             borderRadius: "12px",
             padding: "24px",
             boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
@@ -131,16 +133,18 @@ export default async function FilingSelector({ params }: PageProps) {
                   width: "36px",
                   height: "36px",
                   borderRadius: "8px",
-                  backgroundColor: "#F0FDF4",
+                  backgroundColor: "var(--color-success-bg)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
                 }}
               >
-                <FileText size={18} color="#15803D" strokeWidth={2} />
+                <span style={{ color: "var(--color-success)" }}>
+                  <FileText size={18} color="currentColor" strokeWidth={2} />
+                </span>
               </div>
-              <h2 style={{ fontSize: "17px", fontWeight: 700, color: "#1E293B", margin: 0 }}>
+              <h2 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
                 Accounts
               </h2>
             </div>
@@ -150,8 +154,10 @@ export default async function FilingSelector({ params }: PageProps) {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
-            <Calendar size={14} color="#64748B" strokeWidth={2} />
-            <p style={{ fontSize: "14px", color: "#64748B", margin: 0 }}>
+            <span style={{ color: "var(--color-text-secondary)" }}>
+              <Calendar size={14} color="currentColor" strokeWidth={2} />
+            </span>
+            <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>
               Deadline: {formatDate(accountsDeadline)}
             </p>
           </div>
@@ -163,8 +169,8 @@ export default async function FilingSelector({ params }: PageProps) {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
-                backgroundColor: "#F97316",
-                color: "#ffffff",
+                backgroundColor: "var(--color-cta)",
+                color: "var(--color-bg-card)",
                 padding: "10px 20px",
                 borderRadius: "8px",
                 fontWeight: 600,
@@ -183,7 +189,7 @@ export default async function FilingSelector({ params }: PageProps) {
         {company.registeredForCorpTax && (
           <div
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: "var(--color-bg-card)",
               borderRadius: "12px",
               padding: "24px",
               boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
@@ -196,16 +202,18 @@ export default async function FilingSelector({ params }: PageProps) {
                     width: "36px",
                     height: "36px",
                     borderRadius: "8px",
-                    backgroundColor: "#EFF6FF",
+                    backgroundColor: "var(--color-primary-bg)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
                   }}
                 >
-                  <FileText size={18} color="#2563EB" strokeWidth={2} />
+                  <span style={{ color: "var(--color-primary)" }}>
+                    <FileText size={18} color="currentColor" strokeWidth={2} />
+                  </span>
                 </div>
-                <h2 style={{ fontSize: "17px", fontWeight: 700, color: "#1E293B", margin: 0 }}>
+                <h2 style={{ fontSize: "17px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
                   CT600
                 </h2>
               </div>
@@ -215,8 +223,10 @@ export default async function FilingSelector({ params }: PageProps) {
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px" }}>
-              <Calendar size={14} color="#64748B" strokeWidth={2} />
-              <p style={{ fontSize: "14px", color: "#64748B", margin: 0 }}>
+              <span style={{ color: "var(--color-text-secondary)" }}>
+                <Calendar size={14} color="currentColor" strokeWidth={2} />
+              </span>
+              <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>
                 Deadline: {formatDate(ct600Deadline)}
               </p>
             </div>
@@ -228,8 +238,8 @@ export default async function FilingSelector({ params }: PageProps) {
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "8px",
-                  backgroundColor: "#F97316",
-                  color: "#ffffff",
+                  backgroundColor: "var(--color-cta)",
+                  color: "var(--color-bg-card)",
                   padding: "10px 20px",
                   borderRadius: "8px",
                   fontWeight: 600,

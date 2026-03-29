@@ -39,13 +39,17 @@ export default async function AccountsFilingPage({ params }: PageProps) {
           marginBottom: "24px",
         }}
       >
-        <Link href="/dashboard" style={{ color: "#64748B", textDecoration: "none", fontWeight: 500 }}>
+        <Link href="/dashboard" style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}>
           Dashboard
         </Link>
-        <ChevronRight size={14} color="#CBD5E1" strokeWidth={2} />
-        <span style={{ color: "#64748B", fontWeight: 500 }}>{company.companyName}</span>
-        <ChevronRight size={14} color="#CBD5E1" strokeWidth={2} />
-        <span style={{ color: "#1E293B", fontWeight: 600 }}>Accounts</span>
+        <span style={{ color: "var(--color-bg-disabled)" }}>
+          <ChevronRight size={14} color="currentColor" strokeWidth={2} />
+        </span>
+        <span style={{ color: "var(--color-text-secondary)", fontWeight: 500 }}>{company.companyName}</span>
+        <span style={{ color: "var(--color-bg-disabled)" }}>
+          <ChevronRight size={14} color="currentColor" strokeWidth={2} />
+        </span>
+        <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>Accounts</span>
       </nav>
       <AccountsFlow
         companyId={company.id}

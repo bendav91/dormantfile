@@ -44,7 +44,7 @@ export default function CompanySearch() {
           left: "14px",
           top: "50%",
           transform: "translateY(-50%)",
-          color: "#94A3B8",
+          color: "var(--color-text-muted)",
           pointerEvents: "none",
         }}
       />
@@ -59,11 +59,11 @@ export default function CompanySearch() {
           width: "100%",
           padding: "10px 40px 10px 40px",
           fontSize: "14px",
-          color: "#1E293B",
-          backgroundColor: "#ffffff",
+          color: "var(--color-text-primary)",
+          backgroundColor: "var(--color-bg-card)",
           borderWidth: "1px",
           borderStyle: "solid",
-          borderColor: "#E2E8F0",
+          borderColor: "var(--color-border)",
           borderRadius: "8px",
           boxSizing: "border-box",
           transition: "border-color 200ms",
@@ -83,7 +83,7 @@ export default function CompanySearch() {
             border: "none",
             cursor: "pointer",
             padding: "4px",
-            color: "#94A3B8",
+            color: "var(--color-text-muted)",
             display: "flex",
             alignItems: "center",
           }}

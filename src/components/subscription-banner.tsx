@@ -18,15 +18,17 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
             justifyContent: "space-between",
             gap: "16px",
             padding: "14px 20px",
-            backgroundColor: "#FEFCE8",
-            border: "1px solid #FDE047",
+            backgroundColor: "var(--color-warning-bg)",
+            border: "1px solid var(--color-warning-border)",
             borderRadius: "12px",
             marginBottom: "24px",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <AlertTriangle size={18} color="#CA8A04" strokeWidth={2} style={{ flexShrink: 0 }} />
-            <p style={{ fontSize: "14px", color: "#713F12", margin: 0, fontWeight: 500 }}>
+            <span style={{ color: "var(--color-warning)", flexShrink: 0 }}>
+              <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
+            </span>
+            <p style={{ fontSize: "14px", color: "var(--color-warning-text)", margin: 0, fontWeight: 500 }}>
               Your subscription is set to cancel at the end of your billing period. You can still file until then.
             </p>
           </div>
@@ -34,8 +36,8 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
             onClick={handlePortal}
             className="focus-ring"
             style={{
-              backgroundColor: "#CA8A04",
-              color: "#ffffff",
+              backgroundColor: "var(--color-warning)",
+              color: "var(--color-bg-card)",
               padding: "8px 18px",
               borderRadius: "8px",
               fontWeight: 600,
@@ -82,15 +84,17 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           justifyContent: "space-between",
           gap: "16px",
           padding: "14px 20px",
-          backgroundColor: "#FEFCE8",
-          border: "1px solid #FDE047",
+          backgroundColor: "var(--color-warning-bg)",
+          border: "1px solid var(--color-warning-border)",
           borderRadius: "12px",
           marginBottom: "24px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <AlertTriangle size={18} color="#CA8A04" strokeWidth={2} style={{ flexShrink: 0 }} />
-          <p style={{ fontSize: "14px", color: "#713F12", margin: 0, fontWeight: 500 }}>
+          <span style={{ color: "var(--color-warning)", flexShrink: 0 }}>
+            <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
+          </span>
+          <p style={{ fontSize: "14px", color: "var(--color-warning-text)", margin: 0, fontWeight: 500 }}>
             You haven&apos;t completed your subscription yet. Choose a plan to start filing.
           </p>
         </div>
@@ -98,8 +102,8 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           onClick={handleCheckout}
           className="focus-ring"
           style={{
-            backgroundColor: "#F97316",
-            color: "#ffffff",
+            backgroundColor: "var(--color-cta)",
+            color: "var(--color-bg-card)",
             padding: "8px 18px",
             borderRadius: "8px",
             fontWeight: 600,
@@ -132,15 +136,17 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           justifyContent: "space-between",
           gap: "16px",
           padding: "14px 20px",
-          backgroundColor: "#FEF2F2",
-          border: "1px solid #FECACA",
+          backgroundColor: "var(--color-danger-bg)",
+          border: "1px solid var(--color-danger-border)",
           borderRadius: "12px",
           marginBottom: "24px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <AlertTriangle size={18} color="#DC2626" strokeWidth={2} style={{ flexShrink: 0 }} />
-          <p style={{ fontSize: "14px", color: "#7F1D1D", margin: 0, fontWeight: 500 }}>
+          <span style={{ color: "var(--color-danger)", flexShrink: 0 }}>
+            <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
+          </span>
+          <p style={{ fontSize: "14px", color: "var(--color-danger-text)", margin: 0, fontWeight: 500 }}>
             Your payment is past due. Please update your billing details to keep your subscription active.
           </p>
         </div>
@@ -148,8 +154,8 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           onClick={handlePortal}
           className="focus-ring"
           style={{
-            backgroundColor: "#DC2626",
-            color: "#ffffff",
+            backgroundColor: "var(--color-danger)",
+            color: "var(--color-bg-card)",
             padding: "8px 18px",
             borderRadius: "8px",
             fontWeight: 600,
@@ -182,15 +188,17 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           justifyContent: "space-between",
           gap: "16px",
           padding: "14px 20px",
-          backgroundColor: "#F8FAFC",
-          border: "1px solid #CBD5E1",
+          backgroundColor: "var(--color-bg-page)",
+          border: "1px solid var(--color-bg-disabled)",
           borderRadius: "12px",
           marginBottom: "24px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <AlertTriangle size={18} color="#64748B" strokeWidth={2} style={{ flexShrink: 0 }} />
-          <p style={{ fontSize: "14px", color: "#475569", margin: 0, fontWeight: 500 }}>
+          <span style={{ color: "var(--color-text-secondary)", flexShrink: 0 }}>
+            <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
+          </span>
+          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: 0, fontWeight: 500 }}>
             Your subscription has been cancelled. Resubscribe to continue filing with HMRC.
           </p>
         </div>
@@ -198,8 +206,8 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           onClick={handleCheckout}
           className="focus-ring"
           style={{
-            backgroundColor: "#475569",
-            color: "#ffffff",
+            backgroundColor: "var(--color-text-body)",
+            color: "var(--color-bg-card)",
             padding: "8px 18px",
             borderRadius: "8px",
             fontWeight: 600,

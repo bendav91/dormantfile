@@ -11,33 +11,33 @@ const statusConfig: Record<
 > = {
   pending: {
     label: "Pending",
-    backgroundColor: "#F1F5F9",
-    color: "#475569",
+    backgroundColor: "var(--color-neutral-bg)",
+    color: "var(--color-neutral-text)",
   },
   submitted: {
     label: "Submitted",
-    backgroundColor: "#EFF6FF",
-    color: "#1D4ED8",
+    backgroundColor: "var(--color-submitted-bg)",
+    color: "var(--color-submitted-text)",
   },
   polling_timeout: {
     label: "Awaiting HMRC",
-    backgroundColor: "#FEFCE8",
-    color: "#A16207",
+    backgroundColor: "var(--color-warning-bg)",
+    color: "var(--color-warning-deep)",
   },
   accepted: {
     label: "Accepted",
-    backgroundColor: "#F0FDF4",
-    color: "#15803D",
+    backgroundColor: "var(--color-success-bg)",
+    color: "var(--color-success)",
   },
   rejected: {
     label: "Rejected",
-    backgroundColor: "#FEF2F2",
-    color: "#B91C1C",
+    backgroundColor: "var(--color-danger-bg)",
+    color: "var(--color-danger-deep)",
   },
   failed: {
     label: "Failed",
-    backgroundColor: "#FEF2F2",
-    color: "#B91C1C",
+    backgroundColor: "var(--color-danger-bg)",
+    color: "var(--color-danger-deep)",
   },
 };
 

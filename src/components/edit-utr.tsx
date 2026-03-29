@@ -72,7 +72,7 @@ export default function EditUTR({
           padding: 0,
           cursor: "pointer",
           fontSize: "13px",
-          color: "#94A3B8",
+          color: "var(--color-text-muted)",
         }}
       >
         UTR: {currentUTR}
@@ -83,7 +83,7 @@ export default function EditUTR({
 
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-      <span style={{ fontSize: "13px", color: "#94A3B8" }}>UTR:</span>
+      <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>UTR:</span>
       <input
         type="text"
         maxLength={10}
@@ -107,10 +107,10 @@ export default function EditUTR({
           width: "90px",
           padding: "2px 6px",
           fontSize: "13px",
-          color: "#1E293B",
+          color: "var(--color-text-primary)",
           borderWidth: "1px",
           borderStyle: "solid",
-          borderColor: error ? "#EF4444" : "#94A3B8",
+          borderColor: error ? "var(--color-danger)" : "var(--color-text-muted)",
           borderRadius: "4px",
           boxSizing: "border-box",
         }}
@@ -128,7 +128,7 @@ export default function EditUTR({
           border: "none",
           padding: "2px",
           cursor: saving ? "not-allowed" : "pointer",
-          color: "#16A34A",
+          color: "var(--color-success)",
         }}
       >
         <Check size={14} strokeWidth={2.5} />
@@ -150,13 +150,13 @@ export default function EditUTR({
           border: "none",
           padding: "2px",
           cursor: "pointer",
-          color: "#94A3B8",
+          color: "var(--color-text-muted)",
         }}
       >
         <X size={14} strokeWidth={2.5} />
       </button>
       {error && (
-        <span style={{ fontSize: "12px", color: "#EF4444" }}>{error}</span>
+        <span style={{ fontSize: "12px", color: "var(--color-danger)" }}>{error}</span>
       )}
     </span>
   );

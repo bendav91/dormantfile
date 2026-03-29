@@ -177,16 +177,18 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             alignItems: "flex-start",
             gap: "10px",
             padding: "14px 20px",
-            backgroundColor: "#FEFCE8",
-            border: "1px solid #FDE047",
+            backgroundColor: "var(--color-warning-bg)",
+            border: "1px solid var(--color-warning-border)",
             borderRadius: "12px",
             marginBottom: "24px",
           }}
         >
-          <AlertTriangle size={18} color="#CA8A04" strokeWidth={2} style={{ flexShrink: 0, marginTop: "1px" }} />
-          <p style={{ fontSize: "14px", color: "#713F12", margin: 0, fontWeight: 500 }}>
+          <span style={{ color: "var(--color-warning)", flexShrink: 0, marginTop: "1px", display: "flex" }}>
+            <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
+          </span>
+          <p style={{ fontSize: "14px", color: "var(--color-warning-text)", margin: 0, fontWeight: 500 }}>
             You have {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"} but your {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period. Remove companies or upgrade your plan from{" "}
-            <a href="/choose-plan" style={{ color: "#92400E", fontWeight: 600 }}>Change plan</a>.
+            <a href="/choose-plan" style={{ color: "var(--color-warning-link)", fontWeight: 600 }}>Change plan</a>.
           </p>
         </div>
       )}
@@ -198,7 +200,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             style={{
               fontSize: "28px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 6px 0",
               letterSpacing: "-0.02em",
             }}
@@ -206,7 +208,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             Dashboard
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "2px" }}>
-            <p style={{ fontSize: "15px", color: "#64748B", margin: 0 }}>
+            <p style={{ fontSize: "15px", color: "var(--color-text-secondary)", margin: 0 }}>
               {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"}
               {companyLimit > 0 && ` / ${companyLimit}`}
             </p>
@@ -219,9 +221,9 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 borderRadius: "9999px",
                 fontSize: "12px",
                 fontWeight: 600,
-                backgroundColor: user.subscriptionTier === "none" ? "#FEF2F2" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "#EFF6FF" : "#F8FAFC",
-                color: user.subscriptionTier === "none" ? "#DC2626" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "#2563EB" : "#64748B",
-                border: `1px solid ${user.subscriptionTier === "none" ? "#FECACA" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "#BFDBFE" : "#E2E8F0"}`,
+                backgroundColor: user.subscriptionTier === "none" ? "var(--color-danger-bg)" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "var(--color-primary-bg)" : "var(--color-bg-inset)",
+                color: user.subscriptionTier === "none" ? "var(--color-danger)" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "var(--color-primary)" : "var(--color-text-secondary)",
+                border: `1px solid ${user.subscriptionTier === "none" ? "var(--color-danger-border)" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "var(--color-primary-border)" : "var(--color-border)"}`,
               }}
             >
               {user.subscriptionTier === "none" ? "No plan" : `${TIER_LABELS[user.subscriptionTier]} plan`}
@@ -233,9 +235,9 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   borderRadius: "9999px",
                   fontSize: "12px",
                   fontWeight: 600,
-                  backgroundColor: atFilingLimit ? "#FEF2F2" : "#F0FDF4",
-                  color: atFilingLimit ? "#DC2626" : "#15803D",
-                  border: `1px solid ${atFilingLimit ? "#FECACA" : "#BBF7D0"}`,
+                  backgroundColor: atFilingLimit ? "var(--color-danger-bg)" : "var(--color-success-bg)",
+                  color: atFilingLimit ? "var(--color-danger)" : "var(--color-success)",
+                  border: `1px solid ${atFilingLimit ? "var(--color-danger-border)" : "var(--color-success-border)"}`,
                 }}
               >
                 {filingsUsed} / {companyLimit} {companyLimit === 1 ? "filing" : "filings"} used
@@ -250,8 +252,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              backgroundColor: "#2563EB",
-              color: "#ffffff",
+              backgroundColor: "var(--color-primary)",
+              color: "var(--color-bg-card)",
               padding: "10px 20px",
               borderRadius: "8px",
               fontWeight: 600,
@@ -297,9 +299,9 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     fontWeight: 600,
                     textDecoration: "none",
                     transition: "opacity 200ms, background-color 200ms",
-                    backgroundColor: isActive ? "#2563EB" : "#ffffff",
-                    color: isActive ? "#ffffff" : "#475569",
-                    border: `1px solid ${isActive ? "#2563EB" : "#E2E8F0"}`,
+                    backgroundColor: isActive ? "var(--color-primary)" : "var(--color-bg-card)",
+                    color: isActive ? "var(--color-bg-card)" : "var(--color-text-body)",
+                    border: `1px solid ${isActive ? "var(--color-primary)" : "var(--color-border)"}`,
                   }}
                 >
                   {f.label}
@@ -316,7 +318,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           style={{
             textAlign: "center",
             padding: "48px 24px",
-            color: "#64748B",
+            color: "var(--color-text-secondary)",
           }}
         >
           <p style={{ fontSize: "15px", margin: "0 0 4px 0", fontWeight: 500 }}>
@@ -357,7 +359,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
           const filingBtnStyle: React.CSSProperties = {
             display: "inline-flex", alignItems: "center",
-            backgroundColor: "#F97316", color: "#ffffff",
+            backgroundColor: "var(--color-cta)", color: "var(--color-bg-card)",
             padding: "4px 10px", borderRadius: "5px",
             fontWeight: 600, fontSize: "12px", textDecoration: "none",
           };
@@ -366,7 +368,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             <div
               key={company.id}
               style={{
-                backgroundColor: "#ffffff",
+                backgroundColor: "var(--color-bg-card)",
                 borderRadius: "10px",
                 padding: "18px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
@@ -379,21 +381,23 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     width: "32px",
                     height: "32px",
                     borderRadius: "8px",
-                    backgroundColor: "#EFF6FF",
+                    backgroundColor: "var(--color-primary-bg)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
                   }}
                 >
-                  <Building2 size={16} color="#2563EB" strokeWidth={2} />
+                  <span style={{ color: "var(--color-primary)", display: "flex" }}>
+                    <Building2 size={16} color="currentColor" strokeWidth={2} />
+                  </span>
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <h2
                     style={{
                       fontSize: "14px",
                       fontWeight: 700,
-                      color: "#1E293B",
+                      color: "var(--color-text-primary)",
                       margin: 0,
                       letterSpacing: "-0.01em",
                       whiteSpace: "nowrap",
@@ -403,7 +407,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   >
                     {company.companyName}
                   </h2>
-                  <p style={{ fontSize: "12px", color: "#94A3B8", margin: 0, marginTop: "1px" }}>
+                  <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: 0, marginTop: "1px" }}>
                     {company.registeredForCorpTax && company.uniqueTaxReference
                       ? <><EditUTR companyId={company.id} currentUTR={company.uniqueTaxReference} /> &middot; </> : ""}
                     {company.companyRegistrationNumber}
@@ -412,8 +416,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               </div>
 
               {/* Period */}
-              <p style={{ fontSize: "12px", color: "#64748B", margin: periodsBehind > 0 ? "0 0 4px 0" : "0 0 12px 0" }}>
-                <span style={{ fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "10px" }}>Period </span>
+              <p style={{ fontSize: "12px", color: "var(--color-text-secondary)", margin: periodsBehind > 0 ? "0 0 4px 0" : "0 0 12px 0" }}>
+                <span style={{ fontWeight: 600, color: "var(--color-text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", fontSize: "10px" }}>Period </span>
                 {formatDate(company.accountingPeriodStart)} &ndash; {formatDate(company.accountingPeriodEnd)}
               </p>
 
@@ -425,14 +429,16 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     alignItems: "center",
                     gap: "6px",
                     padding: "6px 10px",
-                    backgroundColor: "#FEF2F2",
-                    border: "1px solid #FECACA",
+                    backgroundColor: "var(--color-danger-bg)",
+                    border: "1px solid var(--color-danger-border)",
                     borderRadius: "6px",
                     marginBottom: "12px",
                   }}
                 >
-                  <AlertTriangle size={13} color="#DC2626" strokeWidth={2} style={{ flexShrink: 0 }} />
-                  <p style={{ fontSize: "11px", color: "#991B1B", margin: 0, fontWeight: 500 }}>
+                  <span style={{ color: "var(--color-danger)", flexShrink: 0, display: "flex" }}>
+                    <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
+                  </span>
+                  <p style={{ fontSize: "11px", color: "var(--color-danger-text)", margin: 0, fontWeight: 500 }}>
                     {periodsBehind === 1
                       ? "1 period behind — file this period to advance to the next"
                       : `${periodsBehind} periods behind — each filing advances the period by one year`}
@@ -448,17 +454,17 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "8px 10px",
-                  backgroundColor: "#F8FAFC",
+                  backgroundColor: "var(--color-bg-inset)",
                   borderRadius: "6px",
                 }}>
                   <div>
-                    <p style={{ fontSize: "12px", fontWeight: 600, color: "#1E293B", margin: 0 }}>Accounts</p>
+                    <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>Accounts</p>
                     <p style={{
                       fontSize: "11px",
-                      color: accountsFiling?.status === "accepted" ? "#64748B"
-                        : accountsDaysLeft <= 0 ? "#DC2626"
-                        : accountsDaysLeft <= 30 ? "#D97706"
-                        : "#64748B",
+                      color: accountsFiling?.status === "accepted" ? "var(--color-text-secondary)"
+                        : accountsDaysLeft <= 0 ? "var(--color-danger)"
+                        : accountsDaysLeft <= 30 ? "var(--color-due-soon)"
+                        : "var(--color-text-secondary)",
                       margin: 0,
                     }}>
                       {formatDate(accountsDeadline)}
@@ -490,17 +496,17 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                     alignItems: "center",
                     justifyContent: "space-between",
                     padding: "8px 10px",
-                    backgroundColor: "#F8FAFC",
+                    backgroundColor: "var(--color-bg-inset)",
                     borderRadius: "6px",
                   }}>
                     <div>
-                      <p style={{ fontSize: "12px", fontWeight: 600, color: "#1E293B", margin: 0 }}>CT600</p>
+                      <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>CT600</p>
                       <p style={{
                         fontSize: "11px",
-                        color: ct600Filing?.status === "accepted" ? "#64748B"
-                          : ct600DaysLeft <= 0 ? "#DC2626"
-                          : ct600DaysLeft <= 30 ? "#D97706"
-                          : "#64748B",
+                        color: ct600Filing?.status === "accepted" ? "var(--color-text-secondary)"
+                          : ct600DaysLeft <= 0 ? "var(--color-danger)"
+                          : ct600DaysLeft <= 30 ? "var(--color-due-soon)"
+                          : "var(--color-text-secondary)",
                         margin: 0,
                       }}>
                         {formatDate(ct600Deadline)}
@@ -547,8 +553,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 borderRadius: "8px",
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "#2563EB",
-                border: "1px solid #BFDBFE",
+                color: "var(--color-primary)",
+                border: "1px solid var(--color-primary-border)",
                 textDecoration: "none",
                 transition: "opacity 200ms, background-color 200ms",
               }}
@@ -556,7 +562,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               Previous
             </Link>
           )}
-          <span style={{ fontSize: "14px", color: "#64748B" }}>
+          <span style={{ fontSize: "14px", color: "var(--color-text-secondary)" }}>
             Page {currentPage} of {totalPages}
           </span>
           {currentPage < totalPages && (
@@ -567,8 +573,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 borderRadius: "8px",
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "#2563EB",
-                border: "1px solid #BFDBFE",
+                color: "var(--color-primary)",
+                border: "1px solid var(--color-primary-border)",
                 textDecoration: "none",
                 transition: "opacity 200ms, background-color 200ms",
               }}

@@ -45,7 +45,7 @@ export default async function OnboardingPage() {
             alignItems: "center",
             gap: "4px",
             fontSize: "14px",
-            color: "#64748B",
+            color: "var(--color-text-secondary)",
             textDecoration: "none",
             marginBottom: "20px",
           }}
@@ -59,7 +59,7 @@ export default async function OnboardingPage() {
           style={{
             fontSize: "28px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 12px 0",
             letterSpacing: "-0.02em",
           }}
@@ -69,7 +69,7 @@ export default async function OnboardingPage() {
         <p
           style={{
             fontSize: "16px",
-            color: "#475569",
+            color: "var(--color-text-body)",
             margin: 0,
             lineHeight: "1.6",
           }}
@@ -84,14 +84,16 @@ export default async function OnboardingPage() {
           alignItems: "flex-start",
           gap: "10px",
           padding: "14px 16px",
-          backgroundColor: "#EFF6FF",
-          border: "1px solid #BFDBFE",
+          backgroundColor: "var(--color-primary-bg)",
+          border: "1px solid var(--color-primary-border)",
           borderRadius: "8px",
           marginBottom: "28px",
         }}
       >
-        <ShieldCheck size={18} color="#2563EB" strokeWidth={2} style={{ flexShrink: 0, marginTop: "1px" }} />
-        <p style={{ fontSize: "14px", color: "#1E40AF", margin: 0, lineHeight: "1.5" }}>
+        <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px", display: "flex" }}>
+          <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
+        </span>
+        <p style={{ fontSize: "14px", color: "var(--color-primary-text)", margin: 0, lineHeight: "1.5" }}>
           Your data is protected with industry-standard encryption. We only use these details to file your accounts and tax returns.
         </p>
       </div>

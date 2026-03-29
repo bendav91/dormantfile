@@ -20,23 +20,23 @@ const inputStyle: React.CSSProperties = {
   padding: "12px 16px",
   borderWidth: "1px",
   borderStyle: "solid",
-  borderColor: "#94A3B8",
+  borderColor: "var(--color-text-muted)",
   borderRadius: "8px",
   fontSize: "16px",
-  color: "#1E293B",
-  backgroundColor: "#ffffff",
+  color: "var(--color-text-primary)",
+  backgroundColor: "var(--color-bg-card)",
   transition: "border-color 200ms, box-shadow 200ms",
   boxSizing: "border-box",
 };
 
 const inputFocusStyle: React.CSSProperties = {
-  borderColor: "#2563EB",
-  boxShadow: "0 0 0 3px rgba(37,99,235,0.12)",
+  borderColor: "var(--color-primary)",
+  boxShadow: "0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent)",
 };
 
 const primaryButtonStyle: React.CSSProperties = {
-  backgroundColor: "#F97316",
-  color: "#ffffff",
+  backgroundColor: "var(--color-cta)",
+  color: "var(--color-bg-card)",
   padding: "12px 24px",
   borderRadius: "8px",
   fontWeight: 600,
@@ -52,8 +52,8 @@ const primaryButtonStyle: React.CSSProperties = {
 };
 
 const secondaryButtonStyle: React.CSSProperties = {
-  backgroundColor: "#2563EB",
-  color: "#ffffff",
+  backgroundColor: "var(--color-primary)",
+  color: "var(--color-bg-card)",
   padding: "12px 24px",
   borderRadius: "8px",
   fontWeight: 600,
@@ -69,7 +69,7 @@ const secondaryButtonStyle: React.CSSProperties = {
 };
 
 const cardStyle: React.CSSProperties = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "var(--color-bg-card)",
   borderRadius: "12px",
   padding: "32px",
   boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
@@ -133,7 +133,7 @@ function FocusableInput({
       style={{
         ...inputStyle,
         ...(focused ? inputFocusStyle : {}),
-        ...(hasError ? { borderColor: "#DC2626" } : {}),
+        ...(hasError ? { borderColor: "var(--color-danger)" } : {}),
       }}
     />
   );
@@ -146,7 +146,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
         style={{
           fontSize: "12px",
           fontWeight: 600,
-          color: "#94A3B8",
+          color: "var(--color-text-muted)",
           textTransform: "uppercase",
           letterSpacing: "0.05em",
           margin: "0 0 4px 0",
@@ -154,7 +154,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       >
         {label}
       </p>
-      <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
+      <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
         {value}
       </p>
     </div>
@@ -183,14 +183,14 @@ function StepConfirm({
           style={{
             fontSize: "26px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
         >
           Review and confirm
         </h1>
-        <p style={{ fontSize: "15px", color: "#64748B", margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
           Check your company details before proceeding to submit your nil CT600 return.
         </p>
       </div>
@@ -204,7 +204,7 @@ function StepConfirm({
             gap: "12px",
             marginBottom: "24px",
             paddingBottom: "20px",
-            borderBottom: "1px solid #F1F5F9",
+            borderBottom: "1px solid var(--color-border-subtle)",
           }}
         >
           <div
@@ -212,28 +212,30 @@ function StepConfirm({
               width: "42px",
               height: "42px",
               borderRadius: "10px",
-              backgroundColor: "#EFF6FF",
+              backgroundColor: "var(--color-primary-bg)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
             }}
           >
-            <Building2 size={20} color="#2563EB" strokeWidth={2} />
+            <span style={{ color: "var(--color-primary)" }}>
+              <Building2 size={20} color="currentColor" strokeWidth={2} />
+            </span>
           </div>
           <div>
             <h2
               style={{
                 fontSize: "17px",
                 fontWeight: 700,
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 margin: 0,
                 letterSpacing: "-0.01em",
               }}
             >
               {companyName}
             </h2>
-            <p style={{ fontSize: "13px", color: "#94A3B8", margin: 0, marginTop: "2px" }}>
+            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: 0, marginTop: "2px" }}>
               Corporation Tax return
             </p>
           </div>
@@ -261,19 +263,20 @@ function StepConfirm({
             alignItems: "flex-start",
             gap: "10px",
             padding: "14px 16px",
-            backgroundColor: "#EFF6FF",
-            border: "1px solid #BFDBFE",
+            backgroundColor: "var(--color-primary-bg)",
+            border: "1px solid var(--color-primary-border)",
             borderRadius: "8px",
             marginBottom: "28px",
           }}
         >
-          <ShieldCheck
-            size={18}
-            color="#2563EB"
-            strokeWidth={2}
-            style={{ flexShrink: 0, marginTop: "1px" }}
-          />
-          <p style={{ fontSize: "14px", color: "#1E40AF", margin: 0, lineHeight: 1.5 }}>
+          <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px" }}>
+            <ShieldCheck
+              size={18}
+              color="currentColor"
+              strokeWidth={2}
+            />
+          </span>
+          <p style={{ fontSize: "14px", color: "var(--color-primary-text)", margin: 0, lineHeight: 1.5 }}>
             This will submit a nil Corporation Tax return to HMRC for the period shown above. A nil return declares that the company had no taxable profit or tax to pay.
           </p>
         </div>
@@ -339,17 +342,17 @@ function StepCredentials({
             border: "none",
             padding: "0",
             fontSize: "14px",
-            color: "#64748B",
+            color: "var(--color-text-body)",
             cursor: "pointer",
             marginBottom: "20px",
             fontWeight: 500,
             transition: "color 200ms",
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = "#1E293B";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-primary)";
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = "#64748B";
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-body)";
           }}
         >
           <ArrowLeft size={15} strokeWidth={2} />
@@ -359,14 +362,14 @@ function StepCredentials({
           style={{
             fontSize: "26px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
         >
           Government Gateway credentials
         </h1>
-        <p style={{ fontSize: "15px", color: "#64748B", margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
           Enter your Government Gateway credentials to authorise the submission. These are used once to sign your return and are never stored.
         </p>
       </div>
@@ -379,19 +382,20 @@ function StepCredentials({
             alignItems: "flex-start",
             gap: "10px",
             padding: "14px 16px",
-            backgroundColor: "#F0FDF4",
-            border: "1px solid #BBF7D0",
+            backgroundColor: "var(--color-success-bg)",
+            border: "1px solid var(--color-success-border)",
             borderRadius: "8px",
             marginBottom: "28px",
           }}
         >
-          <Lock
-            size={18}
-            color="#15803D"
-            strokeWidth={2}
-            style={{ flexShrink: 0, marginTop: "1px" }}
-          />
-          <p style={{ fontSize: "14px", color: "#166534", margin: 0, lineHeight: 1.5 }}>
+          <span style={{ color: "var(--color-success)", flexShrink: 0, marginTop: "1px" }}>
+            <Lock
+              size={18}
+              color="currentColor"
+              strokeWidth={2}
+            />
+          </span>
+          <p style={{ fontSize: "14px", color: "var(--color-success-text)", margin: 0, lineHeight: 1.5 }}>
             Your credentials are transmitted securely over HTTPS directly to HMRC. They are used only for this submission and are never stored or logged.
           </p>
         </div>
@@ -407,10 +411,12 @@ function StepCredentials({
                   gap: "6px",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#1E293B",
+                  color: "var(--color-text-primary)",
                 }}
               >
-                <ShieldCheck size={15} color="#2563EB" strokeWidth={2} />
+                <span style={{ color: "var(--color-primary)" }}>
+                  <ShieldCheck size={15} color="currentColor" strokeWidth={2} />
+                </span>
                 Government Gateway User ID
               </label>
               <FocusableInput
@@ -424,9 +430,9 @@ function StepCredentials({
                 hasError={!!errors.username}
               />
               {errors.username ? (
-                <p role="alert" style={{ fontSize: "13px", color: "#DC2626", margin: 0 }}>{errors.username}</p>
+                <p role="alert" style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{errors.username}</p>
               ) : (
-                <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
+                <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
                   Your 12-digit Government Gateway User ID from HMRC.
                 </p>
               )}
@@ -441,10 +447,12 @@ function StepCredentials({
                   gap: "6px",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#1E293B",
+                  color: "var(--color-text-primary)",
                 }}
               >
-                <Lock size={15} color="#2563EB" strokeWidth={2} />
+                <span style={{ color: "var(--color-primary)" }}>
+                  <Lock size={15} color="currentColor" strokeWidth={2} />
+                </span>
                 Government Gateway Password
               </label>
               <FocusableInput
@@ -457,9 +465,9 @@ function StepCredentials({
                 hasError={!!errors.password}
               />
               {errors.password ? (
-                <p role="alert" style={{ fontSize: "13px", color: "#DC2626", margin: 0 }}>{errors.password}</p>
+                <p role="alert" style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{errors.password}</p>
               ) : (
-                <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
+                <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
                   The password associated with your Government Gateway account.
                 </p>
               )}
@@ -496,14 +504,14 @@ function StepSubmitting() {
           style={{
             fontSize: "26px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
         >
           Submitting to HMRC
         </h1>
-        <p style={{ fontSize: "15px", color: "#64748B", margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
           Please wait while we securely submit your return.
         </p>
       </div>
@@ -525,8 +533,8 @@ function StepSubmitting() {
               width: "64px",
               height: "64px",
               borderRadius: "50%",
-              border: "4px solid #E2E8F0",
-              borderTopColor: "#2563EB",
+              border: "4px solid var(--color-border)",
+              borderTopColor: "var(--color-primary)",
               animation: "spin 0.9s linear infinite",
             }}
           />
@@ -536,7 +544,7 @@ function StepSubmitting() {
               style={{
                 fontSize: "18px",
                 fontWeight: 700,
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 margin: "0 0 8px 0",
                 letterSpacing: "-0.01em",
               }}
@@ -546,7 +554,7 @@ function StepSubmitting() {
             <p
               style={{
                 fontSize: "14px",
-                color: "#64748B",
+                color: "var(--color-text-body)",
                 margin: 0,
                 lineHeight: 1.6,
                 maxWidth: "340px",
@@ -560,7 +568,7 @@ function StepSubmitting() {
           <div
             style={{
               width: "100%",
-              borderTop: "1px solid #F1F5F9",
+              borderTop: "1px solid var(--color-border-subtle)",
               paddingTop: "24px",
               display: "flex",
               flexDirection: "column",
@@ -580,7 +588,7 @@ function StepSubmitting() {
                   alignItems: "center",
                   gap: "10px",
                   fontSize: "14px",
-                  color: "#64748B",
+                  color: "var(--color-text-body)",
                   animation: `filing-fade-in 400ms ease both`,
                   animationDelay: `${index * 300}ms`,
                 }}
@@ -590,7 +598,7 @@ function StepSubmitting() {
                     width: "8px",
                     height: "8px",
                     borderRadius: "50%",
-                    backgroundColor: "#2563EB",
+                    backgroundColor: "var(--color-primary)",
                     flexShrink: 0,
                     opacity: 0.6,
                   }}
@@ -629,7 +637,7 @@ function StepResult({
             style={{
               fontSize: "26px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.02em",
             }}
@@ -641,8 +649,8 @@ function StepResult({
           <div
             style={{
               padding: "24px",
-              backgroundColor: "#F0FDF4",
-              border: "1px solid #BBF7D0",
+              backgroundColor: "var(--color-success-bg)",
+              border: "1px solid var(--color-success-border)",
               borderRadius: "10px",
               display: "flex",
               flexDirection: "column",
@@ -652,20 +660,22 @@ function StepResult({
               marginBottom: "24px",
             }}
           >
-            <CheckCircle2 size={48} color="#15803D" strokeWidth={1.5} />
+            <span style={{ color: "var(--color-success)" }}>
+              <CheckCircle2 size={48} color="currentColor" strokeWidth={1.5} />
+            </span>
             <div>
               <h2
                 style={{
                   fontSize: "20px",
                   fontWeight: 700,
-                  color: "#14532D",
+                  color: "var(--color-success-text)",
                   margin: "0 0 8px 0",
                   letterSpacing: "-0.01em",
                 }}
               >
                 Filing Accepted
               </h2>
-              <p style={{ fontSize: "15px", color: "#166534", margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontSize: "15px", color: "var(--color-success-text)", margin: 0, lineHeight: 1.6 }}>
                 HMRC has accepted your nil CT600 return. A confirmation has been sent to your email address, and your next accounting period has been set up automatically.
               </p>
             </div>
@@ -698,7 +708,7 @@ function StepResult({
             style={{
               fontSize: "26px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.02em",
             }}
@@ -710,8 +720,8 @@ function StepResult({
           <div
             style={{
               padding: "24px",
-              backgroundColor: "#FEF2F2",
-              border: "1px solid #FECACA",
+              backgroundColor: "var(--color-danger-bg)",
+              border: "1px solid var(--color-danger-border)",
               borderRadius: "10px",
               display: "flex",
               flexDirection: "column",
@@ -721,13 +731,15 @@ function StepResult({
               marginBottom: "24px",
             }}
           >
-            <XCircle size={48} color="#B91C1C" strokeWidth={1.5} />
+            <span style={{ color: "var(--color-danger-deep)" }}>
+              <XCircle size={48} color="currentColor" strokeWidth={1.5} />
+            </span>
             <div>
               <h2
                 style={{
                   fontSize: "20px",
                   fontWeight: 700,
-                  color: "#7F1D1D",
+                  color: "var(--color-danger-text)",
                   margin: "0 0 8px 0",
                   letterSpacing: "-0.01em",
                 }}
@@ -737,7 +749,7 @@ function StepResult({
               <p
                 style={{
                   fontSize: "14px",
-                  color: "#991B1B",
+                  color: "var(--color-danger-text)",
                   margin: 0,
                   lineHeight: 1.6,
                   fontFamily: "monospace",
@@ -776,7 +788,7 @@ function StepResult({
             style={{
               fontSize: "26px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.02em",
             }}
@@ -788,8 +800,8 @@ function StepResult({
           <div
             style={{
               padding: "24px",
-              backgroundColor: "#FEFCE8",
-              border: "1px solid #FDE68A",
+              backgroundColor: "var(--color-warning-bg)",
+              border: "1px solid var(--color-warning-border)",
               borderRadius: "10px",
               display: "flex",
               flexDirection: "column",
@@ -799,20 +811,22 @@ function StepResult({
               marginBottom: "24px",
             }}
           >
-            <AlertTriangle size={48} color="#A16207" strokeWidth={1.5} />
+            <span style={{ color: "var(--color-warning-deep)" }}>
+              <AlertTriangle size={48} color="currentColor" strokeWidth={1.5} />
+            </span>
             <div>
               <h2
                 style={{
                   fontSize: "20px",
                   fontWeight: 700,
-                  color: "#713F12",
+                  color: "var(--color-warning-text)",
                   margin: "0 0 8px 0",
                   letterSpacing: "-0.01em",
                 }}
               >
                 HMRC is still processing
               </h2>
-              <p style={{ fontSize: "15px", color: "#A16207", margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontSize: "15px", color: "var(--color-warning-deep)", margin: 0, lineHeight: 1.6 }}>
                 Your return has been submitted but HMRC has not yet confirmed the outcome. You can check the status from your dashboard - it may take a few more minutes.
               </p>
             </div>
@@ -845,7 +859,7 @@ function StepResult({
           style={{
             fontSize: "26px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
@@ -857,8 +871,8 @@ function StepResult({
         <div
           style={{
             padding: "24px",
-            backgroundColor: "#FEF2F2",
-            border: "1px solid #FECACA",
+            backgroundColor: "var(--color-danger-bg)",
+            border: "1px solid var(--color-danger-border)",
             borderRadius: "10px",
             display: "flex",
             flexDirection: "column",
@@ -868,20 +882,22 @@ function StepResult({
             marginBottom: "24px",
           }}
         >
-          <XCircle size={48} color="#B91C1C" strokeWidth={1.5} />
+          <span style={{ color: "var(--color-danger-deep)" }}>
+            <XCircle size={48} color="currentColor" strokeWidth={1.5} />
+          </span>
           <div>
             <h2
               style={{
                 fontSize: "20px",
                 fontWeight: 700,
-                color: "#7F1D1D",
+                color: "var(--color-danger-text)",
                 margin: "0 0 8px 0",
                 letterSpacing: "-0.01em",
               }}
             >
               Submission Failed
             </h2>
-            <p style={{ fontSize: "15px", color: "#991B1B", margin: 0, lineHeight: 1.6 }}>
+            <p style={{ fontSize: "15px", color: "var(--color-danger-text)", margin: 0, lineHeight: 1.6 }}>
               {result.message || "An unexpected error occurred. Please try again."}
             </p>
           </div>

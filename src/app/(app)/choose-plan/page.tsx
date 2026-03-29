@@ -29,14 +29,14 @@ export default async function ChoosePlanPage() {
           style={{
             fontSize: "28px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
         >
           {isUpgrade ? "Change your plan" : "Choose your plan"}
         </h1>
-        <p style={{ fontSize: "16px", color: "#64748B", margin: 0 }}>
+        <p style={{ fontSize: "16px", color: "var(--color-text-secondary)", margin: 0 }}>
           {isUpgrade
             ? `You're currently on the ${TIER_LABELS[user.subscriptionTier]} plan. Select a new plan below.`
             : "Select a plan to get started with DormantFile."}

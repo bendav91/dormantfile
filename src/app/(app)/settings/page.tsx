@@ -28,14 +28,14 @@ export default async function SettingsPage() {
           style={{
             fontSize: "28px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 6px 0",
             letterSpacing: "-0.02em",
           }}
         >
           Account settings
         </h1>
-        <p style={{ fontSize: "15px", color: "#64748B", margin: 0 }}>
+        <p style={{ fontSize: "15px", color: "var(--color-text-secondary)", margin: 0 }}>
           Manage your subscription and account
         </p>
       </div>
@@ -43,7 +43,7 @@ export default async function SettingsPage() {
       {/* Account info */}
       <div
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--color-bg-card)",
           borderRadius: "12px",
           padding: "28px",
           boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -54,7 +54,7 @@ export default async function SettingsPage() {
           style={{
             fontSize: "17px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 20px 0",
             letterSpacing: "-0.01em",
           }}
@@ -67,7 +67,7 @@ export default async function SettingsPage() {
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
-                color: "#94A3B8",
+                color: "var(--color-text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
                 margin: "0 0 4px 0",
@@ -75,7 +75,7 @@ export default async function SettingsPage() {
             >
               Name
             </p>
-            <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
+            <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
               {user.name}
             </p>
           </div>
@@ -84,7 +84,7 @@ export default async function SettingsPage() {
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
-                color: "#94A3B8",
+                color: "var(--color-text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
                 margin: "0 0 4px 0",
@@ -92,7 +92,7 @@ export default async function SettingsPage() {
             >
               Email
             </p>
-            <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
+            <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
               {user.email}
             </p>
           </div>
@@ -101,7 +101,7 @@ export default async function SettingsPage() {
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
-                color: "#94A3B8",
+                color: "var(--color-text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
                 margin: "0 0 4px 0",
@@ -109,7 +109,7 @@ export default async function SettingsPage() {
             >
               Subscription
             </p>
-            <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
+            <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
               {user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling"
                 ? `Active - ${TIER_LABELS[user.subscriptionTier]} plan`
                 : user.subscriptionStatus === "past_due"

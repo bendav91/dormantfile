@@ -13,8 +13,8 @@ import {
 // ─── Shared style constants ───────────────────────────────────────────────────
 
 const primaryButtonStyle: React.CSSProperties = {
-  backgroundColor: "#F97316",
-  color: "#ffffff",
+  backgroundColor: "var(--color-cta)",
+  color: "var(--color-bg-card)",
   padding: "12px 24px",
   borderRadius: "8px",
   fontWeight: 600,
@@ -30,8 +30,8 @@ const primaryButtonStyle: React.CSSProperties = {
 };
 
 const secondaryButtonStyle: React.CSSProperties = {
-  backgroundColor: "#2563EB",
-  color: "#ffffff",
+  backgroundColor: "var(--color-primary)",
+  color: "var(--color-bg-card)",
   padding: "12px 24px",
   borderRadius: "8px",
   fontWeight: 600,
@@ -47,7 +47,7 @@ const secondaryButtonStyle: React.CSSProperties = {
 };
 
 const cardStyle: React.CSSProperties = {
-  backgroundColor: "#ffffff",
+  backgroundColor: "var(--color-bg-card)",
   borderRadius: "12px",
   padding: "32px",
   boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
@@ -81,7 +81,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
         style={{
           fontSize: "12px",
           fontWeight: 600,
-          color: "#94A3B8",
+          color: "var(--color-text-muted)",
           textTransform: "uppercase",
           letterSpacing: "0.05em",
           margin: "0 0 4px 0",
@@ -89,7 +89,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       >
         {label}
       </p>
-      <p style={{ fontSize: "15px", color: "#1E293B", margin: 0, fontWeight: 500 }}>
+      <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
         {value}
       </p>
     </div>
@@ -120,14 +120,14 @@ function StepConfirm({
           style={{
             fontSize: "26px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
         >
           File annual accounts
         </h1>
-        <p style={{ fontSize: "15px", color: "#64748B", margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
           Review your company details before submitting dormant company accounts to Companies House.
         </p>
       </div>
@@ -141,7 +141,7 @@ function StepConfirm({
             gap: "12px",
             marginBottom: "24px",
             paddingBottom: "20px",
-            borderBottom: "1px solid #F1F5F9",
+            borderBottom: "1px solid var(--color-border-subtle)",
           }}
         >
           <div
@@ -149,28 +149,30 @@ function StepConfirm({
               width: "42px",
               height: "42px",
               borderRadius: "10px",
-              backgroundColor: "#EFF6FF",
+              backgroundColor: "var(--color-primary-bg)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
             }}
           >
-            <Building2 size={20} color="#2563EB" strokeWidth={2} />
+            <span style={{ color: "var(--color-primary)" }}>
+              <Building2 size={20} color="currentColor" strokeWidth={2} />
+            </span>
           </div>
           <div>
             <h2
               style={{
                 fontSize: "17px",
                 fontWeight: 700,
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 margin: 0,
                 letterSpacing: "-0.01em",
               }}
             >
               {companyName}
             </h2>
-            <p style={{ fontSize: "13px", color: "#94A3B8", margin: 0, marginTop: "2px" }}>
+            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: 0, marginTop: "2px" }}>
               Annual accounts
             </p>
           </div>
@@ -198,19 +200,20 @@ function StepConfirm({
             alignItems: "flex-start",
             gap: "10px",
             padding: "14px 16px",
-            backgroundColor: "#EFF6FF",
-            border: "1px solid #BFDBFE",
+            backgroundColor: "var(--color-primary-bg)",
+            border: "1px solid var(--color-primary-border)",
             borderRadius: "8px",
             marginBottom: "28px",
           }}
         >
-          <ShieldCheck
-            size={18}
-            color="#2563EB"
-            strokeWidth={2}
-            style={{ flexShrink: 0, marginTop: "1px" }}
-          />
-          <p style={{ fontSize: "14px", color: "#1E40AF", margin: 0, lineHeight: 1.5 }}>
+          <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px" }}>
+            <ShieldCheck
+              size={18}
+              color="currentColor"
+              strokeWidth={2}
+            />
+          </span>
+          <p style={{ fontSize: "14px", color: "var(--color-primary-text)", margin: 0, lineHeight: 1.5 }}>
             {shareCapitalPence > 0
               ? `This will submit dormant company accounts to Companies House with a balance sheet showing £${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital and no other assets, liabilities, or activity.`
               : "This will submit dormant company accounts to Companies House confirming the company had nil assets, liabilities, and shareholder funds during this period."}
@@ -266,14 +269,14 @@ function StepAuthenticate({
           style={{
             fontSize: "26px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
         >
           Companies House authentication
         </h1>
-        <p style={{ fontSize: "15px", color: "#64748B", margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
           Enter your company authentication code to authorise this filing.
         </p>
       </div>
@@ -286,7 +289,7 @@ function StepAuthenticate({
               display: "block",
               fontSize: "13px",
               fontWeight: 600,
-              color: "#475569",
+              color: "var(--color-text-body)",
               marginBottom: "8px",
             }}
           >
@@ -314,23 +317,23 @@ function StepAuthenticate({
               fontSize: "16px",
               fontFamily: "monospace",
               letterSpacing: "0.15em",
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               borderWidth: "2px",
               borderStyle: "solid",
-              borderColor: error ? "#EF4444" : "#94A3B8",
+              borderColor: error ? "var(--color-danger)" : "var(--color-text-muted)",
               borderRadius: "8px",
               transition: "border-color 200ms",
               boxSizing: "border-box",
             }}
             onFocus={(e) => {
-              if (!error) e.currentTarget.style.borderColor = "#2563EB";
+              if (!error) e.currentTarget.style.borderColor = "var(--color-primary)";
             }}
             onBlur={(e) => {
-              if (!error) e.currentTarget.style.borderColor = "#E2E8F0";
+              if (!error) e.currentTarget.style.borderColor = "var(--color-border)";
             }}
           />
           {error && (
-            <p role="alert" style={{ fontSize: "13px", color: "#EF4444", margin: "8px 0 0 0" }}>
+            <p role="alert" style={{ fontSize: "13px", color: "var(--color-danger)", margin: "8px 0 0 0" }}>
               {error}
             </p>
           )}
@@ -343,19 +346,20 @@ function StepAuthenticate({
             alignItems: "flex-start",
             gap: "10px",
             padding: "14px 16px",
-            backgroundColor: "#EFF6FF",
-            border: "1px solid #BFDBFE",
+            backgroundColor: "var(--color-primary-bg)",
+            border: "1px solid var(--color-primary-border)",
             borderRadius: "8px",
             marginBottom: "28px",
           }}
         >
-          <ShieldCheck
-            size={18}
-            color="#2563EB"
-            strokeWidth={2}
-            style={{ flexShrink: 0, marginTop: "1px" }}
-          />
-          <p style={{ fontSize: "14px", color: "#1E40AF", margin: 0, lineHeight: 1.5 }}>
+          <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px" }}>
+            <ShieldCheck
+              size={18}
+              color="currentColor"
+              strokeWidth={2}
+            />
+          </span>
+          <p style={{ fontSize: "14px", color: "var(--color-primary-text)", margin: 0, lineHeight: 1.5 }}>
             This is the 6-character code Companies House posted to your company&apos;s registered office. It authorises filings on behalf of your company.
           </p>
         </div>
@@ -389,14 +393,14 @@ function StepSubmitting() {
           style={{
             fontSize: "26px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
         >
           Submitting to Companies House
         </h1>
-        <p style={{ fontSize: "15px", color: "#64748B", margin: 0, lineHeight: 1.6 }}>
+        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
           Please wait while we securely submit your accounts.
         </p>
       </div>
@@ -418,8 +422,8 @@ function StepSubmitting() {
               width: "64px",
               height: "64px",
               borderRadius: "50%",
-              border: "4px solid #E2E8F0",
-              borderTopColor: "#2563EB",
+              border: "4px solid var(--color-border)",
+              borderTopColor: "var(--color-primary)",
               animation: "spin 0.9s linear infinite",
             }}
           />
@@ -429,7 +433,7 @@ function StepSubmitting() {
               style={{
                 fontSize: "18px",
                 fontWeight: 700,
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 margin: "0 0 8px 0",
                 letterSpacing: "-0.01em",
               }}
@@ -439,7 +443,7 @@ function StepSubmitting() {
             <p
               style={{
                 fontSize: "14px",
-                color: "#64748B",
+                color: "var(--color-text-body)",
                 margin: 0,
                 lineHeight: 1.6,
                 maxWidth: "340px",
@@ -453,7 +457,7 @@ function StepSubmitting() {
           <div
             style={{
               width: "100%",
-              borderTop: "1px solid #F1F5F9",
+              borderTop: "1px solid var(--color-border-subtle)",
               paddingTop: "24px",
               display: "flex",
               flexDirection: "column",
@@ -473,7 +477,7 @@ function StepSubmitting() {
                   alignItems: "center",
                   gap: "10px",
                   fontSize: "14px",
-                  color: "#64748B",
+                  color: "var(--color-text-body)",
                   animation: `accounts-fade-in 400ms ease both`,
                   animationDelay: `${index * 300}ms`,
                 }}
@@ -483,7 +487,7 @@ function StepSubmitting() {
                     width: "8px",
                     height: "8px",
                     borderRadius: "50%",
-                    backgroundColor: "#2563EB",
+                    backgroundColor: "var(--color-primary)",
                     flexShrink: 0,
                     opacity: 0.6,
                   }}
@@ -522,7 +526,7 @@ function StepResult({
             style={{
               fontSize: "26px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.02em",
             }}
@@ -534,8 +538,8 @@ function StepResult({
           <div
             style={{
               padding: "24px",
-              backgroundColor: "#F0FDF4",
-              border: "1px solid #BBF7D0",
+              backgroundColor: "var(--color-success-bg)",
+              border: "1px solid var(--color-success-border)",
               borderRadius: "10px",
               display: "flex",
               flexDirection: "column",
@@ -545,20 +549,22 @@ function StepResult({
               marginBottom: "24px",
             }}
           >
-            <CheckCircle2 size={48} color="#15803D" strokeWidth={1.5} />
+            <span style={{ color: "var(--color-success)" }}>
+              <CheckCircle2 size={48} color="currentColor" strokeWidth={1.5} />
+            </span>
             <div>
               <h2
                 style={{
                   fontSize: "20px",
                   fontWeight: 700,
-                  color: "#14532D",
+                  color: "var(--color-success-text)",
                   margin: "0 0 8px 0",
                   letterSpacing: "-0.01em",
                 }}
               >
                 Filing Accepted
               </h2>
-              <p style={{ fontSize: "15px", color: "#166534", margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontSize: "15px", color: "var(--color-success-text)", margin: 0, lineHeight: 1.6 }}>
                 Companies House has accepted your dormant company accounts. A confirmation has been sent to your email address, and your next accounting period has been set up automatically.
               </p>
             </div>
@@ -591,7 +597,7 @@ function StepResult({
             style={{
               fontSize: "26px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.02em",
             }}
@@ -603,8 +609,8 @@ function StepResult({
           <div
             style={{
               padding: "24px",
-              backgroundColor: "#FEF2F2",
-              border: "1px solid #FECACA",
+              backgroundColor: "var(--color-danger-bg)",
+              border: "1px solid var(--color-danger-border)",
               borderRadius: "10px",
               display: "flex",
               flexDirection: "column",
@@ -614,13 +620,15 @@ function StepResult({
               marginBottom: "24px",
             }}
           >
-            <XCircle size={48} color="#B91C1C" strokeWidth={1.5} />
+            <span style={{ color: "var(--color-danger-deep)" }}>
+              <XCircle size={48} color="currentColor" strokeWidth={1.5} />
+            </span>
             <div>
               <h2
                 style={{
                   fontSize: "20px",
                   fontWeight: 700,
-                  color: "#7F1D1D",
+                  color: "var(--color-danger-text)",
                   margin: "0 0 8px 0",
                   letterSpacing: "-0.01em",
                 }}
@@ -630,7 +638,7 @@ function StepResult({
               <p
                 style={{
                   fontSize: "14px",
-                  color: "#991B1B",
+                  color: "var(--color-danger-text)",
                   margin: 0,
                   lineHeight: 1.6,
                   fontFamily: "monospace",
@@ -669,7 +677,7 @@ function StepResult({
             style={{
               fontSize: "26px",
               fontWeight: 700,
-              color: "#1E293B",
+              color: "var(--color-text-primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.02em",
             }}
@@ -681,8 +689,8 @@ function StepResult({
           <div
             style={{
               padding: "24px",
-              backgroundColor: "#FEFCE8",
-              border: "1px solid #FDE68A",
+              backgroundColor: "var(--color-warning-bg)",
+              border: "1px solid var(--color-warning-border)",
               borderRadius: "10px",
               display: "flex",
               flexDirection: "column",
@@ -692,20 +700,22 @@ function StepResult({
               marginBottom: "24px",
             }}
           >
-            <AlertTriangle size={48} color="#A16207" strokeWidth={1.5} />
+            <span style={{ color: "var(--color-warning-deep)" }}>
+              <AlertTriangle size={48} color="currentColor" strokeWidth={1.5} />
+            </span>
             <div>
               <h2
                 style={{
                   fontSize: "20px",
                   fontWeight: 700,
-                  color: "#713F12",
+                  color: "var(--color-warning-text)",
                   margin: "0 0 8px 0",
                   letterSpacing: "-0.01em",
                 }}
               >
                 Companies House is still processing
               </h2>
-              <p style={{ fontSize: "15px", color: "#A16207", margin: 0, lineHeight: 1.6 }}>
+              <p style={{ fontSize: "15px", color: "var(--color-warning-deep)", margin: 0, lineHeight: 1.6 }}>
                 Your accounts have been submitted but Companies House has not yet confirmed the outcome. You can check the status from your dashboard - it may take a few more minutes.
               </p>
             </div>
@@ -738,7 +748,7 @@ function StepResult({
           style={{
             fontSize: "26px",
             fontWeight: 700,
-            color: "#1E293B",
+            color: "var(--color-text-primary)",
             margin: "0 0 8px 0",
             letterSpacing: "-0.02em",
           }}
@@ -750,8 +760,8 @@ function StepResult({
         <div
           style={{
             padding: "24px",
-            backgroundColor: "#FEF2F2",
-            border: "1px solid #FECACA",
+            backgroundColor: "var(--color-danger-bg)",
+            border: "1px solid var(--color-danger-border)",
             borderRadius: "10px",
             display: "flex",
             flexDirection: "column",
@@ -761,20 +771,22 @@ function StepResult({
             marginBottom: "24px",
           }}
         >
-          <XCircle size={48} color="#B91C1C" strokeWidth={1.5} />
+          <span style={{ color: "var(--color-danger-deep)" }}>
+            <XCircle size={48} color="currentColor" strokeWidth={1.5} />
+          </span>
           <div>
             <h2
               style={{
                 fontSize: "20px",
                 fontWeight: 700,
-                color: "#7F1D1D",
+                color: "var(--color-danger-text)",
                 margin: "0 0 8px 0",
                 letterSpacing: "-0.01em",
               }}
             >
               Submission Failed
             </h2>
-            <p style={{ fontSize: "15px", color: "#991B1B", margin: 0, lineHeight: 1.6 }}>
+            <p style={{ fontSize: "15px", color: "var(--color-danger-text)", margin: 0, lineHeight: 1.6 }}>
               {result.message || "An unexpected error occurred. Please try again."}
             </p>
           </div>

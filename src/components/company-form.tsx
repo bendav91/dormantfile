@@ -15,18 +15,18 @@ const inputStyle: React.CSSProperties = {
   padding: "12px 16px",
   borderWidth: "1px",
   borderStyle: "solid",
-  borderColor: "#94A3B8",
+  borderColor: "var(--color-text-muted)",
   borderRadius: "8px",
   fontSize: "16px",
-  color: "#1E293B",
-  backgroundColor: "#ffffff",
+  color: "var(--color-text-primary)",
+  backgroundColor: "var(--color-bg-card)",
   transition: "border-color 200ms, box-shadow 200ms",
   boxSizing: "border-box",
 };
 
 const inputFocusStyle: React.CSSProperties = {
-  borderColor: "#2563EB",
-  boxShadow: "0 0 0 3px #2563EB20",
+  borderColor: "var(--color-primary)",
+  boxShadow: "0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent)",
 };
 
 function FormField({
@@ -54,17 +54,19 @@ function FormField({
           gap: "6px",
           fontSize: "14px",
           fontWeight: 600,
-          color: "#1E293B",
+          color: "var(--color-text-primary)",
         }}
       >
-        <Icon size={15} color="#2563EB" strokeWidth={2} />
+        <span style={{ color: "var(--color-primary)" }}>
+          <Icon size={15} color="currentColor" strokeWidth={2} />
+        </span>
         {label}
       </label>
       {children}
       {error ? (
-        <p style={{ fontSize: "13px", color: "#DC2626", margin: 0 }}>{error}</p>
+        <p style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{error}</p>
       ) : (
-        <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>{helpText}</p>
+        <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>{helpText}</p>
       )}
     </div>
   );
@@ -110,7 +112,7 @@ function FocusableInput({
       style={{
         ...inputStyle,
         ...(focused ? inputFocusStyle : {}),
-        ...(hasError ? { borderColor: "#DC2626" } : {}),
+        ...(hasError ? { borderColor: "var(--color-danger)" } : {}),
       }}
     />
   );
@@ -256,7 +258,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
     <form onSubmit={handleSubmit} noValidate>
       <div
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--color-bg-card)",
           borderRadius: "12px",
           padding: "32px",
           boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
@@ -284,36 +286,40 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           />
           {lookupStatus === "loading" && (
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
-              <Loader2 size={13} color="#64748B" strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
-              <span style={{ fontSize: "13px", color: "#64748B" }}>Looking up company\u2026</span>
+              <span style={{ color: "var(--color-text-body)" }}>
+                <Loader2 size={13} color="currentColor" strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
+              </span>
+              <span style={{ fontSize: "13px", color: "var(--color-text-body)" }}>Looking up company\u2026</span>
             </div>
           )}
           {lookupStatus === "found" && (
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
-              <CheckCircle2 size={13} color="#16A34A" strokeWidth={2} />
-              <span style={{ fontSize: "13px", color: "#16A34A" }}>Found: {companyName}</span>
+              <span style={{ color: "var(--color-success)" }}>
+                <CheckCircle2 size={13} color="currentColor" strokeWidth={2} />
+              </span>
+              <span style={{ fontSize: "13px", color: "var(--color-success)" }}>Found: {companyName}</span>
             </div>
           )}
           {lookupStatus === "dissolved" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "#DC2626" }}>
+              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>
                 {companyName} has been dissolved and cannot be added. DormantFile is for active dormant companies only.
               </span>
             </div>
           )}
           {lookupStatus === "not_found" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "#DC2626" }}>No company found with that number.</span>
+              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>No company found with that number.</span>
             </div>
           )}
           {lookupStatus === "error" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "#DC2626" }}>Lookup failed - please try again or check the number.</span>
+              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>Lookup failed - please try again or check the number.</span>
             </div>
           )}
           {lookupStatus === "unavailable" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "#D97706" }}>Companies House lookup is currently unavailable. Please try again later.</span>
+              <span style={{ fontSize: "13px", color: "var(--color-due-soon)" }}>Companies House lookup is currently unavailable. Please try again later.</span>
             </div>
           )}
         </FormField>
@@ -327,28 +333,30 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
                 gap: "6px",
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
               }}
             >
-              <Building2 size={15} color="#2563EB" strokeWidth={2} />
+              <span style={{ color: "var(--color-primary)" }}>
+                <Building2 size={15} color="currentColor" strokeWidth={2} />
+              </span>
               Company Name
             </label>
             <div
               style={{
                 padding: "12px 16px",
-                backgroundColor: "#F8FAFC",
+                backgroundColor: "var(--color-bg-page)",
                 borderWidth: "1px",
                 borderStyle: "solid",
-                borderColor: "#E2E8F0",
+                borderColor: "var(--color-border)",
                 borderRadius: "8px",
                 fontSize: "16px",
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 fontWeight: 500,
               }}
             >
               {companyName}
             </div>
-            <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
+            <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
               Verified from Companies House. This cannot be edited.
             </p>
           </div>
@@ -363,28 +371,30 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
                 gap: "6px",
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
               }}
             >
-              <Calendar size={15} color="#2563EB" strokeWidth={2} />
+              <span style={{ color: "var(--color-primary)" }}>
+                <Calendar size={15} color="currentColor" strokeWidth={2} />
+              </span>
               Accounting Period
             </label>
             <div
               style={{
                 padding: "12px 16px",
-                backgroundColor: "#F8FAFC",
+                backgroundColor: "var(--color-bg-page)",
                 borderWidth: "1px",
                 borderStyle: "solid",
-                borderColor: "#E2E8F0",
+                borderColor: "var(--color-border)",
                 borderRadius: "8px",
                 fontSize: "16px",
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 fontWeight: 500,
               }}
             >
               {formatDisplayDate(periodStartOn)} &ndash; {formatDisplayDate(periodEndOn)}
             </div>
-            <p style={{ fontSize: "13px", color: "#64748B", margin: 0 }}>
+            <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
               Next filing period from Companies House. This cannot be edited.
             </p>
           </div>
@@ -417,7 +427,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
                   gap: "10px",
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#1E293B",
+                  color: "var(--color-text-primary)",
                   cursor: "pointer",
                 }}
               >
@@ -428,11 +438,11 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
                     setRegisteredForCorpTax(e.target.checked);
                     if (!e.target.checked) setUniqueTaxReference("");
                   }}
-                  style={{ width: "18px", height: "18px", accentColor: "#2563EB" }}
+                  style={{ width: "18px", height: "18px", accentColor: "var(--color-primary)" }}
                 />
                 Is this company registered for Corporation Tax?
               </label>
-              <p style={{ fontSize: "13px", color: "#64748B", margin: 0, paddingLeft: "28px" }}>
+              <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0, paddingLeft: "28px" }}>
                 If your dormant company is still registered for Corporation Tax, you can provide your company&apos;s UTR from HMRC.
               </p>
             </div>
@@ -465,11 +475,11 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
             role="alert"
             style={{
               padding: "12px 16px",
-              backgroundColor: "#FEF2F2",
-              border: "1px solid #FECACA",
+              backgroundColor: "var(--color-danger-bg)",
+              border: "1px solid var(--color-danger-border)",
               borderRadius: "8px",
               fontSize: "14px",
-              color: "#DC2626",
+              color: "var(--color-danger)",
             }}
           >
             {errors.general}
@@ -481,8 +491,8 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           disabled={loading}
           className="focus-ring"
           style={{
-            backgroundColor: loading ? "#CBD5E1" : "#F97316",
-            color: "#ffffff",
+            backgroundColor: loading ? "var(--color-bg-disabled)" : "var(--color-cta)",
+            color: "var(--color-bg-card)",
             padding: "12px 24px",
             borderRadius: "8px",
             fontWeight: 600,
@@ -511,7 +521,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           {loading ? "Processing\u2026" : isFirstCompany ? "Continue to Payment" : "Add Company"}
         </button>
 
-        <p style={{ fontSize: "13px", color: "#94A3B8", textAlign: "center", margin: 0 }}>
+        <p style={{ fontSize: "13px", color: "var(--color-text-muted)", textAlign: "center", margin: 0 }}>
           Your information is encrypted and securely stored. We never share your data with third parties.
         </p>
       </div>

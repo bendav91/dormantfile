@@ -6,6 +6,7 @@ import { Settings } from "lucide-react";
 import Link from "next/link";
 import SignOutButton from "@/components/sign-out-button";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -25,11 +26,11 @@ export default async function AppLayout({
   }
 
   return (
-    <div className={`${ibmPlexSans.variable} min-h-screen bg-[#F8FAFC]`} style={{ fontFamily: "var(--font-ibm-plex-sans), sans-serif" }}>
+    <div className={`${ibmPlexSans.variable} min-h-screen`} style={{ fontFamily: "var(--font-ibm-plex-sans), sans-serif", backgroundColor: "var(--color-bg-page)" }}>
       <nav
         style={{
-          backgroundColor: "#ffffff",
-          borderBottom: "1px solid #E2E8F0",
+          backgroundColor: "var(--color-bg-card)",
+          borderBottom: "1px solid var(--color-border)",
         }}
       >
         <div
@@ -57,7 +58,7 @@ export default async function AppLayout({
               style={{
                 fontSize: "18px",
                 fontWeight: 700,
-                color: "#1E293B",
+                color: "var(--color-text-primary)",
                 letterSpacing: "-0.01em",
               }}
             >
@@ -68,7 +69,7 @@ export default async function AppLayout({
             <span
               style={{
                 fontSize: "14px",
-                color: "#64748B",
+                color: "var(--color-text-secondary)",
                 fontWeight: 500,
               }}
             >
@@ -83,7 +84,7 @@ export default async function AppLayout({
                 width: "32px",
                 height: "32px",
                 borderRadius: "8px",
-                color: "#64748B",
+                color: "var(--color-text-secondary)",
                 transition: "color 200ms, background-color 200ms",
               }}
               title="Account settings"
@@ -92,6 +93,7 @@ export default async function AppLayout({
             >
               <Settings size={18} strokeWidth={2} />
             </Link>
+            <ThemeToggle />
             <SignOutButton />
           </div>
         </div>
