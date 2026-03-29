@@ -4,6 +4,14 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  BrandPanel,
+  BrandPanelMobile,
+  FormPanel,
+  AuthInput,
+  AuthButton,
+  AuthError,
+} from "@/components/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -32,7 +40,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto sign in after successful registration
       const result = await signIn("credentials", {
         email,
         password,
@@ -52,125 +59,110 @@ export default function RegisterPage() {
 
   return (
     <>
-      <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Create your account</h1>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          Start filing your dormant accounts in minutes.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+      <BrandPanel variant="register" />
+      <div className="flex flex-col" style={{ backgroundColor: "var(--color-bg-card)" }}>
+        <BrandPanelMobile />
+        <FormPanel>
+          <h1
+            className="text-2xl font-bold mb-1"
+            style={{ color: "var(--color-text-primary)" }}
           >
-            Full name
-          </label>
-          <input
-            id="name"
-            type="text"
-            required
-            autoComplete="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
-            placeholder="Jane Smith"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
-          >
-            Email address
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            spellCheck={false}
-            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
-            placeholder="you@example.com"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
-            placeholder="At least 8 characters"
-          />
-        </div>
-
-        {error && (
-          <p
-            role="alert"
-            className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2.5"
-          >
-            {error}
+            Create your account
+          </h1>
+          <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
+            Get started in minutes
           </p>
-        )}
 
-        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-          By creating an account, you agree to our{" "}
-          <Link
-            href="/terms"
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
-          >
-            Terms of Service
-          </Link>
-          ,{" "}
-          <Link
-            href="/privacy"
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
-          >
-            Privacy Policy
-          </Link>
-          , and{" "}
-          <Link
-            href="/acceptable-use"
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
-          >
-            Acceptable Use Policy
-          </Link>
-          .
-        </p>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <AuthInput
+              id="name"
+              label="Full name"
+              type="text"
+              required
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Jane Smith"
+            />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? "Creating account\u2026" : "Create account"}
-        </button>
-      </form>
+            <AuthInput
+              id="email"
+              label="Email address"
+              type="email"
+              required
+              autoComplete="email"
+              spellCheck={false}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
 
-      <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
-        Already have an account?{" "}
-        <Link
-          href="/login"
-          className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-        >
-          Sign in
-        </Link>
-      </p>
+            <AuthInput
+              id="password"
+              label="Password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 8 characters"
+              helperText="Must be at least 8 characters"
+            />
+
+            <AuthError message={error} />
+
+            <p
+              className="text-xs leading-relaxed"
+              style={{ color: "var(--color-text-muted)" }}
+            >
+              By creating an account, you agree to our{" "}
+              <Link
+                href="/terms"
+                className="underline hover:no-underline"
+                style={{ color: "var(--color-primary)" }}
+              >
+                Terms of Service
+              </Link>
+              ,{" "}
+              <Link
+                href="/privacy"
+                className="underline hover:no-underline"
+                style={{ color: "var(--color-primary)" }}
+              >
+                Privacy Policy
+              </Link>
+              , and{" "}
+              <Link
+                href="/acceptable-use"
+                className="underline hover:no-underline"
+                style={{ color: "var(--color-primary)" }}
+              >
+                Acceptable Use Policy
+              </Link>
+              .
+            </p>
+
+            <AuthButton type="submit" loading={loading} loadingText="Creating account…">
+              Create account
+            </AuthButton>
+          </form>
+
+          <p
+            className="mt-6 text-center text-sm"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="font-medium hover:underline"
+              style={{ color: "var(--color-primary)" }}
+            >
+              Sign in
+            </Link>
+          </p>
+        </FormPanel>
+      </div>
     </>
   );
 }
