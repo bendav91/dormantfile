@@ -7,6 +7,7 @@ import { ArrowLeft, Building2 } from "lucide-react";
 import { getOutstandingPeriods } from "@/lib/periods";
 import FilingsTab from "@/components/filings-tab";
 import SettingsTab from "@/components/settings-tab";
+import OverviewTab from "@/components/overview-tab";
 
 interface PageProps {
   params: Promise<{ companyId: string }>;
@@ -141,7 +142,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
         />
       )}
       {tab === "overview" && (
-        <p style={{ color: "var(--color-text-secondary)", padding: "40px 0", textAlign: "center" }}>Coming soon</p>
+        <OverviewTab companyNumber={company.companyRegistrationNumber} />
       )}
     </div>
   );
