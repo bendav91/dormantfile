@@ -8,6 +8,7 @@ import { SubscriptionTier } from "@prisma/client";
 interface PlanPickerProps {
   currentTier: SubscriptionTier;
   isUpgrade: boolean;
+  disabled?: boolean;
 }
 
 const PLANS = [
@@ -50,7 +51,7 @@ const PLANS = [
   },
 ];
 
-export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) {
+export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPickerProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<SubscriptionTier | null>(null);
   const [error, setError] = useState("");
@@ -160,7 +161,7 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
             isUpgrade &&
             ((currentTier === "agent" && plan.tier !== "agent") ||
               (currentTier === "multi" && plan.tier === "basic"));
-          const isDisabled = loading !== null || isCurrent;
+          const isDisabled = loading !== null || isCurrent || !!disabled;
 
           return (
             <div
@@ -309,6 +310,20 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
           );
         })}
       </div>
+
+      {disabled && (
+        <p
+          style={{
+            fontSize: "14px",
+            color: "var(--color-text-secondary)",
+            textAlign: "center",
+            marginTop: "20px",
+            fontWeight: 500,
+          }}
+        >
+          Plans will be available when filing goes live.
+        </p>
+      )}
 
       {isUpgrade && (
         <p

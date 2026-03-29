@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import PlanPicker from "@/components/plan-picker";
 import { TIER_LABELS } from "@/lib/subscription";
+import { isPreviewMode } from "@/lib/launch-mode";
 
 export default async function ChoosePlanPage() {
   const session = await getServerSession(authOptions);
@@ -44,7 +45,7 @@ export default async function ChoosePlanPage() {
         </p>
       </div>
 
-      <PlanPicker currentTier={user.subscriptionTier} isUpgrade={isUpgrade} />
+      <PlanPicker currentTier={user.subscriptionTier} isUpgrade={isUpgrade} disabled={isPreviewMode} />
     </div>
   );
 }
