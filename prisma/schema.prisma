@@ -45,10 +45,13 @@ model User {
   subscriptionTier   SubscriptionTier   @default(none)
   subscriptionPeriodStart DateTime?
   filingAsAgent      Boolean            @default(false)
+  emailVerified      DateTime?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   companies          Company[]
   resetTokens        PasswordResetToken[]
+  verificationTokens EmailVerificationToken[]
+  pendingEmailChange PendingEmailChange?
 }
 
 model Company {
@@ -106,6 +109,29 @@ model Reminder {
 model PasswordResetToken {
   id        String    @id @default(cuid())
   userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model PendingEmailChange {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  newEmail  String
   token     String    @unique
   expiresAt DateTime
   usedAt    DateTime?
