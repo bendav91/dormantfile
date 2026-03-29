@@ -31,6 +31,7 @@
 **Design:**
 
 **Schema change:** Add `PasswordResetToken` model:
+
 ```
 model PasswordResetToken {
   id        String   @id @default(cuid())
@@ -42,13 +43,16 @@ model PasswordResetToken {
   user      User     @relation(fields: [userId], references: [id])
 }
 ```
+
 Add `resetTokens PasswordResetToken[]` relation on User.
 
 **New API routes:**
+
 - `POST /api/auth/forgot-password` — accepts `{ email }`. Generates a crypto-random token, stores hashed version in DB with 1-hour expiry, sends reset link via Resend. Always returns 200 (don't reveal if email exists).
 - `POST /api/auth/reset-password` — accepts `{ token, newPassword }`. Validates token exists, not expired, not used. Validates new password strength. Hashes and updates user password. Marks token as used.
 
 **New pages:**
+
 - `/forgot-password` — form with email input. Shows "If an account exists, we've sent a reset link" on submit.
 - `/reset-password?token=xxx` — form with new password input. Shows success message with link to login on completion. Shows error if token expired/invalid.
 
@@ -117,6 +121,7 @@ Also add a compound unique constraint to the schema: `@@unique([userId, companyR
 **Problem:** If server crashes between creating a filing record (status: "pending") and submitting to HMRC (status: "submitted"), the filing is stuck forever. Idempotency check blocks retrying for that period.
 
 **Fix:** Two changes:
+
 1. In the idempotency check, exclude "pending" filings older than 5 minutes. A filing that's been "pending" for 5+ minutes clearly failed before reaching HMRC. Delete the stale record and allow retry.
 2. In the filing creation, use a transaction: create the record and attempt submission atomically, so if submission fails the record is cleaned up.
 
@@ -133,6 +138,7 @@ Actually, approach 2 is complex with async polling. Simpler: just delete stale p
 **Problem:** Several user actions fail silently — Stripe portal creation, email sending, company lookup.
 
 **Fixes:**
+
 - **Stripe portal failure:** In `subscription-banner.tsx` and `settings-actions.tsx`, handle fetch errors and show an inline error message.
 - **Email sending failure during filing:** Already non-blocking (correct). Add console.error for observability. No user-facing change needed.
 - **Company lookup failure:** The `idle` state after a non-503/non-404 error is confusing. Change to show a subtle "Lookup failed — enter company name manually" message.
@@ -144,6 +150,7 @@ Actually, approach 2 is complex with async polling. Simpler: just delete stale p
 **Problem:** Users don't understand the difference between "pending", "submitted", "polling_timeout". Error messages for duplicate filing attempts are confusing.
 
 **Fixes:**
+
 - Change idempotency error from generic to: "A filing for this period has already been submitted. Check your dashboard for the current status."
 - In the filing flow result step, make the "polling_timeout" state clearer: "Your filing was sent to HMRC but they haven't confirmed yet. This is normal — HMRC can take up to 24 hours. We'll email you when it's confirmed. You can also check from your dashboard."
 - On dashboard, for "polling_timeout" filings, show "Awaiting HMRC confirmation" instead of raw status.
@@ -155,6 +162,7 @@ Actually, approach 2 is complex with async polling. Simpler: just delete stale p
 **Problem:** No validation that the accounting period end date is sensible. User could enter a date 50 years ago or 10 years in the future.
 
 **Fix:** In `/api/company` POST handler, validate that `accountingPeriodEnd` is:
+
 - Not more than 2 years in the past
 - Not in the future (must have already ended to file)
 
@@ -177,6 +185,7 @@ Also add the same validation client-side in `company-form.tsx`.
 ## Files Changed Summary
 
 ### New files
+
 - `src/lib/rate-limit.ts`
 - `src/app/api/auth/forgot-password/route.ts`
 - `src/app/api/auth/reset-password/route.ts`
@@ -186,6 +195,7 @@ Also add the same validation client-side in `company-form.tsx`.
 - `prisma/migrations/xxx_add_password_reset_tokens/migration.sql`
 
 ### Modified files
+
 - `prisma/schema.prisma` — PasswordResetToken model, company unique constraint
 - `src/lib/utils.ts` — validatePassword, validateEmail
 - `src/lib/auth.ts` — rate limiting in authorize callback

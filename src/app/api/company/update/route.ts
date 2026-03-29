@@ -61,7 +61,10 @@ export async function PATCH(req: NextRequest) {
   // Case 3: Enable Corp Tax for the first time
   if (registeredForCorpTax === true && !company.registeredForCorpTax) {
     if (!uniqueTaxReference) {
-      return NextResponse.json({ error: "UTR is required when enabling Corporation Tax" }, { status: 400 });
+      return NextResponse.json(
+        { error: "UTR is required when enabling Corporation Tax" },
+        { status: 400 },
+      );
     }
     if (!validateUTR(uniqueTaxReference)) {
       return NextResponse.json({ error: "UTR must be exactly 10 digits" }, { status: 400 });

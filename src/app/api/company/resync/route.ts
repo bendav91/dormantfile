@@ -14,10 +14,7 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
   });
-  if (
-    !user ||
-    (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling")
-  ) {
+  if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling")) {
     return NextResponse.json({ error: "Active subscription required" }, { status: 403 });
   }
 

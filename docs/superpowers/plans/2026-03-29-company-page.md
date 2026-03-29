@@ -17,6 +17,7 @@
 Add corp tax removal (Case 1) and share capital editing (Case 0) to the existing PATCH route. This must be done first as the Settings tab depends on it.
 
 **Files:**
+
 - Modify: `src/app/api/company/update/route.ts`
 
 - [ ] **Step 1: Read the current route**
@@ -85,7 +86,10 @@ export async function PATCH(req: NextRequest) {
   // Case 3: Enable Corp Tax for the first time
   if (registeredForCorpTax === true && !company.registeredForCorpTax) {
     if (!uniqueTaxReference) {
-      return NextResponse.json({ error: "UTR is required when enabling Corporation Tax" }, { status: 400 });
+      return NextResponse.json(
+        { error: "UTR is required when enabling Corporation Tax" },
+        { status: 400 },
+      );
     }
     if (!validateUTR(uniqueTaxReference)) {
       return NextResponse.json({ error: "UTR must be exactly 10 digits" }, { status: 400 });
@@ -148,6 +152,7 @@ git commit -m "feat: restructure company update API — add corp tax removal and
 Move the filing selector content from the page into a standalone component that can be embedded in the Filings tab.
 
 **Files:**
+
 - Create: `src/components/filings-tab.tsx`
 - Modify: `src/app/(app)/file/[companyId]/page.tsx` (temporary — will become redirect in Task 4)
 
@@ -217,6 +222,7 @@ git commit -m "refactor: extract filing selector into FilingsTab component"
 Build the new `/company/[companyId]` page with the tab bar and the Filings tab working.
 
 **Files:**
+
 - Create: `src/app/(app)/company/[companyId]/page.tsx`
 
 - [ ] **Step 1: Create the page**
@@ -240,6 +246,7 @@ interface PageProps {
 ```
 
 Page layout:
+
 1. Back link to `/dashboard`
 2. Company header (icon, name, CRN, outstanding count) — same markup as current filing selector page lines 78-136
 3. Tab bar — three `<Link>` elements: `?tab=filings` (or no param), `?tab=settings`, `?tab=overview`. Current tab gets a bottom border highlight.
@@ -268,6 +275,7 @@ git commit -m "feat: company detail page with tab layout and Filings tab"
 Replace the old filing selector page with a redirect and update all links pointing to it.
 
 **Files:**
+
 - Modify: `src/app/(app)/file/[companyId]/page.tsx` — replace with redirect
 - Modify: `src/app/(app)/dashboard/page.tsx` — update `fileHref` and outstanding badge link
 - Modify: `src/app/(app)/file/[companyId]/accounts/page.tsx` — update breadcrumb and redirect targets
@@ -295,6 +303,7 @@ export default async function FilingSelectorRedirect({ params }: PageProps) {
 In `src/app/(app)/dashboard/page.tsx`:
 
 Change `fileHref` (line 371):
+
 ```typescript
 // Before:
 const fileHref = `/file/${company.id}`;
@@ -309,6 +318,7 @@ This updates the outstanding badge link (line 440), the multi-period action link
 In `src/app/(app)/file/[companyId]/accounts/page.tsx`:
 
 Line 39 — redirect on invalid periodEnd:
+
 ```typescript
 // Before:
 if (isNaN(periodEnd.getTime())) redirect(`/file/${companyId}`);
@@ -317,6 +327,7 @@ if (isNaN(periodEnd.getTime())) redirect(`/company/${companyId}`);
 ```
 
 Line 66 — breadcrumb link:
+
 ```typescript
 // Before:
 <Link href={`/file/${companyId}`} ...>{company.companyName}</Link>
@@ -329,6 +340,7 @@ Line 66 — breadcrumb link:
 In `src/app/(app)/file/[companyId]/ct600/page.tsx`:
 
 Line 32 — redirect when not registered for corp tax:
+
 ```typescript
 // Before:
 if (!company.registeredForCorpTax) redirect(`/file/${companyId}`);
@@ -337,6 +349,7 @@ if (!company.registeredForCorpTax) redirect(`/company/${companyId}`);
 ```
 
 Line 40 — redirect on invalid periodEnd:
+
 ```typescript
 // Before:
 if (isNaN(periodEnd.getTime())) redirect(`/file/${companyId}`);
@@ -345,6 +358,7 @@ if (isNaN(periodEnd.getTime())) redirect(`/company/${companyId}`);
 ```
 
 Line 66 — breadcrumb link:
+
 ```typescript
 // Before:
 <Link href={`/file/${companyId}`} ...>{company.companyName}</Link>
@@ -371,6 +385,7 @@ git commit -m "feat: redirect /file/[id] to /company/[id] and update all links"
 Build the Settings tab client component with corp tax enable/disable, UTR editing, share capital editing, and company deletion.
 
 **Files:**
+
 - Create: `src/components/settings-tab.tsx`
 - Modify: `src/app/(app)/company/[companyId]/page.tsx` — wire up Settings tab
 
@@ -389,6 +404,7 @@ interface SettingsTabProps {
 ```
 
 The component manages local state for:
+
 - `showEnableForm` — toggle for the UTR input when enabling
 - `editingUTR` — toggle for inline UTR editing
 - `editingShareCapital` — toggle for inline share capital editing
@@ -398,10 +414,12 @@ The component manages local state for:
 **Corporation Tax section:**
 
 When `!registeredForCorpTax`:
+
 - Row: "Corporation Tax" label, "Not enabled" value, "Enable CT600" button
 - On click: expand inline UTR input with Save/Cancel (same API call pattern as `EnableCorpTax`: `PATCH /api/company/update` with `{ companyId, registeredForCorpTax: true, uniqueTaxReference }`)
 
 When `registeredForCorpTax`:
+
 - Row: "Corporation Tax" label, UTR value, "Edit" and "Remove" buttons
 - Edit: inline input for UTR (same API call as `EditUTR`)
 - Remove: shows confirmation dialog
@@ -411,11 +429,13 @@ When `registeredForCorpTax`:
   - On success: `router.refresh()`
 
 **Share Capital section:**
+
 - Row: "Share Capital" label, value formatted as GBP (e.g. `£${(shareCapital / 100).toFixed(2)}`), "Edit" button
 - Edit: inline input (in pounds, converted to pence on save)
 - Save: `PATCH /api/company/update` with `{ companyId, shareCapital: Math.round(pounds * 100) }`
 
 **Delete Company section:**
+
 - Visually separated with danger styling
 - "Remove company" button
 - Confirmation dialog: "This will remove [company name] from your account. Your filing history will be preserved."
@@ -432,7 +452,7 @@ Import `SettingsTab` and compute the `activeCT600Count`:
 
 ```typescript
 const activeCT600Count = company.filings.filter(
-  (f) => f.filingType === "ct600" && ["submitted", "pending", "polling_timeout"].includes(f.status)
+  (f) => f.filingType === "ct600" && ["submitted", "pending", "polling_timeout"].includes(f.status),
 ).length;
 ```
 
@@ -467,6 +487,7 @@ git commit -m "feat: Settings tab with corp tax toggle, share capital editing, a
 Build the Overview tab that displays read-only company information from the CH API.
 
 **Files:**
+
 - Create: `src/components/overview-tab.tsx`
 - Modify: `src/app/(app)/company/[companyId]/page.tsx` — wire up Overview tab
 
@@ -490,13 +511,15 @@ async function fetchCompanyProfile(companyNumber: string) {
 
   const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
   try {
-    const res = await fetch(
-      `${endpoint}/company/${encodeURIComponent(companyNumber)}`,
-      { headers: { Authorization: `Basic ${basicAuth}` }, next: { revalidate: 3600 } },
-    );
+    const res = await fetch(`${endpoint}/company/${encodeURIComponent(companyNumber)}`, {
+      headers: { Authorization: `Basic ${basicAuth}` },
+      next: { revalidate: 3600 },
+    });
     if (!res.ok) return null;
     return res.json();
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 async function fetchRecentFilings(companyNumber: string) {
@@ -512,7 +535,9 @@ async function fetchRecentFilings(companyNumber: string) {
     );
     if (!res.ok) return null;
     return res.json();
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 ```
 

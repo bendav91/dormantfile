@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import SettingsActions from "@/components/settings-actions";
+import ProfileForm from "@/components/profile-form";
 import { TIER_LABELS } from "@/lib/subscription";
 
 export default async function SettingsPage() {
@@ -62,40 +63,7 @@ export default async function SettingsPage() {
           Profile
         </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <div>
-            <p
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "var(--color-text-muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                margin: "0 0 4px 0",
-              }}
-            >
-              Name
-            </p>
-            <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
-              {user.name}
-            </p>
-          </div>
-          <div>
-            <p
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "var(--color-text-muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                margin: "0 0 4px 0",
-              }}
-            >
-              Email
-            </p>
-            <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
-              {user.email}
-            </p>
-          </div>
+          <ProfileForm name={user.name} email={user.email} />
           <div>
             <p
               style={{
@@ -109,7 +77,14 @@ export default async function SettingsPage() {
             >
               Subscription
             </p>
-            <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
+            <p
+              style={{
+                fontSize: "15px",
+                color: "var(--color-text-primary)",
+                margin: 0,
+                fontWeight: 500,
+              }}
+            >
               {user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling"
                 ? `Active - ${TIER_LABELS[user.subscriptionTier]} plan`
                 : user.subscriptionStatus === "past_due"
@@ -125,6 +100,8 @@ export default async function SettingsPage() {
       <SettingsActions
         hasSubscription={user.subscriptionStatus !== "none"}
         hasStripeCustomer={!!user.stripeCustomerId}
+        isAgentTier={user.subscriptionTier === "agent"}
+        filingAsAgent={user.filingAsAgent}
         companies={user.companies.map((c) => ({ id: c.id, name: c.companyName }))}
       />
     </div>

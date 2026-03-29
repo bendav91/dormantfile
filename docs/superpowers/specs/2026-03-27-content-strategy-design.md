@@ -12,6 +12,7 @@
 DormantFile currently has a landing page, privacy policy, and terms of service. No other public-facing content exists. No blog, no guides, no sitemap, no structured data.
 
 This spec defines a comprehensive content layer using a hybrid approach:
+
 - **Trust layer** — 6 pages that build confidence and convert visitors
 - **SEO layer** — 20 pages (10 guides + 10 answers) that attract organic traffic
 - **SEO infrastructure** — sitemap, robots.txt, structured data, Open Graph tags
@@ -51,6 +52,7 @@ keywords: ["keyword1", "keyword2"]
 ```
 
 Category values:
+
 - **filing** — how to file specific returns
 - **deadlines** — when things are due, penalty info
 - **getting-started** — first-time and new company guidance
@@ -74,6 +76,7 @@ Currently, the landing page, privacy page, and terms page each inline their own 
 **Route group: `src/app/(marketing)/`**
 
 All public content pages live under a `(marketing)` route group with a shared `layout.tsx` that provides:
+
 - Site navigation (extracted from the current landing page nav into a shared `<MarketingNav>` component)
 - Readable max-width container (~720px) for content
 - Breadcrumbs (e.g. Home > Guides > How to file dormant company accounts)
@@ -85,6 +88,7 @@ All public content pages live under a `(marketing)` route group with a shared `l
 **Related content:** Guides and answers show a "Related articles" section **below the content** (single-column, not sidebar). This keeps the layout simple and works well on mobile. Each page's MDX frontmatter doesn't need to specify related links — they're auto-derived from shared categories.
 
 **Shared components created:**
+
 - `src/components/marketing/MarketingNav.tsx` — nav bar with Resources dropdown
 - `src/components/marketing/MarketingFooter.tsx` — footer with site links
 - `src/components/marketing/Breadcrumbs.tsx` — breadcrumb trail
@@ -149,6 +153,7 @@ Each answer links to the relevant guide or trust page for deeper reading. Page u
 Long-form articles targeting the search terms directors are typing. Each answers a specific question and funnels toward sign-up.
 
 ### Guide 1: "How to file dormant company accounts with Companies House"
+
 - **Category:** filing
 - **Target keyword:** file dormant company accounts
 - Step-by-step walkthrough of what's required
@@ -156,24 +161,28 @@ Long-form articles targeting the search terms directors are typing. Each answers
 - CTA: "Or let DormantFile do it for you in 2 minutes."
 
 ### Guide 2: "How to file a nil CT600 tax return with HMRC"
+
 - **Category:** filing
 - **Target keyword:** nil CT600 tax return
 - What a nil return is, who needs to file one, old CATO process vs now
 - UTR, HMRC Gateway, accounting periods
 
 ### Guide 3: "CATO has closed — what are your options now?"
+
 - **Category:** alternatives
 - **Target keyword:** CATO closed / HMRC free filing closed
 - What CATO was, why it closed (31 March 2026), what alternatives exist
 - Honest comparison: accountant, general software, DormantFile
 
 ### Guide 4: "What happens if you don't file your dormant company accounts"
+
 - **Category:** deadlines
 - **Target keyword:** late filing penalties dormant company
 - Companies House penalty scale (£150 → £1,500), HMRC surcharges
 - Risk of striking off, director consequences
 
 ### Guide 5: "Do I need to file a CT600 for a dormant company?"
+
 - **Category:** filing
 - **Target keyword:** dormant company CT600
 - Not every dormant company is registered for Corporation Tax
@@ -181,24 +190,28 @@ Long-form articles targeting the search terms directors are typing. Each answers
 - Links to Guide 1 and Guide 2
 
 ### Guide 6: "How to check if your company is dormant"
+
 - **Category:** eligibility
 - **Target keyword:** is my company dormant
 - Dormancy under Companies Act 2006 vs HMRC's definition (they differ)
 - Common scenarios: holding company, formed but never traded
 
 ### Guide 7: "Dormant company filing deadlines explained"
+
 - **Category:** deadlines
 - **Target keyword:** dormant company filing deadline
 - Accounting reference date, 9-month rule (accounts), 12-month rule (CT600)
 - First year after incorporation vs subsequent years
 
 ### Guide 8: "How much does it cost to file dormant company accounts?"
+
 - **Category:** costs
 - **Target keyword:** cost to file dormant company accounts
 - Comparison: accountant fees (£50-£150+), general software (£100+/yr), DormantFile (£19/yr)
 - Honest, not salesy — acknowledges when an accountant might be the right choice
 
 ### Guide 9: "How to close a dormant company (and when to keep it open)"
+
 - **Category:** admin
 - **Target keyword:** close dormant company
 - DS01 striking off process, costs, timelines
@@ -206,6 +219,7 @@ Long-form articles targeting the search terms directors are typing. Each answers
 - "If you're keeping it, you still need to file."
 
 ### Guide 10: "First year filing for a new dormant company"
+
 - **Category:** getting-started
 - **Target keyword:** new company first filing
 - Newly incorporated companies: confirmation statement, first accounts, first CT600
@@ -218,6 +232,7 @@ Long-form articles targeting the search terms directors are typing. Each answers
 Short-form pages targeting long-tail "what is" searches. Each captures a specific query and links to the relevant guide.
 
 Format for every answer page:
+
 1. Plain English definition (no jargon explaining jargon)
 2. Why it matters to a dormant company director
 3. What you need to do about it
@@ -270,12 +285,14 @@ Set up in minutes. File in seconds. Done for the year.
 The current landing page nav has only "Sign in" and "Get started". The marketing layout nav expands this:
 
 **Top-level nav links (all content pages):**
+
 - Pricing (`/pricing`)
 - Resources (dropdown containing: Guides, FAQ, Security)
 - Sign in
 - "Get started" CTA button
 
 **Footer links (all content pages including landing):**
+
 - About, Security, FAQ, Contact, Privacy, Terms
 
 The **landing page** keeps its own nav/layout but the footer is updated to include the new pages. The landing page "How it works" section should link to `/how-it-works` ("See the full walkthrough →") so the two stay connected.
@@ -291,6 +308,7 @@ The **landing page** keeps its own nav/layout but the footer is updated to inclu
 ### Sitemap (`src/app/sitemap.ts`)
 
 Auto-generated from:
+
 - Static routes (home, about, security, how-it-works, pricing, faq, contact, privacy, terms)
 - All MDX guide files
 - All MDX answer files
@@ -328,13 +346,13 @@ Updated: "DormantFile - Dormant Company Filing Made Simple" (reflects the dual a
 
 ## Page Summary
 
-| Layer | Count | Pages |
-|-------|-------|-------|
-| Trust | 6 | `/about`, `/security`, `/how-it-works`, `/pricing`, `/faq`, `/contact` |
-| Guides | 10 | 10 long-form articles at `/guides/[slug]` |
-| Answers | 10 | 10 short-form pages at `/answers/[slug]` |
-| Index | 2 | `/guides` index, `/answers` index |
-| SEO infra | — | Sitemap, robots.txt, Open Graph, JSON-LD, canonical URLs |
+| Layer     | Count                                     | Pages                                                                  |
+| --------- | ----------------------------------------- | ---------------------------------------------------------------------- |
+| Trust     | 6                                         | `/about`, `/security`, `/how-it-works`, `/pricing`, `/faq`, `/contact` |
+| Guides    | 10                                        | 10 long-form articles at `/guides/[slug]`                              |
+| Answers   | 10                                        | 10 short-form pages at `/answers/[slug]`                               |
+| Index     | 2                                         | `/guides` index, `/answers` index                                      |
+| SEO infra | —                                         | Sitemap, robots.txt, Open Graph, JSON-LD, canonical URLs               |
 | **Total** | **28 content pages + SEO infrastructure** |
 
 ---

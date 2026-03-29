@@ -11,10 +11,10 @@ async function fetchCompanyProfile(companyNumber: string) {
 
   const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
   try {
-    const res = await fetch(
-      `${endpoint}/company/${encodeURIComponent(companyNumber)}`,
-      { headers: { Authorization: `Basic ${basicAuth}` }, next: { revalidate: 3600 } },
-    );
+    const res = await fetch(`${endpoint}/company/${encodeURIComponent(companyNumber)}`, {
+      headers: { Authorization: `Basic ${basicAuth}` },
+      next: { revalidate: 3600 },
+    });
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -130,7 +130,9 @@ export default async function OverviewTab({ companyNumber }: OverviewTabProps) {
     ? (() => {
         const day = String(ard.day).padStart(2, "0");
         const monthIndex = parseInt(ard.month, 10) - 1;
-        const monthName = new Date(2000, monthIndex, 1).toLocaleDateString("en-GB", { month: "long" });
+        const monthName = new Date(2000, monthIndex, 1).toLocaleDateString("en-GB", {
+          month: "long",
+        });
         return `${day} ${monthName}`;
       })()
     : "—";
@@ -234,14 +236,16 @@ export default async function OverviewTab({ companyNumber }: OverviewTabProps) {
               ) => {
                 const isLast = index === filings.items.length - 1;
                 const rawDesc = item.description ?? "";
-                const desc = formatStatus(
-                  rawDesc.replace(/^accounts-with-accounts-type-/, ""),
-                );
+                const desc = formatStatus(rawDesc.replace(/^accounts-with-accounts-type-/, ""));
                 const madeUpDate = item.description_values?.made_up_date;
                 return (
                   <div
                     key={item.transaction_id ?? index}
-                    style={{ ...rowStyle, borderBottom: isLast ? "none" : "1px solid var(--color-border)", gap: "12px" }}
+                    style={{
+                      ...rowStyle,
+                      borderBottom: isLast ? "none" : "1px solid var(--color-border)",
+                      gap: "12px",
+                    }}
                   >
                     <span style={{ ...labelStyle, flex: 1 }}>{desc}</span>
                     <span style={{ ...valueStyle, whiteSpace: "nowrap", fontSize: "12px" }}>

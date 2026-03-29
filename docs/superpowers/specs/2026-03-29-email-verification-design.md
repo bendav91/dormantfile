@@ -6,11 +6,11 @@ Add email verification to DormantFile for two triggers: new user registration an
 
 ## Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
+| Decision                   | Choice                                  | Rationale                                                                       |
+| -------------------------- | --------------------------------------- | ------------------------------------------------------------------------------- |
 | Unverified user experience | Hard gate — redirect to `/verify-email` | Tax filing product; bad email means missed confirmations and deadline reminders |
-| Email change strategy | Verify new email before switching | Prevents typo lockouts where user can't receive the verification link |
-| Existing users | Grandfathered as verified | Disruptive to force verification on paying users whose emails already work |
+| Email change strategy      | Verify new email before switching       | Prevents typo lockouts where user can't receive the verification link           |
+| Existing users             | Grandfathered as verified               | Disruptive to force verification on paying users whose emails already work      |
 
 ## Data Model
 
@@ -117,6 +117,7 @@ Same `(verify)` route group. Reads token from URL, calls the verify-email-change
 ### Hard gate
 
 Implemented in `src/app/(app)/layout.tsx` (consistent with the existing auth check that redirects to `/login`):
+
 - After the existing session check, if `emailVerified` is null, redirect to `/verify-email`
 - This naturally exempts all non-`(app)` routes (auth pages, API routes, verify pages, marketing)
 
@@ -151,26 +152,26 @@ Three new templates in `src/lib/email/templates.ts`:
 
 ### New routes
 
-| Route | Method | Purpose |
-|-------|--------|---------|
-| `/api/auth/verify-email` | POST | Takes `token`, validates, sets `emailVerified = now()`, marks token used |
-| `/api/auth/resend-verification` | POST | Requires session. Rate limited (1/60s per userId). Deletes old tokens for user, generates new token, sends email |
-| `/api/account/verify-email-change` | POST | Takes `token`, validates, re-checks email uniqueness, swaps `User.email`, sets `emailVerified = now()` |
+| Route                              | Method | Purpose                                                                                                          |
+| ---------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------- |
+| `/api/auth/verify-email`           | POST   | Takes `token`, validates, sets `emailVerified = now()`, marks token used                                         |
+| `/api/auth/resend-verification`    | POST   | Requires session. Rate limited (1/60s per userId). Deletes old tokens for user, generates new token, sends email |
+| `/api/account/verify-email-change` | POST   | Takes `token`, validates, re-checks email uniqueness, swaps `User.email`, sets `emailVerified = now()`           |
 
 ### Modified routes
 
-| Route | Change |
-|-------|--------|
-| `POST /api/auth/register` | Also creates `EmailVerificationToken` and sends verification email |
+| Route                               | Change                                                                                                                                      |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/auth/register`           | Also creates `EmailVerificationToken` and sends verification email                                                                          |
 | `PATCH /api/account/update-profile` | Name updates immediately; email change creates `PendingEmailChange` + sends verification to new address + sends notification to old address |
 
 ## Rate Limits
 
-| Endpoint | Limit | Key |
-|----------|-------|-----|
-| `POST /api/auth/resend-verification` | 1 per 60 seconds | `resend-verification:{userId}` (requires session) |
-| `POST /api/auth/verify-email` | 5 per 60 seconds | `verify-email:{ip}` |
-| `POST /api/account/verify-email-change` | 5 per 60 seconds | `verify-email-change:{ip}` |
+| Endpoint                                | Limit            | Key                                               |
+| --------------------------------------- | ---------------- | ------------------------------------------------- |
+| `POST /api/auth/resend-verification`    | 1 per 60 seconds | `resend-verification:{userId}` (requires session) |
+| `POST /api/auth/verify-email`           | 5 per 60 seconds | `verify-email:{ip}`                               |
+| `POST /api/account/verify-email-change` | 5 per 60 seconds | `verify-email-change:{ip}`                        |
 
 ## Files to Create
 

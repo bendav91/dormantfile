@@ -18,10 +18,7 @@ export function MarketingNav() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setResourcesOpen(false);
       }
     }
@@ -41,7 +38,13 @@ export function MarketingNav() {
         <Link
           href="/"
           className="text-xl font-semibold"
-          style={{ color: "var(--color-primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}
+          style={{
+            color: "var(--color-primary)",
+            textDecoration: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
         >
           <Logo size={24} />
           DormantFile

@@ -23,7 +23,8 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
   const { periodEnd: periodEndParam } = await searchParams;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling")) redirect("/dashboard");
+  if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling"))
+    redirect("/dashboard");
 
   const company = await prisma.company.findFirst({
     where: { id: companyId, userId: session.user.id, deletedAt: null },
@@ -57,13 +58,21 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
           marginBottom: "24px",
         }}
       >
-        <Link href="/dashboard" style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}>
+        <Link
+          href="/dashboard"
+          style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}
+        >
           Dashboard
         </Link>
         <span style={{ color: "var(--color-bg-disabled)" }}>
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>
-        <Link href={`/company/${companyId}`} style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}>{company.companyName}</Link>
+        <Link
+          href={`/company/${companyId}`}
+          style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}
+        >
+          {company.companyName}
+        </Link>
         <span style={{ color: "var(--color-bg-disabled)" }}>
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>

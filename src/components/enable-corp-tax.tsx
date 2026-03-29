@@ -102,7 +102,10 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
         <span style={{ color: "var(--color-primary)" }}>
           <FileDigit size={14} color="currentColor" strokeWidth={2} />
         </span>
-        <label htmlFor={`utr-${companyId}`} style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+        <label
+          htmlFor={`utr-${companyId}`}
+          style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)" }}
+        >
           Unique Tax Reference (UTR)
         </label>
       </div>

@@ -8,54 +8,34 @@ import {
 describe("computeFirstPeriodEnd", () => {
   it("returns first ARD strictly after incorporation", () => {
     // Incorporated 2015-05-16, ARD 31 March → first ARD is 2016-03-31
-    const result = computeFirstPeriodEnd(
-      new Date("2015-05-16"),
-      3,
-      31,
-    );
+    const result = computeFirstPeriodEnd(new Date("2015-05-16"), 3, 31);
     expect(result).toEqual(new Date("2016-03-31"));
   });
 
   it("advances to next year when incorporated on the ARD", () => {
     // Incorporated 2015-03-31, ARD 31 March → first ARD must be strictly after, so 2016-03-31
-    const result = computeFirstPeriodEnd(
-      new Date("2015-03-31"),
-      3,
-      31,
-    );
+    const result = computeFirstPeriodEnd(new Date("2015-03-31"), 3, 31);
     expect(result).toEqual(new Date("2016-03-31"));
   });
 
   it("applies 18-month cap", () => {
     // Incorporated 2014-06-01, ARD 31 March → naive first ARD = 2015-03-31 (< 18 months)
     // but 2016-03-31 would be > 18 months after 2014-06-01 (= 2015-12-01), so caps to 2015-03-31
-    const result = computeFirstPeriodEnd(
-      new Date("2014-06-01"),
-      3,
-      31,
-    );
+    const result = computeFirstPeriodEnd(new Date("2014-06-01"), 3, 31);
     expect(result).toEqual(new Date("2015-03-31"));
   });
 
   it("skips ARD that is less than 6 months after incorporation", () => {
     // Incorporated 2015-05-16, ARD 31 May
     // 2015-05-31 is only 15 days later — must skip to 2016-05-31
-    const result = computeFirstPeriodEnd(
-      new Date("2015-05-16"),
-      5,
-      31,
-    );
+    const result = computeFirstPeriodEnd(new Date("2015-05-16"), 5, 31);
     expect(result).toEqual(new Date("2016-05-31"));
   });
 
   it("does not apply 18-month cap when not needed", () => {
     // Incorporated 2015-09-01, ARD 31 March → first ARD strictly after = 2016-03-31
     // 18 months after 2015-09-01 = 2017-03-01; 2016-03-31 is within that, no cap needed
-    const result = computeFirstPeriodEnd(
-      new Date("2015-09-01"),
-      3,
-      31,
-    );
+    const result = computeFirstPeriodEnd(new Date("2015-09-01"), 3, 31);
     expect(result).toEqual(new Date("2016-03-31"));
   });
 });
@@ -109,9 +89,7 @@ describe("detectAccountsGaps", () => {
     // 2021-03-31 was matched, so oldest unfiled is 2022-03-31
     expect(result!.oldestUnfiledPeriodEnd).toEqual(new Date("2022-03-31"));
     // filedPeriodEnds maps the CH date → computed period end
-    expect(result!.filedPeriodEnds.get(chDate.getTime())).toEqual(
-      new Date("2021-03-31"),
-    );
+    expect(result!.filedPeriodEnds.get(chDate.getTime())).toEqual(new Date("2021-03-31"));
   });
 
   it("does not match beyond 31-day tolerance — 46 days off = no match", () => {

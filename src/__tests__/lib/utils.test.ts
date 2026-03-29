@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { calculateCT600Deadline, calculateAccountsDeadline, validateUTR, calculateNextReminderDate, validatePassword, validateEmail } from "@/lib/utils";
+import {
+  calculateCT600Deadline,
+  calculateAccountsDeadline,
+  validateUTR,
+  calculateNextReminderDate,
+  validatePassword,
+  validateEmail,
+} from "@/lib/utils";
 
 describe("calculateCT600Deadline", () => {
   it("returns 12 months after accounting period end", () => {

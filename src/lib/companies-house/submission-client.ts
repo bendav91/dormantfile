@@ -33,7 +33,7 @@ const parser = new XMLParser({
 export async function submitToCompaniesHouse(
   xml: string,
   endpoint: string,
-  _credentials: PresenterCredentials
+  _credentials: PresenterCredentials,
 ): Promise<SubmissionResult> {
   const response = await fetch(endpoint, {
     method: "POST",
@@ -48,8 +48,7 @@ export async function submitToCompaniesHouse(
   const responseXml = await response.text();
   const parsed = parser.parse(responseXml);
 
-  const correlationId =
-    parsed?.GovTalkMessage?.Header?.MessageDetails?.CorrelationID;
+  const correlationId = parsed?.GovTalkMessage?.Header?.MessageDetails?.CorrelationID;
 
   if (!correlationId) {
     throw new Error("No correlation ID found in Companies House response");
@@ -64,7 +63,7 @@ export async function submitToCompaniesHouse(
 export async function pollCompaniesHouse(
   submissionId: string,
   pollEndpoint: string,
-  credentials: PresenterCredentials
+  credentials: PresenterCredentials,
 ): Promise<PollResult> {
   const pollXml = buildPollXml(submissionId, credentials);
 
@@ -81,14 +80,16 @@ export async function pollCompaniesHouse(
   const responseXml = await response.text();
   const parsed = parser.parse(responseXml);
 
-  const qualifier =
-    parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
+  const qualifier = parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
 
   if (qualifier === "error") {
     const errors = parsed?.GovTalkMessage?.GovTalkErrors?.Error;
     const errorText = Array.isArray(errors)
-      ? errors.map((e: { Text?: string }) => e.Text).filter(Boolean).join("; ")
-      : errors?.Text ?? "Unknown error";
+      ? errors
+          .map((e: { Text?: string }) => e.Text)
+          .filter(Boolean)
+          .join("; ")
+      : (errors?.Text ?? "Unknown error");
 
     return {
       status: "rejected",

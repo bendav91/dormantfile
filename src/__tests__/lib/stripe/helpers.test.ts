@@ -7,15 +7,11 @@ describe("getSubscriptionStatusFromEvent", () => {
   });
 
   it('maps "invoice.payment_failed" to "past_due"', () => {
-    expect(getSubscriptionStatusFromEvent("invoice.payment_failed")).toBe(
-      "past_due"
-    );
+    expect(getSubscriptionStatusFromEvent("invoice.payment_failed")).toBe("past_due");
   });
 
   it('maps "customer.subscription.deleted" to "cancelled"', () => {
-    expect(getSubscriptionStatusFromEvent("customer.subscription.deleted")).toBe(
-      "cancelled"
-    );
+    expect(getSubscriptionStatusFromEvent("customer.subscription.deleted")).toBe("cancelled");
   });
 
   it("returns null for an unknown event type", () => {

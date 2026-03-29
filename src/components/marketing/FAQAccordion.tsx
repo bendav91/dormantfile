@@ -71,7 +71,6 @@ interface FAQCategory {
   items: FAQItemData[];
 }
 
-
 export function FAQAccordion({ categories }: { categories: FAQCategory[] }) {
   return (
     <div>

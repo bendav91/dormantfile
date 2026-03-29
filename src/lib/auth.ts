@@ -11,7 +11,15 @@ declare module "next-auth" {
       email?: string | null;
       name?: string | null;
       image?: string | null;
+      emailVerified?: Date | null;
     };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    emailVerified?: Date | null;
   }
 }
 
@@ -46,10 +54,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          user.passwordHash
-        );
+        const passwordMatch = await bcrypt.compare(credentials.password, user.passwordHash);
 
         if (!passwordMatch) {
           return null;
@@ -59,21 +64,33 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          emailVerified: user.emailVerified,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
+        token.emailVerified = (user as { emailVerified?: Date | null }).emailVerified ?? null;
+      }
+      if (trigger === "update") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { emailVerified: true },
+        });
+        if (dbUser) {
+          token.emailVerified = dbUser.emailVerified;
+        }
       }
       return token;
     },
     async session({ session, token }) {
-      if (token && session.user) {
+      if (token.id) {
         session.user.id = token.id as string;
       }
+      session.user.emailVerified = token.emailVerified as Date | null;
       return session;
     },
   },

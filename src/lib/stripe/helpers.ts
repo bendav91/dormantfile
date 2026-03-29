@@ -1,8 +1,6 @@
 import { SubscriptionStatus } from "@prisma/client";
 
-export function getSubscriptionStatusFromEvent(
-  eventType: string
-): SubscriptionStatus | null {
+export function getSubscriptionStatusFromEvent(eventType: string): SubscriptionStatus | null {
   switch (eventType) {
     case "invoice.paid":
       return SubscriptionStatus.active;

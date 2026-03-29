@@ -39,9 +39,7 @@ export async function syncSubscriptionIfStale(userId: string): Promise<void> {
   }
 
   const sub = subscriptions.data[0];
-  const stripeTier = sub.items.data.length
-    ? tierFromPriceId(sub.items.data[0].price.id)
-    : "none";
+  const stripeTier = sub.items.data.length ? tierFromPriceId(sub.items.data[0].price.id) : "none";
 
   let status: SubscriptionStatus;
   if (sub.status === "active" && sub.cancel_at_period_end) {
@@ -56,7 +54,9 @@ export async function syncSubscriptionIfStale(userId: string): Promise<void> {
     return; // trialing, incomplete, etc. — don't touch
   }
 
-  const periodStart = new Date((sub as unknown as { current_period_start: number }).current_period_start * 1000);
+  const periodStart = new Date(
+    (sub as unknown as { current_period_start: number }).current_period_start * 1000,
+  );
 
   // Only update if something actually changed
   if (

@@ -78,7 +78,9 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
 
         const data = await res.json();
         if (data.effective === "next_period") {
-          setDowngradeSuccess(`Your plan will change to ${PLANS.find((p) => p.tier === tier)?.name} at the end of your billing period.`);
+          setDowngradeSuccess(
+            `Your plan will change to ${PLANS.find((p) => p.tier === tier)?.name} at the end of your billing period.`,
+          );
           setLoading(null);
           return;
         }
@@ -154,10 +156,10 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
         {PLANS.map((plan) => {
           const isCurrent = plan.tier === currentTier;
-          const isDowngrade = isUpgrade && (
-            (currentTier === "agent" && plan.tier !== "agent") ||
-            (currentTier === "multi" && plan.tier === "basic")
-          );
+          const isDowngrade =
+            isUpgrade &&
+            ((currentTier === "agent" && plan.tier !== "agent") ||
+              (currentTier === "multi" && plan.tier === "basic"));
           const isDisabled = loading !== null || isCurrent;
 
           return (
@@ -167,7 +169,9 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                 backgroundColor: "var(--color-bg-card)",
                 borderRadius: "12px",
                 padding: "28px",
-                border: plan.popular ? "2px solid var(--color-primary)" : "1px solid var(--color-border)",
+                border: plan.popular
+                  ? "2px solid var(--color-primary)"
+                  : "1px solid var(--color-border)",
                 display: "flex",
                 flexDirection: "column",
                 position: "relative",
@@ -193,18 +197,31 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                 </span>
               )}
 
-              <p style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-primary)", margin: "0 0 4px 0" }}>
+              <p
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "var(--color-primary)",
+                  margin: "0 0 4px 0",
+                }}
+              >
                 {plan.name}
               </p>
               <div style={{ marginBottom: "4px" }}>
-                <span style={{ fontSize: "36px", fontWeight: 700, color: "var(--color-text-primary)" }}>
+                <span
+                  style={{ fontSize: "36px", fontWeight: 700, color: "var(--color-text-primary)" }}
+                >
                   £{plan.price}
                 </span>
-                <span style={{ fontSize: "14px", color: "var(--color-text-body)", marginLeft: "4px" }}>
+                <span
+                  style={{ fontSize: "14px", color: "var(--color-text-body)", marginLeft: "4px" }}
+                >
                   /year
                 </span>
               </div>
-              <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 24px 0" }}>
+              <p
+                style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 24px 0" }}
+              >
                 {plan.description}
               </p>
 
@@ -279,13 +296,13 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
                   }}
                 >
                   {loading === plan.tier && (
-                    <Loader2 size={16} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
+                    <Loader2
+                      size={16}
+                      strokeWidth={2}
+                      style={{ animation: "spin 1s linear infinite" }}
+                    />
                   )}
-                  {isDowngrade
-                    ? "Downgrade"
-                    : isUpgrade
-                      ? "Upgrade"
-                      : "Select"}
+                  {isDowngrade ? "Downgrade" : isUpgrade ? "Upgrade" : "Select"}
                 </button>
               )}
             </div>
@@ -294,8 +311,16 @@ export default function PlanPicker({ currentTier, isUpgrade }: PlanPickerProps) 
       </div>
 
       {isUpgrade && (
-        <p style={{ fontSize: "13px", color: "var(--color-text-muted)", textAlign: "center", marginTop: "20px" }}>
-          Upgrades take effect immediately. Downgrades take effect at the end of your billing period.
+        <p
+          style={{
+            fontSize: "13px",
+            color: "var(--color-text-muted)",
+            textAlign: "center",
+            marginTop: "20px",
+          }}
+        >
+          Upgrades take effect immediately. Downgrades take effect at the end of your billing
+          period.
         </p>
       )}
 

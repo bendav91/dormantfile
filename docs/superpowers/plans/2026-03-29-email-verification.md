@@ -15,6 +15,7 @@
 ### Task 1: Prisma Schema — Add emailVerified and token models
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 
 - [ ] **Step 1: Add `emailVerified` field to User model**
@@ -97,6 +98,7 @@ git commit -m "feat: add email verification schema and migration"
 ### Task 2: NextAuth — Add emailVerified to session
 
 **Files:**
+
 - Modify: `src/lib/auth.ts`
 
 - [ ] **Step 1: Add type augmentations**
@@ -192,6 +194,7 @@ git commit -m "feat: add emailVerified to NextAuth session and JWT"
 ### Task 3: Email templates
 
 **Files:**
+
 - Modify: `src/lib/email/templates.ts`
 - Test: `src/__tests__/lib/email/templates.test.ts`
 
@@ -200,7 +203,11 @@ git commit -m "feat: add emailVerified to NextAuth session and JWT"
 Add to existing test file (or create if it doesn't exist):
 
 ```typescript
-import { buildVerificationEmail, buildEmailChangeEmail, buildEmailChangeNotificationEmail } from "@/lib/email/templates";
+import {
+  buildVerificationEmail,
+  buildEmailChangeEmail,
+  buildEmailChangeNotificationEmail,
+} from "@/lib/email/templates";
 
 describe("buildVerificationEmail", () => {
   it("returns correct subject and includes verify URL in html", () => {
@@ -270,6 +277,7 @@ git commit -m "feat: add email verification templates"
 ### Task 4: POST /api/auth/verify-email
 
 **Files:**
+
 - Create: `src/app/api/auth/verify-email/route.ts`
 
 - [ ] **Step 1: Implement the route**
@@ -331,6 +339,7 @@ git commit -m "feat: add POST /api/auth/verify-email endpoint"
 ### Task 5: POST /api/auth/resend-verification
 
 **Files:**
+
 - Create: `src/app/api/auth/resend-verification/route.ts`
 
 - [ ] **Step 1: Implement the route**
@@ -353,7 +362,10 @@ export async function POST() {
 
   const { success } = rateLimit(`resend-verification:${session.user.id}`, 1, 60_000);
   if (!success) {
-    return NextResponse.json({ error: "Please wait before requesting another email." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Please wait before requesting another email." },
+      { status: 429 },
+    );
   }
 
   const user = await prisma.user.findUnique({
@@ -411,6 +423,7 @@ git commit -m "feat: add POST /api/auth/resend-verification endpoint"
 ### Task 6: POST /api/account/verify-email-change
 
 **Files:**
+
 - Create: `src/app/api/account/verify-email-change/route.ts`
 
 - [ ] **Step 1: Implement the route**
@@ -483,6 +496,7 @@ git commit -m "feat: add POST /api/account/verify-email-change endpoint"
 ### Task 7: Update registration to send verification email
 
 **Files:**
+
 - Modify: `src/app/api/auth/register/route.ts`
 
 - [ ] **Step 1: Add imports**
@@ -539,6 +553,7 @@ git commit -m "feat: send verification email on registration"
 ### Task 8: Update profile endpoint for email change flow
 
 **Files:**
+
 - Modify: `src/app/api/account/update-profile/route.ts`
 
 - [ ] **Step 1: Add imports**
@@ -629,6 +644,7 @@ git commit -m "feat: email changes create pending verification instead of updati
 ### Task 9: Hard gate in (app) layout
 
 **Files:**
+
 - Modify: `src/app/(app)/layout.tsx`
 
 - [ ] **Step 1: Add emailVerified check after existing session check**
@@ -655,6 +671,7 @@ git commit -m "feat: hard gate unverified users to /verify-email"
 ### Task 10: Verify route group and pages
 
 **Files:**
+
 - Create: `src/app/(verify)/layout.tsx`
 - Create: `src/app/(verify)/verify-email/page.tsx`
 - Create: `src/app/(verify)/verify-email-change/page.tsx`
@@ -682,6 +699,7 @@ export default function VerifyLayout({ children }: { children: React.ReactNode }
 Client component (`"use client"`) with two modes:
 
 **Waiting mode** (no `token` search param):
+
 - Get session via `useSession()`
 - Show "Check your inbox" heading
 - Display the user's email from session
@@ -692,6 +710,7 @@ Client component (`"use client"`) with two modes:
 - "Wrong email? Sign out" link that calls `signOut()`
 
 **Confirmation mode** (`token` search param present):
+
 - On mount (`useEffect`), call `POST /api/auth/verify-email` with the token
 - Show "Verifying..." loading state
 - On success: call `update()` from `useSession()` to refresh JWT, then `router.push("/dashboard")`
@@ -724,6 +743,7 @@ git commit -m "feat: add verify-email and verify-email-change pages"
 ### Task 11: Update profile form for pending email state
 
 **Files:**
+
 - Modify: `src/components/profile-form.tsx`
 - Modify: `src/app/(app)/settings/page.tsx`
 

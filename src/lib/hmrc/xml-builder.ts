@@ -1,11 +1,6 @@
 import { XMLBuilder } from "fast-xml-parser";
 import { calculateIRmark } from "./irmark";
-import type {
-  CT600Data,
-  HmrcCredentials,
-  VendorCredentials,
-  AgentCredentials,
-} from "./types";
+import type { CT600Data, HmrcCredentials, VendorCredentials, AgentCredentials } from "./types";
 import { HMRC_SUBMISSION_CLASS } from "./types";
 
 const ATTR = "@_";
@@ -46,9 +41,7 @@ export interface GovTalkMessageOptions {
  *
  * Includes iXBRL accounts and tax computations as base64-encoded attachments.
  */
-export async function buildGovTalkMessage(
-  opts: GovTalkMessageOptions
-): Promise<string> {
+export async function buildGovTalkMessage(opts: GovTalkMessageOptions): Promise<string> {
   const builder = makeBuilder();
   const { ct600, credentials, vendor, accountsIxbrl, computationsIxbrl, isTest, agent } = opts;
 
@@ -88,10 +81,7 @@ export async function buildGovTalkMessage(
 /**
  * Builds a GovTalk poll request message.
  */
-export function buildPollMessage(
-  correlationId: string,
-  vendor: VendorCredentials
-): string {
+export function buildPollMessage(correlationId: string, vendor: VendorCredentials): string {
   const builder = makeBuilder();
 
   const pollObj = {
@@ -139,7 +129,7 @@ export function buildPollMessage(
 function buildHeaderObject(
   sender: { id: string; password: string },
   vendor: VendorCredentials,
-  isTest?: boolean
+  isTest?: boolean,
 ) {
   return {
     MessageDetails: {
@@ -175,7 +165,7 @@ function buildBodyObject(
   periodStart: string,
   periodEnd: string,
   accountsIxbrl: string,
-  computationsIxbrl: string
+  computationsIxbrl: string,
 ) {
   const accountsBase64 = Buffer.from(accountsIxbrl, "utf-8").toString("base64");
   const computationsBase64 = Buffer.from(computationsIxbrl, "utf-8").toString("base64");

@@ -14,20 +14,21 @@
 
 ## File Map
 
-| File | Action | Responsibility |
-|---|---|---|
-| `.env.example` | Modify | Replace `DATABASE_URL` with new variable names |
-| `.env` | Modify | Add new variable names pointing to local DB |
-| `prisma/schema.prisma` | Modify | Add `url` and `directUrl` to datasource block |
-| `src/lib/db.ts` | Modify | Remove driver adapter, use standard PrismaClient |
-| `prisma.config.ts` | Modify | Remove `datasource` override |
-| `package.json` | Modify | Remove unused dependencies |
+| File                   | Action | Responsibility                                   |
+| ---------------------- | ------ | ------------------------------------------------ |
+| `.env.example`         | Modify | Replace `DATABASE_URL` with new variable names   |
+| `.env`                 | Modify | Add new variable names pointing to local DB      |
+| `prisma/schema.prisma` | Modify | Add `url` and `directUrl` to datasource block    |
+| `src/lib/db.ts`        | Modify | Remove driver adapter, use standard PrismaClient |
+| `prisma.config.ts`     | Modify | Remove `datasource` override                     |
+| `package.json`         | Modify | Remove unused dependencies                       |
 
 ---
 
 ### Task 1: Update Environment Variable References
 
 **Files:**
+
 - Modify: `.env.example`
 - Modify: `.env`
 
@@ -75,6 +76,7 @@ Note: `.env` is gitignored — only `.env.example` is committed.
 ### Task 2: Update Prisma Schema Datasource
 
 **Files:**
+
 - Modify: `prisma/schema.prisma:5-7`
 
 - [ ] **Step 1: Update the datasource block**
@@ -119,6 +121,7 @@ git commit -m "feat(prisma): add url and directUrl to datasource for Vercel Post
 ### Task 3: Remove Driver Adapter from db.ts
 
 **Files:**
+
 - Modify: `src/lib/db.ts`
 
 - [ ] **Step 1: Replace db.ts contents**
@@ -151,6 +154,7 @@ git commit -m "feat(db): remove driver adapter, use standard PrismaClient"
 ### Task 4: Remove datasource Override from prisma.config.ts
 
 **Files:**
+
 - Modify: `prisma.config.ts`
 
 - [ ] **Step 1: Update prisma.config.ts**
@@ -188,6 +192,7 @@ git commit -m "refactor(prisma): remove datasource override from config"
 ### Task 5: Remove Unused Dependencies
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Uninstall packages**
@@ -195,6 +200,7 @@ git commit -m "refactor(prisma): remove datasource override from config"
 Run: `npm uninstall @prisma/adapter-pg pg @types/pg`
 
 This removes:
+
 - `@prisma/adapter-pg` (driver adapter, no longer used)
 - `pg` (PostgreSQL client, no longer needed — Prisma handles connections internally)
 - `@types/pg` (type definitions for `pg`, currently in `dependencies` rather than `devDependencies`)
@@ -238,6 +244,7 @@ Verify: App starts, login works, dashboard loads. This confirms the Prisma clien
 - [ ] **Step 5: Final commit if any fixes were needed**
 
 If any adjustments were required during verification, commit them:
+
 ```bash
 git add -A
 git commit -m "fix: address issues found during deployment verification"

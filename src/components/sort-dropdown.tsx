@@ -101,7 +101,8 @@ export default function SortDropdown({ currentSort }: { currentSort: SortType })
                 padding: "8px 12px",
                 fontSize: "12px",
                 fontWeight: currentSort === s.key ? 600 : 400,
-                color: currentSort === s.key ? "var(--color-text-primary)" : "var(--color-text-body)",
+                color:
+                  currentSort === s.key ? "var(--color-text-primary)" : "var(--color-text-body)",
                 background: currentSort === s.key ? "var(--color-bg-inset)" : "transparent",
                 border: "none",
                 borderRadius: "6px",
@@ -109,7 +110,8 @@ export default function SortDropdown({ currentSort }: { currentSort: SortType })
                 transition: "background-color 150ms",
               }}
               onMouseEnter={(e) => {
-                if (currentSort !== s.key) e.currentTarget.style.backgroundColor = "var(--color-bg-inset)";
+                if (currentSort !== s.key)
+                  e.currentTarget.style.backgroundColor = "var(--color-bg-inset)";
               }}
               onMouseLeave={(e) => {
                 if (currentSort !== s.key) e.currentTarget.style.backgroundColor = "transparent";

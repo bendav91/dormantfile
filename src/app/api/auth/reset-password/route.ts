@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   if (!success) {
     return NextResponse.json(
       { error: "Too many requests. Please try again in a minute." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -19,16 +19,13 @@ export async function POST(request: Request) {
   const { token, newPassword } = body;
 
   if (!token || !newPassword) {
-    return NextResponse.json(
-      { error: "Token and new password are required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Token and new password are required" }, { status: 400 });
   }
 
   if (!validatePassword(newPassword)) {
     return NextResponse.json(
       { error: "Password must be at least 8 characters with at least one letter and one number" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -41,7 +38,7 @@ export async function POST(request: Request) {
   if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
     return NextResponse.json(
       { error: "This reset link is invalid or has expired. Please request a new one." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

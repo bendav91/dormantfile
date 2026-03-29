@@ -31,18 +31,26 @@ export default async function PricingPage() {
   if (!page) notFound();
 
   const {
-    title, subtitle, showCTA, centeredHeading, breadcrumbs,
-    plans = [], comparisonRows = [],
+    title,
+    subtitle,
+    showCTA,
+    centeredHeading,
+    breadcrumbs,
+    plans = [],
+    comparisonRows = [],
   } = page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const align = centeredHeading ? "center" as const : undefined;
+  const align = centeredHeading ? ("center" as const) : undefined;
 
   return (
     <>
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: baseUrl },
-          ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
+          ...breadcrumbs.map((b) => ({
+            name: b.label,
+            ...(b.href ? { url: `${baseUrl}${b.href}` } : {}),
+          })),
         ]}
       />
       <Breadcrumbs items={breadcrumbs} />
@@ -60,7 +68,15 @@ export default async function PricingPage() {
           {title}
         </h1>
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "var(--color-text-body)", marginBottom: "32px", textAlign: align }}>
+          <p
+            style={{
+              fontSize: "17px",
+              lineHeight: 1.7,
+              color: "var(--color-text-body)",
+              marginBottom: "32px",
+              textAlign: align,
+            }}
+          >
             {subtitle}
           </p>
         )}

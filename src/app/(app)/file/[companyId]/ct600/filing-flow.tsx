@@ -156,7 +156,9 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       >
         {label}
       </p>
-      <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
+      <p
+        style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}
+      >
         {value}
       </p>
     </div>
@@ -192,7 +194,9 @@ function StepConfirm({
         >
           Review and confirm
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
+        <p
+          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
+        >
           Check your company details before proceeding to submit your nil CT600 return.
         </p>
       </div>
@@ -237,7 +241,14 @@ function StepConfirm({
             >
               {companyName}
             </h2>
-            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: 0, marginTop: "2px" }}>
+            <p
+              style={{
+                fontSize: "13px",
+                color: "var(--color-text-muted)",
+                margin: 0,
+                marginTop: "2px",
+              }}
+            >
               Corporation Tax return
             </p>
           </div>
@@ -272,14 +283,18 @@ function StepConfirm({
           }}
         >
           <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px" }}>
-            <ShieldCheck
-              size={18}
-              color="currentColor"
-              strokeWidth={2}
-            />
+            <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-primary-text)", margin: 0, lineHeight: 1.5 }}>
-            This will submit a nil Corporation Tax return to HMRC for the period shown above. A nil return declares that the company had no taxable profit or tax to pay.
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-primary-text)",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            This will submit a nil Corporation Tax return to HMRC for the period shown above. A nil
+            return declares that the company had no taxable profit or tax to pay.
           </p>
         </div>
 
@@ -371,8 +386,11 @@ function StepCredentials({
         >
           Government Gateway credentials
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
-          Enter your Government Gateway credentials to authorise the submission. These are used once to sign your return and are never stored.
+        <p
+          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
+        >
+          Enter your Government Gateway credentials to authorise the submission. These are used once
+          to sign your return and are never stored.
         </p>
       </div>
 
@@ -391,19 +409,25 @@ function StepCredentials({
           }}
         >
           <span style={{ color: "var(--color-success)", flexShrink: 0, marginTop: "1px" }}>
-            <Lock
-              size={18}
-              color="currentColor"
-              strokeWidth={2}
-            />
+            <Lock size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-success-text)", margin: 0, lineHeight: 1.5 }}>
-            Your credentials are transmitted securely over HTTPS directly to HMRC. They are used only for this submission and are never stored or logged.
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-success-text)",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            Your credentials are transmitted securely over HTTPS directly to HMRC. They are used
+            only for this submission and are never stored or logged.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginBottom: "28px" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "20px", marginBottom: "28px" }}
+          >
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               <label
                 htmlFor="gatewayUsername"
@@ -432,7 +456,12 @@ function StepCredentials({
                 hasError={!!errors.username}
               />
               {errors.username ? (
-                <p role="alert" style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{errors.username}</p>
+                <p
+                  role="alert"
+                  style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}
+                >
+                  {errors.username}
+                </p>
               ) : (
                 <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
                   Your 12-digit Government Gateway User ID from HMRC.
@@ -467,7 +496,12 @@ function StepCredentials({
                 hasError={!!errors.password}
               />
               {errors.password ? (
-                <p role="alert" style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{errors.password}</p>
+                <p
+                  role="alert"
+                  style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}
+                >
+                  {errors.password}
+                </p>
               ) : (
                 <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
                   The password associated with your Government Gateway account.
@@ -513,7 +547,9 @@ function StepSubmitting() {
         >
           Submitting to HMRC
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
+        <p
+          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
+        >
           Please wait while we securely submit your return.
         </p>
       </div>
@@ -677,8 +713,16 @@ function StepResult({
               >
                 Filing Accepted
               </h2>
-              <p style={{ fontSize: "15px", color: "var(--color-success-text)", margin: 0, lineHeight: 1.6 }}>
-                HMRC has accepted your nil CT600 return. A confirmation has been sent to your email address, and your next accounting period has been set up automatically.
+              <p
+                style={{
+                  fontSize: "15px",
+                  color: "var(--color-success-text)",
+                  margin: 0,
+                  lineHeight: 1.6,
+                }}
+              >
+                HMRC has accepted your nil CT600 return. A confirmation has been sent to your email
+                address, and your next accounting period has been set up automatically.
               </p>
             </div>
           </div>
@@ -828,8 +872,16 @@ function StepResult({
               >
                 HMRC is still processing
               </h2>
-              <p style={{ fontSize: "15px", color: "var(--color-warning-deep)", margin: 0, lineHeight: 1.6 }}>
-                Your return has been submitted but HMRC has not yet confirmed the outcome. You can check the status from your dashboard - it may take a few more minutes.
+              <p
+                style={{
+                  fontSize: "15px",
+                  color: "var(--color-warning-deep)",
+                  margin: 0,
+                  lineHeight: 1.6,
+                }}
+              >
+                Your return has been submitted but HMRC has not yet confirmed the outcome. You can
+                check the status from your dashboard - it may take a few more minutes.
               </p>
             </div>
           </div>
@@ -899,7 +951,14 @@ function StepResult({
             >
               Submission Failed
             </h2>
-            <p style={{ fontSize: "15px", color: "var(--color-danger-text)", margin: 0, lineHeight: 1.6 }}>
+            <p
+              style={{
+                fontSize: "15px",
+                color: "var(--color-danger-text)",
+                margin: 0,
+                lineHeight: 1.6,
+              }}
+            >
               {result.message || "An unexpected error occurred. Please try again."}
             </p>
           </div>
@@ -946,7 +1005,13 @@ export default function FilingFlow({
       const res = await fetch("/api/file/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyId, gatewayUsername, gatewayPassword, periodStart: periodStartISO, periodEnd: periodEndISO }),
+        body: JSON.stringify({
+          companyId,
+          gatewayUsername,
+          gatewayPassword,
+          periodStart: periodStartISO,
+          periodEnd: periodEndISO,
+        }),
       });
 
       const data = await res.json();
@@ -1007,12 +1072,7 @@ export default function FilingFlow({
   }
 
   if (step === "credentials") {
-    return (
-      <StepCredentials
-        onSubmit={handleSubmit}
-        onBack={() => setStep("confirm")}
-      />
-    );
+    return <StepCredentials onSubmit={handleSubmit} onBack={() => setStep("confirm")} />;
   }
 
   if (step === "submitting") {
@@ -1020,11 +1080,5 @@ export default function FilingFlow({
   }
 
   // result step
-  return (
-    <StepResult
-      result={result!}
-      onTryAgain={handleTryAgain}
-      onDashboard={handleDashboard}
-    />
-  );
+  return <StepResult result={result!} onTryAgain={handleTryAgain} onDashboard={handleDashboard} />;
 }

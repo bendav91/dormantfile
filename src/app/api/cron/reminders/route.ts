@@ -35,8 +35,7 @@ export async function GET(req: NextRequest) {
 
   for (const reminder of reminders) {
     const daysUntilDeadline = Math.floor(
-      (reminder.filingDeadline.getTime() - today.getTime()) /
-        (1000 * 60 * 60 * 24)
+      (reminder.filingDeadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     if (daysUntilDeadline < 0) {
@@ -65,10 +64,7 @@ export async function GET(req: NextRequest) {
       });
 
       const newRemindersSent = reminder.remindersSent + 1;
-      const nextReminderAt = calculateNextReminderDate(
-        reminder.filingDeadline,
-        newRemindersSent
-      );
+      const nextReminderAt = calculateNextReminderDate(reminder.filingDeadline, newRemindersSent);
 
       await prisma.reminder.update({
         where: { id: reminder.id },

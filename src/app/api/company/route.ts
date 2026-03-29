@@ -2,10 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { calculateAccountsDeadline, calculateCT600Deadline, calculateNextReminderDate } from "@/lib/utils";
+import {
+  calculateAccountsDeadline,
+  calculateCT600Deadline,
+  calculateNextReminderDate,
+} from "@/lib/utils";
 import { canAddCompany } from "@/lib/subscription";
 import { Prisma } from "@prisma/client";
-import { fetchFilingHistory, detectAccountsGaps, computeFirstPeriodEnd } from "@/lib/companies-house/filing-history";
+import {
+  fetchFilingHistory,
+  detectAccountsGaps,
+  computeFirstPeriodEnd,
+} from "@/lib/companies-house/filing-history";
 import type { GapDetectionResult } from "@/lib/companies-house/filing-history";
 
 async function seedFilingHistory(
@@ -27,8 +35,9 @@ async function seedFilingHistory(
 
   // The Map values are the computed expected periodEnd dates (not raw CH dates).
   // This ensures seeded filings match what getOutstandingPeriods() generates.
-  const sortedExpectedEnds = [...gapResult.filedPeriodEnds.values()]
-    .sort((a, b) => a.getTime() - b.getTime());
+  const sortedExpectedEnds = [...gapResult.filedPeriodEnds.values()].sort(
+    (a, b) => a.getTime() - b.getTime(),
+  );
 
   const filingData = sortedExpectedEnds.map((periodEnd) => {
     let periodStart: Date;
@@ -82,12 +91,13 @@ export async function POST(req: NextRequest) {
   if (!isFirstCompany && !canAddCompany(user.subscriptionTier, activeCompanyCount)) {
     return NextResponse.json(
       { error: "You have reached the company limit for your plan. Upgrade to add more companies." },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
   const body = await req.json();
-  const { companyRegistrationNumber, uniqueTaxReference, registeredForCorpTax, shareCapital } = body;
+  const { companyRegistrationNumber, uniqueTaxReference, registeredForCorpTax, shareCapital } =
+    body;
 
   if (!companyRegistrationNumber) {
     return NextResponse.json({ error: "Registration number is required" }, { status: 400 });
@@ -112,14 +122,20 @@ export async function POST(req: NextRequest) {
   try {
     const chRes = await fetch(
       `${process.env.COMPANY_INFORMATION_API_ENDPOINT}/company/${encodeURIComponent(paddedNumber)}`,
-      { headers: { Authorization: `Basic ${basicAuth}` } }
+      { headers: { Authorization: `Basic ${basicAuth}` } },
     );
 
     if (chRes.status === 404) {
-      return NextResponse.json({ error: "No company found with that registration number" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No company found with that registration number" },
+        { status: 400 },
+      );
     }
     if (!chRes.ok) {
-      return NextResponse.json({ error: "Failed to verify company with Companies House" }, { status: 502 });
+      return NextResponse.json(
+        { error: "Failed to verify company with Companies House" },
+        { status: 502 },
+      );
     }
 
     const chData = await chRes.json();
@@ -128,8 +144,11 @@ export async function POST(req: NextRequest) {
     const companyStatus: string | undefined = chData.company_status;
     if (companyStatus === "dissolved" || companyStatus === "converted-closed") {
       return NextResponse.json(
-        { error: "This company has been dissolved and cannot be added. DormantFile is for active dormant companies only." },
-        { status: 400 }
+        {
+          error:
+            "This company has been dissolved and cannot be added. DormantFile is for active dormant companies only.",
+        },
+        { status: 400 },
       );
     }
 
@@ -153,12 +172,7 @@ export async function POST(req: NextRequest) {
 
     // Attempt gap detection
     if (dateOfCreation && ardMonth && ardDay && !isNaN(ardMonth) && !isNaN(ardDay)) {
-      gapResult = detectAccountsGaps(
-        dateOfCreation,
-        ardMonth,
-        ardDay,
-        filedPeriodEnds,
-      );
+      gapResult = detectAccountsGaps(dateOfCreation, ardMonth, ardDay, filedPeriodEnds);
     }
 
     if (gapResult) {
@@ -171,8 +185,11 @@ export async function POST(req: NextRequest) {
       accountingPeriodEnd = nextAccounts.period_end_on;
     } else {
       return NextResponse.json(
-        { error: "Companies House has no upcoming accounting period for this company. It may already be filed or the company may be dissolved." },
-        { status: 400 }
+        {
+          error:
+            "Companies House has no upcoming accounting period for this company. It may already be filed or the company may be dissolved.",
+        },
+        { status: 400 },
       );
     }
   } catch {
@@ -180,7 +197,10 @@ export async function POST(req: NextRequest) {
   }
 
   if (registeredForCorpTax && !uniqueTaxReference) {
-    return NextResponse.json({ error: "UTR is required for companies registered for Corporation Tax" }, { status: 400 });
+    return NextResponse.json(
+      { error: "UTR is required for companies registered for Corporation Tax" },
+      { status: 400 },
+    );
   }
 
   // Check for duplicate active company
@@ -195,7 +215,7 @@ export async function POST(req: NextRequest) {
   if (duplicate) {
     return NextResponse.json(
       { error: "This company is already on your account." },
-      { status: 409 }
+      { status: 409 },
     );
   }
 
@@ -260,7 +280,8 @@ export async function POST(req: NextRequest) {
           companyName,
           uniqueTaxReference: registeredForCorpTax ? uniqueTaxReference : null,
           registeredForCorpTax: !!registeredForCorpTax,
-          shareCapital: typeof shareCapital === "number" && shareCapital >= 0 ? Math.round(shareCapital) : 0,
+          shareCapital:
+            typeof shareCapital === "number" && shareCapital >= 0 ? Math.round(shareCapital) : 0,
           accountingPeriodStart: periodStart,
           accountingPeriodEnd: periodEnd,
           deletedAt: null,
@@ -282,7 +303,8 @@ export async function POST(req: NextRequest) {
         companyRegistrationNumber: companyRegistrationNumber.trim(),
         uniqueTaxReference: registeredForCorpTax ? uniqueTaxReference : null,
         registeredForCorpTax: !!registeredForCorpTax,
-        shareCapital: typeof shareCapital === "number" && shareCapital >= 0 ? Math.round(shareCapital) : 0,
+        shareCapital:
+          typeof shareCapital === "number" && shareCapital >= 0 ? Math.round(shareCapital) : 0,
         accountingPeriodStart: periodStart,
         accountingPeriodEnd: periodEnd,
         reminders: {
@@ -298,7 +320,7 @@ export async function POST(req: NextRequest) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json(
         { error: "This company is already on your account." },
-        { status: 409 }
+        { status: 409 },
       );
     }
     throw error;

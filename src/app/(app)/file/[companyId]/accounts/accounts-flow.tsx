@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Building2,
-  ShieldCheck,
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { Building2, ShieldCheck, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 
 // ─── Shared style constants ───────────────────────────────────────────────────
 
@@ -91,7 +85,9 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       >
         {label}
       </p>
-      <p style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}>
+      <p
+        style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}
+      >
         {value}
       </p>
     </div>
@@ -129,7 +125,9 @@ function StepConfirm({
         >
           File annual accounts
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
+        <p
+          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
+        >
           Review your company details before submitting dormant company accounts to Companies House.
         </p>
       </div>
@@ -174,7 +172,14 @@ function StepConfirm({
             >
               {companyName}
             </h2>
-            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: 0, marginTop: "2px" }}>
+            <p
+              style={{
+                fontSize: "13px",
+                color: "var(--color-text-muted)",
+                margin: 0,
+                marginTop: "2px",
+              }}
+            >
               Annual accounts
             </p>
           </div>
@@ -190,7 +195,14 @@ function StepConfirm({
           }}
         >
           <DetailRow label="Company number" value={companyRegistrationNumber} />
-          <DetailRow label="Filing type" value={shareCapitalPence > 0 ? `Dormant accounts (£${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital)` : "Dormant accounts (nil balance sheet)"} />
+          <DetailRow
+            label="Filing type"
+            value={
+              shareCapitalPence > 0
+                ? `Dormant accounts (£${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital)`
+                : "Dormant accounts (nil balance sheet)"
+            }
+          />
           <DetailRow label="Period start" value={periodStart} />
           <DetailRow label="Period end" value={periodEnd} />
         </div>
@@ -209,13 +221,16 @@ function StepConfirm({
           }}
         >
           <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px" }}>
-            <ShieldCheck
-              size={18}
-              color="currentColor"
-              strokeWidth={2}
-            />
+            <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-primary-text)", margin: 0, lineHeight: 1.5 }}>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-primary-text)",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
             {shareCapitalPence > 0
               ? `This will submit dormant company accounts to Companies House with a balance sheet showing £${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital and no other assets, liabilities, or activity.`
               : "This will submit dormant company accounts to Companies House confirming the company had nil assets, liabilities, and shareholder funds during this period."}
@@ -242,11 +257,7 @@ function StepConfirm({
   );
 }
 
-function StepAuthenticate({
-  onSubmit,
-}: {
-  onSubmit: (authCode: string) => void;
-}) {
+function StepAuthenticate({ onSubmit }: { onSubmit: (authCode: string) => void }) {
   const [authCode, setAuthCode] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -278,7 +289,9 @@ function StepAuthenticate({
         >
           Companies House authentication
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
+        <p
+          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
+        >
           Enter your company authentication code to authorise this filing.
         </p>
       </div>
@@ -335,7 +348,10 @@ function StepAuthenticate({
             }}
           />
           {error && (
-            <p role="alert" style={{ fontSize: "13px", color: "var(--color-danger)", margin: "8px 0 0 0" }}>
+            <p
+              role="alert"
+              style={{ fontSize: "13px", color: "var(--color-danger)", margin: "8px 0 0 0" }}
+            >
               {error}
             </p>
           )}
@@ -355,14 +371,18 @@ function StepAuthenticate({
           }}
         >
           <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px" }}>
-            <ShieldCheck
-              size={18}
-              color="currentColor"
-              strokeWidth={2}
-            />
+            <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-primary-text)", margin: 0, lineHeight: 1.5 }}>
-            This is the 6-character code Companies House posted to your company&apos;s registered office. It authorises filings on behalf of your company.
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-primary-text)",
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            This is the 6-character code Companies House posted to your company&apos;s registered
+            office. It authorises filings on behalf of your company.
           </p>
         </div>
 
@@ -402,7 +422,9 @@ function StepSubmitting() {
         >
           Submitting to Companies House
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}>
+        <p
+          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
+        >
           Please wait while we securely submit your accounts.
         </p>
       </div>
@@ -440,7 +462,7 @@ function StepSubmitting() {
                 letterSpacing: "-0.01em",
               }}
             >
-             {"Submitting to Companies House\u2026"}
+              {"Submitting to Companies House\u2026"}
             </p>
             <p
               style={{
@@ -566,8 +588,17 @@ function StepResult({
               >
                 Filing Accepted
               </h2>
-              <p style={{ fontSize: "15px", color: "var(--color-success-text)", margin: 0, lineHeight: 1.6 }}>
-                Companies House has accepted your dormant company accounts. A confirmation has been sent to your email address, and your next accounting period has been set up automatically.
+              <p
+                style={{
+                  fontSize: "15px",
+                  color: "var(--color-success-text)",
+                  margin: 0,
+                  lineHeight: 1.6,
+                }}
+              >
+                Companies House has accepted your dormant company accounts. A confirmation has been
+                sent to your email address, and your next accounting period has been set up
+                automatically.
               </p>
             </div>
           </div>
@@ -717,8 +748,17 @@ function StepResult({
               >
                 Companies House is still processing
               </h2>
-              <p style={{ fontSize: "15px", color: "var(--color-warning-deep)", margin: 0, lineHeight: 1.6 }}>
-                Your accounts have been submitted but Companies House has not yet confirmed the outcome. You can check the status from your dashboard - it may take a few more minutes.
+              <p
+                style={{
+                  fontSize: "15px",
+                  color: "var(--color-warning-deep)",
+                  margin: 0,
+                  lineHeight: 1.6,
+                }}
+              >
+                Your accounts have been submitted but Companies House has not yet confirmed the
+                outcome. You can check the status from your dashboard - it may take a few more
+                minutes.
               </p>
             </div>
           </div>
@@ -788,7 +828,14 @@ function StepResult({
             >
               Submission Failed
             </h2>
-            <p style={{ fontSize: "15px", color: "var(--color-danger-text)", margin: 0, lineHeight: 1.6 }}>
+            <p
+              style={{
+                fontSize: "15px",
+                color: "var(--color-danger-text)",
+                margin: 0,
+                lineHeight: 1.6,
+              }}
+            >
               {result.message || "An unexpected error occurred. Please try again."}
             </p>
           </div>
@@ -836,7 +883,12 @@ export default function AccountsFlow({
       const res = await fetch("/api/file/submit-accounts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyId, companyAuthCode, periodStart: periodStartISO, periodEnd: periodEndISO }),
+        body: JSON.stringify({
+          companyId,
+          companyAuthCode,
+          periodStart: periodStartISO,
+          periodEnd: periodEndISO,
+        }),
       });
 
       const data = await res.json();
@@ -855,7 +907,10 @@ export default function AccountsFlow({
       if (status === "accepted") {
         setResult({ type: "accepted" });
       } else if (status === "rejected") {
-        setResult({ type: "rejected", message: data.message || "Companies House rejected the filing." });
+        setResult({
+          type: "rejected",
+          message: data.message || "Companies House rejected the filing.",
+        });
       } else if (status === "polling_timeout") {
         setResult({ type: "timeout" });
       } else {
@@ -898,11 +953,7 @@ export default function AccountsFlow({
   }
 
   if (step === "authenticate") {
-    return (
-      <StepAuthenticate
-        onSubmit={handleSubmit}
-      />
-    );
+    return <StepAuthenticate onSubmit={handleSubmit} />;
   }
 
   if (step === "submitting") {
@@ -910,11 +961,5 @@ export default function AccountsFlow({
   }
 
   // result step
-  return (
-    <StepResult
-      result={result!}
-      onTryAgain={handleTryAgain}
-      onDashboard={handleDashboard}
-    />
-  );
+  return <StepResult result={result!} onTryAgain={handleTryAgain} onDashboard={handleDashboard} />;
 }

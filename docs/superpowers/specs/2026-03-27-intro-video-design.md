@@ -79,23 +79,23 @@ video/
 
 ## Colour Palette
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| Background | `#F8FAFC` | All scenes |
-| Primary text | `#1E293B` | Headlines, emphasis |
-| Secondary text | `#64748B` | Body copy |
-| Brand blue | `#2563EB` | FileText icon |
-| Accent orange | `#F97316` | Not used in video (reserved for CTAs on page) |
+| Token          | Hex       | Usage                                         |
+| -------------- | --------- | --------------------------------------------- |
+| Background     | `#F8FAFC` | All scenes                                    |
+| Primary text   | `#1E293B` | Headlines, emphasis                           |
+| Secondary text | `#64748B` | Body copy                                     |
+| Brand blue     | `#2563EB` | FileText icon                                 |
+| Accent orange  | `#F97316` | Not used in video (reserved for CTAs on page) |
 
 ## Animation Summary
 
-| Element | Type | Config |
-|---------|------|--------|
-| Text entrances | `spring({ frame, fps, config })` | `{ damping: 200 }` — smooth, no bounce |
-| Text slide-up | interpolate spring → translateY | `[20, 0]` px |
-| Logo icon scale | `spring({ frame, fps, config })` | `{ damping: 10 }` — slight bounce |
-| Logo text slide | `spring({ frame, fps, config })` | `{ damping: 200 }` from translateX 40px |
-| Scene transitions | `fade()` | `linearTiming({ durationInFrames: 10 })` |
+| Element           | Type                             | Config                                   |
+| ----------------- | -------------------------------- | ---------------------------------------- |
+| Text entrances    | `spring({ frame, fps, config })` | `{ damping: 200 }` — smooth, no bounce   |
+| Text slide-up     | interpolate spring → translateY  | `[20, 0]` px                             |
+| Logo icon scale   | `spring({ frame, fps, config })` | `{ damping: 10 }` — slight bounce        |
+| Logo text slide   | `spring({ frame, fps, config })` | `{ damping: 200 }` from translateX 40px  |
+| Scene transitions | `fade()`                         | `linearTiming({ durationInFrames: 10 })` |
 
 ## Audio
 

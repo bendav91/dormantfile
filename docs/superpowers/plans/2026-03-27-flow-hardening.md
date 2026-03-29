@@ -15,6 +15,7 @@
 ## Task 1: Add validatePassword and validateEmail to utils
 
 **Files:**
+
 - Modify: `src/lib/utils.ts`
 - Modify: `src/__tests__/lib/utils.test.ts`
 
@@ -117,6 +118,7 @@ git commit -m "feat: add validatePassword and validateEmail utilities"
 ## Task 2: Harden registration API
 
 **Files:**
+
 - Modify: `src/app/api/auth/register/route.ts`
 
 - [ ] **Step 1: Add validation and P2002 handling**
@@ -138,28 +140,22 @@ export async function POST(request: Request) {
     if (!email || !password || !name) {
       return NextResponse.json(
         { error: "Email, password, and name are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (typeof name !== "string" || name.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Name cannot be empty" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Name cannot be empty" }, { status: 400 });
     }
 
     if (!validateEmail(email)) {
-      return NextResponse.json(
-        { error: "Please enter a valid email address" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Please enter a valid email address" }, { status: 400 });
     }
 
     if (!validatePassword(password)) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters with at least one letter and one number" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -168,10 +164,7 @@ export async function POST(request: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "A user with this email already exists" },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "A user with this email already exists" }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
@@ -184,21 +177,12 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(
-      { id: user.id, email: user.email },
-      { status: 201 }
-    );
+    return NextResponse.json({ id: user.id, email: user.email }, { status: 201 });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return NextResponse.json(
-        { error: "A user with this email already exists" },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: "A user with this email already exists" }, { status: 409 });
     }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 ```
@@ -220,6 +204,7 @@ git commit -m "feat: add backend validation and race condition handling to regis
 ## Task 3: Redirect authenticated users from auth pages
 
 **Files:**
+
 - Modify: `src/app/(auth)/layout.tsx`
 
 - [ ] **Step 1: Add session check to auth layout**
@@ -269,6 +254,7 @@ git commit -m "feat: redirect authenticated users away from login/register pages
 ## Task 4: Add rate limiting utility
 
 **Files:**
+
 - Create: `src/lib/rate-limit.ts`
 - Create: `src/__tests__/lib/rate-limit.test.ts`
 
@@ -322,7 +308,7 @@ const requests = new Map<string, number[]>();
 export function rateLimit(
   key: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
 ): { success: boolean; remaining: number } {
   const now = Date.now();
   const timestamps = requests.get(key) ?? [];
@@ -363,6 +349,7 @@ git commit -m "feat: add in-memory rate limiting utility"
 ## Task 5: Apply rate limiting to registration and auth
 
 **Files:**
+
 - Modify: `src/app/api/auth/register/route.ts`
 - Modify: `src/lib/auth.ts`
 
@@ -382,7 +369,7 @@ const { success } = rateLimit(ip, 5, 60000);
 if (!success) {
   return NextResponse.json(
     { error: "Too many requests. Please try again in a minute." },
-    { status: 429 }
+    { status: 429 },
   );
 }
 ```
@@ -424,6 +411,7 @@ git commit -m "feat: apply rate limiting to registration and login"
 ## Task 6: Password reset — schema and migration
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 
 - [ ] **Step 1: Add PasswordResetToken model to schema**
@@ -461,6 +449,7 @@ git commit -m "feat: add PasswordResetToken model"
 ## Task 7: Password reset — email template
 
 **Files:**
+
 - Modify: `src/lib/email/templates.ts`
 - Modify: `src/__tests__/lib/email/templates.test.ts`
 
@@ -502,9 +491,7 @@ interface PasswordResetEmailResult {
   html: string;
 }
 
-export function buildPasswordResetEmail(
-  data: PasswordResetEmailData
-): PasswordResetEmailResult {
+export function buildPasswordResetEmail(data: PasswordResetEmailData): PasswordResetEmailResult {
   const { resetUrl } = data;
 
   const subject = "Reset your DormantFile password";
@@ -563,6 +550,7 @@ git commit -m "feat: add password reset email template"
 ## Task 8: Password reset — API routes
 
 **Files:**
+
 - Create: `src/app/api/auth/forgot-password/route.ts`
 - Create: `src/app/api/auth/reset-password/route.ts`
 
@@ -586,7 +574,7 @@ export async function POST(request: Request) {
   if (!success) {
     return NextResponse.json(
       { error: "Too many requests. Please try again in a minute." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -654,7 +642,7 @@ export async function POST(request: Request) {
   if (!success) {
     return NextResponse.json(
       { error: "Too many requests. Please try again in a minute." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 
@@ -662,16 +650,13 @@ export async function POST(request: Request) {
   const { token, newPassword } = body;
 
   if (!token || !newPassword) {
-    return NextResponse.json(
-      { error: "Token and new password are required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Token and new password are required" }, { status: 400 });
   }
 
   if (!validatePassword(newPassword)) {
     return NextResponse.json(
       { error: "Password must be at least 8 characters with at least one letter and one number" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -684,7 +669,7 @@ export async function POST(request: Request) {
   if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
     return NextResponse.json(
       { error: "This reset link is invalid or has expired. Please request a new one." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -722,6 +707,7 @@ git commit -m "feat: add forgot-password and reset-password API routes"
 ## Task 9: Password reset — UI pages and login link
 
 **Files:**
+
 - Create: `src/app/(auth)/forgot-password/page.tsx`
 - Create: `src/app/(auth)/reset-password/page.tsx`
 - Modify: `src/app/(auth)/login/page.tsx`
@@ -773,7 +759,8 @@ export default function ForgotPasswordPage() {
       <div>
         <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">Check your email</h1>
         <p className="text-center text-gray-500 text-sm mb-6">
-          If an account exists with that email, we have sent a password reset link. It expires in 1 hour.
+          If an account exists with that email, we have sent a password reset link. It expires in 1
+          hour.
         </p>
         <Link
           href="/login"
@@ -816,7 +803,9 @@ export default function ForgotPasswordPage() {
         </button>
       </form>
       <p className="text-center text-sm text-gray-500 mt-4">
-        <Link href="/login" className="text-blue-600 hover:underline">Back to sign in</Link>
+        <Link href="/login" className="text-blue-600 hover:underline">
+          Back to sign in
+        </Link>
       </p>
     </div>
   );
@@ -907,9 +896,7 @@ export default function ResetPasswordPage() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">Set new password</h1>
-      <p className="text-center text-gray-500 text-sm mb-6">
-        Enter your new password below.
-      </p>
+      <p className="text-center text-gray-500 text-sm mb-6">Enter your new password below.</p>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
@@ -925,7 +912,9 @@ export default function ResetPasswordPage() {
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <p className="text-xs text-gray-400 mt-1">Must include at least one letter and one number.</p>
+          <p className="text-xs text-gray-400 mt-1">
+            Must include at least one letter and one number.
+          </p>
         </div>
         {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
         <button
@@ -970,6 +959,7 @@ git commit -m "feat: add password reset UI pages and forgot-password link on log
 ## Task 10: Abandoned checkout recovery
 
 **Files:**
+
 - Modify: `src/components/subscription-banner.tsx`
 - Modify: `src/app/api/stripe/create-checkout/route.ts`
 
@@ -1015,6 +1005,7 @@ git commit -m "fix: improve abandoned checkout recovery messaging and redirect"
 ## Task 11: Tier validation during filing
 
 **Files:**
+
 - Modify: `src/app/api/file/submit/route.ts`
 
 - [ ] **Step 1: Add tier check after subscription status check**
@@ -1036,7 +1027,7 @@ const limit = getCompanyLimit(user.subscriptionTier);
 if (companyCount > limit) {
   return NextResponse.json(
     { error: "Your plan doesn't cover all your companies. Upgrade your plan to file." },
-    { status: 403 }
+    { status: 403 },
   );
 }
 ```
@@ -1058,6 +1049,7 @@ git commit -m "feat: enforce subscription tier limits during filing"
 ## Task 12: Duplicate company prevention
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 - Modify: `src/app/api/company/route.ts`
 
@@ -1088,10 +1080,7 @@ const duplicate = await prisma.company.findFirst({
 });
 
 if (duplicate) {
-  return NextResponse.json(
-    { error: "This company is already on your account." },
-    { status: 409 }
-  );
+  return NextResponse.json({ error: "This company is already on your account." }, { status: 409 });
 }
 ```
 
@@ -1114,6 +1103,7 @@ git commit -m "feat: prevent duplicate companies per user"
 ## Task 13: Stuck pending filing recovery
 
 **Files:**
+
 - Modify: `src/app/api/file/submit/route.ts`
 
 - [ ] **Step 1: Add stale pending cleanup before idempotency check**
@@ -1139,13 +1129,17 @@ await prisma.filing.deleteMany({
 Change the existing error message from:
 
 ```typescript
-{ error: "A filing already exists for this period" }
+{
+  error: "A filing already exists for this period";
+}
 ```
 
 To:
 
 ```typescript
-{ error: "A filing for this period has already been submitted. Check your dashboard for the current status." }
+{
+  error: "A filing for this period has already been submitted. Check your dashboard for the current status.";
+}
 ```
 
 - [ ] **Step 3: Build to verify**
@@ -1165,6 +1159,7 @@ git commit -m "fix: clean up stale pending filings and improve idempotency messa
 ## Task 14: Silent failure handling
 
 **Files:**
+
 - Modify: `src/components/subscription-banner.tsx`
 - Modify: `src/components/settings-actions.tsx`
 - Modify: `src/components/company-form.tsx`
@@ -1205,11 +1200,15 @@ Also handle the case where `!res.ok` and status is not 503 or 404 — set to `"e
 Add the UI for it after the `not_found` block:
 
 ```tsx
-{lookupStatus === "error" && (
-  <div style={{ marginTop: "2px" }}>
-    <span style={{ fontSize: "13px", color: "#64748B" }}>Lookup failed — enter company name manually.</span>
-  </div>
-)}
+{
+  lookupStatus === "error" && (
+    <div style={{ marginTop: "2px" }}>
+      <span style={{ fontSize: "13px", color: "#64748B" }}>
+        Lookup failed — enter company name manually.
+      </span>
+    </div>
+  );
+}
 ```
 
 Update the type: `"idle" | "loading" | "found" | "not_found" | "unavailable" | "error"`.
@@ -1231,6 +1230,7 @@ git commit -m "fix: handle silent failures in subscription portal, billing, and 
 ## Task 15: Clearer filing status messaging
 
 **Files:**
+
 - Modify: `src/components/filing-status-badge.tsx`
 
 - [ ] **Step 1: Update polling_timeout label**
@@ -1257,6 +1257,7 @@ git commit -m "fix: show 'Awaiting HMRC' instead of 'Processing' for polling tim
 ## Task 16: Accounting period date validation
 
 **Files:**
+
 - Modify: `src/app/api/company/route.ts`
 - Modify: `src/components/company-form.tsx`
 
@@ -1272,14 +1273,14 @@ twoYearsAgo.setUTCFullYear(twoYearsAgo.getUTCFullYear() - 2);
 if (periodEnd > now) {
   return NextResponse.json(
     { error: "Accounting period end date cannot be in the future." },
-    { status: 400 }
+    { status: 400 },
   );
 }
 
 if (periodEnd < twoYearsAgo) {
   return NextResponse.json(
     { error: "Accounting period end date cannot be more than 2 years in the past." },
-    { status: 400 }
+    { status: 400 },
   );
 }
 ```
@@ -1298,7 +1299,8 @@ if (accountingPeriodEnd) {
   if (periodEnd > now) {
     errs.accountingPeriodEnd = "Accounting period end date cannot be in the future.";
   } else if (periodEnd < twoYearsAgo) {
-    errs.accountingPeriodEnd = "Accounting period end date cannot be more than 2 years in the past.";
+    errs.accountingPeriodEnd =
+      "Accounting period end date cannot be more than 2 years in the past.";
   }
 }
 ```

@@ -22,7 +22,10 @@ export interface FilterCounts {
 
 export type FilterType = "needs-attention" | "recently-filed" | "issues" | "";
 
-export function matchesNeedsAttention(periods: PeriodInfo[], registeredForCorpTax: boolean): boolean {
+export function matchesNeedsAttention(
+  periods: PeriodInfo[],
+  registeredForCorpTax: boolean,
+): boolean {
   const now = Date.now();
   return periods.some((p) => {
     if (p.isComplete) return false;

@@ -33,7 +33,10 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
       const data = await res.json();
 
       if (!res.ok) {
-        setResult({ type: "processing", message: data.error || "Unable to check status. Please try again." });
+        setResult({
+          type: "processing",
+          message: data.error || "Unable to check status. Please try again.",
+        });
         setLoading(false);
         return;
       }
@@ -44,10 +47,16 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
         setResult({ type: "accepted", message: "Filing accepted by HMRC." });
         setTimeout(() => router.refresh(), 1500);
       } else if (status === "rejected") {
-        setResult({ type: "rejected", message: "Filing rejected by HMRC. Please contact support." });
+        setResult({
+          type: "rejected",
+          message: "Filing rejected by HMRC. Please contact support.",
+        });
         setTimeout(() => router.refresh(), 1500);
       } else {
-        setResult({ type: "processing", message: "Your filing is still being processed by HMRC. Please check again later." });
+        setResult({
+          type: "processing",
+          message: "Your filing is still being processed by HMRC. Please check again later.",
+        });
       }
     } catch {
       setResult({ type: "processing", message: "An unexpected error occurred. Please try again." });
@@ -57,9 +66,21 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
   }
 
   const resultColors: Record<string, { bg: string; text: string; border: string }> = {
-    accepted: { bg: "var(--color-success-bg)", text: "var(--color-success)", border: "var(--color-success-border)" },
-    rejected: { bg: "var(--color-danger-bg)", text: "var(--color-danger-deep)", border: "var(--color-danger-border)" },
-    processing: { bg: "var(--color-warning-bg)", text: "var(--color-warning-deep)", border: "var(--color-warning-border)" },
+    accepted: {
+      bg: "var(--color-success-bg)",
+      text: "var(--color-success)",
+      border: "var(--color-success-border)",
+    },
+    rejected: {
+      bg: "var(--color-danger-bg)",
+      text: "var(--color-danger-deep)",
+      border: "var(--color-danger-border)",
+    },
+    processing: {
+      bg: "var(--color-warning-bg)",
+      text: "var(--color-warning-deep)",
+      border: "var(--color-warning-border)",
+    },
   };
 
   return (
@@ -114,7 +135,6 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
           {result.message}
         </div>
       )}
-
     </div>
   );
 }

@@ -79,6 +79,7 @@ Tests live in `src/__tests__/` and mirror `src/lib/`. Run `npm test` before comm
 ## Environment
 
 Env vars are in `.env` (local) — never commit secrets. Key vars:
+
 - `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`
 - `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`

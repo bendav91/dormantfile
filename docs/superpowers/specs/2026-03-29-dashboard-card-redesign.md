@@ -11,12 +11,14 @@ Strip the cards down to: company header, deadline summary with urgency colouring
 ## Card content
 
 ### Header
+
 - Company icon (existing style)
 - Company name (truncated with ellipsis)
 - CRN
 - No inline UTR editing
 
 ### Deadline summary
+
 - **Accounts deadline** for the current (oldest unfiled) period, with urgency colouring:
   - Overdue (deadline passed): `var(--color-danger)` — text: "Accounts overdue — due DD MMM YYYY" (or "X years overdue" if 2+ years)
   - Due within 30 days: `var(--color-due-soon)` — text: "Accounts due in Xd — DD MMM YYYY"
@@ -25,12 +27,14 @@ Strip the cards down to: company header, deadline summary with urgency colouring
 - If company is all caught up (no outstanding periods): green "All caught up" text with next period due date
 
 ### Outstanding badge
+
 - `outstandingCount > 0`: pill badge "N outstanding ›"
   - 4+ outstanding: danger colour
   - 1-3 outstanding: warning colour
 - `outstandingCount === 0`: no badge (the "All caught up" text covers it)
 
 ### Clickable card
+
 - The entire card is wrapped in a `<Link href={/company/${company.id}}>` (or `<a>`)
 - Hover state: slightly brighter background
 - Remove all interior `<Link>` and `<button>` elements

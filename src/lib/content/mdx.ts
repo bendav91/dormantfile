@@ -91,9 +91,6 @@ export function getRelatedContent(
 ): ContentItem[] {
   const items = getContentItems(type, contentDir);
   return items
-    .filter(
-      (item) =>
-        item.frontmatter.category === category && item.slug !== currentSlug,
-    )
+    .filter((item) => item.frontmatter.category === category && item.slug !== currentSlug)
     .slice(0, limit);
 }

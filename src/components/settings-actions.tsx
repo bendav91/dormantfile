@@ -9,10 +9,18 @@ import { CreditCard, Trash2, AlertTriangle, Building2, ArrowUpCircle } from "luc
 interface SettingsActionsProps {
   hasSubscription: boolean;
   hasStripeCustomer: boolean;
+  isAgentTier: boolean;
+  filingAsAgent: boolean;
   companies: { id: string; name: string }[];
 }
 
-export default function SettingsActions({ hasSubscription, hasStripeCustomer, companies }: SettingsActionsProps) {
+export default function SettingsActions({
+  hasSubscription,
+  hasStripeCustomer,
+  isAgentTier,
+  filingAsAgent,
+  companies,
+}: SettingsActionsProps) {
   const router = useRouter();
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -20,12 +28,30 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
   const [removingCompanyId, setRemovingCompanyId] = useState<string | null>(null);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
   const [removeError, setRemoveError] = useState("");
+  const [agentMode, setAgentMode] = useState(filingAsAgent);
+  const [savingAgentMode, setSavingAgentMode] = useState(false);
 
   async function handleManageBilling() {
     const res = await fetch("/api/stripe/create-portal", { method: "POST" });
     if (res.ok) {
       const { url } = await res.json();
       if (url) window.location.href = url;
+    }
+  }
+
+  async function handleToggleAgentMode() {
+    setSavingAgentMode(true);
+    try {
+      const res = await fetch("/api/account/agent-preference", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filingAsAgent: !agentMode }),
+      });
+      if (res.ok) {
+        setAgentMode(!agentMode);
+      }
+    } finally {
+      setSavingAgentMode(false);
     }
   }
 
@@ -162,6 +188,62 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
         </div>
       )}
 
+      {/* Filing mode section */}
+      {isAgentTier && (
+        <div
+          style={{
+            backgroundColor: "var(--color-bg-card)",
+            borderRadius: "12px",
+            padding: "28px",
+            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+            marginBottom: "24px",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "17px",
+              fontWeight: 700,
+              color: "var(--color-text-primary)",
+              margin: "0 0 8px 0",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            Filing mode
+          </h2>
+          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
+            {agentMode
+              ? "You\u2019re filing as an agent on behalf of client companies. CT600 submissions will use your agent Government Gateway credentials."
+              : "You\u2019re filing as a company director. CT600 submissions will use each company\u2019s own Government Gateway credentials."}
+          </p>
+          <button
+            onClick={handleToggleAgentMode}
+            disabled={savingAgentMode}
+            className="focus-ring"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              backgroundColor: "transparent",
+              color: "var(--color-primary)",
+              padding: "10px 20px",
+              borderRadius: "8px",
+              fontWeight: 600,
+              fontSize: "14px",
+              border: "2px solid var(--color-primary)",
+              cursor: savingAgentMode ? "not-allowed" : "pointer",
+              opacity: savingAgentMode ? 0.6 : 1,
+              transition: "opacity 200ms, transform 200ms, background-color 200ms",
+            }}
+          >
+            {savingAgentMode
+              ? "Saving\u2026"
+              : agentMode
+                ? "Switch to director mode"
+                : "Switch to agent mode"}
+          </button>
+        </div>
+      )}
+
       {/* Companies section */}
       {companies.length > 0 && (
         <div
@@ -185,7 +267,8 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
             Companies
           </h2>
           <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
-            Remove a company to delete its filing history and reminders. Your account and subscription remain active.
+            Remove a company to delete its filing history and reminders. Your account and
+            subscription remain active.
           </p>
 
           {removeError && (
@@ -223,7 +306,13 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                   <span style={{ color: "var(--color-primary)" }}>
                     <Building2 size={16} color="currentColor" strokeWidth={2} />
                   </span>
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      color: "var(--color-text-primary)",
+                    }}
+                  >
                     {company.name}
                   </span>
                 </div>
@@ -284,7 +373,8 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
                       transition: "opacity 200ms, transform 200ms, background-color 200ms",
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-danger-bg)";
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                        "var(--color-danger-bg)";
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
@@ -322,8 +412,8 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
         </h2>
         <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
           Permanently delete your account, all company data, and filing history.
-          {hasSubscription && " Your subscription will be cancelled immediately."}
-          {" "}This action cannot be undone.
+          {hasSubscription && " Your subscription will be cancelled immediately."} This action
+          cannot be undone.
         </p>
 
         {error && (
@@ -362,7 +452,8 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
               transition: "opacity 200ms, transform 200ms, background-color 200ms",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--color-danger-bg)";
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
+                "var(--color-danger-bg)";
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
@@ -380,15 +471,31 @@ export default function SettingsActions({ hasSubscription, hasStripeCustomer, co
               borderRadius: "8px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "16px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "10px",
+                marginBottom: "16px",
+              }}
+            >
               <span style={{ color: "var(--color-danger)", flexShrink: 0, marginTop: "1px" }}>
                 <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
               </span>
-              <p style={{ fontSize: "14px", color: "var(--color-danger-text)", margin: 0, lineHeight: "1.5" }}>
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: "var(--color-danger-text)",
+                  margin: 0,
+                  lineHeight: "1.5",
+                }}
+              >
                 Are you sure? This will permanently delete your account,
-                {companies.length > 0 ? ` ${companies.length} ${companies.length === 1 ? "company" : "companies"},` : ""}
-                {" "}and all filing records. Your subscription will be
-                cancelled and you will be signed out.
+                {companies.length > 0
+                  ? ` ${companies.length} ${companies.length === 1 ? "company" : "companies"},`
+                  : ""}{" "}
+                and all filing records. Your subscription will be cancelled and you will be signed
+                out.
               </p>
             </div>
             <div style={{ display: "flex", gap: "10px" }}>

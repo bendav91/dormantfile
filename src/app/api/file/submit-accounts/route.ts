@@ -3,7 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { buildAccountsXml } from "@/lib/companies-house/xml-builder";
-import { submitToCompaniesHouse, pollCompaniesHouse } from "@/lib/companies-house/submission-client";
+import {
+  submitToCompaniesHouse,
+  pollCompaniesHouse,
+} from "@/lib/companies-house/submission-client";
 import { rollForwardPeriod } from "@/lib/roll-forward";
 import { getOutstandingPeriods } from "@/lib/periods";
 import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
@@ -51,7 +54,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Active subscription required" }, { status: 403 });
   }
 
-  let body: { companyId?: string; companyAuthCode?: string; periodStart?: string; periodEnd?: string };
+  let body: {
+    companyId?: string;
+    companyAuthCode?: string;
+    periodStart?: string;
+    periodEnd?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -61,10 +69,7 @@ export async function POST(req: NextRequest) {
   const { companyId, companyAuthCode } = body;
 
   if (!companyId) {
-    return NextResponse.json(
-      { error: "companyId is required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "companyId is required" }, { status: 400 });
   }
 
   if (!body.periodStart || !body.periodEnd) {
@@ -81,7 +86,7 @@ export async function POST(req: NextRequest) {
   if (!companyAuthCode || !/^[A-Za-z0-9]{6}$/.test(companyAuthCode)) {
     return NextResponse.json(
       { error: "A valid 6-character company authentication code is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -106,14 +111,19 @@ export async function POST(req: NextRequest) {
     companyFilings,
   );
   const targetPeriod = periods.find(
-    (p) => p.periodStart.getTime() === targetPeriodStart.getTime() && p.periodEnd.getTime() === targetPeriodEnd.getTime(),
+    (p) =>
+      p.periodStart.getTime() === targetPeriodStart.getTime() &&
+      p.periodEnd.getTime() === targetPeriodEnd.getTime(),
   );
   if (!targetPeriod) {
     return NextResponse.json({ error: "Invalid period for this company" }, { status: 400 });
   }
   if (targetPeriod.isBlockedTerritory) {
     return NextResponse.json(
-      { error: "This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly." },
+      {
+        error:
+          "This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly.",
+      },
       { status: 400 },
     );
   }
@@ -125,14 +135,17 @@ export async function POST(req: NextRequest) {
       const chBasicAuth = Buffer.from(`${chApiKey}:`).toString("base64");
       const statusRes = await fetch(
         `${process.env.COMPANY_INFORMATION_API_ENDPOINT}/company/${encodeURIComponent(company.companyRegistrationNumber)}`,
-        { headers: { Authorization: `Basic ${chBasicAuth}` } }
+        { headers: { Authorization: `Basic ${chBasicAuth}` } },
       );
       if (statusRes.ok) {
         const chData = await statusRes.json();
         if (chData.company_status === "dissolved" || chData.company_status === "converted-closed") {
           return NextResponse.json(
-            { error: "This company has been dissolved at Companies House and can no longer file accounts." },
-            { status: 400 }
+            {
+              error:
+                "This company has been dissolved at Companies House and can no longer file accounts.",
+            },
+            { status: 400 },
           );
         }
       }
@@ -171,8 +184,11 @@ export async function POST(req: NextRequest) {
 
   if (existingFiling) {
     return NextResponse.json(
-      { error: "A filing for this period has already been submitted. Check your dashboard for the current status." },
-      { status: 409 }
+      {
+        error:
+          "A filing for this period has already been submitted. Check your dashboard for the current status.",
+      },
+      { status: 409 },
     );
   }
 
@@ -200,7 +216,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Server configuration error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -226,7 +242,7 @@ export async function POST(req: NextRequest) {
         companyAuthCode,
         accountsIxbrl,
       },
-      credentials
+      credentials,
     );
   } catch (err) {
     await prisma.filing.update({
@@ -235,7 +251,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to build submission" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -254,7 +270,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to submit to Companies House" },
-      { status: 502 }
+      { status: 502 },
     );
   }
 
@@ -298,7 +314,7 @@ export async function POST(req: NextRequest) {
         company.registeredForCorpTax,
         "accounts",
         user.email,
-        company.companyName
+        company.companyName,
       );
 
       return NextResponse.json({ status: "accepted", filingId: filing.id });
@@ -332,6 +348,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     status: "polling_timeout",
     filingId: filing.id,
-    message: "Companies House typically processes filings within 24 hours. We'll email you when it's confirmed.",
+    message:
+      "Companies House typically processes filings within 24 hours. We'll email you when it's confirmed.",
   });
 }

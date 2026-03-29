@@ -18,7 +18,9 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
           key={plan.name}
           className="rounded-xl p-7 flex flex-col"
           style={{
-            border: plan.highlighted ? "2px solid var(--color-primary)" : "1px solid var(--color-border)",
+            border: plan.highlighted
+              ? "2px solid var(--color-primary)"
+              : "1px solid var(--color-border)",
             backgroundColor: "var(--color-bg-card)",
             position: "relative",
           }}
@@ -59,8 +61,13 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
           <ul className="space-y-2.5 mb-7 flex-1">
             {plan.features.map((feature) => (
               <li key={feature} className="flex items-start gap-2.5">
-                <CheckCircle size={16} style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: 2 }} />
-                <span className="text-sm" style={{ color: "var(--color-text-body)" }}>{feature}</span>
+                <CheckCircle
+                  size={16}
+                  style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: 2 }}
+                />
+                <span className="text-sm" style={{ color: "var(--color-text-body)" }}>
+                  {feature}
+                </span>
               </li>
             ))}
           </ul>

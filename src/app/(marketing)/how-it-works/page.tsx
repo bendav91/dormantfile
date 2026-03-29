@@ -26,28 +26,50 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const howToSteps = [
   { name: "Create your account", text: "Sign up with your email address and set a password." },
-  { name: "Add your company", text: "Enter your company registration number. We look up the company name from Companies House. Add your UTR and accounting period dates." },
-  { name: "Choose your plan", text: "Pick Basic for one company, Multiple for up to 10, or Agent for up to 100." },
-  { name: "Get deadline reminders", text: "We calculate your filing deadlines and send email reminders at 90, 30, 14, 7, 3, and 1 day before they are due." },
-  { name: "File your accounts", text: "Submit dormant accounts to Companies House. Enter your authentication code and we handle the rest." },
-  { name: "File your CT600", text: "Submit a nil CT600 to HMRC. Enter your Government Gateway credentials — used once and never stored." },
-  { name: "Get confirmation", text: "Once accepted, we show confirmation in your dashboard and send you an email." },
+  {
+    name: "Add your company",
+    text: "Enter your company registration number. We look up the company name from Companies House. Add your UTR and accounting period dates.",
+  },
+  {
+    name: "Choose your plan",
+    text: "Pick Basic for one company, Multiple for up to 10, or Agent for up to 100.",
+  },
+  {
+    name: "Get deadline reminders",
+    text: "We calculate your filing deadlines and send email reminders at 90, 30, 14, 7, 3, and 1 day before they are due.",
+  },
+  {
+    name: "File your accounts",
+    text: "Submit dormant accounts to Companies House. Enter your authentication code and we handle the rest.",
+  },
+  {
+    name: "File your CT600",
+    text: "Submit a nil CT600 to HMRC. Enter your Government Gateway credentials — used once and never stored.",
+  },
+  {
+    name: "Get confirmation",
+    text: "Once accepted, we show confirmation in your dashboard and send you an email.",
+  },
 ];
 
 export default async function HowItWorksPage() {
   const page = await getPageBySlug(SLUG);
   if (!page) notFound();
 
-  const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } = page.frontmatter;
+  const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } =
+    page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const align = centeredHeading ? "center" as const : undefined;
+  const align = centeredHeading ? ("center" as const) : undefined;
 
   return (
     <>
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: baseUrl },
-          ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
+          ...breadcrumbs.map((b) => ({
+            name: b.label,
+            ...(b.href ? { url: `${baseUrl}${b.href}` } : {}),
+          })),
         ]}
       />
       <HowToJsonLd
@@ -71,11 +93,24 @@ export default async function HowItWorksPage() {
         </h1>
         {showUpdatedAt && updatedAt && (
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", margin: "0 0 40px 0" }}>
-            Last updated: {new Date(updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+            Last updated:{" "}
+            {new Date(updatedAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
           </p>
         )}
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "var(--color-text-body)", marginBottom: "32px", textAlign: align }}>
+          <p
+            style={{
+              fontSize: "17px",
+              lineHeight: 1.7,
+              color: "var(--color-text-body)",
+              marginBottom: "32px",
+              textAlign: align,
+            }}
+          >
             {subtitle}
           </p>
         )}

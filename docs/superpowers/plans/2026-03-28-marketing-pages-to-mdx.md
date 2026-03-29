@@ -13,6 +13,7 @@
 ### Task 1: Page content types and loader
 
 **Files:**
+
 - Modify: `src/lib/content/types.ts`
 - Modify: `src/lib/content/mdx.ts`
 
@@ -38,13 +39,13 @@ export interface FAQCategoryDef {
 
 export interface PageFrontmatter {
   title: string;
-  metaTitle?: string;       // full <title> override — use when title alone would double up (e.g. "About DormantFile | DormantFile")
-  subtitle?: string;        // plain-text subtitle rendered below h1 (pricing, how-it-works, security)
+  metaTitle?: string; // full <title> override — use when title alone would double up (e.g. "About DormantFile | DormantFile")
+  subtitle?: string; // plain-text subtitle rendered below h1 (pricing, how-it-works, security)
   description: string;
   updatedAt: string;
   breadcrumbs: BreadcrumbDef[];
   showCTA?: boolean;
-  showUpdatedAt?: boolean;   // render "Last updated" line (privacy, terms, cookies)
+  showUpdatedAt?: boolean; // render "Last updated" line (privacy, terms, cookies)
   centeredHeading?: boolean; // center h1 + subtitle (pricing)
   faqCategories?: FAQCategoryDef[];
   openGraph?: {
@@ -97,6 +98,7 @@ git commit -m "feat: add PageFrontmatter type and getPageBySlug loader"
 ### Task 2: Custom MDX components for structured pages
 
 **Files:**
+
 - Create: `src/components/marketing/mdx/PricingCards.tsx`
 - Create: `src/components/marketing/mdx/ComparisonTable.tsx`
 - Create: `src/components/marketing/mdx/Steps.tsx`
@@ -477,6 +479,7 @@ git commit -m "feat: add custom MDX components for structured marketing pages"
 ### Task 3: Create MDX content files for prose-heavy pages
 
 **Files:**
+
 - Create: `content/pages/about.mdx`
 - Create: `content/pages/privacy.mdx`
 - Create: `content/pages/terms.mdx`
@@ -491,6 +494,7 @@ These pages are mostly prose with minimal structured UI. Content is extracted di
 Extract all prose from `src/app/(marketing)/about/page.tsx`. The content uses standard markdown elements (headings, paragraphs, lists, links) plus a `<ContentCTA />` at the end.
 
 Frontmatter:
+
 ```yaml
 ---
 title: "About DormantFile"
@@ -516,6 +520,7 @@ Body: All paragraphs, headings (`## What DormantFile does`, `## Who's behind it`
 Extract from `src/app/(marketing)/privacy/page.tsx`. Pure prose — 10 numbered sections with headings, paragraphs, and lists. Add `updatedAt: "2026-03-27"` to frontmatter. No CTA, no breadcrumbs in the original (add breadcrumbs for consistency).
 
 Frontmatter:
+
 ```yaml
 ---
 title: "Privacy Policy"
@@ -535,6 +540,7 @@ The "Last updated" line is rendered by the route shell from `updatedAt` when `sh
 Extract from `src/app/(marketing)/terms/page.tsx`. Same structure as privacy — 13 numbered sections. Pure prose.
 
 Frontmatter:
+
 ```yaml
 ---
 title: "Terms of Service"
@@ -552,6 +558,7 @@ showUpdatedAt: true
 Extract from `src/app/(marketing)/cookies/page.tsx`. 5 sections of prose with one internal link to `/privacy`.
 
 Frontmatter:
+
 ```yaml
 ---
 title: "Cookie Policy"
@@ -569,10 +576,11 @@ showUpdatedAt: true
 Extract from `src/app/(marketing)/security/page.tsx`. Uses `<SecurityCards>` component for the 4 icon cards, then standard prose for "What data we store" and "Third-party services" sections.
 
 Frontmatter:
+
 ```yaml
 ---
 title: "How we handle your data"
-subtitle: "The number one question we get: \"Can I trust you with my HMRC login?\" Here's exactly how it works."
+subtitle: 'The number one question we get: "Can I trust you with my HMRC login?" Here''s exactly how it works.'
 description: "How DormantFile handles your data and HMRC credentials. Your Gateway password is used once and never stored."
 updatedAt: "2026-03-27"
 breadcrumbs:
@@ -586,6 +594,7 @@ openGraph:
 ```
 
 Body starts directly with the `<SecurityCards>` component (subtitle is rendered by the route shell):
+
 ```mdx
 <SecurityCards cards={[
   { icon: "Shield", title: "Credentials never stored", text: "Your HMRC Government Gateway user ID and password..." },
@@ -600,6 +609,7 @@ Followed by standard markdown for the remaining sections.
 Extract from `src/app/(marketing)/contact/page.tsx`. Uses `<EmailLink>` and `<ContactForm />` components.
 
 Frontmatter:
+
 ```yaml
 ---
 title: "Contact us"
@@ -616,6 +626,7 @@ openGraph:
 ```
 
 Body:
+
 ```mdx
 Have a question or need help? We typically respond within one working day.
 
@@ -638,6 +649,7 @@ git commit -m "feat: add MDX content files for prose marketing pages"
 ### Task 4: Create MDX content files for structured pages
 
 **Files:**
+
 - Create: `content/pages/pricing.mdx`
 - Create: `content/pages/how-it-works.mdx`
 - Create: `content/pages/faq.mdx`
@@ -649,6 +661,7 @@ These pages have data-driven UI components. Content and data both live in the MD
 Extract from `src/app/(marketing)/pricing/page.tsx`. Uses `<PricingCards>`, `<ComparisonTable>`, and inline billing FAQ (rendered as simple h3+p pairs, same as current).
 
 Frontmatter:
+
 ```yaml
 ---
 title: "Simple, transparent pricing"
@@ -667,22 +680,83 @@ openGraph:
 ```
 
 Body (subtitle is rendered by route shell, so body starts with `<PricingCards>`):
-```mdx
 
-<PricingCards plans={[
-  { name: "Basic", price: "19", period: "per year", description: "1 dormant company", highlighted: false, features: ["Annual accounts filing with Companies House", "Nil CT600 filing with HMRC", "Direct submission via official APIs", "Email deadline reminders", "Filing confirmation & history"] },
-  { name: "Multiple", price: "39", period: "per year", description: "Up to 10 companies", highlighted: true, features: ["Everything in Basic", "File for up to 10 dormant companies", "Manage all companies from one dashboard", "Individual filing per company"] },
-  { name: "Agent", price: "49", period: "per year", description: "Up to 100 companies", highlighted: false, features: ["Everything in Multiple", "File for up to 100 dormant companies", "File as agent on behalf of clients", "Ideal for accountants"] }
-]} />
+```mdx
+<PricingCards
+  plans={[
+    {
+      name: "Basic",
+      price: "19",
+      period: "per year",
+      description: "1 dormant company",
+      highlighted: false,
+      features: [
+        "Annual accounts filing with Companies House",
+        "Nil CT600 filing with HMRC",
+        "Direct submission via official APIs",
+        "Email deadline reminders",
+        "Filing confirmation & history",
+      ],
+    },
+    {
+      name: "Multiple",
+      price: "39",
+      period: "per year",
+      description: "Up to 10 companies",
+      highlighted: true,
+      features: [
+        "Everything in Basic",
+        "File for up to 10 dormant companies",
+        "Manage all companies from one dashboard",
+        "Individual filing per company",
+      ],
+    },
+    {
+      name: "Agent",
+      price: "49",
+      period: "per year",
+      description: "Up to 100 companies",
+      highlighted: false,
+      features: [
+        "Everything in Multiple",
+        "File for up to 100 dormant companies",
+        "File as agent on behalf of clients",
+        "Ideal for accountants",
+      ],
+    },
+  ]}
+/>
 
 ## How does DormantFile compare?
 
-<ComparisonTable rows={[
-  { method: "DormantFile", cost: "From £19/year", time: "Under 2 minutes", notes: "Both filings from one dashboard" },
-  { method: "Accountant", cost: "£80–£150+ per company", time: "Varies", notes: "Overkill for nil returns, but gives professional advice" },
-  { method: "General accounting software", cost: "£100+/year", time: "30+ minutes", notes: "Designed for trading companies, not dormant" },
-  { method: "DIY (manual filing)", cost: "Free (accounts only)", time: "1–2 hours", notes: "No CT600 option since CATO closed" }
-]} />
+<ComparisonTable
+  rows={[
+    {
+      method: "DormantFile",
+      cost: "From £19/year",
+      time: "Under 2 minutes",
+      notes: "Both filings from one dashboard",
+    },
+    {
+      method: "Accountant",
+      cost: "£80–£150+ per company",
+      time: "Varies",
+      notes: "Overkill for nil returns, but gives professional advice",
+    },
+    {
+      method: "General accounting software",
+      cost: "£100+/year",
+      time: "30+ minutes",
+      notes: "Designed for trading companies, not dormant",
+    },
+    {
+      method: "DIY (manual filing)",
+      cost: "Free (accounts only)",
+      time: "1–2 hours",
+      notes: "No CT600 option since CATO closed",
+    },
+  ]}
+/>
 
 ## Billing questions
 
@@ -708,6 +782,7 @@ We don't offer refunds for partial billing periods. If you're unsure, start with
 Extract from `src/app/(marketing)/how-it-works/page.tsx`. Uses `<Steps>/<Step>` compound component and `<Callout>`.
 
 Frontmatter:
+
 ```yaml
 ---
 title: "How it works"
@@ -725,34 +800,45 @@ openGraph:
 ```
 
 Body (subtitle rendered by route shell, body starts with `<Steps>`):
-```mdx
 
+```mdx
 <Steps>
   <Step title="Create your account">
     Sign up with your email address and set a password. Takes 30 seconds.
   </Step>
   <Step title="Add your company">
-    Enter your company registration number – we look up the company name automatically via Companies House. Add your UTR (Unique Taxpayer Reference) and accounting period dates.
+    Enter your company registration number – we look up the company name automatically via Companies
+    House. Add your UTR (Unique Taxpayer Reference) and accounting period dates.
   </Step>
   <Step title="Choose your plan">
-    Pick the plan that fits: Basic for one company (£19/year), Multiple for up to 10 (£39/year), or Agent for up to 100 (£49/year).
+    Pick the plan that fits: Basic for one company (£19/year), Multiple for up to 10 (£39/year), or
+    Agent for up to 100 (£49/year).
   </Step>
   <Step title="Get deadline reminders">
-    We calculate your filing deadlines automatically (9 months after your accounting reference date for accounts, 12 months for CT600) and send you email reminders at 90, 30, 14, 7, 3, and 1 day before they're due.
+    We calculate your filing deadlines automatically (9 months after your accounting reference date
+    for accounts, 12 months for CT600) and send you email reminders at 90, 30, 14, 7, 3, and 1 day
+    before they're due.
   </Step>
   <Step title="File your accounts">
-    When you're ready, click to file your annual dormant accounts with Companies House. We submit the AA02 directly via the Companies House software filing API. You'll need your Companies House authentication code.
+    When you're ready, click to file your annual dormant accounts with Companies House. We submit
+    the AA02 directly via the Companies House software filing API. You'll need your Companies House
+    authentication code.
   </Step>
   <Step title="File your CT600">
-    If your company is registered for Corporation Tax, click to file your nil CT600. Enter your HMRC Government Gateway credentials – we submit directly to HMRC via their GovTalk API. Your credentials are used once and never stored.
+    If your company is registered for Corporation Tax, click to file your nil CT600. Enter your HMRC
+    Government Gateway credentials – we submit directly to HMRC via their GovTalk API. Your
+    credentials are used once and never stored.
   </Step>
   <Step title="Get confirmation">
-    Once HMRC and Companies House accept your filing, we show the confirmation in your dashboard and send you an email. Your filing records are stored so you always have a history.
+    Once HMRC and Companies House accept your filing, we show the confirmation in your dashboard and
+    send you an email. Your filing records are stored so you always have a history.
   </Step>
 </Steps>
 
 <Callout>
-  **Not registered for Corporation Tax?** That's fine – many dormant companies only need to file annual accounts with Companies House. You can skip the CT600 step entirely. Read our guide on [whether you need a CT600](/guides/do-i-need-ct600-dormant-company) for more detail.
+  **Not registered for Corporation Tax?** That's fine – many dormant companies only need to file
+  annual accounts with Companies House. You can skip the CT600 step entirely. Read our guide on
+  [whether you need a CT600](/guides/do-i-need-ct600-dormant-company) for more detail.
 </Callout>
 ```
 
@@ -761,6 +847,7 @@ Body (subtitle rendered by route shell, body starts with `<Steps>`):
 Extract from `src/app/(marketing)/faq/page.tsx`. The FAQ page is special — it needs `FAQPageJsonLd` with plain-text answers. Store the FAQ data in frontmatter so the route shell can build both the JSON-LD and pass it to the `<FAQAccordion>` component.
 
 Frontmatter:
+
 ```yaml
 ---
 title: "Frequently Asked Questions"
@@ -820,6 +907,7 @@ faqCategories:
 ```
 
 Body:
+
 ```mdx
 Everything you need to know about using DormantFile. Can't find your answer? [Get in touch](/contact).
 
@@ -831,6 +919,7 @@ Everything you need to know about using DormantFile. Can't find your answer? [Ge
 **Action required in Task 2:** Change the `FAQAccordion` component's `answer` type from `React.ReactNode` to `string` to make this explicit and prevent future confusion about what the component accepts. The component renders answers as text, not as JSX elements — the type should reflect that.
 
 Previously linked pages from FAQ answers:
+
 - `/guides/how-to-file-dormant-company-accounts`
 - `/guides/how-to-file-nil-ct600`
 - `/security` (2 answers)
@@ -850,6 +939,7 @@ git commit -m "feat: add MDX content files for structured marketing pages"
 ### Task 5: Convert route files to thin shells — prose pages
 
 **Files:**
+
 - Modify: `src/app/(marketing)/about/page.tsx`
 - Modify: `src/app/(marketing)/privacy/page.tsx`
 - Modify: `src/app/(marketing)/terms/page.tsx`
@@ -995,6 +1085,7 @@ git commit -m "feat: convert prose marketing pages to MDX-backed route shells"
 ### Task 6: Convert route files to thin shells — structured pages
 
 **Files:**
+
 - Modify: `src/app/(marketing)/pricing/page.tsx`
 - Modify: `src/app/(marketing)/how-it-works/page.tsx`
 - Modify: `src/app/(marketing)/faq/page.tsx`
@@ -1023,7 +1114,7 @@ export default async function FAQPage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   const faqCategories = page.frontmatter.faqCategories || [];
   const faqJsonLdItems = faqCategories.flatMap((cat) =>
-    cat.items.map((item) => ({ question: item.question, answer: item.answer }))
+    cat.items.map((item) => ({ question: item.question, answer: item.answer })),
   );
 
   return (
@@ -1043,6 +1134,7 @@ export default async function FAQPage() {
 ```
 
 The faq.mdx body becomes just:
+
 ```mdx
 Everything you need to know about using DormantFile. Can't find your answer? [Get in touch](/contact).
 ```
@@ -1065,6 +1157,7 @@ git commit -m "feat: convert structured marketing pages to MDX-backed route shel
 ### Task 7: Visual verification and cleanup
 
 **Files:**
+
 - Potentially modify: any of the above if visual discrepancies are found
 
 - [ ] **Step 1: Run dev server and check each page visually**
@@ -1072,6 +1165,7 @@ git commit -m "feat: convert structured marketing pages to MDX-backed route shel
 Run: `npm run dev`
 
 Visit each page and verify it looks identical to before:
+
 - `/about`
 - `/pricing`
 - `/how-it-works`

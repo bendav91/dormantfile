@@ -17,11 +17,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
   } catch {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -49,9 +45,8 @@ export async function POST(req: NextRequest) {
   // Handle subscription updates (cancel at period end / reactivation)
   if (event.type === "customer.subscription.updated") {
     const subscription = event.data.object as Stripe.Subscription;
-    const customerId = typeof subscription.customer === "string"
-      ? subscription.customer
-      : undefined;
+    const customerId =
+      typeof subscription.customer === "string" ? subscription.customer : undefined;
 
     if (customerId) {
       if (subscription.cancel_at_period_end) {
@@ -84,12 +79,14 @@ export async function POST(req: NextRequest) {
 
   if (status) {
     const dataObject = event.data.object as Stripe.Subscription | Stripe.Invoice;
-    const customerId = typeof dataObject.customer === "string"
-      ? dataObject.customer
-      : undefined;
+    const customerId = typeof dataObject.customer === "string" ? dataObject.customer : undefined;
 
     if (customerId) {
-      const updateData: { subscriptionStatus: typeof status; subscriptionTier?: SubscriptionTier; subscriptionPeriodStart?: Date } = {
+      const updateData: {
+        subscriptionStatus: typeof status;
+        subscriptionTier?: SubscriptionTier;
+        subscriptionPeriodStart?: Date;
+      } = {
         subscriptionStatus: status,
       };
 
@@ -104,9 +101,10 @@ export async function POST(req: NextRequest) {
         updateData.subscriptionTier = tierFromPriceId(priceId);
       } else if (status === "active" && "subscription" in dataObject && dataObject.subscription) {
         // invoice.paid — fetch subscription to get price
-        const subId = typeof dataObject.subscription === "string"
-          ? dataObject.subscription
-          : dataObject.subscription;
+        const subId =
+          typeof dataObject.subscription === "string"
+            ? dataObject.subscription
+            : dataObject.subscription;
         const sub = await stripe.subscriptions.retrieve(subId as string);
         if (sub.items.data.length) {
           updateData.subscriptionTier = tierFromPriceId(sub.items.data[0].price.id);

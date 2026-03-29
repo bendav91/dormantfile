@@ -59,10 +59,7 @@ export default async function AnswerPage({ params }: Props) {
         ]}
       />
       <Breadcrumbs
-        items={[
-          { label: "Answers", href: "/answers" },
-          { label: answer.frontmatter.title },
-        ]}
+        items={[{ label: "Answers", href: "/answers" }, { label: answer.frontmatter.title }]}
       />
       <article>
         <h1

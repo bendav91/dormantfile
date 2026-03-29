@@ -3,54 +3,54 @@
 
 :root {
   /* Core surface and text */
-  --color-bg-page: #F8FAFC;
+  --color-bg-page: #f8fafc;
   --color-bg-card: #ffffff;
-  --color-bg-inset: #F8FAFC;
-  --color-bg-disabled: #CBD5E1;
-  --color-border: #E2E8F0;
-  --color-border-subtle: #F1F5F9;
-  --color-text-primary: #1E293B;
+  --color-bg-inset: #f8fafc;
+  --color-bg-disabled: #cbd5e1;
+  --color-border: #e2e8f0;
+  --color-border-subtle: #f1f5f9;
+  --color-text-primary: #1e293b;
   --color-text-body: #475569;
-  --color-text-secondary: #64748B;
-  --color-text-muted: #94A3B8;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
   --color-input-bg: #ffffff;
-  --color-input-border: #94A3B8;
+  --color-input-border: #94a3b8;
 
   /* Brand */
-  --color-primary: #2563EB;
-  --color-primary-hover: #1D4ED8;
-  --color-primary-bg: #EFF6FF;
-  --color-primary-border: #DBEAFE;
-  --color-primary-text: #1E40AF;
-  --color-cta: #F97316;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-bg: #eff6ff;
+  --color-primary-border: #dbeafe;
+  --color-primary-text: #1e40af;
+  --color-cta: #f97316;
 
   /* Status: success */
-  --color-success: #15803D;
-  --color-success-bg: #F0FDF4;
-  --color-success-border: #BBF7D0;
+  --color-success: #15803d;
+  --color-success-bg: #f0fdf4;
+  --color-success-border: #bbf7d0;
   --color-success-text: #166534;
 
   /* Status: danger */
-  --color-danger: #DC2626;
-  --color-danger-bg: #FEF2F2;
-  --color-danger-border: #FECACA;
-  --color-danger-text: #7F1D1D;
-  --color-danger-deep: #B91C1C;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+  --color-danger-border: #fecaca;
+  --color-danger-text: #7f1d1d;
+  --color-danger-deep: #b91c1c;
 
   /* Status: warning */
-  --color-warning: #CA8A04;
-  --color-warning-bg: #FEFCE8;
-  --color-warning-border: #FDE047;
-  --color-warning-text: #713F12;
-  --color-warning-deep: #A16207;
-  --color-warning-link: #92400E;
-  --color-due-soon: #D97706;
+  --color-warning: #ca8a04;
+  --color-warning-bg: #fefce8;
+  --color-warning-border: #fde047;
+  --color-warning-text: #713f12;
+  --color-warning-deep: #a16207;
+  --color-warning-link: #92400e;
+  --color-due-soon: #d97706;
 
   /* Neutral status */
-  --color-neutral-bg: #F1F5F9;
+  --color-neutral-bg: #f1f5f9;
   --color-neutral-text: #475569;
-  --color-submitted-bg: #EFF6FF;
-  --color-submitted-text: #1D4ED8;
+  --color-submitted-bg: #eff6ff;
+  --color-submitted-text: #1d4ed8;
 
   /* Backwards compat */
   --background: var(--color-bg-page);
@@ -59,54 +59,54 @@
 
 .dark {
   /* Core surface and text */
-  --color-bg-page: #0F172A;
-  --color-bg-card: #1E293B;
+  --color-bg-page: #0f172a;
+  --color-bg-card: #1e293b;
   --color-bg-inset: #334155;
   --color-bg-disabled: #475569;
   --color-border: #334155;
-  --color-border-subtle: #1E293B;
-  --color-text-primary: #F1F5F9;
-  --color-text-body: #CBD5E1;
-  --color-text-secondary: #94A3B8;
-  --color-text-muted: #8494A7;
-  --color-input-bg: #1E293B;
+  --color-border-subtle: #1e293b;
+  --color-text-primary: #f1f5f9;
+  --color-text-body: #cbd5e1;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #8494a7;
+  --color-input-bg: #1e293b;
   --color-input-border: #475569;
 
   /* Brand */
-  --color-primary: #5B9CF5;
-  --color-primary-hover: #60A5FA;
+  --color-primary: #5b9cf5;
+  --color-primary-hover: #60a5fa;
   --color-primary-bg: #172554;
-  --color-primary-border: #1E40AF;
-  --color-primary-text: #93C5FD;
-  --color-cta: #F97316;
+  --color-primary-border: #1e40af;
+  --color-primary-text: #93c5fd;
+  --color-cta: #f97316;
 
   /* Status: success */
-  --color-success: #22C55E;
+  --color-success: #22c55e;
   --color-success-bg: #052e16;
   --color-success-border: #166534;
-  --color-success-text: #86EFAC;
+  --color-success-text: #86efac;
 
   /* Status: danger */
-  --color-danger: #F87171;
+  --color-danger: #f87171;
   --color-danger-bg: #450a0a;
-  --color-danger-border: #991B1B;
-  --color-danger-text: #FCA5A5;
-  --color-danger-deep: #F87171;
+  --color-danger-border: #991b1b;
+  --color-danger-text: #fca5a5;
+  --color-danger-deep: #f87171;
 
   /* Status: warning */
-  --color-warning: #EAB308;
+  --color-warning: #eab308;
   --color-warning-bg: #422006;
-  --color-warning-border: #854D0E;
-  --color-warning-text: #FDE68A;
-  --color-warning-deep: #FBBF24;
-  --color-warning-link: #F59E0B;
-  --color-due-soon: #F59E0B;
+  --color-warning-border: #854d0e;
+  --color-warning-text: #fde68a;
+  --color-warning-deep: #fbbf24;
+  --color-warning-link: #f59e0b;
+  --color-due-soon: #f59e0b;
 
   /* Neutral status */
   --color-neutral-bg: #334155;
-  --color-neutral-text: #CBD5E1;
+  --color-neutral-text: #cbd5e1;
   --color-submitted-bg: #172554;
-  --color-submitted-text: #93C5FD;
+  --color-submitted-text: #93c5fd;
 }
 
 body {
@@ -196,8 +196,12 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* Shared spin animation (used by multiple components) */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Mobile: shorten segmented tab labels */

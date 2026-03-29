@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   if (!success) {
     return NextResponse.json(
       { error: "Too many requests. Please try again in a minute." },
-      { status: 429 }
+      { status: 429 },
     );
   }
 

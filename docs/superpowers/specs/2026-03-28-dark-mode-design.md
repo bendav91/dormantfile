@@ -20,61 +20,61 @@ Defined in `globals.css` under `:root` (light) and `.dark` (dark).
 
 ### Core surface and text tokens
 
-| Token | Light | Dark | Used for |
-|---|---|---|---|
-| `--color-bg-page` | `#F8FAFC` | `#0F172A` | Page backgrounds |
-| `--color-bg-card` | `#ffffff` | `#1E293B` | Card/panel surfaces, nav bar |
-| `--color-bg-inset` | `#F8FAFC` | `#334155` | Filing rows, form field backgrounds |
-| `--color-bg-disabled` | `#CBD5E1` | `#475569` | Disabled button backgrounds |
-| `--color-border` | `#E2E8F0` | `#334155` | Default borders |
-| `--color-border-subtle` | `#F1F5F9` | `#1E293B` | Section dividers, subtle separators |
-| `--color-text-primary` | `#1E293B` | `#F1F5F9` | Headings, primary body text |
-| `--color-text-body` | `#475569` | `#CBD5E1` | Body/paragraph text |
-| `--color-text-secondary` | `#64748B` | `#94A3B8` | Descriptions, help text |
-| `--color-text-muted` | `#94A3B8` | `#64748B` | Labels, captions, timestamps |
-| `--color-input-bg` | `#ffffff` | `#1E293B` | Input backgrounds |
-| `--color-input-border` | `#94A3B8` | `#475569` | Input borders |
+| Token                    | Light     | Dark      | Used for                            |
+| ------------------------ | --------- | --------- | ----------------------------------- |
+| `--color-bg-page`        | `#F8FAFC` | `#0F172A` | Page backgrounds                    |
+| `--color-bg-card`        | `#ffffff` | `#1E293B` | Card/panel surfaces, nav bar        |
+| `--color-bg-inset`       | `#F8FAFC` | `#334155` | Filing rows, form field backgrounds |
+| `--color-bg-disabled`    | `#CBD5E1` | `#475569` | Disabled button backgrounds         |
+| `--color-border`         | `#E2E8F0` | `#334155` | Default borders                     |
+| `--color-border-subtle`  | `#F1F5F9` | `#1E293B` | Section dividers, subtle separators |
+| `--color-text-primary`   | `#1E293B` | `#F1F5F9` | Headings, primary body text         |
+| `--color-text-body`      | `#475569` | `#CBD5E1` | Body/paragraph text                 |
+| `--color-text-secondary` | `#64748B` | `#94A3B8` | Descriptions, help text             |
+| `--color-text-muted`     | `#94A3B8` | `#64748B` | Labels, captions, timestamps        |
+| `--color-input-bg`       | `#ffffff` | `#1E293B` | Input backgrounds                   |
+| `--color-input-border`   | `#94A3B8` | `#475569` | Input borders                       |
 
 ### Brand colour tokens
 
-| Token | Light | Dark | Used for |
-|---|---|---|---|
-| `--color-primary` | `#2563EB` | `#3B82F6` | Primary blue buttons, links, icons |
-| `--color-primary-hover` | `#1D4ED8` | `#60A5FA` | Blue hover states, logo accent |
-| `--color-primary-bg` | `#EFF6FF` | `#172554` | Info callout backgrounds, icon circles |
+| Token                    | Light     | Dark      | Used for                                                                   |
+| ------------------------ | --------- | --------- | -------------------------------------------------------------------------- |
+| `--color-primary`        | `#2563EB` | `#3B82F6` | Primary blue buttons, links, icons                                         |
+| `--color-primary-hover`  | `#1D4ED8` | `#60A5FA` | Blue hover states, logo accent                                             |
+| `--color-primary-bg`     | `#EFF6FF` | `#172554` | Info callout backgrounds, icon circles                                     |
 | `--color-primary-border` | `#DBEAFE` | `#1E40AF` | Info/callout borders, logo crescent (consolidates `#BFDBFE` and `#DBEAFE`) |
-| `--color-primary-text` | `#1E40AF` | `#93C5FD` | Text inside info callouts |
-| `--color-cta` | `#F97316` | `#F97316` | Orange CTA buttons (same both themes) |
+| `--color-primary-text`   | `#1E40AF` | `#93C5FD` | Text inside info callouts                                                  |
+| `--color-cta`            | `#F97316` | `#F97316` | Orange CTA buttons (same both themes)                                      |
 
 ### Status tokens
 
-| Token | Light | Dark | Used for |
-|---|---|---|---|
-| `--color-success` | `#15803D` | `#22C55E` | Success text, icons |
-| `--color-success-bg` | `#F0FDF4` | `#052e16` | Accepted badge bg, success callouts |
-| `--color-success-border` | `#BBF7D0` | `#166534` | Success callout borders |
-| `--color-success-text` | `#166534` | `#86EFAC` | Text inside success callouts |
-| `--color-danger` | `#DC2626` | `#EF4444` | Danger text, icons |
-| `--color-danger-bg` | `#FEF2F2` | `#450a0a` | Danger callout backgrounds |
-| `--color-danger-border` | `#FECACA` | `#991B1B` | Danger callout borders |
-| `--color-danger-text` | `#7F1D1D` | `#FCA5A5` | Text inside danger callouts |
-| `--color-danger-deep` | `#B91C1C` | `#F87171` | Rejected/failed badge text |
-| `--color-warning` | `#CA8A04` | `#EAB308` | Warning icons |
-| `--color-warning-bg` | `#FEFCE8` | `#422006` | Warning callout backgrounds |
-| `--color-warning-border` | `#FDE047` | `#854D0E` | Warning callout borders |
-| `--color-warning-text` | `#713F12` | `#FDE68A` | Text inside warning callouts |
-| `--color-warning-deep` | `#A16207` | `#FBBF24` | Polling timeout badge text |
-| `--color-warning-link` | `#92400E` | `#F59E0B` | Links inside warning banners |
-| `--color-due-soon` | `#D97706` | `#F59E0B` | Due-soon deadline text |
+| Token                    | Light     | Dark      | Used for                            |
+| ------------------------ | --------- | --------- | ----------------------------------- |
+| `--color-success`        | `#15803D` | `#22C55E` | Success text, icons                 |
+| `--color-success-bg`     | `#F0FDF4` | `#052e16` | Accepted badge bg, success callouts |
+| `--color-success-border` | `#BBF7D0` | `#166534` | Success callout borders             |
+| `--color-success-text`   | `#166534` | `#86EFAC` | Text inside success callouts        |
+| `--color-danger`         | `#DC2626` | `#EF4444` | Danger text, icons                  |
+| `--color-danger-bg`      | `#FEF2F2` | `#450a0a` | Danger callout backgrounds          |
+| `--color-danger-border`  | `#FECACA` | `#991B1B` | Danger callout borders              |
+| `--color-danger-text`    | `#7F1D1D` | `#FCA5A5` | Text inside danger callouts         |
+| `--color-danger-deep`    | `#B91C1C` | `#F87171` | Rejected/failed badge text          |
+| `--color-warning`        | `#CA8A04` | `#EAB308` | Warning icons                       |
+| `--color-warning-bg`     | `#FEFCE8` | `#422006` | Warning callout backgrounds         |
+| `--color-warning-border` | `#FDE047` | `#854D0E` | Warning callout borders             |
+| `--color-warning-text`   | `#713F12` | `#FDE68A` | Text inside warning callouts        |
+| `--color-warning-deep`   | `#A16207` | `#FBBF24` | Polling timeout badge text          |
+| `--color-warning-link`   | `#92400E` | `#F59E0B` | Links inside warning banners        |
+| `--color-due-soon`       | `#D97706` | `#F59E0B` | Due-soon deadline text              |
 
 ### Neutral status tokens
 
-| Token | Light | Dark | Used for |
-|---|---|---|---|
-| `--color-neutral-bg` | `#F1F5F9` | `#334155` | Pending badge bg, neutral surfaces |
-| `--color-neutral-text` | `#475569` | `#CBD5E1` | Pending badge text |
-| `--color-submitted-bg` | `#EFF6FF` | `#172554` | Submitted badge bg |
-| `--color-submitted-text` | `#1D4ED8` | `#93C5FD` | Submitted badge text |
+| Token                    | Light     | Dark      | Used for                           |
+| ------------------------ | --------- | --------- | ---------------------------------- |
+| `--color-neutral-bg`     | `#F1F5F9` | `#334155` | Pending badge bg, neutral surfaces |
+| `--color-neutral-text`   | `#475569` | `#CBD5E1` | Pending badge text                 |
+| `--color-submitted-bg`   | `#EFF6FF` | `#172554` | Submitted badge bg                 |
+| `--color-submitted-text` | `#1D4ED8` | `#93C5FD` | Submitted badge text               |
 
 Total: ~36 tokens. Every hardcoded hex value in the codebase maps to one of these.
 
@@ -82,54 +82,56 @@ Total: ~36 tokens. Every hardcoded hex value in the codebase maps to one of thes
 
 Complete mapping for the mechanical replacement:
 
-| Hex | Token | Context |
-|---|---|---|
-| `#F8FAFC` | `--color-bg-page` or `--color-bg-inset` | Page bg vs inset area |
-| `#ffffff` | `--color-bg-card` | Card/panel surfaces |
-| `#F1F5F9` | `--color-border-subtle` or `--color-neutral-bg` | Dividers vs badge bg |
-| `#1E293B` | `--color-text-primary` | Headings, primary text |
-| `#475569` | `--color-text-body` | Body/paragraph text |
-| `#64748B` | `--color-text-secondary` | Help text, descriptions |
-| `#94A3B8` | `--color-text-muted` | Captions, labels |
-| `#CBD5E1` | `--color-bg-disabled` | Disabled buttons, muted borders |
-| `#E2E8F0` | `--color-border` | Standard borders |
-| `#2563EB` | `--color-primary` | Primary blue |
-| `#1D4ED8` | `--color-primary-hover` | Blue hover, logo accent |
-| `#DBEAFE` | `--color-primary-border` | Logo crescent, callout borders (consolidated with `#BFDBFE`) |
-| `#EFF6FF` | `--color-primary-bg` | Info backgrounds, icon circles |
-| `#1E40AF` | `--color-primary-text` | Text inside info callouts |
-| `#BFDBFE` | `--color-primary-border` | Info borders |
-| `#F97316` | `--color-cta` | Orange CTAs |
-| `#DC2626` | `--color-danger` | Danger red |
-| `#B91C1C` | `--color-danger-deep` | Rejected/failed badge text |
-| `#FEF2F2` | `--color-danger-bg` | Danger backgrounds |
-| `#FECACA` | `--color-danger-border` | Danger borders |
-| `#7F1D1D` | `--color-danger-text` | Text in danger callouts |
-| `#15803D` | `--color-success` | Success green |
-| `#F0FDF4` | `--color-success-bg` | Success backgrounds |
-| `#BBF7D0` | `--color-success-border` | Success borders |
-| `#166534` | `--color-success-text` | Text in success callouts |
-| `#14532D` | `--color-success-text` | Deep success text (same token) |
-| `#CA8A04` | `--color-warning` | Warning icons |
-| `#FEFCE8` | `--color-warning-bg` | Warning backgrounds |
-| `#FDE047` | `--color-warning-border` | Warning borders |
-| `#713F12` | `--color-warning-text` | Text in warning callouts |
-| `#A16207` | `--color-warning-deep` | Polling timeout text |
-| `#92400E` | `--color-warning-link` | Links in warning banners |
-| `#D97706` | `--color-due-soon` | Due-soon deadline text |
-| `#991B1B` | `--color-danger-text` | Deep danger text (same token as `#7F1D1D` context) |
+| Hex       | Token                                           | Context                                                      |
+| --------- | ----------------------------------------------- | ------------------------------------------------------------ |
+| `#F8FAFC` | `--color-bg-page` or `--color-bg-inset`         | Page bg vs inset area                                        |
+| `#ffffff` | `--color-bg-card`                               | Card/panel surfaces                                          |
+| `#F1F5F9` | `--color-border-subtle` or `--color-neutral-bg` | Dividers vs badge bg                                         |
+| `#1E293B` | `--color-text-primary`                          | Headings, primary text                                       |
+| `#475569` | `--color-text-body`                             | Body/paragraph text                                          |
+| `#64748B` | `--color-text-secondary`                        | Help text, descriptions                                      |
+| `#94A3B8` | `--color-text-muted`                            | Captions, labels                                             |
+| `#CBD5E1` | `--color-bg-disabled`                           | Disabled buttons, muted borders                              |
+| `#E2E8F0` | `--color-border`                                | Standard borders                                             |
+| `#2563EB` | `--color-primary`                               | Primary blue                                                 |
+| `#1D4ED8` | `--color-primary-hover`                         | Blue hover, logo accent                                      |
+| `#DBEAFE` | `--color-primary-border`                        | Logo crescent, callout borders (consolidated with `#BFDBFE`) |
+| `#EFF6FF` | `--color-primary-bg`                            | Info backgrounds, icon circles                               |
+| `#1E40AF` | `--color-primary-text`                          | Text inside info callouts                                    |
+| `#BFDBFE` | `--color-primary-border`                        | Info borders                                                 |
+| `#F97316` | `--color-cta`                                   | Orange CTAs                                                  |
+| `#DC2626` | `--color-danger`                                | Danger red                                                   |
+| `#B91C1C` | `--color-danger-deep`                           | Rejected/failed badge text                                   |
+| `#FEF2F2` | `--color-danger-bg`                             | Danger backgrounds                                           |
+| `#FECACA` | `--color-danger-border`                         | Danger borders                                               |
+| `#7F1D1D` | `--color-danger-text`                           | Text in danger callouts                                      |
+| `#15803D` | `--color-success`                               | Success green                                                |
+| `#F0FDF4` | `--color-success-bg`                            | Success backgrounds                                          |
+| `#BBF7D0` | `--color-success-border`                        | Success borders                                              |
+| `#166534` | `--color-success-text`                          | Text in success callouts                                     |
+| `#14532D` | `--color-success-text`                          | Deep success text (same token)                               |
+| `#CA8A04` | `--color-warning`                               | Warning icons                                                |
+| `#FEFCE8` | `--color-warning-bg`                            | Warning backgrounds                                          |
+| `#FDE047` | `--color-warning-border`                        | Warning borders                                              |
+| `#713F12` | `--color-warning-text`                          | Text in warning callouts                                     |
+| `#A16207` | `--color-warning-deep`                          | Polling timeout text                                         |
+| `#92400E` | `--color-warning-link`                          | Links in warning banners                                     |
+| `#D97706` | `--color-due-soon`                              | Due-soon deadline text                                       |
+| `#991B1B` | `--color-danger-text`                           | Deep danger text (same token as `#7F1D1D` context)           |
 
 ### Conditional colour logic
 
 Several components use ternary expressions to pick colours based on state. These map as follows:
 
 **Dashboard status pill badges:**
+
 ```
 backgroundColor: tier === "none" ? "#FEF2F2" : active ? "#EFF6FF" : "#F8FAFC"
 → tier === "none" ? "var(--color-danger-bg)" : active ? "var(--color-primary-bg)" : "var(--color-bg-inset)"
 ```
 
 **Dashboard deadline text:**
+
 ```
 color: daysLeft <= 0 ? "#DC2626" : daysLeft <= 30 ? "#D97706" : "#64748B"
 → daysLeft <= 0 ? "var(--color-danger)" : daysLeft <= 30 ? "var(--color-due-soon)" : "var(--color-text-secondary)"
@@ -137,6 +139,7 @@ color: daysLeft <= 0 ? "#DC2626" : daysLeft <= 30 ? "#D97706" : "#64748B"
 
 **Filing status badge `statusConfig`:**
 Each status maps to its own token pair:
+
 - pending: `--color-neutral-bg` / `--color-neutral-text`
 - submitted: `--color-submitted-bg` / `--color-submitted-text`
 - polling_timeout: `--color-warning-bg` / `--color-warning-deep`
@@ -171,12 +174,13 @@ This tells Tailwind v4 to apply `dark:` variants when the `.dark` class is prese
 Inline `<script>` in root layout `<head>`, before React hydrates:
 
 ```js
-(function() {
+(function () {
   try {
-    var t = localStorage.getItem('theme');
-    var dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
-    if (dark) document.documentElement.classList.add('dark');
-  } catch(e) {}
+    var t = localStorage.getItem("theme");
+    var dark =
+      t === "dark" || (t !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+    if (dark) document.documentElement.classList.add("dark");
+  } catch (e) {}
 })();
 ```
 
@@ -241,6 +245,7 @@ The `<body>` currently has `bg-white text-gray-900`. Add dark variants: `bg-whit
 ### Focus ring styles in globals.css
 
 Update `.focus-ring:focus-visible` and `.focus-ring-input:focus-visible` to use tokens:
+
 - `outline: 2px solid #2563EB` -> `outline: 2px solid var(--color-primary)`
 - `box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12)` -> `box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent)`
 
@@ -259,91 +264,91 @@ Box shadows with `rgba(0,0,0,0.08)` work acceptably on dark backgrounds (less vi
 
 **Infrastructure:**
 
-| File | Change |
-|---|---|
-| `src/app/globals.css` | Token definitions, `.dark` selector, `@custom-variant dark`, focus ring token update |
-| `src/app/layout.tsx` | ThemeProvider wrapper, flash-prevention script, `<body>` dark variants, `suppressHydrationWarning` on `<html>` |
+| File                  | Change                                                                                                         |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `src/app/globals.css` | Token definitions, `.dark` selector, `@custom-variant dark`, focus ring token update                           |
+| `src/app/layout.tsx`  | ThemeProvider wrapper, flash-prevention script, `<body>` dark variants, `suppressHydrationWarning` on `<html>` |
 
 **App interior (hex->var()):**
 
-| File | Change |
-|---|---|
-| `src/app/(app)/layout.tsx` | hex->var(), ThemeToggle in nav |
-| `src/app/(app)/dashboard/page.tsx` | hex->var(), conditional colour logic |
-| `src/app/(app)/settings/page.tsx` | hex->var() |
-| `src/app/(app)/onboarding/page.tsx` | hex->var() |
-| `src/app/(app)/choose-plan/page.tsx` | hex->var() |
-| `src/app/(app)/agent-setup/page.tsx` | hex->var() |
-| `src/app/(app)/file/[companyId]/page.tsx` | hex->var() |
-| `src/app/(app)/file/[companyId]/accounts/page.tsx` | hex->var() |
-| `src/app/(app)/file/[companyId]/accounts/accounts-flow.tsx` | hex->var() |
-| `src/app/(app)/file/[companyId]/ct600/page.tsx` | hex->var() |
-| `src/app/(app)/file/[companyId]/ct600/filing-flow.tsx` | hex->var() |
+| File                                                        | Change                               |
+| ----------------------------------------------------------- | ------------------------------------ |
+| `src/app/(app)/layout.tsx`                                  | hex->var(), ThemeToggle in nav       |
+| `src/app/(app)/dashboard/page.tsx`                          | hex->var(), conditional colour logic |
+| `src/app/(app)/settings/page.tsx`                           | hex->var()                           |
+| `src/app/(app)/onboarding/page.tsx`                         | hex->var()                           |
+| `src/app/(app)/choose-plan/page.tsx`                        | hex->var()                           |
+| `src/app/(app)/agent-setup/page.tsx`                        | hex->var()                           |
+| `src/app/(app)/file/[companyId]/page.tsx`                   | hex->var()                           |
+| `src/app/(app)/file/[companyId]/accounts/page.tsx`          | hex->var()                           |
+| `src/app/(app)/file/[companyId]/accounts/accounts-flow.tsx` | hex->var()                           |
+| `src/app/(app)/file/[companyId]/ct600/page.tsx`             | hex->var()                           |
+| `src/app/(app)/file/[companyId]/ct600/filing-flow.tsx`      | hex->var()                           |
 
 **Auth pages (dark: Tailwind variants):**
 
-| File | Change |
-|---|---|
-| `src/app/(auth)/layout.tsx` | dark: Tailwind variants |
-| `src/app/(auth)/login/page.tsx` | dark: Tailwind variants |
-| `src/app/(auth)/register/page.tsx` | dark: Tailwind variants |
+| File                                      | Change                  |
+| ----------------------------------------- | ----------------------- |
+| `src/app/(auth)/layout.tsx`               | dark: Tailwind variants |
+| `src/app/(auth)/login/page.tsx`           | dark: Tailwind variants |
+| `src/app/(auth)/register/page.tsx`        | dark: Tailwind variants |
 | `src/app/(auth)/forgot-password/page.tsx` | dark: Tailwind variants |
-| `src/app/(auth)/reset-password/page.tsx` | dark: Tailwind variants |
+| `src/app/(auth)/reset-password/page.tsx`  | dark: Tailwind variants |
 
 **Marketing pages (hex->var() + dark: mix):**
 
-| File | Change |
-|---|---|
-| `src/app/(marketing)/layout.tsx` | hex->var() |
-| `src/app/page.tsx` | hex->var() + dark: Tailwind mix |
-| `src/app/(marketing)/pricing/page.tsx` | hex->var() |
-| `src/app/(marketing)/how-it-works/page.tsx` | hex->var() |
-| `src/app/(marketing)/contact/page.tsx` | hex->var() |
-| `src/app/(marketing)/faq/page.tsx` | hex->var() |
-| `src/app/(marketing)/about/page.tsx` | hex->var() |
-| `src/app/(marketing)/security/page.tsx` | hex->var() |
-| `src/app/(marketing)/terms/page.tsx` | hex->var() |
-| `src/app/(marketing)/privacy/page.tsx` | hex->var() |
-| `src/app/(marketing)/cookies/page.tsx` | hex->var() |
-| `src/app/(marketing)/acceptable-use/page.tsx` | hex->var() |
-| `src/app/(marketing)/refund/page.tsx` | hex->var() |
-| `src/app/(marketing)/guides/page.tsx` | hex->var() |
-| `src/app/(marketing)/guides/[slug]/page.tsx` | hex->var() |
-| `src/app/(marketing)/answers/page.tsx` | hex->var() |
-| `src/app/(marketing)/answers/[slug]/page.tsx` | hex->var() |
-| `src/app/error.tsx` | hex->var() |
-| `src/app/not-found.tsx` | hex->var() |
+| File                                          | Change                          |
+| --------------------------------------------- | ------------------------------- |
+| `src/app/(marketing)/layout.tsx`              | hex->var()                      |
+| `src/app/page.tsx`                            | hex->var() + dark: Tailwind mix |
+| `src/app/(marketing)/pricing/page.tsx`        | hex->var()                      |
+| `src/app/(marketing)/how-it-works/page.tsx`   | hex->var()                      |
+| `src/app/(marketing)/contact/page.tsx`        | hex->var()                      |
+| `src/app/(marketing)/faq/page.tsx`            | hex->var()                      |
+| `src/app/(marketing)/about/page.tsx`          | hex->var()                      |
+| `src/app/(marketing)/security/page.tsx`       | hex->var()                      |
+| `src/app/(marketing)/terms/page.tsx`          | hex->var()                      |
+| `src/app/(marketing)/privacy/page.tsx`        | hex->var()                      |
+| `src/app/(marketing)/cookies/page.tsx`        | hex->var()                      |
+| `src/app/(marketing)/acceptable-use/page.tsx` | hex->var()                      |
+| `src/app/(marketing)/refund/page.tsx`         | hex->var()                      |
+| `src/app/(marketing)/guides/page.tsx`         | hex->var()                      |
+| `src/app/(marketing)/guides/[slug]/page.tsx`  | hex->var()                      |
+| `src/app/(marketing)/answers/page.tsx`        | hex->var()                      |
+| `src/app/(marketing)/answers/[slug]/page.tsx` | hex->var()                      |
+| `src/app/error.tsx`                           | hex->var()                      |
+| `src/app/not-found.tsx`                       | hex->var()                      |
 
 **Components (hex->var() + icon colour migration):**
 
-| File | Change |
-|---|---|
-| `src/components/marketing/MarketingNav.tsx` | hex->var(), ThemeToggle |
-| `src/components/marketing/MarketingFooter.tsx` | hex->var() |
-| `src/components/marketing/ContentCTA.tsx` | hex->var() |
-| `src/components/marketing/ContactForm.tsx` | hex->var() |
-| `src/components/marketing/FAQAccordion.tsx` | hex->var() |
-| `src/components/marketing/Breadcrumbs.tsx` | hex->var() |
-| `src/components/marketing/MDXComponents.tsx` | hex->var() |
-| `src/components/marketing/mdx/Callout.tsx` | hex->var() |
-| `src/components/marketing/mdx/PricingCards.tsx` | hex->var() |
-| `src/components/marketing/mdx/SecurityCards.tsx` | hex->var() |
-| `src/components/marketing/mdx/Steps.tsx` | hex->var() |
-| `src/components/marketing/mdx/ComparisonTable.tsx` | hex->var() |
-| `src/components/marketing/mdx/EmailLink.tsx` | hex->var() |
-| `src/components/Logo.tsx` | hex->var() |
-| `src/components/company-form.tsx` | hex->var() in style constants, icon migration |
-| `src/components/company-search.tsx` | hex->var() |
-| `src/components/settings-actions.tsx` | hex->var(), icon migration |
-| `src/components/plan-picker.tsx` | hex->var(), icon migration |
-| `src/components/subscription-banner.tsx` | hex->var(), icon migration |
-| `src/components/filing-status-badge.tsx` | hex->var() in statusConfig |
-| `src/components/CookieConsent.tsx` | dark: Tailwind variants |
-| `src/components/edit-utr.tsx` | hex->var(), icon migration |
-| `src/components/enable-corp-tax.tsx` | hex->var(), icon migration |
-| `src/components/check-status-button.tsx` | hex->var(), icon migration |
-| `src/components/sign-out-button.tsx` | hex->var() |
-| `src/components/marketing/RelatedContent.tsx` | hex->var() |
+| File                                               | Change                                        |
+| -------------------------------------------------- | --------------------------------------------- |
+| `src/components/marketing/MarketingNav.tsx`        | hex->var(), ThemeToggle                       |
+| `src/components/marketing/MarketingFooter.tsx`     | hex->var()                                    |
+| `src/components/marketing/ContentCTA.tsx`          | hex->var()                                    |
+| `src/components/marketing/ContactForm.tsx`         | hex->var()                                    |
+| `src/components/marketing/FAQAccordion.tsx`        | hex->var()                                    |
+| `src/components/marketing/Breadcrumbs.tsx`         | hex->var()                                    |
+| `src/components/marketing/MDXComponents.tsx`       | hex->var()                                    |
+| `src/components/marketing/mdx/Callout.tsx`         | hex->var()                                    |
+| `src/components/marketing/mdx/PricingCards.tsx`    | hex->var()                                    |
+| `src/components/marketing/mdx/SecurityCards.tsx`   | hex->var()                                    |
+| `src/components/marketing/mdx/Steps.tsx`           | hex->var()                                    |
+| `src/components/marketing/mdx/ComparisonTable.tsx` | hex->var()                                    |
+| `src/components/marketing/mdx/EmailLink.tsx`       | hex->var()                                    |
+| `src/components/Logo.tsx`                          | hex->var()                                    |
+| `src/components/company-form.tsx`                  | hex->var() in style constants, icon migration |
+| `src/components/company-search.tsx`                | hex->var()                                    |
+| `src/components/settings-actions.tsx`              | hex->var(), icon migration                    |
+| `src/components/plan-picker.tsx`                   | hex->var(), icon migration                    |
+| `src/components/subscription-banner.tsx`           | hex->var(), icon migration                    |
+| `src/components/filing-status-badge.tsx`           | hex->var() in statusConfig                    |
+| `src/components/CookieConsent.tsx`                 | dark: Tailwind variants                       |
+| `src/components/edit-utr.tsx`                      | hex->var(), icon migration                    |
+| `src/components/enable-corp-tax.tsx`               | hex->var(), icon migration                    |
+| `src/components/check-status-button.tsx`           | hex->var(), icon migration                    |
+| `src/components/sign-out-button.tsx`               | hex->var()                                    |
+| `src/components/marketing/RelatedContent.tsx`      | hex->var()                                    |
 
 No changes to API routes, lib files, or business logic.
 

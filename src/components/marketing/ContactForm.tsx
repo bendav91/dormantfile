@@ -3,9 +3,7 @@
 import { useState } from "react";
 
 export function ContactForm() {
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle",
-  );
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -43,11 +41,10 @@ export function ContactForm() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-    >
-      <label htmlFor="contact-name" className="sr-only">Your name</label>
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <label htmlFor="contact-name" className="sr-only">
+        Your name
+      </label>
       <input
         id="contact-name"
         type="text"
@@ -59,7 +56,9 @@ export function ContactForm() {
         className="focus-ring-input"
         style={inputStyle}
       />
-      <label htmlFor="contact-email" className="sr-only">Your email</label>
+      <label htmlFor="contact-email" className="sr-only">
+        Your email
+      </label>
       <input
         id="contact-email"
         type="email"
@@ -72,7 +71,9 @@ export function ContactForm() {
         className="focus-ring-input"
         style={inputStyle}
       />
-      <label htmlFor="contact-message" className="sr-only">Your message</label>
+      <label htmlFor="contact-message" className="sr-only">
+        Your message
+      </label>
       <textarea
         id="contact-message"
         placeholder="Your message"

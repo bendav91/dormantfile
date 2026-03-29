@@ -9,7 +9,9 @@ export function calculateAccountsDeadline(accountingPeriodEnd: Date): Date {
   const targetMonth = deadline.getUTCMonth() + 9;
   const originalDate = deadline.getUTCDate();
   deadline.setUTCMonth(targetMonth, 1);
-  const maxDay = new Date(Date.UTC(deadline.getUTCFullYear(), deadline.getUTCMonth() + 1, 0)).getUTCDate();
+  const maxDay = new Date(
+    Date.UTC(deadline.getUTCFullYear(), deadline.getUTCMonth() + 1, 0),
+  ).getUTCDate();
   deadline.setUTCDate(Math.min(originalDate, maxDay));
   return deadline;
 }
@@ -33,7 +35,7 @@ const REMINDER_DAYS_BEFORE = [90, 30, 14, 7, 3, 1] as const;
 
 export function calculateNextReminderDate(
   filingDeadline: Date,
-  remindersSent: number
+  remindersSent: number,
 ): Date | null {
   if (remindersSent >= REMINDER_DAYS_BEFORE.length) return null;
   const daysBefore = REMINDER_DAYS_BEFORE[remindersSent];

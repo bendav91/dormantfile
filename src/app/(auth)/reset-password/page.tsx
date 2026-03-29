@@ -15,7 +15,9 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">Invalid link</h1>
+        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
+          Invalid link
+        </h1>
         <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
           This password reset link is invalid. Please request a new one.
         </p>
@@ -60,7 +62,9 @@ function ResetPasswordForm() {
   if (success) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">Password reset</h1>
+        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
+          Password reset
+        </h1>
         <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
           Your password has been reset successfully.
         </p>
@@ -76,13 +80,18 @@ function ResetPasswordForm() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">Set new password</h1>
+      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
+        Set new password
+      </h1>
       <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
         Enter your new password below.
       </p>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
+          >
             New password
           </label>
           <input
@@ -96,9 +105,15 @@ function ResetPasswordForm() {
             autoComplete="new-password"
             className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Must include at least one letter and one number.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Must include at least one letter and one number.
+          </p>
         </div>
-        {error && <p role="alert" className="text-red-600 dark:text-red-400 text-sm mb-4">{error}</p>}
+        {error && (
+          <p role="alert" className="text-red-600 dark:text-red-400 text-sm mb-4">
+            {error}
+          </p>
+        )}
         <button
           type="submit"
           disabled={loading}
@@ -113,7 +128,11 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="text-center text-gray-500 dark:text-gray-400">{"Loading\u2026"}</div>}>
+    <Suspense
+      fallback={
+        <div className="text-center text-gray-500 dark:text-gray-400">{"Loading\u2026"}</div>
+      }
+    >
       <ResetPasswordForm />
     </Suspense>
   );

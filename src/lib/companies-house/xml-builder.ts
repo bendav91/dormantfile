@@ -33,7 +33,7 @@ function formatDate(d: Date): string {
 
 export function buildAccountsXml(
   data: AccountsSubmissionData,
-  credentials: PresenterCredentials
+  credentials: PresenterCredentials,
 ): string {
   const periodEndStr = formatDate(data.periodEnd);
   const accountsBase64 = Buffer.from(data.accountsIxbrl, "utf-8").toString("base64");
@@ -81,10 +81,7 @@ export function buildAccountsXml(
 /**
  * Builds a GovTalk poll request for Companies House.
  */
-export function buildPollXml(
-  correlationId: string,
-  credentials: PresenterCredentials
-): string {
+export function buildPollXml(correlationId: string, credentials: PresenterCredentials): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
   <EnvelopeVersion>2.0</EnvelopeVersion>

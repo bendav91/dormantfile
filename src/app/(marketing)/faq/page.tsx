@@ -34,7 +34,7 @@ export default async function FAQPage() {
 
   // Flatten categories into a flat array for JSON-LD structured data
   const faqJsonLdItems = faqCategories.flatMap((cat) =>
-    cat.items.map((item) => ({ question: item.question, answer: item.answer }))
+    cat.items.map((item) => ({ question: item.question, answer: item.answer })),
   );
 
   return (
@@ -43,7 +43,10 @@ export default async function FAQPage() {
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: baseUrl },
-          ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
+          ...breadcrumbs.map((b) => ({
+            name: b.label,
+            ...(b.href ? { url: `${baseUrl}${b.href}` } : {}),
+          })),
         ]}
       />
       <Breadcrumbs items={breadcrumbs} />

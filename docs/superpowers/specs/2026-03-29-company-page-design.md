@@ -25,6 +25,7 @@ A new `/company/[companyId]` route with a tabbed layout: **Filings** (default), 
 Server component. Fetches the company (with filings) from the database. Reads `searchParams.tab` to determine which tab to render.
 
 **Page layout:**
+
 1. Back link to `/dashboard`
 2. Company header: icon, name, CRN, outstanding period count
 3. Tab bar: Filings | Settings | Overview (links are `?tab=X`, current tab highlighted)
@@ -39,6 +40,7 @@ Replace the current filing selector with a redirect to `/company/[companyId]`. P
 The existing filing selector content, extracted into a component. Receives the company and filings as props from the parent page.
 
 **Changes from current `/file/[companyId]/page.tsx`:**
+
 - Company header removed (now in the shared page header)
 - Back link removed (now in the shared page header)
 - Everything else unchanged: period cards, gap warnings, disclosure warnings, blocked territory, completed periods section
@@ -52,19 +54,22 @@ A client component with settings rows. Each row shows the current value and an a
 ### Corporation Tax / UTR
 
 **When not registered (`registeredForCorpTax === false`):**
+
 - Row shows "Corporation Tax" with "Not enabled" status
 - "Enable CT600" button — expands inline to show UTR input (reuse existing `EnableCorpTax` component pattern)
 
 **When registered (`registeredForCorpTax === true`):**
+
 - Row shows "Corporation Tax" with UTR value
 - "Edit" action for changing UTR (reuse existing `EditUTR` component pattern)
 - "Remove" action — opens a confirmation dialog
 
 **Confirmation dialog for removal:**
+
 - Client component with state for showing/hiding
 - Checks for active CT600 filings (`submitted`, `pending`, or `polling_timeout` status)
-- If active filings exist: *"You have [N] CT600 filing(s) in progress. They will continue to be processed, but you won't be able to start new CT600 filings. Are you sure you want to disable Corporation Tax?"*
-- If no active filings: *"This will remove Corporation Tax filing for this company. You can re-enable it later. Are you sure?"*
+- If active filings exist: _"You have [N] CT600 filing(s) in progress. They will continue to be processed, but you won't be able to start new CT600 filings. Are you sure you want to disable Corporation Tax?"_
+- If no active filings: _"This will remove Corporation Tax filing for this company. You can re-enable it later. Are you sure?"_
 - Confirm calls `PATCH /api/company/update` with `{ companyId, registeredForCorpTax: false }`
 
 ### Share Capital
@@ -88,6 +93,7 @@ Read-only company information fetched server-side when `tab=overview`. Requires 
 Both use the same Basic Auth mechanism as the existing company info fetch in `src/app/api/company/route.ts`. Run in parallel with `Promise.allSettled` — if either fails, show what data is available and a warning for the rest.
 
 ### Company details section
+
 - Company name and number
 - Company status (e.g. "Active", "Active - proposal to strike off")
 - Date of incorporation
@@ -96,16 +102,19 @@ Both use the same Basic Auth mechanism as the existing company info fetch in `sr
 - Company type (e.g. "Private limited by shares")
 
 ### Accounts status section
+
 - Last accounts made up to (date)
 - Next accounts due (date, with "Overdue" badge if applicable)
 - Accounting reference date
 
 ### Recent filings section
+
 - Last 5 filings from CH filing history (type description, date filed, period)
 - Link: "View full history on Companies House" → `https://find-and-update.company-information.service.gov.uk/company/{CRN}/filing-history`
 
 ### Error handling
-- If the CH API call fails, show: *"Could not load company information from Companies House. Try again later."*
+
+- If the CH API call fails, show: _"Could not load company information from Companies House. Try again later."_
 - Does not block the rest of the page — tabs still work
 
 ## API changes
@@ -139,13 +148,13 @@ Case 3: Enabling Corp Tax for the first time
 
 ## Link changes
 
-| Current | New |
-|---------|-----|
-| Dashboard "View all periods" / outstanding badge → `/file/[companyId]` | → `/company/[companyId]` |
-| Dashboard individual "File"/"Retry" buttons → `/file/[companyId]/accounts` or `/ct600` | **No change** — these stay pointing at filing flow pages |
-| Filing flow breadcrumb links → `/file/[companyId]` | → `/company/[companyId]` |
-| Filing flow `redirect()` calls → `/file/[companyId]` (accounts page line 39, CT600 page lines 33, 40) | → `/company/[companyId]` (avoid chain redirects) |
-| `/file/[companyId]` page | Redirects to `/company/[companyId]` |
+| Current                                                                                               | New                                                      |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Dashboard "View all periods" / outstanding badge → `/file/[companyId]`                                | → `/company/[companyId]`                                 |
+| Dashboard individual "File"/"Retry" buttons → `/file/[companyId]/accounts` or `/ct600`                | **No change** — these stay pointing at filing flow pages |
+| Filing flow breadcrumb links → `/file/[companyId]`                                                    | → `/company/[companyId]`                                 |
+| Filing flow `redirect()` calls → `/file/[companyId]` (accounts page line 39, CT600 page lines 33, 40) | → `/company/[companyId]` (avoid chain redirects)         |
+| `/file/[companyId]` page                                                                              | Redirects to `/company/[companyId]`                      |
 
 ## What doesn't change
 

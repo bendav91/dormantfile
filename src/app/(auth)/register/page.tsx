@@ -120,16 +120,37 @@ export default function RegisterPage() {
         </div>
 
         {error && (
-          <p role="alert" className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2.5">
+          <p
+            role="alert"
+            className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2.5"
+          >
             {error}
           </p>
         )}
 
         <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
           By creating an account, you agree to our{" "}
-          <Link href="/terms" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">Terms of Service</Link>,{" "}
-          <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">Privacy Policy</Link>, and{" "}
-          <Link href="/acceptable-use" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">Acceptable Use Policy</Link>.
+          <Link
+            href="/terms"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
+          >
+            Terms of Service
+          </Link>
+          ,{" "}
+          <Link
+            href="/privacy"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
+          >
+            Privacy Policy
+          </Link>
+          , and{" "}
+          <Link
+            href="/acceptable-use"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline"
+          >
+            Acceptable Use Policy
+          </Link>
+          .
         </p>
 
         <button

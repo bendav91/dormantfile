@@ -8,13 +8,13 @@ After onboarding, the app only tracks filings it submitted. If a user files thro
 
 ## Decisions
 
-| Question | Decision |
-|----------|----------|
-| What happens when an external filing is detected? | Full roll-forward — advance period pointer, cascade, reset reminders. |
-| What filing types are covered? | Accounts detected automatically from CH API. CT600 via existing "Filed elsewhere?" manual button. |
-| How often does the automatic resync run? | Daily at 7:00 AM UTC (1 hour before reminders, so reminders reflect latest state). |
-| Where does the manual refresh button live? | Company header, above tabs — always visible. |
-| What feedback does the refresh button give? | Spinner + `router.refresh()` + toast notification (success/info/error), auto-dismisses after 4s. |
+| Question                                          | Decision                                                                                          |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| What happens when an external filing is detected? | Full roll-forward — advance period pointer, cascade, reset reminders.                             |
+| What filing types are covered?                    | Accounts detected automatically from CH API. CT600 via existing "Filed elsewhere?" manual button. |
+| How often does the automatic resync run?          | Daily at 7:00 AM UTC (1 hour before reminders, so reminders reflect latest state).                |
+| Where does the manual refresh button live?        | Company header, above tabs — always visible.                                                      |
+| What feedback does the refresh button give?       | Spinner + `router.refresh()` + toast notification (success/info/error), auto-dismisses after 4s.  |
 
 ## Implementation (Complete)
 
@@ -75,22 +75,22 @@ Currently, `SyncButton` shows "Couldn't reach Companies House" for all non-OK re
 
 ### 2. Tests
 
-| File | Description |
-|------|-------------|
-| `src/__tests__/resync-cron.test.ts` | Cron handler: processes eligible companies, handles per-company errors, returns correct summary |
+| File                                       | Description                                                                                            |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `src/__tests__/resync-cron.test.ts`        | Cron handler: processes eligible companies, handles per-company errors, returns correct summary        |
 | `src/__tests__/company-resync-api.test.ts` | Manual resync API: auth, ownership, subscription, rate-limit, delegation to `resyncFromCompaniesHouse` |
 
 ## All Files
 
-| File | Status |
-|------|--------|
-| `src/lib/companies-house/resync.ts` | Done |
-| `src/lib/companies-house/filing-history.ts` | Done (`fetchFilingHistoryStrict`) |
-| `src/lib/roll-forward.ts` | Done (`skipEmail` option) |
-| `src/app/api/cron/resync-filings/route.ts` | Done |
-| `src/app/api/company/resync/route.ts` | Done |
-| `src/components/sync-button.tsx` | Done (needs 429 fix) |
-| `src/app/(app)/company/[companyId]/page.tsx` | Done (SyncButton in header) |
-| `vercel.json` | Done (cron at 7am UTC) |
-| `src/__tests__/resync-cron.test.ts` | TODO |
-| `src/__tests__/company-resync-api.test.ts` | TODO |
+| File                                         | Status                            |
+| -------------------------------------------- | --------------------------------- |
+| `src/lib/companies-house/resync.ts`          | Done                              |
+| `src/lib/companies-house/filing-history.ts`  | Done (`fetchFilingHistoryStrict`) |
+| `src/lib/roll-forward.ts`                    | Done (`skipEmail` option)         |
+| `src/app/api/cron/resync-filings/route.ts`   | Done                              |
+| `src/app/api/company/resync/route.ts`        | Done                              |
+| `src/components/sync-button.tsx`             | Done (needs 429 fix)              |
+| `src/app/(app)/company/[companyId]/page.tsx` | Done (SyncButton in header)       |
+| `vercel.json`                                | Done (cron at 7am UTC)            |
+| `src/__tests__/resync-cron.test.ts`          | TODO                              |
+| `src/__tests__/company-resync-api.test.ts`   | TODO                              |

@@ -28,8 +28,16 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
             <span style={{ color: "var(--color-warning)", flexShrink: 0 }}>
               <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
             </span>
-            <p style={{ fontSize: "14px", color: "var(--color-warning-text)", margin: 0, fontWeight: 500 }}>
-              Your subscription is set to cancel at the end of your billing period. You can still file until then.
+            <p
+              style={{
+                fontSize: "14px",
+                color: "var(--color-warning-text)",
+                margin: 0,
+                fontWeight: 500,
+              }}
+            >
+              Your subscription is set to cancel at the end of your billing period. You can still
+              file until then.
             </p>
           </div>
           <button
@@ -94,7 +102,14 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           <span style={{ color: "var(--color-warning)", flexShrink: 0 }}>
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-warning-text)", margin: 0, fontWeight: 500 }}>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-warning-text)",
+              margin: 0,
+              fontWeight: 500,
+            }}
+          >
             You haven&apos;t completed your subscription yet. Choose a plan to start filing.
           </p>
         </div>
@@ -146,8 +161,16 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           <span style={{ color: "var(--color-danger)", flexShrink: 0 }}>
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-danger-text)", margin: 0, fontWeight: 500 }}>
-            Your payment is past due. Please update your billing details to keep your subscription active.
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-danger-text)",
+              margin: 0,
+              fontWeight: 500,
+            }}
+          >
+            Your payment is past due. Please update your billing details to keep your subscription
+            active.
           </p>
         </div>
         <button
@@ -198,7 +221,14 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
           <span style={{ color: "var(--color-text-secondary)", flexShrink: 0 }}>
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: 0, fontWeight: 500 }}>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-text-body)",
+              margin: 0,
+              fontWeight: 500,
+            }}
+          >
             Your subscription has been cancelled. Resubscribe to continue filing with HMRC.
           </p>
         </div>

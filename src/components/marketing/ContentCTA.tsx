@@ -12,16 +12,10 @@ export function ContentCTA() {
         border: "1px solid var(--color-border)",
       }}
     >
-      <h3
-        className="text-xl font-semibold mb-2"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h3 className="text-xl font-semibold mb-2" style={{ color: "var(--color-text-primary)" }}>
         Ready to file your dormant company returns?
       </h3>
-      <p
-        className="mb-6"
-        style={{ color: "var(--color-text-secondary)", fontSize: "0.9375rem" }}
-      >
+      <p className="mb-6" style={{ color: "var(--color-text-secondary)", fontSize: "0.9375rem" }}>
         Set up in minutes. File in seconds. Done for the year.
       </p>
       <Link

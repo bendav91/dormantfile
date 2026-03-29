@@ -136,7 +136,9 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
   const [shareCapitalPounds, setShareCapitalPounds] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
-  const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "found" | "not_found" | "dissolved" | "unavailable" | "error">("idle");
+  const [lookupStatus, setLookupStatus] = useState<
+    "idle" | "loading" | "found" | "not_found" | "dissolved" | "unavailable" | "error"
+  >("idle");
   const lookupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -199,9 +201,11 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
     } else if (companyRegistrationNumber.length > 8) {
       errs.companyRegistrationNumber = "Registration number must be 8 characters or fewer.";
     } else if (lookupStatus !== "found") {
-      errs.companyRegistrationNumber = "Enter a valid company number that can be verified with Companies House.";
+      errs.companyRegistrationNumber =
+        "Enter a valid company number that can be verified with Companies House.";
     } else if (!periodEndOn) {
-      errs.companyRegistrationNumber = "Companies House has no upcoming accounting period for this company. It may already be filed or the company may be dissolved.";
+      errs.companyRegistrationNumber =
+        "Companies House has no upcoming accounting period for this company. It may already be filed or the company may be dissolved.";
     }
     if (registeredForCorpTax) {
       if (!uniqueTaxReference.trim()) {
@@ -287,9 +291,16 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           {lookupStatus === "loading" && (
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
               <span style={{ color: "var(--color-text-body)" }}>
-                <Loader2 size={13} color="currentColor" strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
+                <Loader2
+                  size={13}
+                  color="currentColor"
+                  strokeWidth={2}
+                  style={{ animation: "spin 1s linear infinite" }}
+                />
               </span>
-              <span style={{ fontSize: "13px", color: "var(--color-text-body)" }}>{"Looking up company\u2026"}</span>
+              <span style={{ fontSize: "13px", color: "var(--color-text-body)" }}>
+                {"Looking up company\u2026"}
+              </span>
             </div>
           )}
           {lookupStatus === "found" && (
@@ -297,29 +308,38 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
               <span style={{ color: "var(--color-success)" }}>
                 <CheckCircle2 size={13} color="currentColor" strokeWidth={2} />
               </span>
-              <span style={{ fontSize: "13px", color: "var(--color-success)" }}>Found: {companyName}</span>
+              <span style={{ fontSize: "13px", color: "var(--color-success)" }}>
+                Found: {companyName}
+              </span>
             </div>
           )}
           {lookupStatus === "dissolved" && (
             <div style={{ marginTop: "2px" }}>
               <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>
-                {companyName} has been dissolved and cannot be added. DormantFile is for active dormant companies only.
+                {companyName} has been dissolved and cannot be added. DormantFile is for active
+                dormant companies only.
               </span>
             </div>
           )}
           {lookupStatus === "not_found" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>No company found with that number.</span>
+              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>
+                No company found with that number.
+              </span>
             </div>
           )}
           {lookupStatus === "error" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>Lookup failed - please try again or check the number.</span>
+              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>
+                Lookup failed - please try again or check the number.
+              </span>
             </div>
           )}
           {lookupStatus === "unavailable" && (
             <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "var(--color-due-soon)" }}>Companies House lookup is currently unavailable. Please try again later.</span>
+              <span style={{ fontSize: "13px", color: "var(--color-due-soon)" }}>
+                Companies House lookup is currently unavailable. Please try again later.
+              </span>
             </div>
           )}
         </FormField>
@@ -442,8 +462,16 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
                 />
                 Is this company registered for Corporation Tax?
               </label>
-              <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0, paddingLeft: "28px" }}>
-                If your dormant company is still registered for Corporation Tax, you can provide your company&apos;s UTR from HMRC.
+              <p
+                style={{
+                  fontSize: "13px",
+                  color: "var(--color-text-body)",
+                  margin: 0,
+                  paddingLeft: "28px",
+                }}
+              >
+                If your dormant company is still registered for Corporation Tax, you can provide
+                your company&apos;s UTR from HMRC.
               </p>
             </div>
 
@@ -517,15 +545,24 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
             (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
           }}
         >
-          {loading && <Loader2 size={18} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />}
+          {loading && (
+            <Loader2 size={18} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
+          )}
           {loading ? "Processing\u2026" : isFirstCompany ? "Continue to Payment" : "Add Company"}
         </button>
 
-        <p style={{ fontSize: "13px", color: "var(--color-text-muted)", textAlign: "center", margin: 0 }}>
-          Your information is encrypted and securely stored. We never share your data with third parties.
+        <p
+          style={{
+            fontSize: "13px",
+            color: "var(--color-text-muted)",
+            textAlign: "center",
+            margin: 0,
+          }}
+        >
+          Your information is encrypted and securely stored. We never share your data with third
+          parties.
         </p>
       </div>
-
     </form>
   );
 }

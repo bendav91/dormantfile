@@ -25,8 +25,6 @@ export const NS = {
 
 /** Schema references for the iXBRL header */
 export const SCHEMA_REFS = {
-  frc2023Core:
-    "https://xbrl.frc.org.uk/FRS-102/2023-01-01/FRS-102-2023-01-01.xsd",
-  hmrcComp:
-    "https://www.hmrc.gov.uk/schemas/ct/comp/2024-01-01/ct-comp-2024-01-01.xsd",
+  frc2023Core: "https://xbrl.frc.org.uk/FRS-102/2023-01-01/FRS-102-2023-01-01.xsd",
+  hmrcComp: "https://www.hmrc.gov.uk/schemas/ct/comp/2024-01-01/ct-comp-2024-01-01.xsd",
 } as const;

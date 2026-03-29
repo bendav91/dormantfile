@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getGuides, getAnswers } from "@/lib/content/mdx";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const guides = getGuides();

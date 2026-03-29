@@ -60,7 +60,9 @@ describe("matchesNeedsAttention", () => {
   it("returns false when ct600 is due soon but company not registered for corp tax", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-15"));
-    const periods = [period({ ct600Deadline: new Date("2026-03-31"), accountsDeadline: new Date("2027-01-01") })];
+    const periods = [
+      period({ ct600Deadline: new Date("2026-03-31"), accountsDeadline: new Date("2027-01-01") }),
+    ];
     expect(matchesNeedsAttention(periods, false)).toBe(false);
     vi.useRealTimers();
   });
@@ -73,7 +75,9 @@ describe("matchesNeedsAttention", () => {
   it("returns false when no deadlines are near", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2025-01-01"));
-    const periods = [period({ accountsDeadline: new Date("2026-01-01"), ct600Deadline: new Date("2026-03-31") })];
+    const periods = [
+      period({ accountsDeadline: new Date("2026-01-01"), ct600Deadline: new Date("2026-03-31") }),
+    ];
     expect(matchesNeedsAttention(periods, false)).toBe(false);
     vi.useRealTimers();
   });

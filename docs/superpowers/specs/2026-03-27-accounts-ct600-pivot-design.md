@@ -90,11 +90,13 @@ The company form adds a toggle after the existing fields:
 Each company card shows **two filing sections** (when registered for Corp Tax) or one (when not):
 
 ### Accounts filing row
+
 - Deadline: "Accounts due: 31 Dec 2026"
 - Status badge (if filed): Accepted / Awaiting CH / etc.
 - Action button: "File accounts" (or status message if filed/in progress)
 
 ### CT600 filing row (only if `registeredForCorpTax`)
+
 - Deadline: "CT600 due: 31 Mar 2027"
 - Status badge (if filed): Accepted / Awaiting HMRC / etc.
 - Action button: "File CT600" (or status message if filed/in progress)
@@ -115,6 +117,7 @@ New multi-step flow at `/file/[companyId]/accounts`:
 4. **Result** — accepted/rejected/timeout with appropriate messaging
 
 Requires:
+
 - `src/lib/companies-house/xml-builder.ts` — builds the accounts XML payload
 - `src/lib/companies-house/submission-client.ts` — submits to CH and polls for response
 - Companies House vendor registration (similar to HMRC SDST registration)
@@ -124,12 +127,14 @@ Requires:
 Stays at `/file/[companyId]/ct600` (rename from `/file/[companyId]`).
 
 The existing flow is unchanged except:
+
 - Route moves from `/file/[companyId]` to `/file/[companyId]/ct600`
 - Only accessible for companies with `registeredForCorpTax: true`
 
 ### Filing page (`/file/[companyId]`)
 
 Becomes a landing page showing both filing options for the company:
+
 - "File annual accounts" card — with CH deadline, status
 - "File CT600" card (if registered) — with HMRC deadline, status
 
@@ -155,6 +160,7 @@ The cron job (`/api/cron/reminders`) queries reminders regardless of `filingType
 Currently, when a CT600 is accepted, the app rolls the accounting period forward by 1 year and creates a new reminder.
 
 With two filing types:
+
 - Each filing type rolls forward independently when accepted
 - Accounts acceptance: creates new accounts reminder for next period
 - CT600 acceptance: creates new CT600 reminder for next period
@@ -193,6 +199,7 @@ Need to register as a software filer with Companies House (similar process to HM
 ### XML Builder (`src/lib/companies-house/xml-builder.ts`)
 
 Builds the annual accounts submission in the format required by the CH Software Filing API. For dormant companies with nil balances, this is a simplified iXBRL document containing:
+
 - Company information (name, registration number)
 - Balance sheet date (accounting period end)
 - Nil figures for all balance sheet lines
@@ -202,6 +209,7 @@ Builds the annual accounts submission in the format required by the CH Software 
 ### Submission Client (`src/lib/companies-house/submission-client.ts`)
 
 Similar to the HMRC submission client:
+
 - POST XML to Companies House endpoint
 - Poll for acceptance/rejection
 - Return structured response
@@ -219,6 +227,7 @@ COMPANIES_HOUSE_FILING_ENDPOINT=...  (live vs test)
 ## Files Changed Summary
 
 ### New files
+
 - `src/lib/companies-house/xml-builder.ts`
 - `src/lib/companies-house/submission-client.ts`
 - `src/app/(app)/file/[companyId]/page.tsx` (rewrite — becomes filing type selector)
@@ -229,6 +238,7 @@ COMPANIES_HOUSE_FILING_ENDPOINT=...  (live vs test)
 - `prisma/migrations/xxx_accounts_pivot/migration.sql`
 
 ### Major modifications
+
 - `prisma/schema.prisma` — FilingType enum, Company/Filing/Reminder changes
 - `src/app/page.tsx` — landing page messaging overhaul
 - `src/app/(app)/dashboard/page.tsx` — dual filing display per company
@@ -242,6 +252,7 @@ COMPANIES_HOUSE_FILING_ENDPOINT=...  (live vs test)
 - `src/app/(app)/onboarding/page.tsx` — update heading/description
 
 ### Minor text updates
+
 - `src/app/privacy/page.tsx` — mention Companies House data sharing
 - `src/app/terms/page.tsx` — mention accounts filing
 - `src/components/subscription-banner.tsx` — update messaging

@@ -20,10 +20,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
         }}
       >
         <li>
-          <Link
-            href="/"
-            style={{ color: "var(--color-text-secondary)", textDecoration: "none" }}
-          >
+          <Link href="/" style={{ color: "var(--color-text-secondary)", textDecoration: "none" }}>
             Home
           </Link>
         </li>

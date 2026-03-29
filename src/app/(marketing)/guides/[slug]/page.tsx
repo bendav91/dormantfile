@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  getGuideBySlug,
-  getGuides,
-  getRelatedContent,
-} from "@/lib/content/mdx";
+import { getGuideBySlug, getGuides, getRelatedContent } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
 import { RelatedContent } from "@/components/marketing/RelatedContent";
@@ -46,11 +42,7 @@ export default async function GuidePage({ params }: Props) {
   const guide = await getGuideBySlug(slug);
   if (!guide) notFound();
 
-  const related = getRelatedContent(
-    "guides",
-    guide.frontmatter.category,
-    slug,
-  );
+  const related = getRelatedContent("guides", guide.frontmatter.category, slug);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
 
   return (
@@ -69,10 +61,7 @@ export default async function GuidePage({ params }: Props) {
         ]}
       />
       <Breadcrumbs
-        items={[
-          { label: "Guides", href: "/guides" },
-          { label: guide.frontmatter.title },
-        ]}
+        items={[{ label: "Guides", href: "/guides" }, { label: guide.frontmatter.title }]}
       />
       <article>
         <h1

@@ -1,0 +1,18 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll.eslint": "always",
+    "source.fixAll.stylelint": "always"
+  },
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  "stylelint.enable": true,
+  "stylelint.validate": ["css", "scss"],
+  "stylelint.customSyntax": "postcss-scss",
+  "eslint.validate": ["typescript", "typescriptreact", "javascript", "javascriptreact"],
+  "js/ts.tsserver.experimental.enableProjectDiagnostics": true,
+  "git.terminalAuthentication": true
+}

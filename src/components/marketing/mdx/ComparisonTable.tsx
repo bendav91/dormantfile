@@ -8,7 +8,13 @@ interface ComparisonRow {
 export function ComparisonTable({ rows }: { rows: ComparisonRow[] }) {
   return (
     <div style={{ overflowX: "auto", marginBottom: "2rem" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", backgroundColor: "var(--color-bg-card)" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          backgroundColor: "var(--color-bg-card)",
+        }}
+      >
         <thead>
           <tr>
             {["Method", "Cost", "Time", "Notes"].map((h) => (
@@ -31,16 +37,45 @@ export function ComparisonTable({ rows }: { rows: ComparisonRow[] }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.method}>
-              <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--color-border)", color: "var(--color-text-primary)", fontWeight: row.method === "DormantFile" ? 600 : 400, fontSize: "14px" }}>
+              <td
+                style={{
+                  padding: "0.75rem",
+                  borderBottom: "1px solid var(--color-border)",
+                  color: "var(--color-text-primary)",
+                  fontWeight: row.method === "DormantFile" ? 600 : 400,
+                  fontSize: "14px",
+                }}
+              >
                 {row.method}
               </td>
-              <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--color-border)", color: "var(--color-text-body)", fontSize: "14px" }}>
+              <td
+                style={{
+                  padding: "0.75rem",
+                  borderBottom: "1px solid var(--color-border)",
+                  color: "var(--color-text-body)",
+                  fontSize: "14px",
+                }}
+              >
                 {row.cost}
               </td>
-              <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--color-border)", color: "var(--color-text-body)", fontSize: "14px" }}>
+              <td
+                style={{
+                  padding: "0.75rem",
+                  borderBottom: "1px solid var(--color-border)",
+                  color: "var(--color-text-body)",
+                  fontSize: "14px",
+                }}
+              >
                 {row.time}
               </td>
-              <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--color-border)", color: "var(--color-text-body)", fontSize: "14px" }}>
+              <td
+                style={{
+                  padding: "0.75rem",
+                  borderBottom: "1px solid var(--color-border)",
+                  color: "var(--color-text-body)",
+                  fontSize: "14px",
+                }}
+              >
                 {row.notes}
               </td>
             </tr>

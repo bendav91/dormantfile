@@ -67,12 +67,11 @@ export function getOutstandingPeriods(
         f.periodEnd.getTime() === pEnd.getTime(),
     );
 
-    const isComplete = accountsFiled && (!registeredForCorpTax || ct600Filed);
+    // If accounts are accepted, assume CT600 was handled too — we can't
+    // track CT600 status for periods filed before the user enabled corp tax.
+    const isComplete = accountsFiled;
 
-    const isOverdue =
-      !isComplete &&
-      (accountsDeadline.getTime() < now.getTime() ||
-        (registeredForCorpTax && ct600Deadline.getTime() < now.getTime()));
+    const isOverdue = !isComplete && accountsDeadline.getTime() < now.getTime();
 
     periods.push({
       periodStart: new Date(pStart),

@@ -86,7 +86,8 @@ export default function AgentSetupPage() {
             transition: "border-color 200ms",
           }}
           onMouseEnter={(e) => {
-            if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-primary)";
+            if (!loading)
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-primary)";
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
@@ -99,7 +100,8 @@ export default function AgentSetupPage() {
             Yes, I&apos;m an agent
           </span>
           <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
-            I&apos;ll file CT600 returns on behalf of client companies using my agent Government Gateway credentials.
+            I&apos;ll file CT600 returns on behalf of client companies using my agent Government
+            Gateway credentials.
           </span>
           {loading && <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />}
         </button>
@@ -121,7 +123,8 @@ export default function AgentSetupPage() {
             transition: "border-color 200ms",
           }}
           onMouseEnter={(e) => {
-            if (!loading) (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-primary)";
+            if (!loading)
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-primary)";
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
@@ -143,7 +146,6 @@ export default function AgentSetupPage() {
       <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "24px" }}>
         You can change this anytime in Settings.
       </p>
-
     </div>
   );
 }

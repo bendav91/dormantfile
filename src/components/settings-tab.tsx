@@ -147,20 +147,14 @@ export default function SettingsTab({
   }
 
   async function handleDeleteCompany() {
-    await handleApiCall(
-      "/api/company/remove",
-      "DELETE",
-      { companyId },
-      () => {
-        router.push("/dashboard");
-      },
-    );
+    await handleApiCall("/api/company/remove", "DELETE", { companyId }, () => {
+      router.push("/dashboard");
+    });
   }
 
   return (
     <div>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-
         {/* Corporation Tax row */}
         {!registeredForCorpTax && !showEnableForm && (
           <div style={rowStyle}>
@@ -204,9 +198,16 @@ export default function SettingsTab({
                 {saving ? "Saving…" : "Save"}
               </button>
               <button
-                onClick={() => { setShowEnableForm(false); setUtrInput(""); }}
+                onClick={() => {
+                  setShowEnableForm(false);
+                  setUtrInput("");
+                }}
                 disabled={saving}
-                style={{ ...actionBtnStyle, color: "var(--color-text-secondary)", padding: "8px 14px" }}
+                style={{
+                  ...actionBtnStyle,
+                  color: "var(--color-text-secondary)",
+                  padding: "8px 14px",
+                }}
               >
                 Cancel
               </button>
@@ -243,7 +244,10 @@ export default function SettingsTab({
                     <Check size={14} strokeWidth={2.5} />
                   </button>
                   <button
-                    onClick={() => { setEditingUTR(false); setEditUTRInput(uniqueTaxReference ?? ""); }}
+                    onClick={() => {
+                      setEditingUTR(false);
+                      setEditUTRInput(uniqueTaxReference ?? "");
+                    }}
                     disabled={saving}
                     title="Cancel"
                     style={{ ...actionBtnStyle, color: "var(--color-text-secondary)" }}
@@ -304,7 +308,10 @@ export default function SettingsTab({
                   <Check size={14} strokeWidth={2.5} />
                 </button>
                 <button
-                  onClick={() => { setEditingShareCapital(false); setShareCapitalInput((shareCapital / 100).toFixed(2)); }}
+                  onClick={() => {
+                    setEditingShareCapital(false);
+                    setShareCapitalInput((shareCapital / 100).toFixed(2));
+                  }}
                   disabled={saving}
                   title="Cancel"
                   style={{ ...actionBtnStyle, color: "var(--color-text-secondary)" }}
@@ -329,8 +336,21 @@ export default function SettingsTab({
       </div>
 
       {/* Danger zone */}
-      <div style={{ marginTop: "32px", paddingTop: "20px", borderTop: "1px solid var(--color-border)" }}>
-        <h3 style={{ fontSize: "14px", fontWeight: 600, color: "var(--color-danger)", margin: "0 0 12px 0" }}>
+      <div
+        style={{
+          marginTop: "32px",
+          paddingTop: "20px",
+          borderTop: "1px solid var(--color-border)",
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "14px",
+            fontWeight: 600,
+            color: "var(--color-danger)",
+            margin: "0 0 12px 0",
+          }}
+        >
           Danger zone
         </h3>
         <div style={rowStyle}>
@@ -351,9 +371,7 @@ export default function SettingsTab({
 
       {/* Error display */}
       {error && (
-        <p style={{ fontSize: "13px", color: "var(--color-danger)", marginTop: "12px" }}>
-          {error}
-        </p>
+        <p style={{ fontSize: "13px", color: "var(--color-danger)", marginTop: "12px" }}>{error}</p>
       )}
 
       {/* Remove Corp Tax confirmation modal */}
@@ -379,10 +397,24 @@ export default function SettingsTab({
               boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
             }}
           >
-            <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 12px 0" }}>
+            <h3
+              style={{
+                fontSize: "16px",
+                fontWeight: 700,
+                color: "var(--color-text-primary)",
+                margin: "0 0 12px 0",
+              }}
+            >
               Disable Corporation Tax?
             </h3>
-            <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0", lineHeight: "1.5" }}>
+            <p
+              style={{
+                fontSize: "14px",
+                color: "var(--color-text-body)",
+                margin: "0 0 20px 0",
+                lineHeight: "1.5",
+              }}
+            >
               {activeCT600Count > 0
                 ? `You have ${activeCT600Count} CT600 filing${activeCT600Count === 1 ? "" : "s"} in progress. They will continue to be processed, but you won't be able to start new CT600 filings. Are you sure?`
                 : "This will remove Corporation Tax filing for this company. You can re-enable it later. Are you sure?"}
@@ -391,7 +423,11 @@ export default function SettingsTab({
               <button
                 onClick={() => setShowRemoveConfirm(false)}
                 disabled={saving}
-                style={{ ...actionBtnStyle, border: "1px solid var(--color-border)", padding: "8px 16px" }}
+                style={{
+                  ...actionBtnStyle,
+                  border: "1px solid var(--color-border)",
+                  padding: "8px 16px",
+                }}
               >
                 Cancel
               </button>
@@ -436,17 +472,36 @@ export default function SettingsTab({
               boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
             }}
           >
-            <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: "0 0 12px 0" }}>
+            <h3
+              style={{
+                fontSize: "16px",
+                fontWeight: 700,
+                color: "var(--color-text-primary)",
+                margin: "0 0 12px 0",
+              }}
+            >
               Remove company?
             </h3>
-            <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0", lineHeight: "1.5" }}>
-              This will remove {companyName} from your account. Your filing history will be preserved. Are you sure?
+            <p
+              style={{
+                fontSize: "14px",
+                color: "var(--color-text-body)",
+                margin: "0 0 20px 0",
+                lineHeight: "1.5",
+              }}
+            >
+              This will remove {companyName} from your account. Your filing history will be
+              preserved. Are you sure?
             </p>
             <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={saving}
-                style={{ ...actionBtnStyle, border: "1px solid var(--color-border)", padding: "8px 16px" }}
+                style={{
+                  ...actionBtnStyle,
+                  border: "1px solid var(--color-border)",
+                  padding: "8px 16px",
+                }}
               >
                 Cancel
               </button>

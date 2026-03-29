@@ -19,9 +19,7 @@ interface ReminderEmailResult {
   html: string;
 }
 
-export function buildReminderEmail(
-  data: ReminderEmailData
-): ReminderEmailResult {
+export function buildReminderEmail(data: ReminderEmailData): ReminderEmailResult {
   const { companyName, daysUntilDeadline, filingDeadline, fileUrl, filingType } = data;
   const deadlineFormatted = formatUKDate(filingDeadline);
 
@@ -85,7 +83,7 @@ interface FilingConfirmationEmailResult {
 }
 
 export function buildFilingConfirmationEmail(
-  data: FilingConfirmationEmailData
+  data: FilingConfirmationEmailData,
 ): FilingConfirmationEmailResult {
   const { companyName, periodStart, periodEnd, filingType } = data;
   const startFormatted = formatUKDate(periodStart);
@@ -130,9 +128,7 @@ interface PasswordResetEmailResult {
   html: string;
 }
 
-export function buildPasswordResetEmail(
-  data: PasswordResetEmailData
-): PasswordResetEmailResult {
+export function buildPasswordResetEmail(data: PasswordResetEmailData): PasswordResetEmailResult {
   const { resetUrl } = data;
 
   const subject = "Reset your DormantFile password";

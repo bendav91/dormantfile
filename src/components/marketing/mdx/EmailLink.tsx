@@ -15,7 +15,10 @@ export function EmailLink({ email }: { email: string }) {
       }}
     >
       <Mail size={20} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
-      <a href={`mailto:${email}`} style={{ color: "var(--color-primary)", fontWeight: 500, fontSize: "15px" }}>
+      <a
+        href={`mailto:${email}`}
+        style={{ color: "var(--color-primary)", fontWeight: 500, fontSize: "15px" }}
+      >
         {email}
       </a>
     </span>

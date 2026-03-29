@@ -71,9 +71,7 @@ describe("submitToHmrc", () => {
   });
 
   it("returns correlationId and pollInterval from valid XML response", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-      makeFetchResponse(SUBMIT_RESPONSE_XML)
-    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(makeFetchResponse(SUBMIT_RESPONSE_XML));
 
     const result = await submitToHmrc("<xml>submission</xml>", ENDPOINT);
 
@@ -84,7 +82,7 @@ describe("submitToHmrc", () => {
 
   it("throws on non-200 response", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-      makeFetchResponse("Internal Server Error", 500)
+      makeFetchResponse("Internal Server Error", 500),
     );
 
     await expect(submitToHmrc("<xml>submission</xml>", ENDPOINT)).rejects.toThrow();
@@ -97,9 +95,7 @@ describe("pollHmrc", () => {
   });
 
   it("returns accepted when qualifier is response", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-      makeFetchResponse(ACCEPTED_POLL_XML)
-    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(makeFetchResponse(ACCEPTED_POLL_XML));
 
     const result = await pollHmrc("corr-abc-123", ENDPOINT, vendor);
 
@@ -109,9 +105,7 @@ describe("pollHmrc", () => {
   });
 
   it("returns processing when qualifier is acknowledgement", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-      makeFetchResponse(PROCESSING_POLL_XML)
-    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(makeFetchResponse(PROCESSING_POLL_XML));
 
     const result = await pollHmrc("corr-abc-123", ENDPOINT, vendor);
 
@@ -119,9 +113,7 @@ describe("pollHmrc", () => {
   });
 
   it("returns rejected with error message when qualifier is error", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
-      makeFetchResponse(REJECTED_POLL_XML)
-    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(makeFetchResponse(REJECTED_POLL_XML));
 
     const result = await pollHmrc("corr-abc-123", ENDPOINT, vendor);
 

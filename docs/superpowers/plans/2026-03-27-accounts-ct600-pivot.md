@@ -15,49 +15,53 @@
 ## File Map
 
 ### New files
-| File | Responsibility |
-|------|---------------|
-| `prisma/migrations/xxx_accounts_pivot/migration.sql` | Schema migration (auto-generated) |
-| `src/lib/roll-forward.ts` | Shared roll-forward logic (extracted from 3 duplicated copies) |
-| `src/lib/companies-house/xml-builder.ts` | Builds CH accounts XML payload (stub — real iXBRL TBD after CH registration) |
-| `src/lib/companies-house/submission-client.ts` | Submits to CH Software Filing API + polls (stub — endpoint TBD) |
-| `src/app/(app)/file/[companyId]/accounts/page.tsx` | Server page wrapper for accounts filing flow |
-| `src/app/(app)/file/[companyId]/accounts/accounts-flow.tsx` | Client-side multi-step accounts filing flow |
-| `src/app/(app)/file/[companyId]/ct600/page.tsx` | Server page wrapper for CT600 flow (moved from current location) |
-| `src/app/(app)/file/[companyId]/ct600/filing-flow.tsx` | CT600 filing flow (moved from current `filing-flow.tsx`) |
-| `src/app/api/file/submit-accounts/route.ts` | POST endpoint for accounts submission |
+
+| File                                                        | Responsibility                                                               |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `prisma/migrations/xxx_accounts_pivot/migration.sql`        | Schema migration (auto-generated)                                            |
+| `src/lib/roll-forward.ts`                                   | Shared roll-forward logic (extracted from 3 duplicated copies)               |
+| `src/lib/companies-house/xml-builder.ts`                    | Builds CH accounts XML payload (stub — real iXBRL TBD after CH registration) |
+| `src/lib/companies-house/submission-client.ts`              | Submits to CH Software Filing API + polls (stub — endpoint TBD)              |
+| `src/app/(app)/file/[companyId]/accounts/page.tsx`          | Server page wrapper for accounts filing flow                                 |
+| `src/app/(app)/file/[companyId]/accounts/accounts-flow.tsx` | Client-side multi-step accounts filing flow                                  |
+| `src/app/(app)/file/[companyId]/ct600/page.tsx`             | Server page wrapper for CT600 flow (moved from current location)             |
+| `src/app/(app)/file/[companyId]/ct600/filing-flow.tsx`      | CT600 filing flow (moved from current `filing-flow.tsx`)                     |
+| `src/app/api/file/submit-accounts/route.ts`                 | POST endpoint for accounts submission                                        |
 
 ### Major modifications
-| File | Changes |
-|------|---------|
-| `prisma/schema.prisma` | Add `FilingType` enum; add `registeredForCorpTax`, make `uniqueTaxReference` optional on Company; add `filingType` to Filing + Reminder; update unique constraints |
-| `src/lib/utils.ts` | Add `calculateAccountsDeadline`, rename `calculateFilingDeadline` → `calculateCT600Deadline` |
-| `src/lib/email/templates.ts` | Filing-type-aware reminder + confirmation emails |
-| `src/components/company-form.tsx` | Add Corp Tax toggle, conditional UTR field |
-| `src/app/api/company/route.ts` | Accept `registeredForCorpTax`, optional UTR, create dual reminders |
-| `src/components/filing-status-badge.tsx` | Accept optional `filingType` prop, show "Awaiting CH" for accounts `polling_timeout` |
-| `src/app/(app)/dashboard/page.tsx` | Dual filing rows per company (accounts + CT600) |
-| `src/app/(app)/file/[companyId]/page.tsx` | Rewrite as filing type selector landing page |
-| `src/app/api/file/submit/route.ts` | Scope to CT600 only, add `filingType: "ct600"`, use shared roll-forward |
-| `src/app/api/cron/poll-filings/route.ts` | Use shared roll-forward, scope to CT600 filings only |
-| `src/app/api/file/check-status/route.ts` | Use shared roll-forward |
-| `src/app/api/cron/reminders/route.ts` | Filing-type-aware email content and file URLs |
-| `src/app/page.tsx` | Landing page messaging overhaul |
-| `src/app/(app)/onboarding/page.tsx` | Update heading/description text |
-| `src/__tests__/lib/utils.test.ts` | Tests for new deadline functions |
-| `.env.example` | Add CH env vars |
+
+| File                                      | Changes                                                                                                                                                            |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `prisma/schema.prisma`                    | Add `FilingType` enum; add `registeredForCorpTax`, make `uniqueTaxReference` optional on Company; add `filingType` to Filing + Reminder; update unique constraints |
+| `src/lib/utils.ts`                        | Add `calculateAccountsDeadline`, rename `calculateFilingDeadline` → `calculateCT600Deadline`                                                                       |
+| `src/lib/email/templates.ts`              | Filing-type-aware reminder + confirmation emails                                                                                                                   |
+| `src/components/company-form.tsx`         | Add Corp Tax toggle, conditional UTR field                                                                                                                         |
+| `src/app/api/company/route.ts`            | Accept `registeredForCorpTax`, optional UTR, create dual reminders                                                                                                 |
+| `src/components/filing-status-badge.tsx`  | Accept optional `filingType` prop, show "Awaiting CH" for accounts `polling_timeout`                                                                               |
+| `src/app/(app)/dashboard/page.tsx`        | Dual filing rows per company (accounts + CT600)                                                                                                                    |
+| `src/app/(app)/file/[companyId]/page.tsx` | Rewrite as filing type selector landing page                                                                                                                       |
+| `src/app/api/file/submit/route.ts`        | Scope to CT600 only, add `filingType: "ct600"`, use shared roll-forward                                                                                            |
+| `src/app/api/cron/poll-filings/route.ts`  | Use shared roll-forward, scope to CT600 filings only                                                                                                               |
+| `src/app/api/file/check-status/route.ts`  | Use shared roll-forward                                                                                                                                            |
+| `src/app/api/cron/reminders/route.ts`     | Filing-type-aware email content and file URLs                                                                                                                      |
+| `src/app/page.tsx`                        | Landing page messaging overhaul                                                                                                                                    |
+| `src/app/(app)/onboarding/page.tsx`       | Update heading/description text                                                                                                                                    |
+| `src/__tests__/lib/utils.test.ts`         | Tests for new deadline functions                                                                                                                                   |
+| `.env.example`                            | Add CH env vars                                                                                                                                                    |
 
 ### Minor text updates
-| File | Changes |
-|------|---------|
-| `src/components/subscription-banner.tsx` | Update messaging |
-| `src/app/(app)/settings/page.tsx` | Show Corp Tax status per company |
+
+| File                                     | Changes                          |
+| ---------------------------------------- | -------------------------------- |
+| `src/components/subscription-banner.tsx` | Update messaging                 |
+| `src/app/(app)/settings/page.tsx`        | Show Corp Tax status per company |
 
 ---
 
 ## Task 1: Schema Migration
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 - Create: `prisma/migrations/xxx_accounts_pivot/migration.sql` (auto-generated)
 
@@ -143,6 +147,7 @@ model Reminder {
 Run: `npx prisma migrate dev --name accounts_pivot`
 
 If the auto-generated migration doesn't handle defaults for existing rows, manually edit the migration SQL to add before the NOT NULL constraint:
+
 ```sql
 UPDATE "Company" SET "registeredForCorpTax" = true WHERE "uniqueTaxReference" IS NOT NULL;
 UPDATE "Filing" SET "filingType" = 'ct600';
@@ -166,6 +171,7 @@ git commit -m "feat: add FilingType enum and accounts pivot schema changes"
 ## Task 2: Deadline Utils + Tests
 
 **Files:**
+
 - Modify: `src/lib/utils.ts`
 - Modify: `src/__tests__/lib/utils.test.ts`
 
@@ -234,7 +240,9 @@ export function calculateAccountsDeadline(accountingPeriodEnd: Date): Date {
   const targetMonth = deadline.getUTCMonth() + 9;
   const originalDate = deadline.getUTCDate();
   deadline.setUTCMonth(targetMonth, 1);
-  const maxDay = new Date(Date.UTC(deadline.getUTCFullYear(), deadline.getUTCMonth() + 1, 0)).getUTCDate();
+  const maxDay = new Date(
+    Date.UTC(deadline.getUTCFullYear(), deadline.getUTCMonth() + 1, 0),
+  ).getUTCDate();
   deadline.setUTCDate(Math.min(originalDate, maxDay));
   return deadline;
 }
@@ -259,6 +267,7 @@ git commit -m "feat: add calculateAccountsDeadline and rename to calculateCT600D
 Move this before the API changes so downstream tasks can use the updated signatures.
 
 **Files:**
+
 - Modify: `src/lib/email/templates.ts`
 
 - [ ] **Step 1: Update ReminderEmailData and buildReminderEmail**
@@ -289,13 +298,18 @@ git commit -m "feat: filing-type-aware email templates for accounts and CT600"
 The current codebase has `rollForwardPeriod` duplicated in 3 files: `submit/route.ts`, `poll-filings/route.ts`, `check-status/route.ts`. Extract to a shared utility.
 
 **Files:**
+
 - Create: `src/lib/roll-forward.ts`
 
 - [ ] **Step 1: Create roll-forward.ts**
 
 ```typescript
 import { prisma } from "@/lib/db";
-import { calculateAccountsDeadline, calculateCT600Deadline, calculateNextReminderDate } from "@/lib/utils";
+import {
+  calculateAccountsDeadline,
+  calculateCT600Deadline,
+  calculateNextReminderDate,
+} from "@/lib/utils";
 import { resend } from "@/lib/email/client";
 import { buildFilingConfirmationEmail } from "@/lib/email/templates";
 
@@ -305,7 +319,7 @@ export async function rollForwardPeriod(
   registeredForCorpTax: boolean,
   filingType: "accounts" | "ct600",
   userEmail: string,
-  companyName: string
+  companyName: string,
 ): Promise<void> {
   // Check if all required filings for this period are accepted
   const acceptedFilings = await prisma.filing.findMany({
@@ -330,13 +344,15 @@ export async function rollForwardPeriod(
     filingDeadline: Date;
     remindersSent: number;
     nextReminderAt: Date | null;
-  }> = [{
-    companyId,
-    filingType: "accounts",
-    filingDeadline: newAccountsDeadline,
-    remindersSent: 0,
-    nextReminderAt: calculateNextReminderDate(newAccountsDeadline, 0),
-  }];
+  }> = [
+    {
+      companyId,
+      filingType: "accounts",
+      filingDeadline: newAccountsDeadline,
+      remindersSent: 0,
+      nextReminderAt: calculateNextReminderDate(newAccountsDeadline, 0),
+    },
+  ];
 
   if (registeredForCorpTax) {
     const newCT600Deadline = calculateCT600Deadline(newPeriodEnd);
@@ -390,6 +406,7 @@ git commit -m "feat: extract shared rollForwardPeriod with dual-filing gating lo
 ## Task 5: Company Form — Corp Tax Toggle
 
 **Files:**
+
 - Modify: `src/components/company-form.tsx`
 
 - [ ] **Step 1: Add registeredForCorpTax state**
@@ -434,6 +451,7 @@ git commit -m "feat: add Corp Tax toggle and conditional UTR field to company fo
 ## Task 6: Company API — Dual Reminders
 
 **Files:**
+
 - Modify: `src/app/api/company/route.ts`
 
 - [ ] **Step 1: Accept registeredForCorpTax and make UTR optional**
@@ -456,6 +474,7 @@ git commit -m "feat: company creation with dual reminders for accounts and CT600
 ## Task 7: Filing Status Badge — FilingType-Aware
 
 **Files:**
+
 - Modify: `src/components/filing-status-badge.tsx`
 
 - [ ] **Step 1: Add optional filingType prop**
@@ -474,9 +493,8 @@ In the component, override the label for `polling_timeout` when `filingType === 
 ```typescript
 export default function FilingStatusBadge({ status, filingType }: FilingStatusBadgeProps) {
   const config = statusConfig[status];
-  const label = status === "polling_timeout" && filingType === "accounts"
-    ? "Awaiting CH"
-    : config.label;
+  const label =
+    status === "polling_timeout" && filingType === "accounts" ? "Awaiting CH" : config.label;
   // ... render with label instead of config.label
 }
 ```
@@ -497,6 +515,7 @@ Move CT600 flow to `/file/[companyId]/ct600/`, rewrite `/file/[companyId]/page.t
 **Important:** All new pages use async params pattern: `params: Promise<{ companyId: string }>` and `const { companyId } = await params;` — matching the existing codebase.
 
 **Files:**
+
 - Create: `src/app/(app)/file/[companyId]/ct600/page.tsx`
 - Create: `src/app/(app)/file/[companyId]/ct600/filing-flow.tsx`
 - Modify: `src/app/(app)/file/[companyId]/page.tsx`
@@ -560,6 +579,7 @@ export default async function CT600FilingPage({ params }: PageProps) {
 Replace with a selector page showing filing options per company. Uses async params pattern. Includes company filings query (no broken `where` placeholder — just include all filings ordered by `createdAt desc`). Filter by `filingType` and current `periodEnd` client-side via `.find()`.
 
 Shows:
+
 - Accounts card (always): deadline from `calculateAccountsDeadline`, status badge with `filingType="accounts"`, "File accounts" link
 - CT600 card (if `registeredForCorpTax`): deadline from `calculateCT600Deadline`, status badge with `filingType="ct600"`, "File CT600" link
 
@@ -581,6 +601,7 @@ git commit -m "feat: restructure filing routes with selector page and ct600 subf
 ## Task 9: CT600 Submit API — Use Shared Roll-Forward
 
 **Files:**
+
 - Modify: `src/app/api/file/submit/route.ts`
 
 - [ ] **Step 1: Replace local rollForwardPeriod with import**
@@ -598,9 +619,13 @@ Add `filingType: "ct600"` to the `prisma.filing.create`, `prisma.filing.findFirs
 - [ ] **Step 3: Guard — only allow CT600 for Corp Tax companies**
 
 After finding the company:
+
 ```typescript
 if (!company.registeredForCorpTax) {
-  return NextResponse.json({ error: "This company is not registered for Corporation Tax" }, { status: 400 });
+  return NextResponse.json(
+    { error: "This company is not registered for Corporation Tax" },
+    { status: 400 },
+  );
 }
 ```
 
@@ -613,7 +638,7 @@ await rollForwardPeriod(
   company.registeredForCorpTax,
   "ct600",
   user.email,
-  company.companyName
+  company.companyName,
 );
 ```
 
@@ -633,12 +658,14 @@ git commit -m "feat: scope CT600 submit to filingType, use shared roll-forward"
 ## Task 10: Update poll-filings and check-status Routes
 
 **Files:**
+
 - Modify: `src/app/api/cron/poll-filings/route.ts`
 - Modify: `src/app/api/file/check-status/route.ts`
 
 - [ ] **Step 1: Update poll-filings/route.ts**
 
 Remove the local `rollForwardPeriod` function. Import shared:
+
 ```typescript
 import { rollForwardPeriod } from "@/lib/roll-forward";
 ```
@@ -646,6 +673,7 @@ import { rollForwardPeriod } from "@/lib/roll-forward";
 Remove unused imports: `calculateFilingDeadline`, `calculateNextReminderDate`, `buildFilingConfirmationEmail`, `resend`.
 
 Update the `rollForwardPeriod` call (line 133-138):
+
 ```typescript
 await rollForwardPeriod(
   filing.companyId,
@@ -653,7 +681,7 @@ await rollForwardPeriod(
   filing.company.registeredForCorpTax,
   filing.filingType as "accounts" | "ct600",
   filing.company.user.email,
-  filing.company.companyName
+  filing.company.companyName,
 );
 ```
 
@@ -670,7 +698,7 @@ await rollForwardPeriod(
   filing.company.registeredForCorpTax,
   filing.filingType as "accounts" | "ct600",
   filing.company.user.email,
-  filing.company.companyName
+  filing.company.companyName,
 );
 ```
 
@@ -688,6 +716,7 @@ git commit -m "feat: poll-filings and check-status use shared roll-forward with 
 ## Task 11: Cron Reminders — Filing-Type-Aware
 
 **Files:**
+
 - Modify: `src/app/api/cron/reminders/route.ts`
 
 - [ ] **Step 1: Pass filingType to reminder email and build correct URL**
@@ -718,6 +747,7 @@ git commit -m "feat: filing-type-aware reminder emails with correct filing URLs"
 ## Task 12: Dashboard — Dual Filing Display
 
 **Files:**
+
 - Modify: `src/app/(app)/dashboard/page.tsx`
 
 - [ ] **Step 1: Update imports**
@@ -729,12 +759,14 @@ Replace `calculateFilingDeadline` with `calculateAccountsDeadline, calculateCT60
 For each company card, replace the single deadline display and "File nil CT600" action with two rows:
 
 **Accounts row** (always shown):
+
 - Label: "Annual Accounts"
 - Deadline from `calculateAccountsDeadline(company.accountingPeriodEnd)`
 - Status badge (with `filingType="accounts"`) if filing exists for current period
 - "File" button linking to `/file/${company.id}/accounts` if no blocking filing
 
 **CT600 row** (only if `company.registeredForCorpTax`):
+
 - Label: "CT600 Corporation Tax"
 - Deadline from `calculateCT600Deadline(company.accountingPeriodEnd)`
 - Status badge (with `filingType="ct600"`) if filing exists for current period
@@ -743,10 +775,16 @@ For each company card, replace the single deadline display and "File nil CT600" 
 - [ ] **Step 3: Update company card subtitle**
 
 Show UTR only for Corp Tax companies:
+
 ```tsx
-{company.registeredForCorpTax && company.uniqueTaxReference
-  ? `UTR: ${company.uniqueTaxReference} · ` : ""}
-{company.companyRegistrationNumber}
+{
+  company.registeredForCorpTax && company.uniqueTaxReference
+    ? `UTR: ${company.uniqueTaxReference} · `
+    : "";
+}
+{
+  company.companyRegistrationNumber;
+}
 ```
 
 - [ ] **Step 4: Commit**
@@ -761,6 +799,7 @@ git commit -m "feat: dashboard shows dual filing rows per company"
 ## Task 13: Companies House Stubs
 
 **Files:**
+
 - Create: `src/lib/companies-house/xml-builder.ts`
 - Create: `src/lib/companies-house/submission-client.ts`
 
@@ -784,12 +823,14 @@ git commit -m "feat: stub Companies House XML builder and submission client"
 ## Task 14: Accounts Filing Flow (UI)
 
 **Files:**
+
 - Create: `src/app/(app)/file/[companyId]/accounts/accounts-flow.tsx`
 - Create: `src/app/(app)/file/[companyId]/accounts/page.tsx`
 
 - [ ] **Step 1: Create accounts-flow.tsx**
 
 Client component mirroring CT600 filing-flow structure but for accounts:
+
 - Steps: `confirm → authenticate → submitting → result` (4 steps matching spec)
 - Step "confirm": company details, period, dormant statement, Companies House context
 - Step "authenticate": placeholder — "Companies House authentication will be available once software filer registration is complete. This feature is coming soon." (disabled submit button)
@@ -827,11 +868,13 @@ git commit -m "feat: accounts filing flow UI with confirm, auth placeholder, sub
 ## Task 15: Accounts Submit API
 
 **Files:**
+
 - Create: `src/app/api/file/submit-accounts/route.ts`
 
 - [ ] **Step 1: Create the submit-accounts API route**
 
 Mirrors `submit/route.ts` structure:
+
 1. Auth + subscription check
 2. Filing limit check (by distinct companyId)
 3. Clean stale pending filings (scoped to `filingType: "accounts"`)
@@ -858,6 +901,7 @@ git commit -m "feat: accounts submission API endpoint with CH integration stubs"
 ## Task 16: Landing Page Messaging Overhaul
 
 **Files:**
+
 - Modify: `src/app/page.tsx`
 
 - [ ] **Step 1: Update hero**
@@ -901,6 +945,7 @@ git commit -m "feat: update landing page messaging for dual filing service"
 ## Task 17: Onboarding, Env, and Minor Text Updates
 
 **Files:**
+
 - Modify: `src/app/(app)/onboarding/page.tsx`
 - Modify: `.env.example`
 - Modify: `src/components/subscription-banner.tsx`
@@ -915,6 +960,7 @@ Security notice: "Your data is protected with industry-standard encryption. We o
 - [ ] **Step 2: Update .env.example**
 
 Add:
+
 ```
 # Companies House (Software Filing)
 COMPANIES_HOUSE_PRESENTER_ID=...
@@ -942,6 +988,7 @@ git commit -m "feat: update onboarding, env vars, and minor text for dual filing
 ## Task 18: Update All Import References + Remove Alias
 
 **Files:**
+
 - All files still importing `calculateFilingDeadline`
 
 - [ ] **Step 1: Find and update all references**
@@ -979,6 +1026,7 @@ Expected: Clean build, no TypeScript errors.
 
 Run: `npm run dev`
 Verify:
+
 1. Landing page shows dual filing messaging
 2. Onboarding form has Corp Tax toggle, UTR conditional
 3. Adding company without Corp Tax → 1 accounts reminder created

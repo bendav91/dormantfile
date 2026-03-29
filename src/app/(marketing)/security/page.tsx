@@ -37,7 +37,10 @@ export default async function SecurityPage() {
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: baseUrl },
-          ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
+          ...breadcrumbs.map((b) => ({
+            name: b.label,
+            ...(b.href ? { url: `${baseUrl}${b.href}` } : {}),
+          })),
         ]}
       />
       <Breadcrumbs items={breadcrumbs} />
@@ -54,7 +57,14 @@ export default async function SecurityPage() {
           {title}
         </h1>
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "var(--color-text-body)", marginBottom: "32px" }}>
+          <p
+            style={{
+              fontSize: "17px",
+              lineHeight: 1.7,
+              color: "var(--color-text-body)",
+              marginBottom: "32px",
+            }}
+          >
             {subtitle}
           </p>
         )}

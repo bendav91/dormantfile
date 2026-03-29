@@ -25,10 +25,9 @@ async function fetchCompanyProfile(
   }
 
   const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
-  const res = await fetch(
-    `${endpoint}/company/${encodeURIComponent(companyNumber)}`,
-    { headers: { Authorization: `Basic ${basicAuth}` } },
-  );
+  const res = await fetch(`${endpoint}/company/${encodeURIComponent(companyNumber)}`, {
+    headers: { Authorization: `Basic ${basicAuth}` },
+  });
 
   if (!res.ok) {
     throw new Error(`CH company profile API returned ${res.status}`);
@@ -58,9 +57,7 @@ async function fetchCompanyProfile(
   };
 }
 
-export async function resyncFromCompaniesHouse(
-  companyId: string,
-): Promise<ResyncResult> {
+export async function resyncFromCompaniesHouse(companyId: string): Promise<ResyncResult> {
   // Step 1: Load company with user
   const company = await prisma.company.findUnique({
     where: { id: companyId },
@@ -106,15 +103,9 @@ export async function resyncFromCompaniesHouse(
     where: { companyId, filingType: "accounts" },
     select: { periodEnd: true },
   });
-  const existingPeriodEnds = new Set(
-    existingFilings.map((f) => f.periodEnd.getTime()),
-  );
+  const existingPeriodEnds = new Set(existingFilings.map((f) => f.periodEnd.getTime()));
 
-  const firstPeriodEnd = computeFirstPeriodEnd(
-    new Date(dateOfCreation),
-    ardMonth,
-    ardDay,
-  );
+  const firstPeriodEnd = computeFirstPeriodEnd(new Date(dateOfCreation), ardMonth, ardDay);
 
   // Step 6: Build new filing records
   const newFilings: Array<{

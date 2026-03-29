@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/db";
-import { calculateAccountsDeadline, calculateCT600Deadline, calculateNextReminderDate } from "@/lib/utils";
+import {
+  calculateAccountsDeadline,
+  calculateCT600Deadline,
+  calculateNextReminderDate,
+} from "@/lib/utils";
 import { resend } from "@/lib/email/client";
 import { buildFilingConfirmationEmail } from "@/lib/email/templates";
 
@@ -21,7 +25,7 @@ export async function rollForwardPeriod(
   filingType: "accounts" | "ct600",
   userEmail: string,
   companyName: string,
-  options?: { skipEmail?: boolean }
+  options?: { skipEmail?: boolean },
 ): Promise<void> {
   // Send confirmation email first (non-blocking)
   if (!options?.skipEmail) {
@@ -91,13 +95,15 @@ export async function rollForwardPeriod(
         filingDeadline: Date;
         remindersSent: number;
         nextReminderAt: Date | null;
-      }> = [{
-        companyId,
-        filingType: "accounts",
-        filingDeadline: newAccountsDeadline,
-        remindersSent: 0,
-        nextReminderAt: calculateNextReminderDate(newAccountsDeadline, 0),
-      }];
+      }> = [
+        {
+          companyId,
+          filingType: "accounts",
+          filingDeadline: newAccountsDeadline,
+          remindersSent: 0,
+          nextReminderAt: calculateNextReminderDate(newAccountsDeadline, 0),
+        },
+      ];
 
       if (registeredForCorpTax) {
         const newCT600Deadline = calculateCT600Deadline(nextEnd);
@@ -144,13 +150,15 @@ export async function rollForwardPeriod(
     filingDeadline: Date;
     remindersSent: number;
     nextReminderAt: Date | null;
-  }> = [{
-    companyId,
-    filingType: "accounts",
-    filingDeadline: accountsDeadline,
-    remindersSent: 0,
-    nextReminderAt: calculateNextReminderDate(accountsDeadline, 0),
-  }];
+  }> = [
+    {
+      companyId,
+      filingType: "accounts",
+      filingDeadline: accountsDeadline,
+      remindersSent: 0,
+      nextReminderAt: calculateNextReminderDate(accountsDeadline, 0),
+    },
+  ];
 
   if (registeredForCorpTax) {
     const ct600Deadline = calculateCT600Deadline(currentEnd);

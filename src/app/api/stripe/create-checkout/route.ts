@@ -63,9 +63,10 @@ export async function POST(req: NextRequest) {
       },
     ],
     metadata: { tier },
-    success_url: tier === "agent"
-      ? `${process.env.NEXTAUTH_URL}/agent-setup`
-      : `${process.env.NEXTAUTH_URL}/dashboard`,
+    success_url:
+      tier === "agent"
+        ? `${process.env.NEXTAUTH_URL}/agent-setup`
+        : `${process.env.NEXTAUTH_URL}/dashboard`,
     cancel_url: `${process.env.NEXTAUTH_URL}/choose-plan`,
   });
 

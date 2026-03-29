@@ -15,6 +15,7 @@
 ## File Map
 
 ### Files to create
+
 - `content/pages/acceptable-use.mdx` — new legal page
 - `content/pages/refund.mdx` — new legal page
 - `src/app/(marketing)/acceptable-use/page.tsx` — route shell for acceptable use
@@ -33,6 +34,7 @@
 - `src/lib/content/json-ld.tsx` — add HowToJsonLd component (modify existing)
 
 ### Files to modify
+
 - `content/pages/terms.mdx` — full rewrite
 - `content/pages/privacy.mdx` — full rewrite
 - `content/pages/cookies.mdx` — rewrite
@@ -68,11 +70,13 @@ For agentic execution, these tasks can run in parallel within their phase:
 ### Task 1: Terms of Service
 
 **Files:**
+
 - Modify: `content/pages/terms.mdx`
 
 - [ ] **Step 1: Read current terms**
 
 Read `content/pages/terms.mdx` in full. Note all gaps identified in the spec:
+
 - CT600-only scope (must cover both filings)
 - Missing Companies House auth code handling
 - Missing consumer rights provisions
@@ -85,6 +89,7 @@ Read `content/pages/terms.mdx` in full. Note all gaps identified in the spec:
 Replace the entire content of `content/pages/terms.mdx` with the rewritten terms. Requirements:
 
 **Frontmatter:**
+
 ```yaml
 ---
 title: "Terms of Service"
@@ -102,6 +107,7 @@ openGraph:
 ```
 
 **Sections required (in order):**
+
 1. **About the service** — covers BOTH filings (accounts to CH, CT600 to HMRC). States we are software, not an accountancy firm. States service is exclusively for genuinely dormant companies with nil balances.
 2. **Eligibility** — must be a director/authorised officer of a UK limited company. Must confirm company was dormant. For CT600: must have valid Government Gateway account. For accounts: must have CH authentication code.
 3. **Your account** — responsible for security, notify us of unauthorised use.
@@ -130,6 +136,7 @@ openGraph:
 - [ ] **Step 3: Verify internal links**
 
 Check that all links in the terms point to valid routes:
+
 - `/refund` (will be created in Task 5)
 - `/acceptable-use` (will be created in Task 4)
 - `/privacy`
@@ -153,6 +160,7 @@ and E-Commerce Regulations compliance."
 ### Task 2: Privacy Policy
 
 **Files:**
+
 - Modify: `content/pages/privacy.mdx`
 
 - [ ] **Step 1: Read current privacy policy**
@@ -164,6 +172,7 @@ Read `content/pages/privacy.mdx` in full.
 Replace the entire content of `content/pages/privacy.mdx`.
 
 **Frontmatter:**
+
 ```yaml
 ---
 title: "Privacy Policy"
@@ -181,6 +190,7 @@ openGraph:
 ```
 
 **Sections required:**
+
 1. **Introduction** — commitment to protecting personal data. Applies to all users.
 2. **Data controller** — `[TRADING NAME]`, `[REGISTERED ADDRESS]`. Contact: privacy@dormantfile.co.uk. `[ICO REGISTRATION NUMBER]`.
 3. **What data we collect** — table format:
@@ -241,6 +251,7 @@ House as data recipient, children's data statement."
 ### Task 3: Cookie Policy
 
 **Files:**
+
 - Modify: `content/pages/cookies.mdx`
 
 - [ ] **Step 1: Read current cookie policy**
@@ -252,6 +263,7 @@ Read `content/pages/cookies.mdx` in full.
 Replace entire content. Keep structure similar but add specificity.
 
 **Frontmatter:**
+
 ```yaml
 ---
 title: "Cookie Policy"
@@ -269,6 +281,7 @@ openGraph:
 ```
 
 **Content requirements:**
+
 - Introduction explaining what cookies are and link to ICO cookie guidance
 - **Essential cookies table:**
   | Cookie | Purpose | Duration | Type |
@@ -300,6 +313,7 @@ consent mechanism description."
 ### Task 4: Acceptable Use Policy (new)
 
 **Files:**
+
 - Create: `content/pages/acceptable-use.mdx`
 - Create: `src/app/(marketing)/acceptable-use/page.tsx`
 
@@ -308,6 +322,7 @@ consent mechanism description."
 Create `content/pages/acceptable-use.mdx`:
 
 **Frontmatter:**
+
 ```yaml
 ---
 title: "Acceptable Use Policy"
@@ -325,6 +340,7 @@ openGraph:
 ```
 
 **Sections:**
+
 1. **Introduction** — this policy sets out what you may and may not do when using DormantFile. By using the service, you agree to comply with this policy.
 2. **Permitted use** — DormantFile is provided for the sole purpose of filing dormant company accounts with Companies House and nil CT600 returns with HMRC on behalf of UK limited companies that are genuinely dormant.
 3. **You must not:**
@@ -374,16 +390,20 @@ export default async function AcceptableUsePage() {
   const page = await getPageBySlug(SLUG);
   if (!page) notFound();
 
-  const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } = page.frontmatter;
+  const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } =
+    page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const align = centeredHeading ? "center" as const : undefined;
+  const align = centeredHeading ? ("center" as const) : undefined;
 
   return (
     <>
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: baseUrl },
-          ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
+          ...breadcrumbs.map((b) => ({
+            name: b.label,
+            ...(b.href ? { url: `${baseUrl}${b.href}` } : {}),
+          })),
         ]}
       />
       <Breadcrumbs items={breadcrumbs} />
@@ -402,11 +422,24 @@ export default async function AcceptableUsePage() {
         </h1>
         {showUpdatedAt && updatedAt && (
           <p style={{ fontSize: "14px", color: "#94A3B8", margin: "0 0 40px 0" }}>
-            Last updated: {new Date(updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+            Last updated:{" "}
+            {new Date(updatedAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
           </p>
         )}
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "#475569", marginBottom: "32px", textAlign: align }}>
+          <p
+            style={{
+              fontSize: "17px",
+              lineHeight: 1.7,
+              color: "#475569",
+              marginBottom: "32px",
+              textAlign: align,
+            }}
+          >
             {subtitle}
           </p>
         )}
@@ -433,6 +466,7 @@ consequences for misuse."
 ### Task 5: Refund & Cancellation Policy (new)
 
 **Files:**
+
 - Create: `content/pages/refund.mdx`
 - Create: `src/app/(marketing)/refund/page.tsx`
 
@@ -441,6 +475,7 @@ consequences for misuse."
 Create `content/pages/refund.mdx`:
 
 **Frontmatter:**
+
 ```yaml
 ---
 title: "Refund & Cancellation Policy"
@@ -458,6 +493,7 @@ openGraph:
 ```
 
 **Sections:**
+
 1. **Your right to cancel (14-day cooling-off period)** — Under the Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013, you have the right to cancel your subscription within 14 days of purchase without giving a reason.
 
    When you subscribe, you may give your explicit consent for the service to begin immediately. If you do so and subsequently submit a filing within the 14-day period, you acknowledge that you will lose your right to cancel and receive a full refund for that billing period, because the service has been fully performed.
@@ -506,6 +542,7 @@ Expected: Build succeeds without errors. This catches any import or type issues 
 ### Task 6: Update footer and sitemap for new legal pages
 
 **Files:**
+
 - Modify: `src/components/marketing/MarketingFooter.tsx`
 - Modify: `src/app/sitemap.ts`
 
@@ -528,6 +565,7 @@ const footerLinks = [
 ```
 
 Add after "Terms":
+
 ```typescript
   { href: "/acceptable-use", label: "Acceptable Use" },
   { href: "/refund", label: "Refund Policy" },
@@ -551,6 +589,7 @@ git commit -m "chore: add acceptable use and refund pages to footer and sitemap"
 ### Task 7: Homepage
 
 **Files:**
+
 - Modify: `src/app/page.tsx`
 
 - [ ] **Step 1: Read current homepage**
@@ -562,15 +601,18 @@ Read `src/app/page.tsx` in full.
 Modify `src/app/page.tsx`. Keep the existing component structure and styling. Change the copy in these sections:
 
 **Add metadata export** at the top of the file (after imports):
+
 ```tsx
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "DormantFile — Dormant Company Filing Made Simple",
-  description: "File your dormant company accounts and nil CT600 tax returns online. Direct submission to Companies House and HMRC from one dashboard. From £19/year.",
+  description:
+    "File your dormant company accounts and nil CT600 tax returns online. Direct submission to Companies House and HMRC from one dashboard. From £19/year.",
   openGraph: {
     title: "DormantFile — Dormant Company Filing Made Simple",
-    description: "File your dormant company accounts and nil CT600 tax returns online. From £19/year.",
+    description:
+      "File your dormant company accounts and nil CT600 tax returns online. From £19/year.",
     type: "website",
     siteName: "DormantFile",
   },
@@ -578,6 +620,7 @@ export const metadata: Metadata = {
 ```
 
 **Hero section:**
+
 - H1: "Dormant company filing, sorted" — with "sorted" in the accent colour
 - Subheading: Clear description covering both filings, mentioning Companies House and HMRC by name
 - Below CTA: Add prominent dormant-only scope statement: "For genuinely dormant companies only — no trading activity, no assets, no income."
@@ -587,6 +630,7 @@ export const metadata: Metadata = {
 **How it works:** Keep 3-step summary. Tighten copy. Ensure step 3 mentions both filings.
 
 **Problem statement:**
+
 - Update to explicitly mention CATO closure in past tense: "HMRC's free filing tool (CATO) closed on 31 March 2026"
 - Frame the problem positively: directors need an affordable, purpose-built alternative
 - Don't use doom-and-gloom language
@@ -594,6 +638,7 @@ export const metadata: Metadata = {
 **Pricing section:** Verify all prices match (£19/£39/£49). Ensure features lists are accurate against codebase.
 
 **FAQ section:**
+
 - Keep existing questions, tighten answers for accuracy
 - Add `FAQPageJsonLd` component import and render it with the FAQ items
 - Import: `import { FAQPageJsonLd } from "@/lib/content/json-ld";`
@@ -622,6 +667,7 @@ scope statement, FAQ schema markup, consistent pricing, meta tags."
 ### Task 8: About page
 
 **Files:**
+
 - Modify: `content/pages/about.mdx`
 
 - [ ] **Step 1: Read current about page**
@@ -631,6 +677,7 @@ Read `content/pages/about.mdx`.
 - [ ] **Step 2: Rewrite the about page**
 
 Replace entire content. Key changes:
+
 - Voice: "Our founder built..." for origin story, then "we" throughout
 - Mention BOTH filings (accounts + CT600)
 - Mention reminder functionality
@@ -657,6 +704,7 @@ internal links to security/pricing/how-it-works."
 ### Task 9: How It Works page
 
 **Files:**
+
 - Modify: `content/pages/how-it-works.mdx`
 - Modify: `src/app/(marketing)/how-it-works/page.tsx`
 - Modify: `src/lib/content/json-ld.tsx`
@@ -693,10 +741,7 @@ export function HowToJsonLd({
     })),
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 ```
@@ -704,6 +749,7 @@ export function HowToJsonLd({
 - [ ] **Step 2: Rewrite the how-it-works MDX**
 
 Replace content of `content/pages/how-it-works.mdx`. Key changes:
+
 - Tighten step descriptions
 - Clarify accounts and CT600 are independent (you can do one without the other)
 - Verify reminder intervals: 90, 30, 14, 7, 3, and 1 day before deadline
@@ -729,11 +775,13 @@ HowToJsonLd structured data."
 ### Task 10: Pricing page
 
 **Files:**
+
 - Modify: `content/pages/pricing.mdx`
 
 - [ ] **Step 1: Rewrite the pricing page**
 
 Replace content of `content/pages/pricing.mdx`. Key changes:
+
 - Verify prices: Basic £19 (1 company), Multiple £39 (up to 10), Agent £49 (up to 100)
 - Verify features lists against codebase (subscription.ts tier limits)
 - Comparison table: DormantFile, Accountant, General accounting software, DIY
@@ -756,16 +804,19 @@ FAQ with new terms."
 ### Task 11: FAQ page
 
 **Files:**
+
 - Modify: `content/pages/faq.mdx`
 
 - [ ] **Step 1: Rewrite the FAQ page**
 
 Replace content of `content/pages/faq.mdx`. Audit every Q&A against:
+
 - The codebase (features, behaviour)
 - The rewritten terms (refund policy, cancellation)
 - The spec consistency rules
 
 Key changes:
+
 - Filing category: ensure both filings described, add question about Companies House auth code
 - Security category: differentiate HMRC credential handling from CH auth code handling
 - Pricing category: update refund answer to reference new refund policy, ensure prices match
@@ -787,11 +838,13 @@ filings, differentiate credential handling."
 ### Task 12: Security page
 
 **Files:**
+
 - Modify: `content/pages/security.mdx`
 
 - [ ] **Step 1: Rewrite the security page**
 
 Replace content of `content/pages/security.mdx`. Key changes:
+
 - Add Companies House authentication code handling — entered at filing, transmitted to CH, not stored in database
 - Keep HMRC credential handling (accurate as-is)
 - Differentiate the two clearly: HMRC credentials = never stored, CH auth code = not stored
@@ -814,11 +867,13 @@ credentials, update third-party services list."
 ### Task 13: Contact page
 
 **Files:**
+
 - Modify: `content/pages/contact.mdx`
 
 - [ ] **Step 1: Rewrite the contact page**
 
 Minor changes to `content/pages/contact.mdx`:
+
 - Add brief context about what to contact about (questions, issues, feedback, data requests)
 - Mention privacy@dormantfile.co.uk for data protection queries specifically
 - Keep contact form
@@ -838,6 +893,7 @@ Add context for common query types, separate data protection contact."
 ### Task 13.5: Guides & Answers index pages
 
 **Files:**
+
 - Modify: `src/app/(marketing)/guides/page.tsx`
 - Modify: `src/app/(marketing)/answers/page.tsx`
 
@@ -848,6 +904,7 @@ Read `src/app/(marketing)/guides/page.tsx` and `src/app/(marketing)/answers/page
 - [ ] **Step 2: Update guides index page**
 
 In the guides index page, update:
+
 - Meta title: `"Guides | DormantFile"` (under 60 chars)
 - Meta description: tighten to target "dormant company filing guides" keyword
 - Intro text (h1 and description paragraph): sharpen for clarity and SEO
@@ -855,6 +912,7 @@ In the guides index page, update:
 - [ ] **Step 3: Update answers index page**
 
 In the answers index page, update:
+
 - Meta title: `"Answers | DormantFile"` (already good)
 - Meta description: tighten to target "dormant company filing questions" keyword
 - Intro text: sharpen for clarity
@@ -875,11 +933,13 @@ Update intro text and meta descriptions for SEO."
 ### Task 14: Rewrite all 10 existing answer articles
 
 **Files:**
+
 - Modify: all 10 files in `content/answers/`
 
 - [ ] **Step 1: Read all 10 answer files**
 
 Read each file. For each, note:
+
 - Any inaccurate claims
 - Missing internal links
 - Voice inconsistencies ("I" vs "we")
@@ -888,6 +948,7 @@ Read each file. For each, note:
 - [ ] **Step 2: Rewrite each answer file**
 
 For each of the 10 answers, rewrite the content. Apply these rules consistently:
+
 - Voice: "we" throughout (no first-person)
 - Every answer links to its parent guide where applicable
 - Every answer links to at least one product page (how-it-works, pricing, or security) where natural
@@ -898,6 +959,7 @@ For each of the 10 answers, rewrite the content. Apply these rules consistently:
 - Keep under ~400 words per answer (they're meant to be quick)
 
 **Files in order:**
+
 1. `what-are-companies-house-late-filing-penalties.mdx`
 2. `what-are-dormant-company-accounts-aa02.mdx`
 3. `what-does-dormant-mean-companies-act.mdx`
@@ -926,11 +988,13 @@ keywords and meta descriptions."
 ### Task 15: Rewrite all 10 existing guide articles
 
 **Files:**
+
 - Modify: all 10 files in `content/guides/`
 
 - [ ] **Step 1: Read all 10 guide files**
 
 Read each file. For each, note:
+
 - Inaccurate claims
 - CATO references that need past-tense update
 - Missing internal links to answers or product pages
@@ -939,6 +1003,7 @@ Read each file. For each, note:
 - [ ] **Step 2: Rewrite each guide file**
 
 For each of the 10 guides, rewrite the content. Apply these rules:
+
 - Voice: "we" throughout
 - CATO closure: always past tense ("closed on 31 March 2026")
 - Every guide links to relevant answer articles for definitions
@@ -950,6 +1015,7 @@ For each of the 10 guides, rewrite the content. Apply these rules:
 - Guides can be longer than answers (500-1000 words)
 
 **Files in order:**
+
 1. `cato-closed-options.mdx`
 2. `cost-to-file-dormant-accounts.mdx`
 3. `do-i-need-ct600-dormant-company.mdx`
@@ -978,6 +1044,7 @@ linking, updated keywords."
 ### Task 16: Create 6 new answer articles
 
 **Files:**
+
 - Create: 6 new files in `content/answers/`
 
 - [ ] **Step 1: Write each new answer**
@@ -985,31 +1052,37 @@ linking, updated keywords."
 Create each file with proper frontmatter (title, description, publishedAt, updatedAt, category, keywords) and content.
 
 **1. `what-is-making-tax-digital.mdx`**
+
 - Category: `filing`
 - Cover: what MTD is, which taxes it applies to, that MTD for Corporation Tax doesn't yet mandate software for dormant companies, but CATO's closure is the practical effect
 - Link to: cato-closed-options guide, how-to-file-nil-ct600 guide
 
 **2. `what-is-a-sic-code.mdx`**
+
 - Category: `admin`
 - Cover: what SIC codes are, that dormant companies typically use 99999, where to find/change yours
 - Link to: confirmation statement answer, first-year-filing guide
 
 **3. `what-is-a-registered-office-address.mdx`**
+
 - Category: `admin`
 - Cover: legal requirement, where auth codes are posted, can be changed
 - Link to: authentication code answer
 
 **4. `what-are-persons-with-significant-control.mdx`**
+
 - Category: `admin`
 - Cover: PSC register requirements, who counts, confirmation statement reporting
 - Link to: confirmation statement answer
 
 **5. `what-is-companies-house-webfiling.mdx`**
+
 - Category: `alternatives`
 - Cover: what WebFiling is, free accounts filing, no CT600 capability, how DormantFile differs
 - Link to: how-to-file-dormant-company-accounts guide, pricing page
 
 **6. `what-does-no-significant-accounting-transactions-mean.mdx`**
+
 - Category: `eligibility`
 - Cover: expand on the dormant definition, what counts/doesn't count, common edge cases (bank interest, director loans)
 - Link to: dormant definition answer, how-to-check-company-dormant guide
@@ -1031,6 +1104,7 @@ accounting transactions."
 ### Task 17: Create 5 new guide articles
 
 **Files:**
+
 - Create: 5 new files in `content/guides/`
 
 - [ ] **Step 1: Write each new guide**
@@ -1038,27 +1112,32 @@ accounting transactions."
 Create each file with proper frontmatter and content.
 
 **1. `do-i-need-an-accountant-dormant-company.mdx`**
+
 - Category: `costs`
 - Cover: when you don't need one (genuinely dormant, confident in status), when you do (any doubt, partial trading, assets), cost comparison, honest recommendation
 - Link to: cost comparison guide, how-to-check-company-dormant guide, pricing page
 
 **2. `how-to-reactivate-dormant-company.mdx`**
+
 - Category: `admin`
 - Cover: notifying HMRC, notifying Companies House, registering for CT, first trading accounts, practical steps
 - Note: DormantFile cannot help with this (out of scope) but it's valuable authority-building content
 - Link to: dissolved vs dormant answer, do-i-need-ct600 guide
 
 **3. `dormant-vs-non-trading-company.mdx`**
+
 - Category: `eligibility`
 - Cover: Companies House definition of dormant vs HMRC definition of non-trading, when they differ, practical implications for filing
 - Link to: dormant definition answer, how-to-check-company-dormant guide
 
 **4. `what-happens-if-companies-house-strikes-off-company.mdx`**
+
 - Category: `admin`
 - Cover: compulsory strike-off process, warning notices in The Gazette, bona vacantia, how to object, restoration options
 - Link to: late-filing-penalties guide, how-to-close-dormant-company guide
 
 **5. `annual-accounts-vs-confirmation-statement.mdx`**
+
 - Category: `getting-started`
 - Cover: what each is, different deadlines, different content, common confusion, both required for dormant companies
 - Link to: confirmation statement answer, dormant-company-accounts answer, filing-deadlines guide
@@ -1084,6 +1163,7 @@ consequences, accounts vs confirmation statement."
 - [ ] **Step 1: Verify pricing consistency**
 
 Search all content files for price references (£19, £39, £49, £80, £100, £150). Ensure:
+
 - Basic: £19/year, 1 company — everywhere
 - Multiple: £39/year, up to 10 companies — everywhere
 - Agent: £49/year, up to 100 companies — everywhere
@@ -1097,6 +1177,7 @@ Search all files for "CATO". Ensure all references use past tense: "closed on 31
 - [ ] **Step 3: Verify credential handling language**
 
 Search for "never stored", "credentials", "authentication code". Ensure:
+
 - HMRC Gateway credentials: "used once and never stored"
 - CH authentication code: "entered at filing, transmitted to Companies House, not stored"
 - These two are described separately, never conflated
@@ -1117,6 +1198,7 @@ Expected: Clean build, no errors.
 - [ ] **Step 7: Commit any fixes**
 
 If any inconsistencies were found and fixed:
+
 ```bash
 git add -A
 git commit -m "copy: fix cross-page consistency issues
@@ -1129,11 +1211,13 @@ git commit -m "copy: fix cross-page consistency issues
 ### Task 19: Write summary document
 
 **Files:**
+
 - Create: `docs/superpowers/plans/2026-03-28-copy-audit-summary.md`
 
 - [ ] **Step 1: Write the summary**
 
 Create a summary document listing:
+
 - Every page changed and what was changed
 - Every new page created and why
 - Key legal decisions made (with rationale)

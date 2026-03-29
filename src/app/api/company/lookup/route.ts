@@ -12,43 +12,36 @@ export async function GET(req: NextRequest) {
   if (!number || number.length < 6 || number.length > 8) {
     return NextResponse.json(
       { error: "Provide a valid company number (6-8 characters)." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
   if (!apiKey) {
-    return NextResponse.json(
-      { error: "Company lookup is not configured." },
-      { status: 503 }
-    );
+    return NextResponse.json({ error: "Company lookup is not configured." }, { status: 503 });
   }
 
   const paddedNumber = number.padStart(8, "0");
 
   const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
 
-  
   const res = await fetch(
     `${process.env.COMPANY_INFORMATION_API_ENDPOINT}/company/${encodeURIComponent(paddedNumber)}`,
     {
       headers: {
         Authorization: `Basic ${basicAuth}`,
       },
-    }
+    },
   );
 
   if (res.status === 404) {
-    return NextResponse.json(
-      { error: "No company found with that number." },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "No company found with that number." }, { status: 404 });
   }
 
   if (!res.ok) {
     return NextResponse.json(
       { error: "Failed to look up company. Try again later." },
-      { status: 502 }
+      { status: 502 },
     );
   }
 
@@ -61,9 +54,7 @@ export async function GET(req: NextRequest) {
   let shareCapitalPence: number | null = null;
   const capitalEntries = data.confirmation_statement?.statement_of_capital?.capital;
   if (Array.isArray(capitalEntries)) {
-    const gbpEntry = capitalEntries.find(
-      (c: { currency?: string }) => c.currency === "GBP",
-    );
+    const gbpEntry = capitalEntries.find((c: { currency?: string }) => c.currency === "GBP");
     if (gbpEntry?.total_amount_unpaid != null || gbpEntry?.total_number_of_shares != null) {
       // total_amount is the total nominal value in pounds (e.g. "1" for £1)
       const pounds = parseFloat(gbpEntry.total_amount ?? "0");

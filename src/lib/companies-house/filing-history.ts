@@ -14,9 +14,7 @@ const TOLERANCE_MS = 31 * 24 * 60 * 60 * 1000; // 31 days
  * Returns an array of `made_up_date` values for accounts filings.
  * Returns an empty array on API failure (graceful degradation).
  */
-export async function fetchFilingHistory(
-  companyNumber: string,
-): Promise<Date[]> {
+export async function fetchFilingHistory(companyNumber: string): Promise<Date[]> {
   const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
   const endpoint = process.env.COMPANY_INFORMATION_API_ENDPOINT;
   if (!apiKey || !endpoint) return [];
@@ -54,9 +52,7 @@ export async function fetchFilingHistory(
  * returning []. Used by resync where we need to distinguish
  * "no filings" from "API down".
  */
-export async function fetchFilingHistoryStrict(
-  companyNumber: string,
-): Promise<Date[]> {
+export async function fetchFilingHistoryStrict(companyNumber: string): Promise<Date[]> {
   const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
   const endpoint = process.env.COMPANY_INFORMATION_API_ENDPOINT;
   if (!apiKey || !endpoint) {
@@ -95,9 +91,7 @@ export function computeFirstPeriodEnd(
   const sixMonthsLater = new Date(incorporationDate);
   sixMonthsLater.setUTCMonth(sixMonthsLater.getUTCMonth() + 6);
 
-  const firstArd = new Date(
-    Date.UTC(sixMonthsLater.getUTCFullYear(), ardMonth - 1, ardDay),
-  );
+  const firstArd = new Date(Date.UTC(sixMonthsLater.getUTCFullYear(), ardMonth - 1, ardDay));
   if (firstArd.getTime() < sixMonthsLater.getTime()) {
     firstArd.setUTCFullYear(firstArd.getUTCFullYear() + 1);
   }
@@ -112,8 +106,7 @@ export function computeFirstPeriodEnd(
 
 function findMatchingFiling(expectedEnd: Date, filedEnds: Date[]): number {
   return filedEnds.findIndex(
-    (filed) =>
-      Math.abs(filed.getTime() - expectedEnd.getTime()) <= TOLERANCE_MS,
+    (filed) => Math.abs(filed.getTime() - expectedEnd.getTime()) <= TOLERANCE_MS,
   );
 }
 

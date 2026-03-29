@@ -23,13 +23,13 @@ Add a hard age limit: periods older than 6 years cannot be filed through the app
 
 ## Filing age tiers
 
-| Age | Behaviour |
-|-----|-----------|
-| Under 4 years | File normally, no warnings |
-| 4-6 years | Amber warning (existing `isDisclosureTerritory`), filing allowed |
-| Over 6 years | Red banner, "File" button replaced with "Seek professional advice" |
+| Age           | Behaviour                                                          |
+| ------------- | ------------------------------------------------------------------ |
+| Under 4 years | File normally, no warnings                                         |
+| 4-6 years     | Amber warning (existing `isDisclosureTerritory`), filing allowed   |
+| Over 6 years  | Red banner, "File" button replaced with "Seek professional advice" |
 
-Banner copy for 6+ years: *"This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly."*
+Banner copy for 6+ years: _"This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly."_
 
 ## New module: `src/lib/companies-house/filing-history.ts`
 
@@ -47,13 +47,13 @@ Uses the same Basic Auth mechanism as the existing company info fetch.
 
 ```typescript
 function detectAccountsGaps(
-  incorporationDate: string,          // e.g. "2015-05-16"
-  accountingReferenceMonth: number,   // from CH: accounts.accounting_reference_date.month (parsed from string)
-  accountingReferenceDay: number,     // from CH: accounts.accounting_reference_date.day (parsed from string)
-  filedPeriodEnds: Date[],            // from fetchFilingHistory
-  nextAccountsStart: Date,            // fallback: CH next_accounts.period_start_on
-  nextAccountsEnd: Date,              // fallback: CH next_accounts.period_end_on
-): GapDetectionResult | null
+  incorporationDate: string, // e.g. "2015-05-16"
+  accountingReferenceMonth: number, // from CH: accounts.accounting_reference_date.month (parsed from string)
+  accountingReferenceDay: number, // from CH: accounts.accounting_reference_date.day (parsed from string)
+  filedPeriodEnds: Date[], // from fetchFilingHistory
+  nextAccountsStart: Date, // fallback: CH next_accounts.period_start_on
+  nextAccountsEnd: Date, // fallback: CH next_accounts.period_end_on
+): GapDetectionResult | null;
 
 interface GapDetectionResult {
   oldestUnfiledPeriodStart: Date;
@@ -147,7 +147,7 @@ For periods where `isBlockedTerritory` is true:
 
 - Replace "File" button with a static label: "Seek professional advice"
 - Show a red info block within the period card (distinct from the top-level disclosure banner which covers all >4 year periods)
-- Copy: *"This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly."*
+- Copy: _"This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly."_
 
 ## What doesn't change
 

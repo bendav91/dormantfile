@@ -22,7 +22,8 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
   const { companyId } = await params;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling")) redirect("/dashboard");
+  if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling"))
+    redirect("/dashboard");
 
   const company = await prisma.company.findFirst({
     where: { id: companyId, userId: session.user.id, deletedAt: null },
@@ -39,7 +40,8 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
   const incompletePeriods = periods.filter((p) => !p.isComplete);
 
   const activeCT600Count = company.filings.filter(
-    (f) => f.filingType === "ct600" && ["submitted", "pending", "polling_timeout"].includes(f.status),
+    (f) =>
+      f.filingType === "ct600" && ["submitted", "pending", "polling_timeout"].includes(f.status),
   ).length;
 
   const { tab: tabParam } = await searchParams;
@@ -67,7 +69,14 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
 
       {/* Company header */}
       <div style={{ marginBottom: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "8px",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div
               style={{
@@ -86,13 +95,32 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
               </span>
             </div>
             <div>
-              <h1 style={{ fontSize: "26px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
+              <h1
+                style={{
+                  fontSize: "26px",
+                  fontWeight: 700,
+                  color: "var(--color-text-primary)",
+                  margin: 0,
+                  letterSpacing: "-0.02em",
+                }}
+              >
                 {company.companyName}
               </h1>
-              <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0, marginTop: "2px" }}>
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: "var(--color-text-secondary)",
+                  margin: 0,
+                  marginTop: "2px",
+                }}
+              >
                 {company.companyRegistrationNumber}
                 {incompletePeriods.length > 0 && (
-                  <> &middot; {incompletePeriods.length} outstanding {incompletePeriods.length === 1 ? "period" : "periods"}</>
+                  <>
+                    {" "}
+                    &middot; {incompletePeriods.length} outstanding{" "}
+                    {incompletePeriods.length === 1 ? "period" : "periods"}
+                  </>
                 )}
               </p>
             </div>
@@ -102,7 +130,14 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       </div>
 
       {/* Tab bar */}
-      <div style={{ display: "flex", gap: "0", borderBottom: "1px solid var(--color-border)", marginBottom: "24px" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "0",
+          borderBottom: "1px solid var(--color-border)",
+          marginBottom: "24px",
+        }}
+      >
         {[
           { key: "filings", label: "Filings", href: `/company/${companyId}` },
           { key: "overview", label: "Overview", href: `/company/${companyId}?tab=overview` },
@@ -117,7 +152,8 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
               fontWeight: 600,
               color: tab === key ? "var(--color-primary)" : "var(--color-text-secondary)",
               textDecoration: "none",
-              borderBottom: tab === key ? "2px solid var(--color-primary)" : "2px solid transparent",
+              borderBottom:
+                tab === key ? "2px solid var(--color-primary)" : "2px solid transparent",
               transition: "color 200ms, border-color 200ms",
             }}
           >
@@ -135,9 +171,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           filings={company.filings}
         />
       )}
-      {tab === "overview" && (
-        <OverviewTab companyNumber={company.companyRegistrationNumber} />
-      )}
+      {tab === "overview" && <OverviewTab companyNumber={company.companyRegistrationNumber} />}
       {tab === "settings" && (
         <SettingsTab
           companyId={companyId}

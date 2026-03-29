@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
           filing.company.registeredForCorpTax,
           filing.filingType as "accounts" | "ct600",
           filing.company.user.email,
-          filing.company.companyName
+          filing.company.companyName,
         );
 
         resolved++;

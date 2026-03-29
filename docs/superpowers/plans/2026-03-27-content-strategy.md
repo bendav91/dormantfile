@@ -127,6 +127,7 @@ Tasks 1 & 3 can run in parallel. Tasks 5, 6 & 7 can run in parallel after their 
 ### Task 1: Install Dependencies & Create Directory Structure
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `content/guides/.gitkeep`, `content/answers/.gitkeep`
 
@@ -217,6 +218,7 @@ git commit -m "chore: add next-mdx-remote, gray-matter deps and content director
 ### Task 2: Content Types & MDX Loader
 
 **Files:**
+
 - Create: `src/lib/content/types.ts`
 - Create: `src/lib/content/mdx.ts`
 - Create: `src/components/marketing/MDXComponents.tsx`
@@ -422,11 +424,7 @@ export const mdxComponents = {
   a: ({ href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
     if (href?.startsWith("/")) {
       return (
-        <Link
-          href={href}
-          style={{ color: "#2563EB", textDecoration: "underline" }}
-          {...props}
-        />
+        <Link href={href} style={{ color: "#2563EB", textDecoration: "underline" }} {...props} />
       );
     }
     return (
@@ -456,10 +454,7 @@ export const mdxComponents = {
   ),
   table: (props: React.HTMLAttributes<HTMLTableElement>) => (
     <div style={{ overflowX: "auto", marginBottom: "1rem" }}>
-      <table
-        style={{ width: "100%", borderCollapse: "collapse" }}
-        {...props}
-      />
+      <table style={{ width: "100%", borderCollapse: "collapse" }} {...props} />
     </div>
   ),
   th: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
@@ -569,10 +564,7 @@ export function getRelatedContent(
 ): ContentItem[] {
   const items = getContentItems(type, contentDir);
   return items
-    .filter(
-      (item) =>
-        item.frontmatter.category === category && item.slug !== currentSlug,
-    )
+    .filter((item) => item.frontmatter.category === category && item.slug !== currentSlug)
     .slice(0, limit);
 }
 ```
@@ -597,6 +589,7 @@ git commit -m "feat(content): add MDX content loader, types, and styled MDX comp
 ### Task 3: Marketing Shared Components
 
 **Files:**
+
 - Create: `src/components/marketing/MarketingNav.tsx`
 - Create: `src/components/marketing/MarketingFooter.tsx`
 - Create: `src/components/marketing/Breadcrumbs.tsx`
@@ -622,10 +615,7 @@ export function MarketingNav() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setResourcesOpen(false);
       }
     }
@@ -781,12 +771,9 @@ export function MarketingFooter() {
             </Link>
           ))}
         </div>
-        <p
-          className="text-center text-xs"
-          style={{ color: "#94A3B8" }}
-        >
-          &copy; {new Date().getFullYear()} DormantFile. Not an accountancy firm
-          &mdash; software tool only.
+        <p className="text-center text-xs" style={{ color: "#94A3B8" }}>
+          &copy; {new Date().getFullYear()} DormantFile. Not an accountancy firm &mdash; software
+          tool only.
         </p>
       </div>
     </footer>
@@ -821,10 +808,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
         }}
       >
         <li>
-          <Link
-            href="/"
-            style={{ color: "#64748B", textDecoration: "none" }}
-          >
+          <Link href="/" style={{ color: "#64748B", textDecoration: "none" }}>
             Home
           </Link>
         </li>
@@ -841,10 +825,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
               ›
             </span>
             {item.href ? (
-              <Link
-                href={item.href}
-                style={{ color: "#64748B", textDecoration: "none" }}
-              >
+              <Link href={item.href} style={{ color: "#64748B", textDecoration: "none" }}>
                 {item.label}
               </Link>
             ) : (
@@ -877,16 +858,10 @@ export function ContentCTA() {
         border: "1px solid #E2E8F0",
       }}
     >
-      <h3
-        className="text-xl font-semibold mb-2"
-        style={{ color: "#1E293B" }}
-      >
+      <h3 className="text-xl font-semibold mb-2" style={{ color: "#1E293B" }}>
         Ready to file your dormant company returns?
       </h3>
-      <p
-        className="mb-6"
-        style={{ color: "#64748B", fontSize: "0.9375rem" }}
-      >
+      <p className="mb-6" style={{ color: "#64748B", fontSize: "0.9375rem" }}>
         Set up in minutes. File in seconds. Done for the year.
       </p>
       <Link
@@ -932,10 +907,7 @@ export function RelatedContent({ items, type }: RelatedContentProps) {
         borderTop: "1px solid #E2E8F0",
       }}
     >
-      <h3
-        className="text-lg font-semibold mb-3"
-        style={{ color: "#1E293B" }}
-      >
+      <h3 className="text-lg font-semibold mb-3" style={{ color: "#1E293B" }}>
         Related articles
       </h3>
       <ul
@@ -980,6 +952,7 @@ git commit -m "feat(marketing): add shared nav, footer, breadcrumbs, CTA, and re
 ### Task 4: Marketing Layout & Page Migration
 
 **Files:**
+
 - Create: `src/app/(marketing)/layout.tsx`
 - Create: `src/app/(marketing)/privacy/page.tsx` (migrated)
 - Create: `src/app/(marketing)/terms/page.tsx` (migrated)
@@ -1003,15 +976,17 @@ const ibmPlexSans = IBM_Plex_Sans({
   display: "swap",
 });
 
-export default function MarketingLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={ibmPlexSans.className}
-      style={{ backgroundColor: "#F8FAFC", color: "#1E293B", minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      style={{
+        backgroundColor: "#F8FAFC",
+        color: "#1E293B",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
       <MarketingNav />
       <main
@@ -1106,6 +1081,7 @@ git commit -m "feat(marketing): add shared layout, migrate privacy and terms pag
 ### Task 5: Guide & Answer Routes with Index Pages
 
 **Files:**
+
 - Create: `src/app/(marketing)/guides/[slug]/page.tsx`
 - Create: `src/app/(marketing)/guides/page.tsx`
 - Create: `src/app/(marketing)/answers/[slug]/page.tsx`
@@ -1120,11 +1096,7 @@ Create `src/app/(marketing)/guides/[slug]/page.tsx`:
 ```tsx
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  getGuideBySlug,
-  getGuides,
-  getRelatedContent,
-} from "@/lib/content/mdx";
+import { getGuideBySlug, getGuides, getRelatedContent } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
 import { RelatedContent } from "@/components/marketing/RelatedContent";
@@ -1166,11 +1138,7 @@ export default async function GuidePage({ params }: Props) {
   const guide = await getGuideBySlug(slug);
   if (!guide) notFound();
 
-  const related = getRelatedContent(
-    "guides",
-    guide.frontmatter.category,
-    slug,
-  );
+  const related = getRelatedContent("guides", guide.frontmatter.category, slug);
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
 
   return (
@@ -1189,10 +1157,7 @@ export default async function GuidePage({ params }: Props) {
         ]}
       />
       <Breadcrumbs
-        items={[
-          { label: "Guides", href: "/guides" },
-          { label: guide.frontmatter.title },
-        ]}
+        items={[{ label: "Guides", href: "/guides" }, { label: guide.frontmatter.title }]}
       />
       <article>
         <h1
@@ -1289,10 +1254,7 @@ export default function GuidesIndexPage() {
 
       {grouped.map((group) => (
         <section key={group.category} style={{ marginBottom: "2.5rem" }}>
-          <h2
-            className="text-lg font-semibold mb-3"
-            style={{ color: "#1E293B" }}
-          >
+          <h2 className="text-lg font-semibold mb-3" style={{ color: "#1E293B" }}>
             {group.label}
           </h2>
           <ul
@@ -1326,10 +1288,7 @@ export default function GuidesIndexPage() {
                 >
                   {item.frontmatter.title}
                 </Link>
-                <p
-                  className="text-sm mt-1"
-                  style={{ color: "#64748B", margin: 0 }}
-                >
+                <p className="text-sm mt-1" style={{ color: "#64748B", margin: 0 }}>
                   {item.frontmatter.description}
                 </p>
               </li>
@@ -1410,10 +1369,7 @@ export default async function AnswerPage({ params }: Props) {
         ]}
       />
       <Breadcrumbs
-        items={[
-          { label: "Answers", href: "/answers" },
-          { label: answer.frontmatter.title },
-        ]}
+        items={[{ label: "Answers", href: "/answers" }, { label: answer.frontmatter.title }]}
       />
       <article>
         <h1
@@ -1455,8 +1411,7 @@ export const metadata: Metadata = {
     "Quick answers to common questions about dormant company filing: CT600, UTR numbers, deadlines, and more.",
   openGraph: {
     title: "Answers | DormantFile",
-    description:
-      "Quick answers to common questions about dormant company filing.",
+    description: "Quick answers to common questions about dormant company filing.",
     type: "website",
     siteName: "DormantFile",
   },
@@ -1475,8 +1430,8 @@ export default function AnswersIndexPage() {
         Quick Answers
       </h1>
       <p className="text-base mb-10" style={{ color: "#64748B" }}>
-        Short explanations of the terms and concepts you&apos;ll come across
-        when filing for a dormant company.
+        Short explanations of the terms and concepts you&apos;ll come across when filing for a
+        dormant company.
       </p>
 
       <ul
@@ -1510,10 +1465,7 @@ export default function AnswersIndexPage() {
             >
               {item.frontmatter.title}
             </Link>
-            <p
-              className="text-sm mt-1"
-              style={{ color: "#64748B", margin: 0 }}
-            >
+            <p className="text-sm mt-1" style={{ color: "#64748B", margin: 0 }}>
               {item.frontmatter.description}
             </p>
           </li>
@@ -1538,6 +1490,7 @@ git commit -m "feat(content): add guide and answer dynamic routes with index pag
 ### Task 6: SEO Infrastructure
 
 **Files:**
+
 - Create: `src/lib/content/json-ld.tsx`
 - Create: `src/__tests__/lib/content/json-ld.test.ts`
 - Create: `src/app/sitemap.ts`
@@ -1651,12 +1604,7 @@ interface ArticleJsonLdProps {
   url: string;
 }
 
-export function ArticleJsonLd({
-  headline,
-  datePublished,
-  dateModified,
-  url,
-}: ArticleJsonLdProps) {
+export function ArticleJsonLd({ headline, datePublished, dateModified, url }: ArticleJsonLdProps) {
   const data = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -1668,10 +1616,7 @@ export function ArticleJsonLd({
     publisher: { "@type": "Organization", name: "DormantFile" },
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -1692,10 +1637,7 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
     })),
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -1718,10 +1660,7 @@ export function FAQPageJsonLd({ items }: { items: FAQItem[] }) {
     })),
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -1735,10 +1674,7 @@ export function OrganizationJsonLd() {
       "Dormant company filing made simple. File your annual accounts and nil CT600 returns online.",
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 ```
@@ -1759,8 +1695,7 @@ Create `src/app/sitemap.ts`:
 import type { MetadataRoute } from "next";
 import { getGuides, getAnswers } from "@/lib/content/mdx";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const guides = getGuides();
@@ -1810,8 +1745,7 @@ Create `src/app/robots.ts`:
 ```typescript
 import type { MetadataRoute } from "next";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -1860,6 +1794,7 @@ git commit -m "feat(seo): add sitemap, robots, JSON-LD structured data, and upda
 ### Task 7: Trust Pages
 
 **Files:**
+
 - Create: `src/app/(marketing)/about/page.tsx`
 - Create: `src/app/(marketing)/security/page.tsx`
 - Create: `src/app/(marketing)/how-it-works/page.tsx`
@@ -1914,12 +1849,7 @@ export default function AboutPage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   return (
     <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "About" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "About" }]} />
       <Breadcrumbs items={[{ label: "About" }]} />
       <h1
         style={{
@@ -1933,51 +1863,66 @@ export default function AboutPage() {
         About DormantFile
       </h1>
 
+      <p style={paragraph}>I built DormantFile because I needed it myself.</p>
       <p style={paragraph}>
-        I built DormantFile because I needed it myself.
+        I run several dormant limited companies in the UK — holding structures, side projects that
+        never launched, companies kept open for future plans. Every year, each one needs the same
+        two filings: annual accounts to Companies House and a nil CT600 to HMRC. The companies do
+        nothing, but the paperwork never stops.
       </p>
       <p style={paragraph}>
-        I run several dormant limited companies in the UK — holding structures, side projects that never launched, companies kept open for future plans. Every year, each one needs the same two filings: annual accounts to Companies House and a nil CT600 to HMRC. The companies do nothing, but the paperwork never stops.
+        For years, the free HMRC tool (CATO) handled the tax return side. It wasn&apos;t pretty, but
+        it worked and it cost nothing. When HMRC announced CATO was closing on 31 March 2026, I
+        looked at the alternatives: hire an accountant at £80-£150 per company per year for a
+        zero-activity filing, or buy general-purpose accounting software that&apos;s overkill for a
+        company with no transactions.
       </p>
-      <p style={paragraph}>
-        For years, the free HMRC tool (CATO) handled the tax return side. It wasn&apos;t pretty, but it worked and it cost nothing. When HMRC announced CATO was closing on 31 March 2026, I looked at the alternatives: hire an accountant at £80-£150 per company per year for a zero-activity filing, or buy general-purpose accounting software that&apos;s overkill for a company with no transactions.
-      </p>
-      <p style={paragraph}>
-        Neither option made sense. So I built DormantFile.
-      </p>
+      <p style={paragraph}>Neither option made sense. So I built DormantFile.</p>
 
       <h2 style={heading}>What DormantFile does</h2>
-      <p style={paragraph}>
-        DormantFile files two things for dormant UK limited companies:
-      </p>
+      <p style={paragraph}>DormantFile files two things for dormant UK limited companies:</p>
       <ul style={{ paddingLeft: "24px", margin: "0 0 16px 0" }}>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Annual accounts</strong> — submitted directly to Companies House via their official software filing API.
+          <strong style={{ color: "#1E293B" }}>Annual accounts</strong> — submitted directly to
+          Companies House via their official software filing API.
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Nil CT600 Corporation Tax return</strong> — submitted directly to HMRC via their GovTalk API.
+          <strong style={{ color: "#1E293B" }}>Nil CT600 Corporation Tax return</strong> — submitted
+          directly to HMRC via their GovTalk API.
         </li>
       </ul>
       <p style={paragraph}>
-        Both filings confirm that your company was dormant during the accounting period. No transactions, no tax liability. DormantFile handles the XML, the submission, and the confirmation — you just click a button.
+        Both filings confirm that your company was dormant during the accounting period. No
+        transactions, no tax liability. DormantFile handles the XML, the submission, and the
+        confirmation — you just click a button.
       </p>
 
       <h2 style={heading}>Who&apos;s behind it</h2>
       <p style={paragraph}>
-        DormantFile is built and run by a solo founder based in the UK. I&apos;m a software engineer, not an accountant. DormantFile is a software tool — it prepares and submits your filings, but it does not provide accounting or tax advice. If your company has traded or you&apos;re unsure whether it qualifies as dormant, you should speak to a qualified accountant.
+        DormantFile is built and run by a solo founder based in the UK. I&apos;m a software
+        engineer, not an accountant. DormantFile is a software tool — it prepares and submits your
+        filings, but it does not provide accounting or tax advice. If your company has traded or
+        you&apos;re unsure whether it qualifies as dormant, you should speak to a qualified
+        accountant.
       </p>
 
       <h2 style={heading}>Our approach</h2>
       <ul style={{ paddingLeft: "24px", margin: "0 0 16px 0" }}>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Affordable</strong> — from £19/year, because filing a nil return shouldn&apos;t cost more than the company earns (which is nothing).
+          <strong style={{ color: "#1E293B" }}>Affordable</strong> — from £19/year, because filing a
+          nil return shouldn&apos;t cost more than the company earns (which is nothing).
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Secure</strong> — your HMRC credentials are used once and never stored. Read our{" "}
-          <Link href="/security" style={{ color: "#2563EB" }}>security page</Link> for the full details.
+          <strong style={{ color: "#1E293B" }}>Secure</strong> — your HMRC credentials are used once
+          and never stored. Read our{" "}
+          <Link href="/security" style={{ color: "#2563EB" }}>
+            security page
+          </Link>{" "}
+          for the full details.
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Simple</strong> — no features you don&apos;t need. No invoicing, no payroll, no VAT. Just the two filings a dormant company actually requires.
+          <strong style={{ color: "#1E293B" }}>Simple</strong> — no features you don&apos;t need. No
+          invoicing, no payroll, no VAT. Just the two filings a dormant company actually requires.
         </li>
       </ul>
 
@@ -2030,12 +1975,7 @@ export default function SecurityPage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   return (
     <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "Security" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "Security" }]} />
       <Breadcrumbs items={[{ label: "Security" }]} />
       <h1
         style={{
@@ -2049,10 +1989,13 @@ export default function SecurityPage() {
         How we handle your data
       </h1>
       <p style={{ ...paragraph, fontSize: "17px", marginBottom: "32px" }}>
-        The number one question we get: &ldquo;Can I trust you with my HMRC login?&rdquo; Here&apos;s exactly how it works.
+        The number one question we get: &ldquo;Can I trust you with my HMRC login?&rdquo;
+        Here&apos;s exactly how it works.
       </p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem", marginBottom: "2rem" }}>
+      <div
+        style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem", marginBottom: "2rem" }}
+      >
         {[
           {
             icon: <Shield size={24} style={{ color: "#2563EB" }} />,
@@ -2084,7 +2027,14 @@ export default function SecurityPage() {
               backgroundColor: "#ffffff",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                marginBottom: "0.75rem",
+              }}
+            >
               {item.icon}
               <h3 style={{ fontSize: "16px", fontWeight: 600, color: "#1E293B", margin: 0 }}>
                 {item.title}
@@ -2098,31 +2048,46 @@ export default function SecurityPage() {
       <h2 style={heading}>What data we store</h2>
       <p style={paragraph}>We store only what&apos;s needed to run the service:</p>
       <ul style={{ paddingLeft: "24px", margin: "0 0 16px 0" }}>
-        <li style={{ ...paragraph, marginBottom: "8px" }}>Your email address and hashed password (for your DormantFile account).</li>
-        <li style={{ ...paragraph, marginBottom: "8px" }}>Your company details: name, registration number, UTR, and accounting period dates.</li>
-        <li style={{ ...paragraph, marginBottom: "8px" }}>Filing records: what was submitted, when, and HMRC&apos;s response.</li>
-        <li style={{ ...paragraph, marginBottom: "8px" }}>Stripe customer ID for billing (card details are held by Stripe, not us).</li>
+        <li style={{ ...paragraph, marginBottom: "8px" }}>
+          Your email address and hashed password (for your DormantFile account).
+        </li>
+        <li style={{ ...paragraph, marginBottom: "8px" }}>
+          Your company details: name, registration number, UTR, and accounting period dates.
+        </li>
+        <li style={{ ...paragraph, marginBottom: "8px" }}>
+          Filing records: what was submitted, when, and HMRC&apos;s response.
+        </li>
+        <li style={{ ...paragraph, marginBottom: "8px" }}>
+          Stripe customer ID for billing (card details are held by Stripe, not us).
+        </li>
       </ul>
 
       <h2 style={heading}>Third-party services</h2>
       <ul style={{ paddingLeft: "24px", margin: "0 0 16px 0" }}>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>HMRC</strong> — receives your company details and Gateway credentials during filing.
+          <strong style={{ color: "#1E293B" }}>HMRC</strong> — receives your company details and
+          Gateway credentials during filing.
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Companies House</strong> — receives your company details and authentication code during accounts filing.
+          <strong style={{ color: "#1E293B" }}>Companies House</strong> — receives your company
+          details and authentication code during accounts filing.
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Stripe</strong> — processes payments. They hold card details, not us.
+          <strong style={{ color: "#1E293B" }}>Stripe</strong> — processes payments. They hold card
+          details, not us.
         </li>
         <li style={{ ...paragraph, marginBottom: "8px" }}>
-          <strong style={{ color: "#1E293B" }}>Resend</strong> — delivers transactional emails (reminders, confirmations).
+          <strong style={{ color: "#1E293B" }}>Resend</strong> — delivers transactional emails
+          (reminders, confirmations).
         </li>
       </ul>
 
       <p style={paragraph}>
         For the full legal detail, read our{" "}
-        <Link href="/privacy" style={{ color: "#2563EB" }}>privacy policy</Link>.
+        <Link href="/privacy" style={{ color: "#2563EB" }}>
+          privacy policy
+        </Link>
+        .
       </p>
 
       <ContentCTA />
@@ -2166,8 +2131,7 @@ const steps = [
   {
     number: 1,
     title: "Create your account",
-    description:
-      "Sign up with your email address and set a password. Takes 30 seconds.",
+    description: "Sign up with your email address and set a password. Takes 30 seconds.",
   },
   {
     number: 2,
@@ -2211,12 +2175,7 @@ export default function HowItWorksPage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   return (
     <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "How It Works" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "How It Works" }]} />
       <Breadcrumbs items={[{ label: "How It Works" }]} />
       <h1
         style={{
@@ -2288,7 +2247,8 @@ export default function HowItWorksPage() {
       >
         <p style={{ ...paragraph, margin: 0 }}>
           <strong style={{ color: "#1E293B" }}>Not registered for Corporation Tax?</strong>{" "}
-          That&apos;s fine — many dormant companies only need to file annual accounts with Companies House. You can skip the CT600 step entirely. Read our guide on{" "}
+          That&apos;s fine — many dormant companies only need to file annual accounts with Companies
+          House. You can skip the CT600 step entirely. Read our guide on{" "}
           <Link href="/guides/do-i-need-ct600-dormant-company" style={{ color: "#2563EB" }}>
             whether you need a CT600
           </Link>{" "}
@@ -2320,8 +2280,7 @@ export const metadata: Metadata = {
     "DormantFile pricing: from £19/year for one dormant company. Compare to accountants and other software.",
   openGraph: {
     title: "Pricing | DormantFile",
-    description:
-      "DormantFile pricing: from £19/year for one dormant company.",
+    description: "DormantFile pricing: from £19/year for one dormant company.",
     type: "website",
     siteName: "DormantFile",
   },
@@ -2378,29 +2337,56 @@ const plans = [
 ];
 
 const comparison = [
-  { method: "DormantFile", cost: "From £19/year", time: "Under 2 minutes", notes: "Both filings from one dashboard" },
-  { method: "Accountant", cost: "£80–£150+ per company", time: "Varies", notes: "Overkill for nil returns, but gives professional advice" },
-  { method: "General accounting software", cost: "£100+/year", time: "30+ minutes", notes: "Designed for trading companies, not dormant" },
-  { method: "DIY (manual filing)", cost: "Free (accounts only)", time: "1–2 hours", notes: "No CT600 option since CATO closed" },
+  {
+    method: "DormantFile",
+    cost: "From £19/year",
+    time: "Under 2 minutes",
+    notes: "Both filings from one dashboard",
+  },
+  {
+    method: "Accountant",
+    cost: "£80–£150+ per company",
+    time: "Varies",
+    notes: "Overkill for nil returns, but gives professional advice",
+  },
+  {
+    method: "General accounting software",
+    cost: "£100+/year",
+    time: "30+ minutes",
+    notes: "Designed for trading companies, not dormant",
+  },
+  {
+    method: "DIY (manual filing)",
+    cost: "Free (accounts only)",
+    time: "1–2 hours",
+    notes: "No CT600 option since CATO closed",
+  },
 ];
 
 const billingFaq = [
-  { q: "Can I cancel anytime?", a: "Yes. Cancel via the billing portal and your subscription remains active until the end of the current billing period. No refunds for partial periods." },
-  { q: "Can I upgrade or downgrade?", a: "Yes. Upgrade immediately or downgrade at the end of your billing period via your account settings." },
-  { q: "What payment methods do you accept?", a: "We accept all major credit and debit cards via Stripe. We don't currently accept bank transfers or direct debits." },
-  { q: "Do you offer refunds?", a: "We don't offer refunds for partial billing periods. If you're unsure, start with Basic — you can always upgrade later." },
+  {
+    q: "Can I cancel anytime?",
+    a: "Yes. Cancel via the billing portal and your subscription remains active until the end of the current billing period. No refunds for partial periods.",
+  },
+  {
+    q: "Can I upgrade or downgrade?",
+    a: "Yes. Upgrade immediately or downgrade at the end of your billing period via your account settings.",
+  },
+  {
+    q: "What payment methods do you accept?",
+    a: "We accept all major credit and debit cards via Stripe. We don't currently accept bank transfers or direct debits.",
+  },
+  {
+    q: "Do you offer refunds?",
+    a: "We don't offer refunds for partial billing periods. If you're unsure, start with Basic — you can always upgrade later.",
+  },
 ];
 
 export default function PricingPage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   return (
     <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "Pricing" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "Pricing" }]} />
       <Breadcrumbs items={[{ label: "Pricing" }]} />
       <h1
         style={{
@@ -2425,9 +2411,7 @@ export default function PricingPage() {
             key={plan.name}
             className="rounded-xl p-7 flex flex-col"
             style={{
-              border: plan.highlighted
-                ? "2px solid #2563EB"
-                : "1px solid #E2E8F0",
+              border: plan.highlighted ? "2px solid #2563EB" : "1px solid #E2E8F0",
               backgroundColor: "#ffffff",
               position: "relative",
             }}
@@ -2451,17 +2435,11 @@ export default function PricingPage() {
                 Most popular
               </span>
             )}
-            <p
-              className="font-semibold text-sm mb-1"
-              style={{ color: "#2563EB" }}
-            >
+            <p className="font-semibold text-sm mb-1" style={{ color: "#2563EB" }}>
               {plan.name}
             </p>
             <div className="mb-1">
-              <span
-                className="text-4xl font-bold"
-                style={{ color: "#1E293B" }}
-              >
+              <span className="text-4xl font-bold" style={{ color: "#1E293B" }}>
                 &pound;{plan.price}
               </span>
               <span className="text-sm ml-1" style={{ color: "#64748B" }}>
@@ -2686,7 +2664,6 @@ interface FAQCategory {
   items: FAQItemData[];
 }
 
-
 export function FAQAccordion({ categories }: { categories: FAQCategory[] }) {
   return (
     <div>
@@ -2731,8 +2708,7 @@ export const metadata: Metadata = {
     "Frequently asked questions about DormantFile: filing, security, pricing, and managing your account.",
   openGraph: {
     title: "FAQ | DormantFile",
-    description:
-      "Frequently asked questions about DormantFile.",
+    description: "Frequently asked questions about DormantFile.",
     type: "website",
     siteName: "DormantFile",
   },
@@ -2742,61 +2718,233 @@ const faqCategories = [
   {
     name: "Filing",
     items: [
-      { question: "What filings does DormantFile handle?", answer: <>DormantFile handles two filings: <a href="/guides/how-to-file-dormant-company-accounts" style={{ color: "#2563EB" }}>annual dormant accounts</a> submitted to Companies House and a <a href="/guides/how-to-file-nil-ct600" style={{ color: "#2563EB" }}>nil CT600 Corporation Tax return</a> submitted to HMRC. Both confirm your company was dormant during the accounting period.</> },
-      { question: "What if my company isn't registered for Corporation Tax?", answer: "No problem. Many dormant companies only need to file annual accounts with Companies House. If your company isn't registered for Corporation Tax, you can skip the CT600 entirely. DormantFile handles both scenarios." },
-      { question: "Can I use this if my company is trading?", answer: "No. DormantFile is designed exclusively for genuinely dormant companies — those with no income, expenditure, or assets. If your company has traded during the period, you need a qualified accountant." },
-      { question: "What happens after I file?", answer: "Companies House and HMRC will process your submission. Once accepted, we show the confirmation in your dashboard and send you an email. Your filing records are kept so you have a permanent history." },
-      { question: "How long does filing take?", answer: "The actual filing process takes under 2 minutes. You click file, enter your credentials (for HMRC) or authentication code (for Companies House), and we handle the rest." },
-      { question: "What do I need before I start?", answer: "For accounts: your company registration number and Companies House authentication code. For CT600: your Unique Taxpayer Reference (UTR) and HMRC Government Gateway credentials. You'll also need your accounting period dates." },
-      { question: "What accounting periods can I file for?", answer: "You can file for any accounting period where your company was dormant. DormantFile calculates your deadlines based on the period dates you enter." },
+      {
+        question: "What filings does DormantFile handle?",
+        answer: (
+          <>
+            DormantFile handles two filings:{" "}
+            <a href="/guides/how-to-file-dormant-company-accounts" style={{ color: "#2563EB" }}>
+              annual dormant accounts
+            </a>{" "}
+            submitted to Companies House and a{" "}
+            <a href="/guides/how-to-file-nil-ct600" style={{ color: "#2563EB" }}>
+              nil CT600 Corporation Tax return
+            </a>{" "}
+            submitted to HMRC. Both confirm your company was dormant during the accounting period.
+          </>
+        ),
+      },
+      {
+        question: "What if my company isn't registered for Corporation Tax?",
+        answer:
+          "No problem. Many dormant companies only need to file annual accounts with Companies House. If your company isn't registered for Corporation Tax, you can skip the CT600 entirely. DormantFile handles both scenarios.",
+      },
+      {
+        question: "Can I use this if my company is trading?",
+        answer:
+          "No. DormantFile is designed exclusively for genuinely dormant companies — those with no income, expenditure, or assets. If your company has traded during the period, you need a qualified accountant.",
+      },
+      {
+        question: "What happens after I file?",
+        answer:
+          "Companies House and HMRC will process your submission. Once accepted, we show the confirmation in your dashboard and send you an email. Your filing records are kept so you have a permanent history.",
+      },
+      {
+        question: "How long does filing take?",
+        answer:
+          "The actual filing process takes under 2 minutes. You click file, enter your credentials (for HMRC) or authentication code (for Companies House), and we handle the rest.",
+      },
+      {
+        question: "What do I need before I start?",
+        answer:
+          "For accounts: your company registration number and Companies House authentication code. For CT600: your Unique Taxpayer Reference (UTR) and HMRC Government Gateway credentials. You'll also need your accounting period dates.",
+      },
+      {
+        question: "What accounting periods can I file for?",
+        answer:
+          "You can file for any accounting period where your company was dormant. DormantFile calculates your deadlines based on the period dates you enter.",
+      },
     ],
   },
   {
     name: "Security",
     items: [
-      { question: "Is my data secure?", answer: <>Yes. All data is transmitted over TLS encryption. Your DormantFile password is hashed with bcrypt. Your HMRC Gateway credentials are used once during submission and never stored in our database. Read our <a href="/security" style={{ color: "#2563EB" }}>security page</a> for full details.</> },
-      { question: "Are my HMRC credentials stored?", answer: <>No. Your HMRC Government Gateway user ID and password are held in server memory only for the duration of the submission request. They are transmitted directly to HMRC and discarded immediately after HMRC responds. See our <a href="/security" style={{ color: "#2563EB" }}>security page</a>.</> },
-      { question: "What data do you collect?", answer: "We collect your email, a hashed password, company details (name, registration number, UTR, accounting dates), and filing records. Payment is handled by Stripe — we never see your card details." },
+      {
+        question: "Is my data secure?",
+        answer: (
+          <>
+            Yes. All data is transmitted over TLS encryption. Your DormantFile password is hashed
+            with bcrypt. Your HMRC Gateway credentials are used once during submission and never
+            stored in our database. Read our{" "}
+            <a href="/security" style={{ color: "#2563EB" }}>
+              security page
+            </a>{" "}
+            for full details.
+          </>
+        ),
+      },
+      {
+        question: "Are my HMRC credentials stored?",
+        answer: (
+          <>
+            No. Your HMRC Government Gateway user ID and password are held in server memory only for
+            the duration of the submission request. They are transmitted directly to HMRC and
+            discarded immediately after HMRC responds. See our{" "}
+            <a href="/security" style={{ color: "#2563EB" }}>
+              security page
+            </a>
+            .
+          </>
+        ),
+      },
+      {
+        question: "What data do you collect?",
+        answer:
+          "We collect your email, a hashed password, company details (name, registration number, UTR, accounting dates), and filing records. Payment is handled by Stripe — we never see your card details.",
+      },
     ],
   },
   {
     name: "Pricing",
     items: [
-      { question: "How much does it cost?", answer: <>Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Bulk is £49/year for up to 100 companies. All plans include both accounts and CT600 filing. See our <a href="/pricing" style={{ color: "#2563EB" }}>pricing page</a> for the full comparison.</> },
-      { question: "Is there a free trial?", answer: "We don't currently offer a free trial, but the Basic plan is just £19/year — less than what most accountants charge for a single nil filing." },
-      { question: "Can I cancel anytime?", answer: "Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period. No refunds for partial periods." },
-      { question: "What happens if my subscription lapses?", answer: "If your subscription expires, you won't be able to file new returns. Your account and filing history remain accessible. You can resubscribe at any time to resume filing." },
+      {
+        question: "How much does it cost?",
+        answer: (
+          <>
+            Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Bulk is
+            £49/year for up to 100 companies. All plans include both accounts and CT600 filing. See
+            our{" "}
+            <a href="/pricing" style={{ color: "#2563EB" }}>
+              pricing page
+            </a>{" "}
+            for the full comparison.
+          </>
+        ),
+      },
+      {
+        question: "Is there a free trial?",
+        answer:
+          "We don't currently offer a free trial, but the Basic plan is just £19/year — less than what most accountants charge for a single nil filing.",
+      },
+      {
+        question: "Can I cancel anytime?",
+        answer:
+          "Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period. No refunds for partial periods.",
+      },
+      {
+        question: "What happens if my subscription lapses?",
+        answer:
+          "If your subscription expires, you won't be able to file new returns. Your account and filing history remain accessible. You can resubscribe at any time to resume filing.",
+      },
     ],
   },
   {
     name: "Account",
     items: [
-      { question: "Can I manage multiple companies?", answer: "Yes, on the Multiple or Bulk plan. Each company has its own filing record, deadlines, and reminders. You manage them all from a single dashboard." },
-      { question: "How do I add or remove a company?", answer: "Add a company from your dashboard by entering its registration number. Remove a company from your settings — the filing history is preserved." },
-      { question: "How do I delete my account?", answer: "You can delete your account from the settings page. This removes all your personal data and company records. This action is permanent and cannot be undone." },
+      {
+        question: "Can I manage multiple companies?",
+        answer:
+          "Yes, on the Multiple or Bulk plan. Each company has its own filing record, deadlines, and reminders. You manage them all from a single dashboard.",
+      },
+      {
+        question: "How do I add or remove a company?",
+        answer:
+          "Add a company from your dashboard by entering its registration number. Remove a company from your settings — the filing history is preserved.",
+      },
+      {
+        question: "How do I delete my account?",
+        answer:
+          "You can delete your account from the settings page. This removes all your personal data and company records. This action is permanent and cannot be undone.",
+      },
     ],
   },
 ];
 
 // Plain-text answers for JSON-LD structured data (FAQPage schema requires strings, not JSX)
 const faqJsonLdItems = [
-  { question: "What filings does DormantFile handle?", answer: "DormantFile handles two filings: annual dormant accounts submitted to Companies House and a nil CT600 Corporation Tax return submitted to HMRC. Both confirm your company was dormant during the accounting period." },
-  { question: "What if my company isn't registered for Corporation Tax?", answer: "No problem. Many dormant companies only need to file annual accounts with Companies House. If your company isn't registered for Corporation Tax, you can skip the CT600 entirely." },
-  { question: "Can I use this if my company is trading?", answer: "No. DormantFile is designed exclusively for genuinely dormant companies — those with no income, expenditure, or assets. If your company has traded during the period, you need a qualified accountant." },
-  { question: "What happens after I file?", answer: "Companies House and HMRC will process your submission. Once accepted, we show the confirmation in your dashboard and send you an email." },
-  { question: "How long does filing take?", answer: "The actual filing process takes under 2 minutes. You click file, enter your credentials, and we handle the rest." },
-  { question: "What do I need before I start?", answer: "For accounts: your company registration number and Companies House authentication code. For CT600: your UTR and HMRC Government Gateway credentials." },
-  { question: "What accounting periods can I file for?", answer: "You can file for any accounting period where your company was dormant." },
-  { question: "Is my data secure?", answer: "Yes. All data is transmitted over TLS encryption. Your DormantFile password is hashed with bcrypt. Your HMRC Gateway credentials are used once during submission and never stored." },
-  { question: "Are my HMRC credentials stored?", answer: "No. Your credentials are held in server memory only for the duration of the submission request and discarded immediately after HMRC responds." },
-  { question: "What data do you collect?", answer: "We collect your email, a hashed password, company details, and filing records. Payment is handled by Stripe — we never see your card details." },
-  { question: "How much does it cost?", answer: "Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Bulk is £49/year for up to 100 companies." },
-  { question: "Is there a free trial?", answer: "We don't currently offer a free trial, but the Basic plan is just £19/year." },
-  { question: "Can I cancel anytime?", answer: "Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period." },
-  { question: "What happens if my subscription lapses?", answer: "You won't be able to file new returns. Your account and filing history remain accessible. You can resubscribe at any time." },
-  { question: "Can I manage multiple companies?", answer: "Yes, on the Multiple or Bulk plan. Each company has its own filing record, deadlines, and reminders." },
-  { question: "How do I add or remove a company?", answer: "Add a company from your dashboard by entering its registration number. Remove a company from your settings." },
-  { question: "How do I delete my account?", answer: "You can delete your account from the settings page. This removes all your personal data and company records permanently." },
+  {
+    question: "What filings does DormantFile handle?",
+    answer:
+      "DormantFile handles two filings: annual dormant accounts submitted to Companies House and a nil CT600 Corporation Tax return submitted to HMRC. Both confirm your company was dormant during the accounting period.",
+  },
+  {
+    question: "What if my company isn't registered for Corporation Tax?",
+    answer:
+      "No problem. Many dormant companies only need to file annual accounts with Companies House. If your company isn't registered for Corporation Tax, you can skip the CT600 entirely.",
+  },
+  {
+    question: "Can I use this if my company is trading?",
+    answer:
+      "No. DormantFile is designed exclusively for genuinely dormant companies — those with no income, expenditure, or assets. If your company has traded during the period, you need a qualified accountant.",
+  },
+  {
+    question: "What happens after I file?",
+    answer:
+      "Companies House and HMRC will process your submission. Once accepted, we show the confirmation in your dashboard and send you an email.",
+  },
+  {
+    question: "How long does filing take?",
+    answer:
+      "The actual filing process takes under 2 minutes. You click file, enter your credentials, and we handle the rest.",
+  },
+  {
+    question: "What do I need before I start?",
+    answer:
+      "For accounts: your company registration number and Companies House authentication code. For CT600: your UTR and HMRC Government Gateway credentials.",
+  },
+  {
+    question: "What accounting periods can I file for?",
+    answer: "You can file for any accounting period where your company was dormant.",
+  },
+  {
+    question: "Is my data secure?",
+    answer:
+      "Yes. All data is transmitted over TLS encryption. Your DormantFile password is hashed with bcrypt. Your HMRC Gateway credentials are used once during submission and never stored.",
+  },
+  {
+    question: "Are my HMRC credentials stored?",
+    answer:
+      "No. Your credentials are held in server memory only for the duration of the submission request and discarded immediately after HMRC responds.",
+  },
+  {
+    question: "What data do you collect?",
+    answer:
+      "We collect your email, a hashed password, company details, and filing records. Payment is handled by Stripe — we never see your card details.",
+  },
+  {
+    question: "How much does it cost?",
+    answer:
+      "Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Bulk is £49/year for up to 100 companies.",
+  },
+  {
+    question: "Is there a free trial?",
+    answer: "We don't currently offer a free trial, but the Basic plan is just £19/year.",
+  },
+  {
+    question: "Can I cancel anytime?",
+    answer:
+      "Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period.",
+  },
+  {
+    question: "What happens if my subscription lapses?",
+    answer:
+      "You won't be able to file new returns. Your account and filing history remain accessible. You can resubscribe at any time.",
+  },
+  {
+    question: "Can I manage multiple companies?",
+    answer:
+      "Yes, on the Multiple or Bulk plan. Each company has its own filing record, deadlines, and reminders.",
+  },
+  {
+    question: "How do I add or remove a company?",
+    answer:
+      "Add a company from your dashboard by entering its registration number. Remove a company from your settings.",
+  },
+  {
+    question: "How do I delete my account?",
+    answer:
+      "You can delete your account from the settings page. This removes all your personal data and company records permanently.",
+  },
 ];
 
 export default function FAQPage() {
@@ -2804,12 +2952,7 @@ export default function FAQPage() {
   return (
     <>
       <FAQPageJsonLd items={faqJsonLdItems} />
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "FAQ" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "FAQ" }]} />
       <Breadcrumbs items={[{ label: "FAQ" }]} />
       <h1
         style={{
@@ -2833,7 +2976,8 @@ export default function FAQPage() {
         Everything you need to know about using DormantFile. Can&apos;t find your answer?{" "}
         <a href="/contact" style={{ color: "#2563EB" }}>
           Get in touch
-        </a>.
+        </a>
+        .
       </p>
 
       <FAQAccordion categories={faqCategories} />
@@ -2854,9 +2998,7 @@ Create `src/components/marketing/ContactForm.tsx`:
 import { useState } from "react";
 
 export function ContactForm() {
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle",
-  );
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -2894,10 +3036,7 @@ export function ContactForm() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-    >
+    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       <input
         type="text"
         placeholder="Your name"
@@ -2964,10 +3103,7 @@ export async function POST(request: Request) {
   const { name, email, message } = await request.json();
 
   if (!name || !email || !message) {
-    return NextResponse.json(
-      { error: "All fields are required" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "All fields are required" }, { status: 400 });
   }
 
   try {
@@ -2981,10 +3117,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json(
-      { error: "Failed to send message" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to send message" }, { status: 500 });
   }
 }
 ```
@@ -3002,8 +3135,7 @@ import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
 
 export const metadata: Metadata = {
   title: "Contact | DormantFile",
-  description:
-    "Get in touch with DormantFile. We typically respond within one working day.",
+  description: "Get in touch with DormantFile. We typically respond within one working day.",
   openGraph: {
     title: "Contact | DormantFile",
     description: "Get in touch with DormantFile.",
@@ -3023,12 +3155,7 @@ export default function ContactPage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
   return (
     <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "Contact" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "Contact" }]} />
       <Breadcrumbs items={[{ label: "Contact" }]} />
       <h1
         style={{
@@ -3102,6 +3229,7 @@ git commit -m "feat(trust): add about, security, how-it-works, pricing, faq, and
 ### Task 8: Guide Content (Guides 1–5)
 
 **Files:**
+
 - Create: `content/guides/how-to-file-dormant-company-accounts.mdx`
 - Create: `content/guides/how-to-file-nil-ct600.mdx`
 - Create: `content/guides/cato-closed-options.mdx`
@@ -3123,7 +3251,14 @@ description: "Step-by-step guide to filing annual dormant accounts (AA02) with C
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "filing"
-keywords: ["file dormant company accounts", "AA02", "Companies House", "dormant accounts", "annual accounts"]
+keywords:
+  [
+    "file dormant company accounts",
+    "AA02",
+    "Companies House",
+    "dormant accounts",
+    "annual accounts",
+  ]
 ---
 
 Every UK limited company must file annual accounts with Companies House, even if the company is dormant and has done nothing all year. For dormant companies, this means filing a set of abbreviated accounts known as the AA02.
@@ -3158,12 +3293,12 @@ See our full guide on [dormant company filing deadlines](/guides/dormant-company
 
 Companies House imposes automatic penalties for late filing:
 
-| How late | Penalty |
-|----------|---------|
-| Up to 1 month | £150 |
-| 1 to 3 months | £375 |
-| 3 to 6 months | £750 |
-| More than 6 months | £1,500 |
+| How late           | Penalty |
+| ------------------ | ------- |
+| Up to 1 month      | £150    |
+| 1 to 3 months      | £375    |
+| 3 to 6 months      | £750    |
+| More than 6 months | £1,500  |
 
 These penalties are non-negotiable and apply even if the company is dormant with nothing to report. Read more about [late filing penalties](/guides/late-filing-penalties).
 
@@ -3270,7 +3405,14 @@ description: "HMRC's free Corporation Tax filing tool (CATO) closed on 31 March 
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "alternatives"
-keywords: ["CATO closed", "HMRC free filing", "Corporation Tax Online", "CT600 alternatives", "dormant company filing"]
+keywords:
+  [
+    "CATO closed",
+    "HMRC free filing",
+    "Corporation Tax Online",
+    "CT600 alternatives",
+    "dormant company filing",
+  ]
 ---
 
 On 31 March 2026, HMRC shut down its free Corporation Tax Online service, commonly known as CATO. If you used CATO to file nil CT600 returns for your dormant company, you now need an alternative.
@@ -3342,7 +3484,14 @@ description: "Late filing penalties from Companies House and HMRC for dormant co
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "deadlines"
-keywords: ["late filing penalties", "dormant company penalties", "Companies House penalties", "HMRC penalties", "struck off"]
+keywords:
+  [
+    "late filing penalties",
+    "dormant company penalties",
+    "Companies House penalties",
+    "HMRC penalties",
+    "struck off",
+  ]
 ---
 
 Even if your company is dormant and has done nothing all year, you are still legally required to file annual accounts with Companies House and (if registered for Corporation Tax) a nil CT600 with HMRC. If you don't file on time, penalties apply automatically.
@@ -3351,12 +3500,12 @@ Even if your company is dormant and has done nothing all year, you are still leg
 
 Companies House imposes automatic, fixed penalties for late annual accounts. There is no grace period, no warning, and no discretion — the penalty is triggered the day after the deadline.
 
-| How late | Private company | Public company |
-|----------|----------------|----------------|
-| Up to 1 month | £150 | £750 |
-| 1 to 3 months | £375 | £1,500 |
-| 3 to 6 months | £750 | £3,000 |
-| More than 6 months | £1,500 | £7,500 |
+| How late           | Private company | Public company |
+| ------------------ | --------------- | -------------- |
+| Up to 1 month      | £150            | £750           |
+| 1 to 3 months      | £375            | £1,500         |
+| 3 to 6 months      | £750            | £3,000         |
+| More than 6 months | £1,500          | £7,500         |
 
 For most dormant companies (private limited companies), penalties range from £150 to £1,500.
 
@@ -3417,17 +3566,25 @@ description: "Not every dormant company needs to file a CT600. This guide explai
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "filing"
-keywords: ["dormant company CT600", "Corporation Tax dormant", "do I need CT600", "CT600 required", "dormant company filing"]
+keywords:
+  [
+    "dormant company CT600",
+    "Corporation Tax dormant",
+    "do I need CT600",
+    "CT600 required",
+    "dormant company filing",
+  ]
 ---
 
 Not every dormant company needs to file a CT600 with HMRC. Whether you need to depends on one question: **is your company registered for Corporation Tax?**
 
 ## The decision tree
-
 ```
+
 Is your company registered for Corporation Tax?
 ├── YES → You need to file a CT600 every year (plus annual accounts)
-└── NO  → You only need to file annual accounts with Companies House
+└── NO → You only need to file annual accounts with Companies House
+
 ```
 
 That's it. If your company is registered for Corporation Tax, you file a nil CT600. If it's not, you don't.
@@ -3514,6 +3671,7 @@ git commit -m "content: add guides 1-5 (filing, CATO, penalties, CT600 decision)
 ### Task 9: Guide Content (Guides 6–10)
 
 **Files:**
+
 - Create: `content/guides/how-to-check-company-dormant.mdx`
 - Create: `content/guides/dormant-company-filing-deadlines.mdx`
 - Create: `content/guides/cost-to-file-dormant-accounts.mdx`
@@ -3535,7 +3693,14 @@ description: "The definition of a dormant company under UK law, common scenarios
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "eligibility"
-keywords: ["is my company dormant", "dormant company definition", "Companies Act dormant", "HMRC dormant", "dormant check"]
+keywords:
+  [
+    "is my company dormant",
+    "dormant company definition",
+    "Companies Act dormant",
+    "HMRC dormant",
+    "dormant check",
+  ]
 ---
 
 "Dormant" has a specific legal meaning in the UK, and it's not quite the same at Companies House as it is at HMRC. Before you file dormant accounts, it's worth checking that your company actually qualifies.
@@ -3602,7 +3767,14 @@ description: "When your dormant company accounts and CT600 are due, how deadline
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "deadlines"
-keywords: ["dormant company deadline", "filing deadline", "accounts deadline", "CT600 deadline", "accounting reference date"]
+keywords:
+  [
+    "dormant company deadline",
+    "filing deadline",
+    "accounts deadline",
+    "CT600 deadline",
+    "accounting reference date",
+  ]
 ---
 
 Dormant companies have the same filing deadlines as trading companies. Missing them triggers automatic penalties. Here's how the deadlines work.
@@ -3642,10 +3814,10 @@ Separately from accounts, every company must file a confirmation statement (CS01
 
 ## Calendar summary
 
-| Filing | Deadline | Where |
-|--------|----------|-------|
-| Annual accounts | 9 months after accounting period end | Companies House |
-| CT600 | 12 months after accounting period end | HMRC |
+| Filing                 | Deadline                                     | Where           |
+| ---------------------- | -------------------------------------------- | --------------- |
+| Annual accounts        | 9 months after accounting period end         | Companies House |
+| CT600                  | 12 months after accounting period end        | HMRC            |
 | Confirmation statement | Every 12 months from incorporation/last CS01 | Companies House |
 
 ## How to avoid missing deadlines
@@ -3673,19 +3845,25 @@ description: "A comparison of what it costs to file for a dormant company: Dorma
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "costs"
-keywords: ["cost dormant company accounts", "dormant filing cost", "cheapest way to file", "accountant costs dormant"]
+keywords:
+  [
+    "cost dormant company accounts",
+    "dormant filing cost",
+    "cheapest way to file",
+    "accountant costs dormant",
+  ]
 ---
 
 Filing for a dormant company doesn't need to be expensive. Here's what it actually costs across your options.
 
 ## The options compared
 
-| Method | Annual cost | What you get |
-|--------|------------|-------------|
-| DormantFile | From £19/year | Both filings (accounts + CT600) from one dashboard |
-| Companies House WebFiling (DIY) | Free | Accounts only — no CT600 option since CATO closed |
-| General accounting software | £100–£300+/year | CT600 + accounts, plus many features you'll never use |
-| Accountant | £80–£150+ per company | Both filings, plus professional advice |
+| Method                          | Annual cost           | What you get                                          |
+| ------------------------------- | --------------------- | ----------------------------------------------------- |
+| DormantFile                     | From £19/year         | Both filings (accounts + CT600) from one dashboard    |
+| Companies House WebFiling (DIY) | Free                  | Accounts only — no CT600 option since CATO closed     |
+| General accounting software     | £100–£300+/year       | CT600 + accounts, plus many features you'll never use |
+| Accountant                      | £80–£150+ per company | Both filings, plus professional advice                |
 
 ## DIY (free, but limited)
 
@@ -3745,7 +3923,14 @@ description: "How to strike off a dormant company using DS01, what it costs, how
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "admin"
-keywords: ["close dormant company", "strike off company", "DS01", "dissolve company", "keep dormant company"]
+keywords:
+  [
+    "close dormant company",
+    "strike off company",
+    "DS01",
+    "dissolve company",
+    "keep dormant company",
+  ]
 ---
 
 If you no longer need your dormant company, you can apply to have it struck off the Companies House register. But it's worth thinking about whether closing is actually the right move.
@@ -3839,7 +4024,14 @@ description: "What a newly incorporated dormant company needs to file in its fir
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "getting-started"
-keywords: ["new company filing", "first year accounts", "first filing deadline", "newly incorporated", "dormant company first year"]
+keywords:
+  [
+    "new company filing",
+    "first year accounts",
+    "first filing deadline",
+    "newly incorporated",
+    "dormant company first year",
+  ]
 ---
 
 You've just incorporated a company and it's going to sit dormant. What do you need to file, and when?
@@ -3855,6 +4047,7 @@ Your first accounts cover the period from incorporation to your first [accountin
 **Default ARD:** The last day of the month in which the anniversary of incorporation falls. For a company incorporated on 15 March 2026, the default ARD is 31 March 2027. The first accounting period runs from 15 March 2026 to 31 March 2027.
 
 **First-year deadline:** The later of:
+
 - 9 months after the end of the accounting period, or
 - 21 months from the date of incorporation
 
@@ -3880,11 +4073,11 @@ Not every new dormant company will be registered. If you incorporated but never 
 
 Company incorporated: **1 June 2026**
 
-| Filing | Period | Deadline |
-|--------|--------|----------|
-| Confirmation statement | By 1 June 2027 | 1 June 2027 (12 months from incorporation) |
-| First annual accounts | 1 Jun 2026 – 30 Jun 2027 | 1 March 2028 (21 months from incorporation) |
-| First CT600 (if applicable) | 1 Jun 2026 – 30 Jun 2027 | 30 June 2028 (12 months after period end) |
+| Filing                      | Period                   | Deadline                                    |
+| --------------------------- | ------------------------ | ------------------------------------------- |
+| Confirmation statement      | By 1 June 2027           | 1 June 2027 (12 months from incorporation)  |
+| First annual accounts       | 1 Jun 2026 – 30 Jun 2027 | 1 March 2028 (21 months from incorporation) |
+| First CT600 (if applicable) | 1 Jun 2026 – 30 Jun 2027 | 30 June 2028 (12 months after period end)   |
 
 ## Tips for first-year filing
 
@@ -3932,6 +4125,7 @@ git commit -m "content: add guides 6-10 (eligibility, deadlines, costs, closing,
 ### Task 10: Answer Content (Answers 1–5)
 
 **Files:**
+
 - Create: `content/answers/what-is-a-ct600.mdx`
 - Create: `content/answers/what-is-a-utr-number.mdx`
 - Create: `content/answers/what-is-an-accounting-reference-date.mdx`
@@ -3969,6 +4163,7 @@ Not filing a CT600 when required results in automatic penalties from HMRC, start
 If your company has a Unique Taxpayer Reference (UTR) from HMRC, you almost certainly need to file. If you've never received a UTR and never registered for Corporation Tax, you probably don't.
 
 To file a nil CT600, you need:
+
 - Your company's UTR
 - HMRC Government Gateway credentials
 - Your accounting period dates
@@ -4066,7 +4261,14 @@ description: "What the Companies House authentication code is, how to get one, a
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "filing"
-keywords: ["authentication code", "Companies House code", "auth code", "online filing code", "WebFiling code"]
+keywords:
+  [
+    "authentication code",
+    "Companies House code",
+    "auth code",
+    "online filing code",
+    "WebFiling code",
+  ]
 ---
 
 A Companies House authentication code is a 6-character alphanumeric code (like `A1B2C3`) that verifies you're authorised to file documents online for your company. Think of it as a password for your company's filings.
@@ -4106,7 +4308,8 @@ description: "What AA02 dormant company accounts are, when you need to file them
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "filing"
-keywords: ["AA02", "dormant accounts", "dormant company accounts", "abbreviated accounts", "what is AA02"]
+keywords:
+  ["AA02", "dormant accounts", "dormant company accounts", "abbreviated accounts", "what is AA02"]
 ---
 
 Dormant company accounts (formally known as AA02) are a simplified set of annual accounts that dormant companies file with Companies House. They confirm that the company had no significant accounting transactions during the period.
@@ -4148,6 +4351,7 @@ git commit -m "content: add answers 1-5 (CT600, UTR, ARD, auth code, AA02)"
 ### Task 11: Answer Content (Answers 6–10)
 
 **Files:**
+
 - Create: `content/answers/what-is-the-hmrc-gateway.mdx`
 - Create: `content/answers/what-is-a-confirmation-statement-cs01.mdx`
 - Create: `content/answers/what-are-companies-house-late-filing-penalties.mdx`
@@ -4254,19 +4458,26 @@ description: "The automatic penalties Companies House charges for filing annual 
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "deadlines"
-keywords: ["late filing penalties", "Companies House penalties", "penalty amounts", "late accounts", "filing fine"]
+keywords:
+  [
+    "late filing penalties",
+    "Companies House penalties",
+    "penalty amounts",
+    "late accounts",
+    "filing fine",
+  ]
 ---
 
 Companies House charges automatic, fixed penalties when a company files its annual accounts late. There is no grace period and no discretion — the penalty is triggered the day after the deadline.
 
 ## Penalty amounts (private companies)
 
-| How late | Penalty |
-|----------|---------|
-| Up to 1 month | £150 |
-| 1 to 3 months | £375 |
-| 3 to 6 months | £750 |
-| More than 6 months | £1,500 |
+| How late           | Penalty |
+| ------------------ | ------- |
+| Up to 1 month      | £150    |
+| 1 to 3 months      | £375    |
+| 3 to 6 months      | £750    |
+| More than 6 months | £1,500  |
 
 For public companies, the penalties are significantly higher (£750 to £7,500).
 
@@ -4298,7 +4509,14 @@ description: "The legal definition of a dormant company under the Companies Act 
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "eligibility"
-keywords: ["dormant definition", "Companies Act dormant", "section 1169", "significant accounting transaction", "dormant meaning"]
+keywords:
+  [
+    "dormant definition",
+    "Companies Act dormant",
+    "section 1169",
+    "significant accounting transaction",
+    "dormant meaning",
+  ]
 ---
 
 Under the Companies Act 2006 (section 1169), a company is dormant during any period in which it has no **significant accounting transactions**.
@@ -4341,7 +4559,14 @@ description: "The key differences between a dissolved company and a dormant comp
 publishedAt: "2026-03-27"
 updatedAt: "2026-03-27"
 category: "admin"
-keywords: ["dissolved vs dormant", "difference dissolved dormant", "company dissolved", "company dormant", "struck off"]
+keywords:
+  [
+    "dissolved vs dormant",
+    "difference dissolved dormant",
+    "company dissolved",
+    "company dormant",
+    "struck off",
+  ]
 ---
 
 "Dormant" and "dissolved" are very different things, though they're often confused. The difference matters because it determines whether you still need to file.
@@ -4403,6 +4628,7 @@ git commit -m "content: add answers 6-10 (Gateway, CS01, penalties, dormant defi
 ### Task 12: Landing Page Updates & Final Verification
 
 **Files:**
+
 - Modify: `src/app/page.tsx`
 
 **Depends on:** All previous tasks
@@ -4412,7 +4638,9 @@ git commit -m "content: add answers 6-10 (Gateway, CS01, penalties, dormant defi
 In `src/app/page.tsx`, update the footer section (around line 445-472) to include links to the new pages. Replace the existing footer with:
 
 ```tsx
-{/* Footer */}
+{
+  /* Footer */
+}
 <footer
   style={{ backgroundColor: "#F1F5F9", borderTop: "1px solid #E2E8F0" }}
   className="py-8 px-6"
@@ -4441,7 +4669,7 @@ In `src/app/page.tsx`, update the footer section (around line 445-472) to includ
       DormantFile is not an accountancy firm. We provide a software tool only.
     </p>
   </div>
-</footer>
+</footer>;
 ```
 
 - [ ] **Step 2: Add "See full walkthrough" link to How It Works section**
@@ -4475,6 +4703,7 @@ cd /Users/ben/Documents/tax-project && npx next build 2>&1 | tail -40
 ```
 
 Expected: Build succeeds. All routes should be listed including:
+
 - `/(marketing)/about`
 - `/(marketing)/security`
 - `/(marketing)/how-it-works`

@@ -155,9 +155,7 @@ export default function EditUTR({
       >
         <X size={14} strokeWidth={2.5} />
       </button>
-      {error && (
-        <span style={{ fontSize: "12px", color: "var(--color-danger)" }}>{error}</span>
-      )}
+      {error && <span style={{ fontSize: "12px", color: "var(--color-danger)" }}>{error}</span>}
     </span>
   );
 }

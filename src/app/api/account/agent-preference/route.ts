@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest) {
   if (user.subscriptionTier !== "agent") {
     return NextResponse.json(
       { error: "Agent filing is only available on the Agent plan" },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -33,10 +33,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (typeof body.filingAsAgent !== "boolean") {
-    return NextResponse.json(
-      { error: "filingAsAgent must be a boolean" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "filingAsAgent must be a boolean" }, { status: 400 });
   }
 
   await prisma.user.update({

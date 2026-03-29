@@ -43,9 +43,8 @@ const statusConfig: Record<
 
 export default function FilingStatusBadge({ status, filingType }: FilingStatusBadgeProps) {
   const config = statusConfig[status];
-  const label = status === "polling_timeout" && filingType === "accounts"
-    ? "Awaiting CH"
-    : config.label;
+  const label =
+    status === "polling_timeout" && filingType === "accounts" ? "Awaiting CH" : config.label;
 
   return (
     <span

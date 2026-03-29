@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  buildReminderEmail,
-  buildFilingConfirmationEmail,
-} from "@/lib/email/templates";
+import { buildReminderEmail, buildFilingConfirmationEmail } from "@/lib/email/templates";
 
 describe("buildReminderEmail", () => {
   const data = {

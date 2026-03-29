@@ -59,15 +59,13 @@ export default function GuidesIndexPage() {
         Guides
       </h1>
       <p className="text-base mb-10" style={{ color: "var(--color-text-secondary)" }}>
-        Step-by-step guides covering dormant company accounts, nil CT600 returns, filing deadlines, penalties, and costs.
+        Step-by-step guides covering dormant company accounts, nil CT600 returns, filing deadlines,
+        penalties, and costs.
       </p>
 
       {grouped.map((group) => (
         <section key={group.category} style={{ marginBottom: "2.5rem" }}>
-          <h2
-            className="text-lg font-semibold mb-3"
-            style={{ color: "var(--color-text-primary)" }}
-          >
+          <h2 className="text-lg font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>
             {group.label}
           </h2>
           <ul

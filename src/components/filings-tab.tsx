@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Calendar, AlertTriangle, CheckCircle2 } from "lucide-react";
 import FilingStatusBadge from "@/components/filing-status-badge";
+import MarkFiledButton from "@/components/mark-filed-button";
 import { type PeriodInfo } from "@/lib/periods";
 import { FilingStatus } from "@prisma/client";
 
@@ -30,16 +31,19 @@ interface FilingsTabProps {
   filings: Filing[];
 }
 
-export default function FilingsTab({ companyId, registeredForCorpTax, periods, filings }: FilingsTabProps) {
+export default function FilingsTab({
+  companyId,
+  registeredForCorpTax,
+  periods,
+  filings,
+}: FilingsTabProps) {
   const incompletePeriods = periods.filter((p) => !p.isComplete);
   const completePeriods = periods.filter((p) => p.isComplete);
   const hasDisclosurePeriods = periods.some((p) => p.isDisclosureTerritory);
 
   function getFilingForPeriod(period: PeriodInfo, filingType: "accounts" | "ct600") {
     return filings.find(
-      (f) =>
-        f.filingType === filingType &&
-        f.periodEnd.getTime() === period.periodEnd.getTime(),
+      (f) => f.filingType === filingType && f.periodEnd.getTime() === period.periodEnd.getTime(),
     );
   }
 
@@ -73,11 +77,27 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
             marginBottom: "20px",
           }}
         >
-          <span style={{ color: "var(--color-danger)", flexShrink: 0, marginTop: "1px", display: "flex" }}>
+          <span
+            style={{
+              color: "var(--color-danger)",
+              flexShrink: 0,
+              marginTop: "1px",
+              display: "flex",
+            }}
+          >
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-danger-text)", margin: 0, fontWeight: 500 }}>
-            This company has filings more than 4 years overdue. Very old returns may be rejected by Companies House or HMRC. We recommend contacting them directly or consulting an accountant before filing.
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-danger-text)",
+              margin: 0,
+              fontWeight: 500,
+            }}
+          >
+            This company has filings more than 4 years overdue. Very old returns may be rejected by
+            Companies House. We recommend contacting them directly or consulting an accountant
+            before filing.
           </p>
         </div>
       )}
@@ -87,7 +107,8 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
         {incompletePeriods.map((period, index) => {
           const accountsFiling = getFilingForPeriod(period, "accounts");
           const ct600Filing = getFilingForPeriod(period, "ct600");
-          const accountsBlocked = accountsFiling && BLOCKED_STATUSES.includes(accountsFiling.status);
+          const accountsBlocked =
+            accountsFiling && BLOCKED_STATUSES.includes(accountsFiling.status);
           const ct600Blocked = ct600Filing && BLOCKED_STATUSES.includes(ct600Filing.status);
           const periodEndISO = period.periodEnd.toISOString().split("T")[0];
           const isFirst = index === 0;
@@ -100,15 +121,34 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
                 borderRadius: "12px",
                 padding: "20px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
-                border: isFirst ? "2px solid var(--color-primary-border)" : "1px solid var(--color-border)",
+                border: isFirst
+                  ? "2px solid var(--color-primary-border)"
+                  : "1px solid var(--color-border)",
               }}
             >
               {/* Period header */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: period.hasEarlierGaps || (isFirst && incompletePeriods.length > 1) ? "8px" : "14px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginBottom:
+                    period.hasEarlierGaps || (isFirst && incompletePeriods.length > 1)
+                      ? "8px"
+                      : "14px",
+                }}
+              >
                 <span style={{ color: "var(--color-text-secondary)", display: "flex" }}>
                   <Calendar size={16} color="currentColor" strokeWidth={2} />
                 </span>
-                <h2 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0 }}>
+                <h2
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    color: "var(--color-text-primary)",
+                    margin: 0,
+                  }}
+                >
                   {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
                 </h2>
                 {period.isDisclosureTerritory && (
@@ -130,7 +170,15 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
 
               {/* Contextual hint */}
               {isFirst && incompletePeriods.length > 1 && !period.hasEarlierGaps && (
-                <p style={{ fontSize: "12px", color: "var(--color-primary)", fontWeight: 500, margin: "0 0 12px 0", paddingLeft: "24px" }}>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--color-primary)",
+                    fontWeight: 500,
+                    margin: "0 0 12px 0",
+                    paddingLeft: "24px",
+                  }}
+                >
                   Earliest outstanding period &mdash; we recommend filing this first
                 </p>
               )}
@@ -152,8 +200,16 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
                   <span style={{ color: "var(--color-warning)", flexShrink: 0, display: "flex" }}>
                     <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
                   </span>
-                  <p style={{ fontSize: "12px", color: "var(--color-warning-text)", margin: 0, fontWeight: 500 }}>
-                    Earlier periods are still outstanding. Filing out of order may cause issues with HMRC or Companies House.
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "var(--color-warning-text)",
+                      margin: 0,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Earlier periods are still outstanding. Filing out of order may cause issues with
+                    Companies House.
                   </p>
                 </div>
               )}
@@ -175,8 +231,16 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
                   <span style={{ color: "var(--color-danger)", flexShrink: 0, display: "flex" }}>
                     <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
                   </span>
-                  <p style={{ fontSize: "12px", color: "var(--color-danger-text)", margin: 0, fontWeight: 500 }}>
-                    This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly.
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "var(--color-danger-text)",
+                      margin: 0,
+                      fontWeight: 500,
+                    }}
+                  >
+                    This period is more than 6 years overdue. We recommend consulting an accountant
+                    or contacting Companies House directly.
                   </p>
                 </div>
               )}
@@ -195,18 +259,31 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
                   }}
                 >
                   <div>
-                    <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>Accounts</p>
+                    <p
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: "var(--color-text-primary)",
+                        margin: 0,
+                      }}
+                    >
+                      Accounts
+                    </p>
                     <p
                       style={{
                         fontSize: "12px",
-                        color: period.accountsFiled ? "var(--color-text-secondary)"
-                          : period.accountsDeadline.getTime() < Date.now() ? "var(--color-danger)"
-                          : "var(--color-text-secondary)",
+                        color: period.accountsFiled
+                          ? "var(--color-text-secondary)"
+                          : period.accountsDeadline.getTime() < Date.now()
+                            ? "var(--color-danger)"
+                            : "var(--color-text-secondary)",
                         margin: 0,
                       }}
                     >
                       Deadline: {formatShortDate(period.accountsDeadline)}
-                      {!period.accountsFiled && period.accountsDeadline.getTime() < Date.now() && " (Overdue)"}
+                      {!period.accountsFiled &&
+                        period.accountsDeadline.getTime() < Date.now() &&
+                        " (Overdue)"}
                     </p>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -227,12 +304,23 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
                     ) : accountsFiling ? (
                       <>
                         <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
-                        {(accountsFiling.status === "failed" || accountsFiling.status === "rejected") && (
-                          <Link href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`} style={filingBtnStyle}>Retry</Link>
+                        {(accountsFiling.status === "failed" ||
+                          accountsFiling.status === "rejected") && (
+                          <Link
+                            href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
+                            style={filingBtnStyle}
+                          >
+                            Retry
+                          </Link>
                         )}
                       </>
                     ) : (
-                      <Link href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`} style={filingBtnStyle}>File</Link>
+                      <Link
+                        href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
+                        style={filingBtnStyle}
+                      >
+                        File
+                      </Link>
                     )}
                   </div>
                 </div>
@@ -250,44 +338,52 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
                     }}
                   >
                     <div>
-                      <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-text-primary)", margin: 0 }}>CT600</p>
                       <p
                         style={{
-                          fontSize: "12px",
-                          color: period.ct600Filed ? "var(--color-text-secondary)"
-                            : period.ct600Deadline.getTime() < Date.now() ? "var(--color-danger)"
-                            : "var(--color-text-secondary)",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          color: "var(--color-text-primary)",
                           margin: 0,
                         }}
                       >
-                        Deadline: {formatShortDate(period.ct600Deadline)}
-                        {!period.ct600Filed && period.ct600Deadline.getTime() < Date.now() && " (Overdue)"}
+                        CT600
+                      </p>
+                      <p
+                        style={{
+                          fontSize: "12px",
+                          color: "var(--color-text-secondary)",
+                          margin: 0,
+                        }}
+                      >
+                        Due: {formatShortDate(period.ct600Deadline)}
                       </p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      {period.isBlockedTerritory ? (
-                        <span
-                          style={{
-                            padding: "6px 14px",
-                            borderRadius: "6px",
-                            fontSize: "13px",
-                            fontWeight: 600,
-                            color: "var(--color-text-secondary)",
-                            backgroundColor: "var(--color-bg-inset)",
-                            border: "1px solid var(--color-border)",
-                          }}
-                        >
-                          Seek professional advice
-                        </span>
-                      ) : ct600Filing ? (
+                      {ct600Filing ? (
                         <>
                           <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
-                          {(ct600Filing.status === "failed" || ct600Filing.status === "rejected") && (
-                            <Link href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`} style={filingBtnStyle}>Retry</Link>
+                          {(ct600Filing.status === "failed" ||
+                            ct600Filing.status === "rejected") && (
+                            <Link
+                              href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`}
+                              style={filingBtnStyle}
+                            >
+                              Retry
+                            </Link>
                           )}
                         </>
+                      ) : period.isBlockedTerritory ? (
+                        <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} />
                       ) : (
-                        <Link href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`} style={filingBtnStyle}>File</Link>
+                        <>
+                          <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} />
+                          <Link
+                            href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`}
+                            style={filingBtnStyle}
+                          >
+                            File
+                          </Link>
+                        </>
                       )}
                     </div>
                   </div>
@@ -332,7 +428,14 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
                   <span style={{ color: "var(--color-success)", display: "flex" }}>
                     <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
                   </span>
-                  <p style={{ fontSize: "14px", fontWeight: 500, color: "var(--color-text-secondary)", margin: 0 }}>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      color: "var(--color-text-secondary)",
+                      margin: 0,
+                    }}
+                  >
                     {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
                   </p>
                 </div>
@@ -365,10 +468,24 @@ export default function FilingsTab({ companyId, registeredForCorpTax, periods, f
             boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
           }}
         >
-          <span style={{ color: "var(--color-success)", display: "flex", justifyContent: "center", marginBottom: "12px" }}>
+          <span
+            style={{
+              color: "var(--color-success)",
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "12px",
+            }}
+          >
             <CheckCircle2 size={32} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 4px 0" }}>
+          <p
+            style={{
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--color-text-primary)",
+              margin: "0 0 4px 0",
+            }}
+          >
             All caught up
           </p>
           <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>

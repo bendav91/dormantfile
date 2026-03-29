@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { companyId, gatewayUsername, gatewayPassword, agentGatewayId, agentGatewayPassword } = body;
+  const { companyId, gatewayUsername, gatewayPassword, agentGatewayId, agentGatewayPassword } =
+    body;
   const isAgentFiling = !!(agentGatewayId && agentGatewayPassword);
 
   if (!companyId) {
@@ -90,13 +91,13 @@ export async function POST(req: NextRequest) {
     if (user.subscriptionTier !== "agent" || !user.filingAsAgent) {
       return NextResponse.json(
         { error: "Agent filing requires an Agent plan with agent mode enabled" },
-        { status: 403 }
+        { status: 403 },
       );
     }
   } else if (!gatewayUsername || !gatewayPassword) {
     return NextResponse.json(
       { error: "gatewayUsername and gatewayPassword are required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -110,7 +111,10 @@ export async function POST(req: NextRequest) {
   }
 
   if (!company.registeredForCorpTax) {
-    return NextResponse.json({ error: "This company is not registered for Corporation Tax" }, { status: 400 });
+    return NextResponse.json(
+      { error: "This company is not registered for Corporation Tax" },
+      { status: 400 },
+    );
   }
 
   // Validate the requested period is a legitimate outstanding period
@@ -125,14 +129,19 @@ export async function POST(req: NextRequest) {
     companyFilings,
   );
   const targetPeriod = periods.find(
-    (p) => p.periodStart.getTime() === targetPeriodStart.getTime() && p.periodEnd.getTime() === targetPeriodEnd.getTime(),
+    (p) =>
+      p.periodStart.getTime() === targetPeriodStart.getTime() &&
+      p.periodEnd.getTime() === targetPeriodEnd.getTime(),
   );
   if (!targetPeriod) {
     return NextResponse.json({ error: "Invalid period for this company" }, { status: 400 });
   }
   if (targetPeriod.isBlockedTerritory) {
     return NextResponse.json(
-      { error: "This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly." },
+      {
+        error:
+          "This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly.",
+      },
       { status: 400 },
     );
   }
@@ -144,14 +153,17 @@ export async function POST(req: NextRequest) {
       const chBasicAuth = Buffer.from(`${chApiKey}:`).toString("base64");
       const statusRes = await fetch(
         `${process.env.COMPANY_INFORMATION_API_ENDPOINT}/company/${encodeURIComponent(company.companyRegistrationNumber)}`,
-        { headers: { Authorization: `Basic ${chBasicAuth}` } }
+        { headers: { Authorization: `Basic ${chBasicAuth}` } },
       );
       if (statusRes.ok) {
         const chData = await statusRes.json();
         if (chData.company_status === "dissolved" || chData.company_status === "converted-closed") {
           return NextResponse.json(
-            { error: "This company has been dissolved at Companies House and can no longer file returns." },
-            { status: 400 }
+            {
+              error:
+                "This company has been dissolved at Companies House and can no longer file returns.",
+            },
+            { status: 400 },
           );
         }
       }
@@ -190,8 +202,11 @@ export async function POST(req: NextRequest) {
 
   if (existingFiling) {
     return NextResponse.json(
-      { error: "A filing for this period has already been submitted. Check your dashboard for the current status." },
-      { status: 409 }
+      {
+        error:
+          "A filing for this period has already been submitted. Check your dashboard for the current status.",
+      },
+      { status: 409 },
     );
   }
 
@@ -219,7 +234,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Server configuration error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -261,7 +276,9 @@ export async function POST(req: NextRequest) {
       accountsIxbrl,
       computationsIxbrl,
       isTest,
-      agent: isAgentFiling ? { agentGatewayId: agentGatewayId!, agentGatewayPassword: agentGatewayPassword! } : undefined,
+      agent: isAgentFiling
+        ? { agentGatewayId: agentGatewayId!, agentGatewayPassword: agentGatewayPassword! }
+        : undefined,
     });
     // Extract IRmark from the built XML for permanent storage
     const irmarkMatch = govTalkXml.match(/<IRmark[^>]*>([^<]+)<\/IRmark>/);
@@ -273,7 +290,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to build submission" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -294,7 +311,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to submit to HMRC" },
-      { status: 502 }
+      { status: 502 },
     );
   }
 
@@ -342,7 +359,7 @@ export async function POST(req: NextRequest) {
         company.registeredForCorpTax,
         "ct600",
         user.email,
-        company.companyName
+        company.companyName,
       );
 
       return NextResponse.json({ status: "accepted", filingId: filing.id });

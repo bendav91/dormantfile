@@ -17,10 +17,7 @@ export function RelatedContent({ items, type }: RelatedContentProps) {
         borderTop: "1px solid var(--color-border)",
       }}
     >
-      <h3
-        className="text-lg font-semibold mb-3"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h3 className="text-lg font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>
         Related articles
       </h3>
       <ul

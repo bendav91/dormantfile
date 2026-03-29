@@ -5,12 +5,7 @@ interface ArticleJsonLdProps {
   url: string;
 }
 
-export function ArticleJsonLd({
-  headline,
-  datePublished,
-  dateModified,
-  url,
-}: ArticleJsonLdProps) {
+export function ArticleJsonLd({ headline, datePublished, dateModified, url }: ArticleJsonLdProps) {
   const data = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -22,10 +17,7 @@ export function ArticleJsonLd({
     publisher: { "@type": "Organization", name: "DormantFile" },
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -46,10 +38,7 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
     })),
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -72,10 +61,7 @@ export function FAQPageJsonLd({ items }: { items: FAQItem[] }) {
     })),
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -89,10 +75,7 @@ export function OrganizationJsonLd() {
       "Dormant company filing made simple. File your annual accounts and nil CT600 returns online.",
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }
 
@@ -123,9 +106,6 @@ export function HowToJsonLd({
     })),
   };
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   );
 }

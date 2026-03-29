@@ -27,7 +27,8 @@ export default async function OnboardingPage() {
   });
 
   const hasCompanies = activeCompanyCount > 0;
-  const hasSubscription = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
+  const hasSubscription =
+    user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
   const isFirstCompany = !hasCompanies && !hasSubscription;
 
   // If they already have companies but can't add more, send them back
@@ -37,22 +38,20 @@ export default async function OnboardingPage() {
 
   return (
     <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-      {(hasCompanies || hasSubscription) && (
-        <Link
-          href="/dashboard"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "4px",
-            fontSize: "14px",
-            color: "var(--color-text-secondary)",
-            textDecoration: "none",
-            marginBottom: "20px",
-          }}
-        >
-          &larr; Back to dashboard
-        </Link>
-      )}
+      <Link
+        href="/dashboard"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "4px",
+          fontSize: "14px",
+          color: "var(--color-text-secondary)",
+          textDecoration: "none",
+          marginBottom: "20px",
+        }}
+      >
+        &larr; Back to dashboard
+      </Link>
 
       <div style={{ marginBottom: "32px" }}>
         <h1
@@ -74,7 +73,8 @@ export default async function OnboardingPage() {
             lineHeight: "1.6",
           }}
         >
-          Enter your company details below. We use this information to prepare and file your annual accounts and Corporation Tax returns on time, every year.
+          Enter your company details below. We use this information to prepare and file your annual
+          accounts and Corporation Tax returns on time, every year.
         </p>
       </div>
 
@@ -90,11 +90,26 @@ export default async function OnboardingPage() {
           marginBottom: "28px",
         }}
       >
-        <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px", display: "flex" }}>
+        <span
+          style={{
+            color: "var(--color-primary)",
+            flexShrink: 0,
+            marginTop: "1px",
+            display: "flex",
+          }}
+        >
           <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
         </span>
-        <p style={{ fontSize: "14px", color: "var(--color-primary-text)", margin: 0, lineHeight: "1.5" }}>
-          Your data is protected with industry-standard encryption. We only use these details to file your accounts and tax returns.
+        <p
+          style={{
+            fontSize: "14px",
+            color: "var(--color-primary-text)",
+            margin: 0,
+            lineHeight: "1.5",
+          }}
+        >
+          Your data is protected with industry-standard encryption. We only use these details to
+          file your accounts and tax returns.
         </p>
       </div>
 

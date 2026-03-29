@@ -23,9 +23,7 @@ function escapeXml(str: string): string {
  *
  * Tagged with HMRC's Detailed Profit and Loss (DPL) taxonomy.
  */
-export function generateDormantTaxComputationsIxbrl(
-  data: IxbrlTaxComputationData
-): string {
+export function generateDormantTaxComputationsIxbrl(data: IxbrlTaxComputationData): string {
   const name = escapeXml(data.companyName);
   const crn = escapeXml(data.companyRegistrationNumber);
   const utr = escapeXml(data.uniqueTaxReference);

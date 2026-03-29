@@ -6,10 +6,10 @@ Deploy the DormantFile Next.js application to Vercel with automatic deployments 
 
 ## Environments
 
-| Environment | Branch | Purpose |
-|---|---|---|
-| Production | `main` | Live application |
-| Preview | `dev` | Testing/staging, plus PR preview deployments |
+| Environment | Branch | Purpose                                      |
+| ----------- | ------ | -------------------------------------------- |
+| Production  | `main` | Live application                             |
+| Preview     | `dev`  | Testing/staging, plus PR preview deployments |
 
 ## Vercel Project Setup
 
@@ -102,32 +102,33 @@ All variables scoped per environment in Vercel's dashboard.
 
 ### Production (live credentials)
 
-| Variable | Value |
-|---|---|
-| `NEXTAUTH_URL` | Vercel production URL (NextAuth auto-detects via `VERCEL_URL`, but set explicitly once custom domain is added) |
-| `NEXTAUTH_SECRET` | Unique production secret |
-| `STRIPE_SECRET_KEY` | Live key |
-| `STRIPE_PUBLISHABLE_KEY` | Live key |
-| `STRIPE_WEBHOOK_SECRET` | Live webhook secret |
-| `STRIPE_PRICE_ID_BASIC` | Live price ID |
-| `STRIPE_PRICE_ID_MULTI` | Live price ID |
-| `STRIPE_PRICE_ID_BULK` | Live price ID |
-| `RESEND_API_KEY` | Production key |
-| `HMRC_VENDOR_ID` | Production |
-| `HMRC_SENDER_ID` | Production |
-| `HMRC_SENDER_PASSWORD` | Production |
-| `HMRC_ENDPOINT` | Production endpoint |
-| `COMPANIES_HOUSE_API_KEY` | Production key |
-| `COMPANY_INFORMATION_API_ENDPOINT` | Production endpoint |
-| `COMPANIES_HOUSE_PRESENTER_ID` | Production |
-| `COMPANIES_HOUSE_PRESENTER_AUTH` | Production |
-| `COMPANIES_HOUSE_FILING_ENDPOINT` | Production endpoint |
-| `CRON_SECRET` | Unique production token |
-| `NEXT_PUBLIC_APP_URL` | Production URL |
+| Variable                           | Value                                                                                                          |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `NEXTAUTH_URL`                     | Vercel production URL (NextAuth auto-detects via `VERCEL_URL`, but set explicitly once custom domain is added) |
+| `NEXTAUTH_SECRET`                  | Unique production secret                                                                                       |
+| `STRIPE_SECRET_KEY`                | Live key                                                                                                       |
+| `STRIPE_PUBLISHABLE_KEY`           | Live key                                                                                                       |
+| `STRIPE_WEBHOOK_SECRET`            | Live webhook secret                                                                                            |
+| `STRIPE_PRICE_ID_BASIC`            | Live price ID                                                                                                  |
+| `STRIPE_PRICE_ID_MULTI`            | Live price ID                                                                                                  |
+| `STRIPE_PRICE_ID_BULK`             | Live price ID                                                                                                  |
+| `RESEND_API_KEY`                   | Production key                                                                                                 |
+| `HMRC_VENDOR_ID`                   | Production                                                                                                     |
+| `HMRC_SENDER_ID`                   | Production                                                                                                     |
+| `HMRC_SENDER_PASSWORD`             | Production                                                                                                     |
+| `HMRC_ENDPOINT`                    | Production endpoint                                                                                            |
+| `COMPANIES_HOUSE_API_KEY`          | Production key                                                                                                 |
+| `COMPANY_INFORMATION_API_ENDPOINT` | Production endpoint                                                                                            |
+| `COMPANIES_HOUSE_PRESENTER_ID`     | Production                                                                                                     |
+| `COMPANIES_HOUSE_PRESENTER_AUTH`   | Production                                                                                                     |
+| `COMPANIES_HOUSE_FILING_ENDPOINT`  | Production endpoint                                                                                            |
+| `CRON_SECRET`                      | Unique production token                                                                                        |
+| `NEXT_PUBLIC_APP_URL`              | Production URL                                                                                                 |
 
 ### Preview (test/sandbox credentials)
 
 Same variable names, scoped to Preview environment, using:
+
 - Stripe test mode keys and price IDs
 - HMRC sandbox endpoint and credentials
 - Companies House sandbox endpoint and credentials

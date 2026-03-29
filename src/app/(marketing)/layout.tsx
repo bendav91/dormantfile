@@ -8,15 +8,17 @@ const ibmPlexSans = IBM_Plex_Sans({
   display: "swap",
 });
 
-export default function MarketingLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={ibmPlexSans.className}
-      style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)", minHeight: "100vh", display: "flex", flexDirection: "column" }}
+      style={{
+        backgroundColor: "var(--color-bg-page)",
+        color: "var(--color-text-primary)",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
       <MarketingNav />
       <main

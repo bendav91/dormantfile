@@ -36,12 +36,8 @@ export function MarketingFooter() {
             </Link>
           ))}
         </div>
-        <p
-          className="text-center text-xs"
-          style={{ color: "var(--color-text-muted)" }}
-        >
-          &copy; {new Date().getFullYear()} DormantFile. Not an accountancy firm
-          &mdash; software tool only.
+        <p className="text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
+          &copy; 2026 DormantFile. Not an accountancy firm &mdash; software tool only.
         </p>
       </div>
     </footer>

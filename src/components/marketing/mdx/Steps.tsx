@@ -36,10 +36,24 @@ export function Steps({ children }: { children: React.ReactNode }) {
               {i + 1}
             </div>
             <div>
-              <h3 style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 4px 0" }}>
+              <h3
+                style={{
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  color: "var(--color-text-primary)",
+                  margin: "0 0 4px 0",
+                }}
+              >
                 {title}
               </h3>
-              <p style={{ fontSize: "15px", lineHeight: 1.7, color: "var(--color-text-body)", margin: 0 }}>
+              <p
+                style={{
+                  fontSize: "15px",
+                  lineHeight: 1.7,
+                  color: "var(--color-text-body)",
+                  margin: 0,
+                }}
+              >
                 {desc}
               </p>
             </div>

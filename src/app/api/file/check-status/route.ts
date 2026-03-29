@@ -68,17 +68,11 @@ export async function POST(req: NextRequest) {
   }
 
   if (filing.status !== "polling_timeout") {
-    return NextResponse.json(
-      { error: "Filing is not in polling_timeout status" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Filing is not in polling_timeout status" }, { status: 400 });
   }
 
   if (!filing.correlationId) {
-    return NextResponse.json(
-      { error: "No correlation ID found for this filing" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "No correlation ID found for this filing" }, { status: 400 });
   }
 
   // Dispatch to the correct polling function based on filing type
@@ -101,7 +95,10 @@ export async function POST(req: NextRequest) {
       const credentials = getPresenterCredentials();
       const endpoint = process.env.COMPANIES_HOUSE_FILING_ENDPOINT;
       if (!endpoint) {
-        return NextResponse.json({ error: "COMPANIES_HOUSE_FILING_ENDPOINT is not configured" }, { status: 500 });
+        return NextResponse.json(
+          { error: "COMPANIES_HOUSE_FILING_ENDPOINT is not configured" },
+          { status: 500 },
+        );
       }
       const result = await pollCompaniesHouse(filing.correlationId, endpoint, credentials);
       pollStatus = result.status;
@@ -111,7 +108,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to poll" },
-      { status: 502 }
+      { status: 502 },
     );
   }
 
@@ -131,7 +128,7 @@ export async function POST(req: NextRequest) {
       filing.company.registeredForCorpTax,
       filing.filingType as "accounts" | "ct600",
       filing.company.user.email,
-      filing.company.companyName
+      filing.company.companyName,
     );
 
     return NextResponse.json({ status: "accepted", filingId: filing.id });

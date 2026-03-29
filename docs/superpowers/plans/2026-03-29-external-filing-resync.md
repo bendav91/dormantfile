@@ -14,23 +14,24 @@
 
 ## File Structure
 
-| File | Responsibility |
-|------|---------------|
-| `src/lib/companies-house/filing-history.ts` | Add `fetchFilingHistoryStrict` (throwing variant) |
-| `src/lib/roll-forward.ts` | Add `options?: { skipEmail?: boolean }` parameter |
-| `src/lib/companies-house/resync.ts` | Core resync function |
-| `src/app/api/cron/resync-filings/route.ts` | Daily cron endpoint |
-| `src/app/api/company/resync/route.ts` | Manual refresh endpoint |
-| `src/components/sync-button.tsx` | Client component: button + toast |
-| `src/app/(app)/company/[companyId]/page.tsx` | Add SyncButton to header |
-| `vercel.json` | Add cron schedule |
-| `src/__tests__/lib/companies-house/resync.test.ts` | Unit tests |
+| File                                               | Responsibility                                    |
+| -------------------------------------------------- | ------------------------------------------------- |
+| `src/lib/companies-house/filing-history.ts`        | Add `fetchFilingHistoryStrict` (throwing variant) |
+| `src/lib/roll-forward.ts`                          | Add `options?: { skipEmail?: boolean }` parameter |
+| `src/lib/companies-house/resync.ts`                | Core resync function                              |
+| `src/app/api/cron/resync-filings/route.ts`         | Daily cron endpoint                               |
+| `src/app/api/company/resync/route.ts`              | Manual refresh endpoint                           |
+| `src/components/sync-button.tsx`                   | Client component: button + toast                  |
+| `src/app/(app)/company/[companyId]/page.tsx`       | Add SyncButton to header                          |
+| `vercel.json`                                      | Add cron schedule                                 |
+| `src/__tests__/lib/companies-house/resync.test.ts` | Unit tests                                        |
 
 ---
 
 ### Task 1: Add `fetchFilingHistoryStrict` to filing-history.ts
 
 **Files:**
+
 - Modify: `src/lib/companies-house/filing-history.ts`
 - Test: `src/__tests__/lib/companies-house/filing-history.test.ts`
 
@@ -120,9 +121,7 @@ Add to `src/lib/companies-house/filing-history.ts` after the existing `fetchFili
  * returning []. Used by resync where we need to distinguish
  * "no filings" from "API down".
  */
-export async function fetchFilingHistoryStrict(
-  companyNumber: string,
-): Promise<Date[]> {
+export async function fetchFilingHistoryStrict(companyNumber: string): Promise<Date[]> {
   const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
   const endpoint = process.env.COMPANY_INFORMATION_API_ENDPOINT;
   if (!apiKey || !endpoint) {
@@ -169,6 +168,7 @@ git commit -m "feat: add fetchFilingHistoryStrict throwing variant"
 ### Task 2: Add `skipEmail` option to `rollForwardPeriod`
 
 **Files:**
+
 - Modify: `src/lib/roll-forward.ts`
 
 - [ ] **Step 1: Add `options` parameter and guard the email block**
@@ -253,6 +253,7 @@ git commit -m "feat: add skipEmail option to rollForwardPeriod"
 ### Task 3: Implement core `resyncFromCompaniesHouse` function
 
 **Files:**
+
 - Create: `src/lib/companies-house/resync.ts`
 - Test: `src/__tests__/lib/companies-house/resync.test.ts`
 
@@ -327,9 +328,7 @@ beforeEach(() => {
   vi.mocked(prisma.company.findUnique).mockResolvedValue(mockCompany as never);
 
   // Default: CH profile responds
-  mockFetch.mockResolvedValue(
-    new Response(JSON.stringify(chProfileResponse), { status: 200 }),
-  );
+  mockFetch.mockResolvedValue(new Response(JSON.stringify(chProfileResponse), { status: 200 }));
 });
 
 describe("resyncFromCompaniesHouse", () => {
@@ -501,10 +500,9 @@ async function fetchCompanyProfile(
   }
 
   const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
-  const res = await fetch(
-    `${endpoint}/company/${encodeURIComponent(companyNumber)}`,
-    { headers: { Authorization: `Basic ${basicAuth}` } },
-  );
+  const res = await fetch(`${endpoint}/company/${encodeURIComponent(companyNumber)}`, {
+    headers: { Authorization: `Basic ${basicAuth}` },
+  });
 
   if (!res.ok) {
     throw new Error(`CH company profile API returned ${res.status}`);
@@ -534,9 +532,7 @@ async function fetchCompanyProfile(
   };
 }
 
-export async function resyncFromCompaniesHouse(
-  companyId: string,
-): Promise<ResyncResult> {
+export async function resyncFromCompaniesHouse(companyId: string): Promise<ResyncResult> {
   // Step 1: Load company with user
   const company = await prisma.company.findUnique({
     where: { id: companyId },
@@ -582,15 +578,9 @@ export async function resyncFromCompaniesHouse(
     where: { companyId, filingType: "accounts" },
     select: { periodEnd: true },
   });
-  const existingPeriodEnds = new Set(
-    existingFilings.map((f) => f.periodEnd.getTime()),
-  );
+  const existingPeriodEnds = new Set(existingFilings.map((f) => f.periodEnd.getTime()));
 
-  const firstPeriodEnd = computeFirstPeriodEnd(
-    new Date(dateOfCreation),
-    ardMonth,
-    ardDay,
-  );
+  const firstPeriodEnd = computeFirstPeriodEnd(new Date(dateOfCreation), ardMonth, ardDay);
 
   // Step 6: Build new filing records
   const newFilings: Array<{
@@ -674,6 +664,7 @@ git commit -m "feat: add resyncFromCompaniesHouse core function"
 ### Task 4: Create daily cron endpoint
 
 **Files:**
+
 - Create: `src/app/api/cron/resync-filings/route.ts`
 - Modify: `vercel.json`
 
@@ -764,6 +755,7 @@ git commit -m "feat: add daily resync-filings cron endpoint"
 ### Task 5: Create manual refresh endpoint
 
 **Files:**
+
 - Create: `src/app/api/company/resync/route.ts`
 
 - [ ] **Step 1: Create the endpoint**
@@ -787,10 +779,7 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
   });
-  if (
-    !user ||
-    (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling")
-  ) {
+  if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling")) {
     return NextResponse.json({ error: "Active subscription required" }, { status: 403 });
   }
 
@@ -841,6 +830,7 @@ git commit -m "feat: add manual resync endpoint POST /api/company/resync"
 ### Task 6: Build SyncButton client component with toast
 
 **Files:**
+
 - Create: `src/components/sync-button.tsx`
 
 - [ ] **Step 1: Create the component**
@@ -864,26 +854,27 @@ type ToastState =
   | { type: "error"; title: string; subtitle: string }
   | null;
 
-const toastStyles: Record<string, { bg: string; border: string; title: string; subtitle: string }> = {
-  success: {
-    bg: "var(--color-success-bg)",
-    border: "var(--color-success-border)",
-    title: "var(--color-success-deep, #166534)",
-    subtitle: "var(--color-success, #16a34a)",
-  },
-  info: {
-    bg: "var(--color-bg-secondary)",
-    border: "var(--color-border)",
-    title: "var(--color-text-primary)",
-    subtitle: "var(--color-text-secondary)",
-  },
-  error: {
-    bg: "var(--color-danger-bg)",
-    border: "var(--color-danger-border)",
-    title: "var(--color-danger-deep)",
-    subtitle: "var(--color-danger)",
-  },
-};
+const toastStyles: Record<string, { bg: string; border: string; title: string; subtitle: string }> =
+  {
+    success: {
+      bg: "var(--color-success-bg)",
+      border: "var(--color-success-border)",
+      title: "var(--color-success-deep, #166534)",
+      subtitle: "var(--color-success, #16a34a)",
+    },
+    info: {
+      bg: "var(--color-bg-secondary)",
+      border: "var(--color-border)",
+      title: "var(--color-text-primary)",
+      subtitle: "var(--color-text-secondary)",
+    },
+    error: {
+      bg: "var(--color-danger-bg)",
+      border: "var(--color-danger-border)",
+      title: "var(--color-danger-deep)",
+      subtitle: "var(--color-danger)",
+    },
+  };
 
 export default function SyncButton({ companyId }: SyncButtonProps) {
   const router = useRouter();
@@ -996,9 +987,7 @@ export default function SyncButton({ companyId }: SyncButtonProps) {
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: "13px", fontWeight: 600, color: style.title }}>
-            {toast.title}
-          </div>
+          <div style={{ fontSize: "13px", fontWeight: 600, color: style.title }}>{toast.title}</div>
           <div style={{ fontSize: "12px", color: style.subtitle, marginTop: "2px" }}>
             {toast.subtitle}
           </div>
@@ -1026,6 +1015,7 @@ git commit -m "feat: add SyncButton component with toast notifications"
 ### Task 7: Add SyncButton to company page header
 
 **Files:**
+
 - Modify: `src/app/(app)/company/[companyId]/page.tsx`
 
 - [ ] **Step 1: Add the SyncButton import and render it in the header**
@@ -1041,41 +1031,69 @@ import SyncButton from "@/components/sync-button";
 Then restructure the company header (lines 68-98). The current inner flex row has the icon div and name div as siblings. We need to wrap those in a group and add the SyncButton alongside. Replace lines 68-98:
 
 ```tsx
-      {/* Company header */}
-      <div style={{ marginBottom: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div
-              style={{
-                width: "42px",
-                height: "42px",
-                borderRadius: "10px",
-                backgroundColor: "var(--color-primary-bg)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <span style={{ color: "var(--color-primary)" }}>
-                <Building2 size={20} color="currentColor" strokeWidth={2} />
-              </span>
-            </div>
-            <div>
-              <h1 style={{ fontSize: "26px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
-                {company.companyName}
-              </h1>
-              <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0, marginTop: "2px" }}>
-                {company.companyRegistrationNumber}
-                {incompletePeriods.length > 0 && (
-                  <> &middot; {incompletePeriods.length} outstanding {incompletePeriods.length === 1 ? "period" : "periods"}</>
-                )}
-              </p>
-            </div>
-          </div>
-          <SyncButton companyId={companyId} />
-        </div>
+{
+  /* Company header */
+}
+<div style={{ marginBottom: "24px" }}>
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: "8px",
+    }}
+  >
+    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div
+        style={{
+          width: "42px",
+          height: "42px",
+          borderRadius: "10px",
+          backgroundColor: "var(--color-primary-bg)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <span style={{ color: "var(--color-primary)" }}>
+          <Building2 size={20} color="currentColor" strokeWidth={2} />
+        </span>
       </div>
+      <div>
+        <h1
+          style={{
+            fontSize: "26px",
+            fontWeight: 700,
+            color: "var(--color-text-primary)",
+            margin: 0,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {company.companyName}
+        </h1>
+        <p
+          style={{
+            fontSize: "14px",
+            color: "var(--color-text-secondary)",
+            margin: 0,
+            marginTop: "2px",
+          }}
+        >
+          {company.companyRegistrationNumber}
+          {incompletePeriods.length > 0 && (
+            <>
+              {" "}
+              &middot; {incompletePeriods.length} outstanding{" "}
+              {incompletePeriods.length === 1 ? "period" : "periods"}
+            </>
+          )}
+        </p>
+      </div>
+    </div>
+    <SyncButton companyId={companyId} />
+  </div>
+</div>;
 ```
 
 The outer flex row uses `justifyContent: "space-between"` to push the icon+name group left and SyncButton right. The icon and name stay grouped in their own inner flex container.

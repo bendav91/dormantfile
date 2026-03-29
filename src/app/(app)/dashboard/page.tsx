@@ -13,7 +13,7 @@ import {
   matchesFilter,
   computeFilterCounts,
 } from "@/lib/dashboard-filters";
-import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
+import { calculateAccountsDeadline } from "@/lib/utils";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
 import { getOutstandingPeriods } from "@/lib/periods";
@@ -63,17 +63,122 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   });
 
   if (allCompanyCount === 0) {
-    redirect("/onboarding");
+    return (
+      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+        <SubscriptionBanner status={user.subscriptionStatus} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            marginBottom: "32px",
+          }}
+        >
+          <div>
+            <h1
+              style={{
+                fontSize: "28px",
+                fontWeight: 700,
+                color: "var(--color-text-primary)",
+                margin: "0 0 6px 0",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Dashboard
+            </h1>
+          </div>
+        </div>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "64px 24px",
+            backgroundColor: "var(--color-bg-card)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "12px",
+          }}
+        >
+          <div
+            style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "12px",
+              backgroundColor: "var(--color-primary-bg)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "16px",
+            }}
+          >
+            <Building2 size={24} color="var(--color-primary)" strokeWidth={2} />
+          </div>
+          <h2
+            style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "var(--color-text-primary)",
+              margin: "0 0 8px 0",
+            }}
+          >
+            No companies yet
+          </h2>
+          <p
+            style={{
+              fontSize: "15px",
+              color: "var(--color-text-secondary)",
+              margin: "0 0 24px 0",
+              maxWidth: "400px",
+              marginLeft: "auto",
+              marginRight: "auto",
+              lineHeight: "1.5",
+            }}
+          >
+            Add your first company to get started with filing. You can explore the dashboard in the
+            meantime.
+          </p>
+          <Link
+            href="/onboarding"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              backgroundColor: "var(--color-primary)",
+              color: "var(--color-bg-card)",
+              padding: "10px 24px",
+              borderRadius: "8px",
+              fontWeight: 600,
+              fontSize: "14px",
+              textDecoration: "none",
+            }}
+          >
+            <Plus size={16} strokeWidth={2.5} />
+            Add your first company
+          </Link>
+        </div>
+      </div>
+    );
   }
 
-  const { page: pageParam, q: searchQuery, filter: filterParam, sort: sortParam } = await searchParams;
+  const {
+    page: pageParam,
+    q: searchQuery,
+    filter: filterParam,
+    sort: sortParam,
+  } = await searchParams;
   const search = searchQuery?.trim() || "";
   const validFilters: FilterType[] = ["needs-attention", "recently-filed", "issues"];
   const filter: FilterType = validFilters.includes(filterParam as FilterType)
     ? (filterParam as FilterType)
     : "";
-  const validSorts: SortType[] = ["most-overdue", "most-outstanding", "name-asc", "date-added-newest", "date-added-oldest"];
-  const sort: SortType = validSorts.includes(sortParam as SortType) ? (sortParam as SortType) : "most-overdue";
+  const validSorts: SortType[] = [
+    "most-overdue",
+    "most-outstanding",
+    "name-asc",
+    "date-added-newest",
+    "date-added-oldest",
+  ];
+  const sort: SortType = validSorts.includes(sortParam as SortType)
+    ? (sortParam as SortType)
+    : "most-overdue";
 
   const baseWhere = {
     userId: user.id,
@@ -100,15 +205,22 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
   // Pre-compute sort keys for each company
   const companiesWithSortData = allMatchingCompanies.map((c) => {
-    const periods = getOutstandingPeriods(c.accountingPeriodStart, c.accountingPeriodEnd, c.registeredForCorpTax, c.filings);
+    const periods = getOutstandingPeriods(
+      c.accountingPeriodStart,
+      c.accountingPeriodEnd,
+      c.registeredForCorpTax,
+      c.filings,
+    );
     const incompletePeriods = periods.filter((p) => !p.isComplete);
     const outstandingCount = incompletePeriods.length;
 
     // Earliest deadline across all outstanding periods (for "most overdue" sort)
     let earliestDeadline = Infinity;
     for (const p of incompletePeriods) {
-      if (!p.accountsFiled) earliestDeadline = Math.min(earliestDeadline, p.accountsDeadline.getTime());
-      if (c.registeredForCorpTax && !p.ct600Filed) earliestDeadline = Math.min(earliestDeadline, p.ct600Deadline.getTime());
+      if (!p.accountsFiled)
+        earliestDeadline = Math.min(earliestDeadline, p.accountsDeadline.getTime());
+      if (c.registeredForCorpTax && !p.ct600Filed)
+        earliestDeadline = Math.min(earliestDeadline, p.ct600Deadline.getTime());
     }
 
     return { company: c, periods, outstandingCount, earliestDeadline };
@@ -149,12 +261,14 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const totalCompanies = filteredCompanies.length;
   const totalPages = Math.max(1, Math.ceil(totalCompanies / PAGE_SIZE));
   const currentPage = Math.max(1, Math.min(totalPages, parseInt(pageParam ?? "1", 10) || 1));
-  const paginatedCompanies = filteredCompanies.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const paginatedCompanies = filteredCompanies.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
   const canFile = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
   const showAddCompany = canAddCompany(user.subscriptionTier, allCompanyCount);
   const companyLimit = getCompanyLimit(user.subscriptionTier);
-
 
   return (
     <div style={{ maxWidth: "960px", margin: "0 auto" }}>
@@ -173,18 +287,45 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             marginBottom: "24px",
           }}
         >
-          <span style={{ color: "var(--color-warning)", flexShrink: 0, marginTop: "1px", display: "flex" }}>
+          <span
+            style={{
+              color: "var(--color-warning)",
+              flexShrink: 0,
+              marginTop: "1px",
+              display: "flex",
+            }}
+          >
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p style={{ fontSize: "14px", color: "var(--color-warning-text)", margin: 0, fontWeight: 500 }}>
-            You have {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"} but your {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period. Remove companies or upgrade your plan from{" "}
-            <a href="/choose-plan" style={{ color: "var(--color-warning-link)", fontWeight: 600 }}>Change plan</a>.
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-warning-text)",
+              margin: 0,
+              fontWeight: 500,
+            }}
+          >
+            You have {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"} but your{" "}
+            {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up
+            to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period.
+            Remove companies or upgrade your plan from{" "}
+            <a href="/choose-plan" style={{ color: "var(--color-warning-link)", fontWeight: 600 }}>
+              Change plan
+            </a>
+            .
           </p>
         </div>
       )}
 
       {/* Page heading */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "32px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          marginBottom: "32px",
+        }}
+      >
         <div>
           <h1
             style={{
@@ -211,12 +352,26 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 borderRadius: "9999px",
                 fontSize: "12px",
                 fontWeight: 600,
-                backgroundColor: user.subscriptionTier === "none" ? "var(--color-danger-bg)" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "var(--color-primary-bg)" : "var(--color-bg-inset)",
-                color: user.subscriptionTier === "none" ? "var(--color-danger)" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "var(--color-primary)" : "var(--color-text-secondary)",
-                border: `1px solid ${user.subscriptionTier === "none" ? "var(--color-danger-border)" : (user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling") ? "var(--color-primary-border)" : "var(--color-border)"}`,
+                backgroundColor:
+                  user.subscriptionTier === "none"
+                    ? "var(--color-danger-bg)"
+                    : user.subscriptionStatus === "active" ||
+                        user.subscriptionStatus === "cancelling"
+                      ? "var(--color-primary-bg)"
+                      : "var(--color-bg-inset)",
+                color:
+                  user.subscriptionTier === "none"
+                    ? "var(--color-danger)"
+                    : user.subscriptionStatus === "active" ||
+                        user.subscriptionStatus === "cancelling"
+                      ? "var(--color-primary)"
+                      : "var(--color-text-secondary)",
+                border: `1px solid ${user.subscriptionTier === "none" ? "var(--color-danger-border)" : user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling" ? "var(--color-primary-border)" : "var(--color-border)"}`,
               }}
             >
-              {user.subscriptionTier === "none" ? "No plan" : `${TIER_LABELS[user.subscriptionTier]} plan`}
+              {user.subscriptionTier === "none"
+                ? "No plan"
+                : `${TIER_LABELS[user.subscriptionTier]} plan`}
             </span>
           </div>
         </div>
@@ -258,12 +413,36 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               overflowX: "auto",
             }}
           >
-            {([
-              { key: "" as FilterType, label: "All", mobileLabel: "All", count: filterCounts.all, urgent: false },
-              { key: "needs-attention" as FilterType, label: "Needs Attention", mobileLabel: "Attention", count: filterCounts.needsAttention, urgent: true },
-              { key: "recently-filed" as FilterType, label: "Recently Filed", mobileLabel: "Filed", count: filterCounts.recentlyFiled, urgent: false },
-              { key: "issues" as FilterType, label: "Issues", mobileLabel: "Issues", count: filterCounts.issues, urgent: true },
-            ]).map((f) => {
+            {[
+              {
+                key: "" as FilterType,
+                label: "All",
+                mobileLabel: "All",
+                count: filterCounts.all,
+                urgent: false,
+              },
+              {
+                key: "needs-attention" as FilterType,
+                label: "Needs Attention",
+                mobileLabel: "Attention",
+                count: filterCounts.needsAttention,
+                urgent: true,
+              },
+              {
+                key: "recently-filed" as FilterType,
+                label: "Recently Filed",
+                mobileLabel: "Filed",
+                count: filterCounts.recentlyFiled,
+                urgent: false,
+              },
+              {
+                key: "issues" as FilterType,
+                label: "Issues",
+                mobileLabel: "Issues",
+                count: filterCounts.issues,
+                urgent: true,
+              },
+            ].map((f) => {
               const isActive = filter === f.key;
               const params = new URLSearchParams();
               if (f.key) params.set("filter", f.key);
@@ -292,8 +471,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   }}
                 >
                   <span className="segmented-tab-label-full">{f.label}</span>
-                  <span className="segmented-tab-label-short">{f.mobileLabel}</span>
-                  {" "}
+                  <span className="segmented-tab-label-short">{f.mobileLabel}</span>{" "}
                   {showUrgentBadge ? (
                     <span
                       style={{
@@ -312,7 +490,9 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                       {f.count}
                     </span>
                   ) : (
-                    <span style={{ color: "var(--color-text-muted)", fontWeight: 500 }}>{f.count}</span>
+                    <span style={{ color: "var(--color-text-muted)", fontWeight: 500 }}>
+                      {f.count}
+                    </span>
                   )}
                 </Link>
               );
@@ -337,44 +517,50 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           }}
         >
           <p style={{ fontSize: "15px", margin: "0 0 4px 0", fontWeight: 500 }}>
-            {search ? <>No companies matching &ldquo;{search}&rdquo;</> : "No companies match this filter"}
+            {search ? (
+              <>No companies matching &ldquo;{search}&rdquo;</>
+            ) : (
+              "No companies match this filter"
+            )}
           </p>
           <p style={{ fontSize: "13px", margin: 0 }}>
-            {search ? "Try a different name or registration number." : "Try a different filter or check back later."}
+            {search
+              ? "Try a different name or registration number."
+              : "Try a different filter or check back later."}
           </p>
         </div>
       )}
 
       {/* Company cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))", gap: "16px" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))",
+          gap: "16px",
+        }}
+      >
         {paginatedCompanies.map(({ company, periods, outstandingCount }) => {
-
           // Show the current (oldest unfiled) period's deadlines
           const currentPeriod = periods.find((p) => !p.isComplete) ?? periods[0];
-          const accountsDeadline = currentPeriod?.accountsDeadline ?? calculateAccountsDeadline(company.accountingPeriodEnd);
-          const ct600Deadline = currentPeriod?.ct600Deadline ?? calculateCT600Deadline(company.accountingPeriodEnd);
+          const accountsDeadline =
+            currentPeriod?.accountsDeadline ??
+            calculateAccountsDeadline(company.accountingPeriodEnd);
 
           const accountsDaysLeft = Math.ceil(
-            (accountsDeadline.getTime() - now) / (1000 * 60 * 60 * 24)
-          );
-          const ct600DaysLeft = Math.ceil(
-            (ct600Deadline.getTime() - now) / (1000 * 60 * 60 * 24)
+            (accountsDeadline.getTime() - now) / (1000 * 60 * 60 * 24),
           );
 
           // Pre-compute deadline text
-          const accountsOverdueYears = accountsDaysLeft <= 0 ? Math.floor(-accountsDaysLeft / 365) : 0;
-          const accountsText = accountsDaysLeft <= 0
-            ? (accountsOverdueYears >= 2 ? `Accounts ${accountsOverdueYears} years overdue` : `Accounts overdue \u2014 due ${formatDate(accountsDeadline)}`)
-            : accountsDaysLeft <= 30
-              ? `Accounts due in ${accountsDaysLeft}\u00a0days \u2014 ${formatDate(accountsDeadline)}`
-              : `Accounts due ${formatDate(accountsDeadline)}`;
-
-          const ct600OverdueYears = ct600DaysLeft <= 0 ? Math.floor(-ct600DaysLeft / 365) : 0;
-          const ct600Text = ct600DaysLeft <= 0
-            ? (ct600OverdueYears >= 2 ? `CT600 ${ct600OverdueYears} years overdue` : `CT600 overdue \u2014 due ${formatDate(ct600Deadline)}`)
-            : ct600DaysLeft <= 30
-              ? `CT600 due in ${ct600DaysLeft}\u00a0days \u2014 ${formatDate(ct600Deadline)}`
-              : `CT600 due ${formatDate(ct600Deadline)}`;
+          const accountsOverdueYears =
+            accountsDaysLeft <= 0 ? Math.floor(-accountsDaysLeft / 365) : 0;
+          const accountsText =
+            accountsDaysLeft <= 0
+              ? accountsOverdueYears >= 2
+                ? `Accounts ${accountsOverdueYears} years overdue`
+                : `Accounts overdue \u2014 due ${formatDate(accountsDeadline)}`
+              : accountsDaysLeft <= 30
+                ? `Accounts due in ${accountsDaysLeft}\u00a0days \u2014 ${formatDate(accountsDeadline)}`
+                : `Accounts due ${formatDate(accountsDeadline)}`;
 
           return (
             <article key={company.id}>
@@ -395,28 +581,67 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 }}
               >
                 {/* Header — icon + name + CRN */}
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                  <div style={{
-                    width: "32px", height: "32px", borderRadius: "8px",
-                    backgroundColor: outstandingCount === 0 ? "var(--color-success-bg)" : "var(--color-primary-bg)",
-                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                  }}>
-                    <span style={{ color: outstandingCount === 0 ? "var(--color-success)" : "var(--color-primary)", display: "flex" }} aria-hidden="true">
-                      {outstandingCount === 0
-                        ? <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
-                        : <Building2 size={16} color="currentColor" strokeWidth={2} />
-                      }
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      backgroundColor:
+                        outstandingCount === 0
+                          ? "var(--color-success-bg)"
+                          : "var(--color-primary-bg)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <span
+                      style={{
+                        color:
+                          outstandingCount === 0 ? "var(--color-success)" : "var(--color-primary)",
+                        display: "flex",
+                      }}
+                      aria-hidden="true"
+                    >
+                      {outstandingCount === 0 ? (
+                        <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
+                      ) : (
+                        <Building2 size={16} color="currentColor" strokeWidth={2} />
+                      )}
                     </span>
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <h2 style={{
-                      fontSize: "14px", fontWeight: 700, color: "var(--color-text-primary)",
-                      margin: 0, letterSpacing: "-0.01em",
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                    }}>
+                    <h2
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: 700,
+                        color: "var(--color-text-primary)",
+                        margin: 0,
+                        letterSpacing: "-0.01em",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
                       {company.companyName}
                     </h2>
-                    <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: 0, marginTop: "1px" }}>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "var(--color-text-muted)",
+                        margin: 0,
+                        marginTop: "1px",
+                      }}
+                    >
                       {company.companyRegistrationNumber}
                     </p>
                   </div>
@@ -424,32 +649,49 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
                 {/* Deadline summary */}
                 {outstandingCount > 0 ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginBottom: "12px" }}>
-                    <p style={{
-                      fontSize: "12px", margin: 0, fontWeight: 600,
-                      color: accountsDaysLeft <= 0 ? "var(--color-danger)"
-                        : accountsDaysLeft <= 30 ? "var(--color-due-soon)"
-                        : "var(--color-text-secondary)",
-                    }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "4px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        margin: 0,
+                        fontWeight: 600,
+                        color:
+                          accountsDaysLeft <= 0
+                            ? "var(--color-danger)"
+                            : accountsDaysLeft <= 30
+                              ? "var(--color-due-soon)"
+                              : "var(--color-text-secondary)",
+                      }}
+                    >
                       {accountsText}
                     </p>
-                    {company.registeredForCorpTax && (
-                      <p style={{
-                        fontSize: "12px", margin: 0, fontWeight: 600,
-                        color: ct600DaysLeft <= 0 ? "var(--color-danger)"
-                          : ct600DaysLeft <= 30 ? "var(--color-due-soon)"
-                          : "var(--color-text-secondary)",
-                      }}>
-                        {ct600Text}
-                      </p>
-                    )}
                   </div>
                 ) : (
                   <div style={{ marginBottom: "12px" }}>
-                    <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-success)", margin: 0 }}>
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        color: "var(--color-success)",
+                        margin: 0,
+                      }}
+                    >
                       All caught up
                     </p>
-                    <p style={{ fontSize: "11px", color: "var(--color-text-secondary)", margin: "2px 0 0 0" }}>
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--color-text-secondary)",
+                        margin: "2px 0 0 0",
+                      }}
+                    >
                       Next period due {formatDate(accountsDeadline)}
                     </p>
                   </div>
@@ -457,16 +699,29 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
                 {/* Outstanding badge */}
                 {outstandingCount > 0 && (
-                  <div style={{
-                    display: "inline-flex", alignItems: "center", gap: "2px",
-                    padding: "2px 6px 2px 8px", borderRadius: "9999px",
-                    fontSize: "10px", fontWeight: 600, fontVariantNumeric: "tabular-nums",
-                    backgroundColor: outstandingCount >= 4 ? "var(--color-danger-bg)" : "var(--color-warning-bg)",
-                    color: outstandingCount >= 4 ? "var(--color-danger)" : "var(--color-warning-text)",
-                    border: `1px solid ${outstandingCount >= 4 ? "var(--color-danger-border)" : "var(--color-warning-border)"}`,
-                  }}>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "2px",
+                      padding: "2px 6px 2px 8px",
+                      borderRadius: "9999px",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      fontVariantNumeric: "tabular-nums",
+                      backgroundColor:
+                        outstandingCount >= 4
+                          ? "var(--color-danger-bg)"
+                          : "var(--color-warning-bg)",
+                      color:
+                        outstandingCount >= 4 ? "var(--color-danger)" : "var(--color-warning-text)",
+                      border: `1px solid ${outstandingCount >= 4 ? "var(--color-danger-border)" : "var(--color-warning-border)"}`,
+                    }}
+                  >
                     {outstandingCount} {outstandingCount === 1 ? "period" : "periods"}
-                    <span style={{ display: "flex" }} aria-hidden="true"><ChevronRight size={10} strokeWidth={2.5} /></span>
+                    <span style={{ display: "flex" }} aria-hidden="true">
+                      <ChevronRight size={10} strokeWidth={2.5} />
+                    </span>
                   </div>
                 )}
               </Link>

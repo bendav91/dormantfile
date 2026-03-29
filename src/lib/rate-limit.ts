@@ -3,7 +3,7 @@ const requests = new Map<string, number[]>();
 export function rateLimit(
   key: string,
   limit: number,
-  windowMs: number
+  windowMs: number,
 ): { success: boolean; remaining: number } {
   const now = Date.now();
   const timestamps = requests.get(key) ?? [];

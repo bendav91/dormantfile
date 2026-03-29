@@ -28,16 +28,20 @@ export default async function PrivacyPolicyPage() {
   const page = await getPageBySlug(SLUG);
   if (!page) notFound();
 
-  const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } = page.frontmatter;
+  const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } =
+    page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const align = centeredHeading ? "center" as const : undefined;
+  const align = centeredHeading ? ("center" as const) : undefined;
 
   return (
     <>
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: baseUrl },
-          ...breadcrumbs.map((b) => ({ name: b.label, ...(b.href ? { url: `${baseUrl}${b.href}` } : {}) })),
+          ...breadcrumbs.map((b) => ({
+            name: b.label,
+            ...(b.href ? { url: `${baseUrl}${b.href}` } : {}),
+          })),
         ]}
       />
       <Breadcrumbs items={breadcrumbs} />
@@ -56,11 +60,24 @@ export default async function PrivacyPolicyPage() {
         </h1>
         {showUpdatedAt && updatedAt && (
           <p style={{ fontSize: "14px", color: "var(--color-text-muted)", margin: "0 0 40px 0" }}>
-            Last updated: {new Date(updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+            Last updated:{" "}
+            {new Date(updatedAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
           </p>
         )}
         {subtitle && (
-          <p style={{ fontSize: "17px", lineHeight: 1.7, color: "var(--color-text-body)", marginBottom: "32px", textAlign: align }}>
+          <p
+            style={{
+              fontSize: "17px",
+              lineHeight: 1.7,
+              color: "var(--color-text-body)",
+              marginBottom: "32px",
+              textAlign: align,
+            }}
+          >
             {subtitle}
           </p>
         )}

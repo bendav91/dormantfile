@@ -10,8 +10,7 @@ export const metadata: Metadata = {
     "Plain-English answers to common dormant company questions: CT600, UTR numbers, authentication codes, deadlines, and more.",
   openGraph: {
     title: "Answers | DormantFile",
-    description:
-      "Plain-English answers to common dormant company filing questions.",
+    description: "Plain-English answers to common dormant company filing questions.",
     type: "website",
     siteName: "DormantFile",
   },
@@ -30,8 +29,8 @@ export default function AnswersIndexPage() {
         Quick Answers
       </h1>
       <p className="text-base mb-10" style={{ color: "var(--color-text-secondary)" }}>
-        Plain-English explanations of the terms and concepts you&apos;ll encounter
-        when filing for a dormant UK company.
+        Plain-English explanations of the terms and concepts you&apos;ll encounter when filing for a
+        dormant UK company.
       </p>
 
       <ul
@@ -65,10 +64,7 @@ export default function AnswersIndexPage() {
             >
               {item.frontmatter.title}
             </Link>
-            <p
-              className="text-sm mt-1"
-              style={{ color: "var(--color-text-secondary)", margin: 0 }}
-            >
+            <p className="text-sm mt-1" style={{ color: "var(--color-text-secondary)", margin: 0 }}>
               {item.frontmatter.description}
             </p>
           </li>

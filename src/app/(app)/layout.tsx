@@ -14,11 +14,7 @@ const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-sans",
 });
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -26,7 +22,13 @@ export default async function AppLayout({
   }
 
   return (
-    <div className={`${ibmPlexSans.variable} min-h-screen`} style={{ fontFamily: "var(--font-ibm-plex-sans), sans-serif", backgroundColor: "var(--color-bg-page)" }}>
+    <div
+      className={`${ibmPlexSans.variable} min-h-screen`}
+      style={{
+        fontFamily: "var(--font-ibm-plex-sans), sans-serif",
+        backgroundColor: "var(--color-bg-page)",
+      }}
+    >
       <nav
         style={{
           backgroundColor: "var(--color-bg-card)",

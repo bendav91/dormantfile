@@ -64,9 +64,7 @@ beforeEach(() => {
   vi.mocked(prisma.company.findUnique).mockResolvedValue(mockCompany as never);
 
   // Default: CH profile responds
-  mockFetch.mockResolvedValue(
-    new Response(JSON.stringify(chProfileResponse), { status: 200 }),
-  );
+  mockFetch.mockResolvedValue(new Response(JSON.stringify(chProfileResponse), { status: 200 }));
 });
 
 describe("resyncFromCompaniesHouse", () => {

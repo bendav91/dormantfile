@@ -15,6 +15,7 @@
 ### Task 1: Extract and test filter predicates
 
 **Files:**
+
 - Create: `src/lib/dashboard-filters.ts`
 - Create: `src/__tests__/lib/dashboard-filters.test.ts`
 
@@ -88,7 +89,9 @@ describe("matchesNeedsAttention", () => {
   it("returns false when ct600 is due soon but company not registered for corp tax", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-15"));
-    const periods = [period({ ct600Deadline: new Date("2026-03-31"), accountsDeadline: new Date("2027-01-01") })];
+    const periods = [
+      period({ ct600Deadline: new Date("2026-03-31"), accountsDeadline: new Date("2027-01-01") }),
+    ];
     expect(matchesNeedsAttention(periods, false)).toBe(false);
     vi.useRealTimers();
   });
@@ -101,7 +104,9 @@ describe("matchesNeedsAttention", () => {
   it("returns false when no deadlines are near", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2025-01-01"));
-    const periods = [period({ accountsDeadline: new Date("2026-01-01"), ct600Deadline: new Date("2026-03-31") })];
+    const periods = [
+      period({ accountsDeadline: new Date("2026-01-01"), ct600Deadline: new Date("2026-03-31") }),
+    ];
     expect(matchesNeedsAttention(periods, false)).toBe(false);
     vi.useRealTimers();
   });
@@ -215,7 +220,10 @@ export interface FilterCounts {
 
 export type FilterType = "needs-attention" | "recently-filed" | "issues" | "";
 
-export function matchesNeedsAttention(periods: PeriodInfo[], registeredForCorpTax: boolean): boolean {
+export function matchesNeedsAttention(
+  periods: PeriodInfo[],
+  registeredForCorpTax: boolean,
+): boolean {
   const now = Date.now();
   return periods.some((p) => {
     if (p.isComplete) return false;
@@ -291,6 +299,7 @@ git commit -m "feat: add dashboard filter predicates and counts"
 ### Task 2: Create the sort dropdown component
 
 **Files:**
+
 - Create: `src/components/sort-dropdown.tsx`
 
 A client component that renders a dropdown trigger + popover for sort options. Navigates via URL params on selection.
@@ -402,7 +411,8 @@ export default function SortDropdown({ currentSort }: { currentSort: SortType })
                 padding: "8px 12px",
                 fontSize: "12px",
                 fontWeight: currentSort === s.key ? 600 : 400,
-                color: currentSort === s.key ? "var(--color-text-primary)" : "var(--color-text-body)",
+                color:
+                  currentSort === s.key ? "var(--color-text-primary)" : "var(--color-text-body)",
                 background: currentSort === s.key ? "var(--color-bg-inset)" : "transparent",
                 border: "none",
                 borderRadius: "6px",
@@ -410,7 +420,8 @@ export default function SortDropdown({ currentSort }: { currentSort: SortType })
                 transition: "background-color 150ms",
               }}
               onMouseEnter={(e) => {
-                if (currentSort !== s.key) e.currentTarget.style.backgroundColor = "var(--color-bg-inset)";
+                if (currentSort !== s.key)
+                  e.currentTarget.style.backgroundColor = "var(--color-bg-inset)";
               }}
               onMouseLeave={(e) => {
                 if (currentSort !== s.key) e.currentTarget.style.backgroundColor = "transparent";
@@ -438,11 +449,13 @@ git commit -m "feat: add sort dropdown component"
 ### Task 3: Update globals.css — remove old classes, add segmented control
 
 **Files:**
+
 - Modify: `src/app/globals.css`
 
 - [ ] **Step 1: Remove old filter/sort pill classes and add segmented control styles**
 
 Remove these lines from `globals.css`:
+
 ```css
 /* Dashboard filter/sort active pill hover states */
 .filter-pill.active:hover {
@@ -454,6 +467,7 @@ Remove these lines from `globals.css`:
 ```
 
 Add these new classes:
+
 ```css
 /* Segmented filter control */
 .segmented-tab:hover {
@@ -483,6 +497,7 @@ git commit -m "refactor: replace filter/sort pill CSS with segmented control sty
 ### Task 4: Update CompanySearch margin
 
 **Files:**
+
 - Modify: `src/components/company-search.tsx`
 
 The search component moves below the segmented control and shares a row with the sort dropdown. Its wrapper margin needs to change.
@@ -490,10 +505,13 @@ The search component moves below the segmented control and shares a row with the
 - [ ] **Step 1: Change the wrapper margin**
 
 In `src/components/company-search.tsx`, change the wrapper div style from:
+
 ```tsx
 <div style={{ position: "relative", marginBottom: "24px" }}>
 ```
+
 to:
+
 ```tsx
 <div style={{ position: "relative", flex: 1 }}>
 ```
@@ -512,6 +530,7 @@ git commit -m "refactor: adjust CompanySearch for flex row layout"
 ### Task 5: Rewrite dashboard page toolbar
 
 **Files:**
+
 - Modify: `src/app/(app)/dashboard/page.tsx`
 
 This is the main change — replace the filter pills, sort pills, and filtering logic with the new segmented control, sort dropdown, and JS-predicate filtering.
@@ -547,8 +566,16 @@ const validFilters: FilterType[] = ["needs-attention", "recently-filed", "issues
 const filter: FilterType = validFilters.includes(filterParam as FilterType)
   ? (filterParam as FilterType)
   : "";
-const validSorts: SortType[] = ["most-overdue", "most-outstanding", "name-asc", "date-added-newest", "date-added-oldest"];
-const sort: SortType = validSorts.includes(sortParam as SortType) ? (sortParam as SortType) : "most-overdue";
+const validSorts: SortType[] = [
+  "most-overdue",
+  "most-outstanding",
+  "name-asc",
+  "date-added-newest",
+  "date-added-oldest",
+];
+const sort: SortType = validSorts.includes(sortParam as SortType)
+  ? (sortParam as SortType)
+  : "most-overdue";
 ```
 
 - [ ] **Step 4: Remove the old filterIds Prisma queries**
@@ -583,7 +610,10 @@ Then update the pagination to use `filteredCompanies` instead of `companiesWithS
 const totalCompanies = filteredCompanies.length;
 const totalPages = Math.max(1, Math.ceil(totalCompanies / PAGE_SIZE));
 const currentPage = Math.max(1, Math.min(totalPages, parseInt(pageParam ?? "1", 10) || 1));
-const paginatedCompanies = filteredCompanies.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+const paginatedCompanies = filteredCompanies.slice(
+  (currentPage - 1) * PAGE_SIZE,
+  currentPage * PAGE_SIZE,
+);
 ```
 
 - [ ] **Step 6: Replace the toolbar JSX**
@@ -591,86 +621,113 @@ const paginatedCompanies = filteredCompanies.slice((currentPage - 1) * PAGE_SIZE
 Replace the entire toolbar block — from the `{(allCompanyCount > 1 || search || filter) && (` comment (line 280) through its closing `</>` and `)}` — with the new segmented control + search row:
 
 ```tsx
-{/* Filters, search, and sort — show when there are 2+ companies, or when a search/filter is active */}
-{(allCompanyCount > 1 || search || filter) && (
-  <>
-    {/* Segmented filter control */}
-    <div
-      style={{
-        display: "inline-flex",
-        backgroundColor: "var(--color-bg-inset)",
-        borderRadius: "8px",
-        padding: "3px",
-        marginBottom: "10px",
-      }}
-    >
-      {([
-        { key: "" as FilterType, label: "All", mobileLabel: "All", count: filterCounts.all, urgent: false },
-        { key: "needs-attention" as FilterType, label: "Needs Attention", mobileLabel: "Attention", count: filterCounts.needsAttention, urgent: true },
-        { key: "recently-filed" as FilterType, label: "Recently Filed", mobileLabel: "Filed", count: filterCounts.recentlyFiled, urgent: false },
-        { key: "issues" as FilterType, label: "Issues", mobileLabel: "Issues", count: filterCounts.issues, urgent: true },
-      ]).map((f) => {
-        const isActive = filter === f.key;
-        const params = new URLSearchParams();
-        if (f.key) params.set("filter", f.key);
-        if (search) params.set("q", search);
-        if (sort !== "most-overdue") params.set("sort", sort);
-        const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
-        const showUrgentBadge = f.urgent && f.count > 0;
-        return (
-          <Link
-            key={f.key}
-            href={href}
-            role="tab"
-            aria-selected={isActive}
-            className="focus-ring segmented-tab"
-            style={{
-              padding: "6px 14px",
-              borderRadius: "6px",
-              fontSize: "12px",
-              fontWeight: isActive ? 600 : 500,
-              textDecoration: "none",
-              whiteSpace: "nowrap",
-              transition: "background-color 150ms, box-shadow 150ms",
-              backgroundColor: isActive ? "var(--color-bg-card)" : "transparent",
-              color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-              boxShadow: isActive ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
-            }}
-          >
-            <span className="segmented-tab-label-full">{f.label}</span>
-            {" "}
-            {showUrgentBadge ? (
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "var(--color-danger-bg)",
-                  color: "var(--color-danger)",
-                  padding: "1px 6px",
-                  borderRadius: "9999px",
-                  fontSize: "10px",
-                  fontWeight: 600,
-                  minWidth: "18px",
-                }}
-              >
-                {f.count}
-              </span>
-            ) : (
-              <span style={{ color: "var(--color-text-muted)", fontWeight: 500 }}>{f.count}</span>
-            )}
-          </Link>
-        );
-      })}
-    </div>
+{
+  /* Filters, search, and sort — show when there are 2+ companies, or when a search/filter is active */
+}
+{
+  (allCompanyCount > 1 || search || filter) && (
+    <>
+      {/* Segmented filter control */}
+      <div
+        style={{
+          display: "inline-flex",
+          backgroundColor: "var(--color-bg-inset)",
+          borderRadius: "8px",
+          padding: "3px",
+          marginBottom: "10px",
+        }}
+      >
+        {[
+          {
+            key: "" as FilterType,
+            label: "All",
+            mobileLabel: "All",
+            count: filterCounts.all,
+            urgent: false,
+          },
+          {
+            key: "needs-attention" as FilterType,
+            label: "Needs Attention",
+            mobileLabel: "Attention",
+            count: filterCounts.needsAttention,
+            urgent: true,
+          },
+          {
+            key: "recently-filed" as FilterType,
+            label: "Recently Filed",
+            mobileLabel: "Filed",
+            count: filterCounts.recentlyFiled,
+            urgent: false,
+          },
+          {
+            key: "issues" as FilterType,
+            label: "Issues",
+            mobileLabel: "Issues",
+            count: filterCounts.issues,
+            urgent: true,
+          },
+        ].map((f) => {
+          const isActive = filter === f.key;
+          const params = new URLSearchParams();
+          if (f.key) params.set("filter", f.key);
+          if (search) params.set("q", search);
+          if (sort !== "most-overdue") params.set("sort", sort);
+          const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
+          const showUrgentBadge = f.urgent && f.count > 0;
+          return (
+            <Link
+              key={f.key}
+              href={href}
+              role="tab"
+              aria-selected={isActive}
+              className="focus-ring segmented-tab"
+              style={{
+                padding: "6px 14px",
+                borderRadius: "6px",
+                fontSize: "12px",
+                fontWeight: isActive ? 600 : 500,
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+                transition: "background-color 150ms, box-shadow 150ms",
+                backgroundColor: isActive ? "var(--color-bg-card)" : "transparent",
+                color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+                boxShadow: isActive ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
+              }}
+            >
+              <span className="segmented-tab-label-full">{f.label}</span>{" "}
+              {showUrgentBadge ? (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "var(--color-danger-bg)",
+                    color: "var(--color-danger)",
+                    padding: "1px 6px",
+                    borderRadius: "9999px",
+                    fontSize: "10px",
+                    fontWeight: 600,
+                    minWidth: "18px",
+                  }}
+                >
+                  {f.count}
+                </span>
+              ) : (
+                <span style={{ color: "var(--color-text-muted)", fontWeight: 500 }}>{f.count}</span>
+              )}
+            </Link>
+          );
+        })}
+      </div>
 
-    {/* Search + sort row */}
-    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
-      <CompanySearch />
-      <SortDropdown currentSort={sort} />
-    </div>
-  </>
-)}
+      {/* Search + sort row */}
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+        <CompanySearch />
+        <SortDropdown currentSort={sort} />
+      </div>
+    </>
+  );
+}
 ```
 
 - [ ] **Step 7: Run the dev server and verify visually**
@@ -678,6 +735,7 @@ Replace the entire toolbar block — from the `{(allCompanyCount > 1 || search |
 Run: `npm run dev`
 
 Check the dashboard at `http://localhost:3000/dashboard`:
+
 - Segmented control shows 4 tabs with counts
 - Search + sort dropdown on the row below
 - Clicking filter tabs navigates and filters correctly
@@ -701,6 +759,7 @@ git commit -m "feat: replace dashboard toolbar with segmented control and sort d
 ### Task 6: Mobile responsive styles
 
 **Files:**
+
 - Modify: `src/app/globals.css`
 - Modify: `src/app/(app)/dashboard/page.tsx`
 - Modify: `src/components/company-search.tsx`
@@ -800,6 +859,7 @@ aria-label="Search by company name or number"
 - [ ] **Step 6: Verify on narrow viewport**
 
 Open Chrome DevTools, toggle device toolbar to 375px width. Verify:
+
 - Tab labels shorten ("Attention", "Filed")
 - Sort dropdown shows icon only (label hidden via `.sort-dropdown-label` class added in Task 3)
 - Add company button shows icon only
@@ -818,6 +878,7 @@ git commit -m "feat: add mobile responsive styles for dashboard toolbar"
 ### Task 7: Final cleanup and verification
 
 **Files:**
+
 - Modify: `src/app/(app)/dashboard/page.tsx` (cleanup only)
 
 - [ ] **Step 1: Remove any unused imports**

@@ -14,26 +14,27 @@ type ToastState =
   | { type: "error"; title: string; subtitle: string }
   | null;
 
-const toastStyles: Record<string, { bg: string; border: string; title: string; subtitle: string }> = {
-  success: {
-    bg: "var(--color-success-bg)",
-    border: "var(--color-success-border)",
-    title: "var(--color-success-deep, #166534)",
-    subtitle: "var(--color-success, #16a34a)",
-  },
-  info: {
-    bg: "var(--color-bg-secondary)",
-    border: "var(--color-border)",
-    title: "var(--color-text-primary)",
-    subtitle: "var(--color-text-secondary)",
-  },
-  error: {
-    bg: "var(--color-danger-bg)",
-    border: "var(--color-danger-border)",
-    title: "var(--color-danger-deep)",
-    subtitle: "var(--color-danger)",
-  },
-};
+const toastStyles: Record<string, { bg: string; border: string; title: string; subtitle: string }> =
+  {
+    success: {
+      bg: "var(--color-success-bg)",
+      border: "var(--color-success-border)",
+      title: "var(--color-success-deep, #166534)",
+      subtitle: "var(--color-success, #16a34a)",
+    },
+    info: {
+      bg: "var(--color-bg-secondary)",
+      border: "var(--color-border)",
+      title: "var(--color-text-primary)",
+      subtitle: "var(--color-text-secondary)",
+    },
+    error: {
+      bg: "var(--color-danger-bg)",
+      border: "var(--color-danger-border)",
+      title: "var(--color-danger-deep)",
+      subtitle: "var(--color-danger)",
+    },
+  };
 
 export default function SyncButton({ companyId }: SyncButtonProps) {
   const router = useRouter();
@@ -59,8 +60,8 @@ export default function SyncButton({ companyId }: SyncButtonProps) {
       if (!res.ok) {
         showToast({
           type: "error",
-          title: "Couldn\u2019t reach Companies House",
-          subtitle: "Try again later",
+          title: res.status === 429 ? "Too many requests" : "Couldn\u2019t reach Companies House",
+          subtitle: res.status === 429 ? "Try again in a few minutes" : "Try again later",
         });
         return;
       }
@@ -146,9 +147,7 @@ export default function SyncButton({ companyId }: SyncButtonProps) {
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           }}
         >
-          <div style={{ fontSize: "13px", fontWeight: 600, color: style.title }}>
-            {toast.title}
-          </div>
+          <div style={{ fontSize: "13px", fontWeight: 600, color: style.title }}>{toast.title}</div>
           <div style={{ fontSize: "12px", color: style.subtitle, marginTop: "2px" }}>
             {toast.subtitle}
           </div>
