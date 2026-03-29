@@ -5,6 +5,57 @@ import { prisma } from "@/lib/db";
 import { calculateAccountsDeadline, calculateCT600Deadline, calculateNextReminderDate } from "@/lib/utils";
 import { canAddCompany } from "@/lib/subscription";
 import { Prisma } from "@prisma/client";
+import { fetchFilingHistory, detectAccountsGaps, computeFirstPeriodEnd } from "@/lib/companies-house/filing-history";
+import type { GapDetectionResult } from "@/lib/companies-house/filing-history";
+
+async function seedFilingHistory(
+  companyId: string,
+  dateOfCreation: string | undefined,
+  gapResult: GapDetectionResult | null,
+  ardMonth: number | null,
+  ardDay: number | null,
+) {
+  if (!gapResult || gapResult.filedPeriodEnds.size === 0) return;
+
+  const incDate = dateOfCreation ? new Date(dateOfCreation) : null;
+
+  // Use computeFirstPeriodEnd to identify the first period
+  let firstPeriodEnd: Date | null = null;
+  if (incDate && ardMonth && ardDay) {
+    firstPeriodEnd = computeFirstPeriodEnd(incDate, ardMonth, ardDay);
+  }
+
+  // The Map values are the computed expected periodEnd dates (not raw CH dates).
+  // This ensures seeded filings match what getOutstandingPeriods() generates.
+  const sortedExpectedEnds = [...gapResult.filedPeriodEnds.values()]
+    .sort((a, b) => a.getTime() - b.getTime());
+
+  const filingData = sortedExpectedEnds.map((periodEnd) => {
+    let periodStart: Date;
+    // Check if this is the first period
+    if (firstPeriodEnd && incDate && periodEnd.getTime() === firstPeriodEnd.getTime()) {
+      periodStart = incDate;
+    } else {
+      // Standard: periodStart = periodEnd - 1 year + 1 day
+      periodStart = new Date(periodEnd);
+      periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
+      periodStart.setUTCDate(periodStart.getUTCDate() + 1);
+    }
+    return {
+      companyId,
+      filingType: "accounts" as const,
+      periodStart,
+      periodEnd,
+      status: "accepted" as const,
+      confirmedAt: new Date(),
+    };
+  });
+
+  await prisma.filing.createMany({
+    data: filingData,
+    skipDuplicates: true,
+  });
+}
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -54,6 +105,10 @@ export async function POST(req: NextRequest) {
   let companyName: string;
   let accountingPeriodEnd: string;
   let accountingPeriodStart: string;
+  let dateOfCreation: string | undefined;
+  let ardMonth: number | null = null;
+  let ardDay: number | null = null;
+  let gapResult: GapDetectionResult | null = null;
   try {
     const chRes = await fetch(
       `${process.env.COMPANY_INFORMATION_API_ENDPOINT}/company/${encodeURIComponent(paddedNumber)}`,
@@ -79,15 +134,47 @@ export async function POST(req: NextRequest) {
     }
 
     const nextAccounts = chData.accounts?.next_accounts;
-    if (!nextAccounts?.period_end_on) {
+    dateOfCreation = chData.date_of_creation;
+
+    // Fetch filing history for gap detection (graceful degradation on failure)
+    const filedPeriodEnds = await fetchFilingHistory(paddedNumber);
+
+    // Parse accounting reference date (month/day)
+    const ard = chData.accounts?.accounting_reference_date;
+    if (ard?.month && ard?.day) {
+      ardMonth = parseInt(ard.month, 10);
+      ardDay = parseInt(ard.day, 10);
+    } else if (nextAccounts?.period_end_on) {
+      // Fallback: derive ARD from next_accounts period end
+      const fallbackDate = new Date(nextAccounts.period_end_on);
+      ardMonth = fallbackDate.getUTCMonth() + 1;
+      ardDay = fallbackDate.getUTCDate();
+    }
+
+    // Attempt gap detection
+    if (dateOfCreation && ardMonth && ardDay && !isNaN(ardMonth) && !isNaN(ardDay)) {
+      gapResult = detectAccountsGaps(
+        dateOfCreation,
+        ardMonth,
+        ardDay,
+        filedPeriodEnds,
+      );
+    }
+
+    if (gapResult) {
+      // Gaps detected — use the true oldest unfiled period
+      accountingPeriodStart = gapResult.oldestUnfiledPeriodStart.toISOString().split("T")[0];
+      accountingPeriodEnd = gapResult.oldestUnfiledPeriodEnd.toISOString().split("T")[0];
+    } else if (nextAccounts?.period_end_on) {
+      // No gaps (or gap detection couldn't run) — use CH's next_accounts
+      accountingPeriodStart = nextAccounts.period_start_on;
+      accountingPeriodEnd = nextAccounts.period_end_on;
+    } else {
       return NextResponse.json(
         { error: "Companies House has no upcoming accounting period for this company. It may already be filed or the company may be dissolved." },
         { status: 400 }
       );
     }
-
-    accountingPeriodStart = nextAccounts.period_start_on;
-    accountingPeriodEnd = nextAccounts.period_end_on;
   } catch {
     return NextResponse.json({ error: "Failed to connect to Companies House" }, { status: 502 });
   }
@@ -158,6 +245,15 @@ export async function POST(req: NextRequest) {
       // Delete old reminders and restore the company with fresh data
       await prisma.reminder.deleteMany({ where: { companyId: softDeleted.id } });
 
+      // Delete only seeded filings (accepted, no correlationId) — preserve real submissions
+      await prisma.filing.deleteMany({
+        where: {
+          companyId: softDeleted.id,
+          status: "accepted",
+          correlationId: null,
+        },
+      });
+
       const company = await prisma.company.update({
         where: { id: softDeleted.id },
         data: {
@@ -173,6 +269,8 @@ export async function POST(req: NextRequest) {
           },
         },
       });
+
+      await seedFilingHistory(softDeleted.id, dateOfCreation, gapResult, ardMonth, ardDay);
 
       return NextResponse.json({ id: company.id }, { status: 201 });
     }
@@ -192,6 +290,8 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    await seedFilingHistory(company.id, dateOfCreation, gapResult, ardMonth, ardDay);
 
     return NextResponse.json({ id: company.id }, { status: 201 });
   } catch (error) {
