@@ -29,7 +29,7 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
     where: { id: companyId, userId: session.user.id, deletedAt: null },
   });
   if (!company) redirect("/dashboard");
-  if (!company.registeredForCorpTax) redirect(`/file/${companyId}`);
+  if (!company.registeredForCorpTax) redirect(`/company/${companyId}`);
 
   // Resolve target period from search param or fall back to company's current period
   let periodStart: Date;
@@ -37,7 +37,7 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
 
   if (periodEndParam) {
     periodEnd = new Date(periodEndParam);
-    if (isNaN(periodEnd.getTime())) redirect(`/file/${companyId}`);
+    if (isNaN(periodEnd.getTime())) redirect(`/company/${companyId}`);
     periodStart = new Date(periodEnd);
     periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
     periodStart.setUTCDate(periodStart.getUTCDate() + 1);
@@ -63,7 +63,7 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
         <span style={{ color: "var(--color-bg-disabled)" }}>
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>
-        <Link href={`/file/${companyId}`} style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}>{company.companyName}</Link>
+        <Link href={`/company/${companyId}`} style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}>{company.companyName}</Link>
         <span style={{ color: "var(--color-bg-disabled)" }}>
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>

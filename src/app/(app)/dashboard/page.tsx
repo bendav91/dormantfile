@@ -368,7 +368,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
           // For companies with multiple outstanding periods, link to the period selection page
           const hasMultiplePeriods = outstandingCount > 1;
-          const fileHref = `/file/${company.id}`;
+          const fileHref = `/company/${company.id}`;
 
           const filingBtnStyle: React.CSSProperties = {
             display: "inline-flex", alignItems: "center",

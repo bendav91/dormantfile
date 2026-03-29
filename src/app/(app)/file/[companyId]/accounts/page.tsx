@@ -36,7 +36,7 @@ export default async function AccountsFilingPage({ params, searchParams }: PageP
 
   if (periodEndParam) {
     periodEnd = new Date(periodEndParam);
-    if (isNaN(periodEnd.getTime())) redirect(`/file/${companyId}`);
+    if (isNaN(periodEnd.getTime())) redirect(`/company/${companyId}`);
     // Compute matching start: periodEnd - 1 year + 1 day
     periodStart = new Date(periodEnd);
     periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
@@ -63,7 +63,7 @@ export default async function AccountsFilingPage({ params, searchParams }: PageP
         <span style={{ color: "var(--color-bg-disabled)" }}>
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>
-        <Link href={`/file/${companyId}`} style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}>{company.companyName}</Link>
+        <Link href={`/company/${companyId}`} style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}>{company.companyName}</Link>
         <span style={{ color: "var(--color-bg-disabled)" }}>
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>
