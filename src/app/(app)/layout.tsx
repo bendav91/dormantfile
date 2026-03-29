@@ -21,6 +21,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
+  if (!session.user.emailVerified) {
+    redirect("/verify-email");
+  }
+
   return (
     <div
       className={`${ibmPlexSans.variable} min-h-screen`}

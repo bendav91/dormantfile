@@ -6,15 +6,17 @@ import { useRouter } from "next/navigation";
 interface ProfileFormProps {
   name: string;
   email: string;
+  pendingEmail: string | null;
 }
 
-export default function ProfileForm({ name: initialName, email: initialEmail }: ProfileFormProps) {
+export default function ProfileForm({ name: initialName, email: initialEmail, pendingEmail: initialPendingEmail }: ProfileFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(initialEmail);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState(initialPendingEmail);
 
   const hasChanges = name !== initialName || email !== initialEmail;
 
@@ -30,10 +32,16 @@ export default function ProfileForm({ name: initialName, email: initialEmail }: 
         body: JSON.stringify({ name, email }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         setError(data.error || "Failed to save changes.");
         return;
+      }
+
+      if (data.pendingEmail) {
+        setPendingEmail(data.pendingEmail);
+        setEmail(initialEmail);
       }
 
       setSaved(true);
@@ -92,6 +100,11 @@ export default function ProfileForm({ name: initialName, email: initialEmail }: 
           }}
           style={inputStyle}
         />
+        {pendingEmail && (
+          <p style={{ fontSize: "13px", color: "var(--color-primary)", margin: "4px 0 0 0" }}>
+            Verification email sent to {pendingEmail}. Check your inbox.
+          </p>
+        )}
       </div>
 
       {error && (

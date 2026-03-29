@@ -15,7 +15,10 @@ export default async function SettingsPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    include: { companies: { where: { deletedAt: null }, orderBy: { createdAt: "asc" } } },
+    include: {
+      companies: { where: { deletedAt: null }, orderBy: { createdAt: "asc" } },
+      pendingEmailChange: { select: { newEmail: true, expiresAt: true } },
+    },
   });
 
   if (!user) {
@@ -63,7 +66,11 @@ export default async function SettingsPage() {
           Profile
         </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <ProfileForm name={user.name} email={user.email} />
+          <ProfileForm
+        name={user.name}
+        email={user.email}
+        pendingEmail={user.pendingEmailChange && user.pendingEmailChange.expiresAt > new Date() ? user.pendingEmailChange.newEmail : null}
+      />
           <div>
             <p
               style={{
