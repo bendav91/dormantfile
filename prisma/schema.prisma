@@ -65,12 +65,21 @@ model Company {
   companyAuthCode           String?
   accountingPeriodStart     DateTime
   accountingPeriodEnd       DateTime
+  dateOfCreation            DateTime?
+  accountsDueOn             DateTime?
+  companyStatus             String?
+  companyType               String?
+  registeredAddress         String?
+  sicCodes                  String?
+  ardMonth                  Int?
+  ardDay                    Int?
   deletedAt                 DateTime?
   createdAt                 DateTime   @default(now())
   updatedAt                 DateTime   @updatedAt
   user                      User       @relation(fields: [userId], references: [id])
   filings                   Filing[]
   reminders                 Reminder[]
+  suppressedPeriods         SuppressedPeriod[]
 
   @@unique([userId, companyRegistrationNumber])
 }
@@ -137,4 +146,14 @@ model PendingEmailChange {
   usedAt    DateTime?
   createdAt DateTime  @default(now())
   user      User      @relation(fields: [userId], references: [id])
+}
+
+model SuppressedPeriod {
+  id        String   @id @default(cuid())
+  companyId String
+  periodEnd DateTime
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, periodEnd])
 }

@@ -127,6 +127,10 @@ export async function POST(req: NextRequest) {
     company.accountingPeriodEnd,
     company.registeredForCorpTax,
     companyFilings,
+    {
+      dateOfCreation: company.dateOfCreation,
+      accountsDueOn: company.accountsDueOn,
+    },
   );
   const targetPeriod = periods.find(
     (p) =>

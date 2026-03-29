@@ -6,6 +6,7 @@ vi.mock("@/lib/db", () => ({
   prisma: {
     company: {
       findUnique: vi.fn(),
+      update: vi.fn(),
     },
     filing: {
       findMany: vi.fn(),

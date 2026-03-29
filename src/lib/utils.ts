@@ -4,7 +4,11 @@ export function calculateCT600Deadline(accountingPeriodEnd: Date): Date {
   return deadline;
 }
 
-export function calculateAccountsDeadline(accountingPeriodEnd: Date): Date {
+export function calculateAccountsDeadline(
+  accountingPeriodEnd: Date,
+  incorporationDate?: Date,
+): Date {
+  // Standard rule: 9 months after the accounting period end
   const deadline = new Date(accountingPeriodEnd);
   const targetMonth = deadline.getUTCMonth() + 9;
   const originalDate = deadline.getUTCDate();
@@ -13,6 +17,17 @@ export function calculateAccountsDeadline(accountingPeriodEnd: Date): Date {
     Date.UTC(deadline.getUTCFullYear(), deadline.getUTCMonth() + 1, 0),
   ).getUTCDate();
   deadline.setUTCDate(Math.min(originalDate, maxDay));
+
+  // First accounts rule: deadline is the later of 9 months from period end
+  // OR 21 months from incorporation (Companies Act 2006, s.442(3))
+  if (incorporationDate) {
+    const twentyOneMonths = new Date(incorporationDate);
+    twentyOneMonths.setUTCMonth(twentyOneMonths.getUTCMonth() + 21);
+    if (twentyOneMonths.getTime() > deadline.getTime()) {
+      return twentyOneMonths;
+    }
+  }
+
   return deadline;
 }
 

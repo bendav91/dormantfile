@@ -28,7 +28,7 @@ export function matchesNeedsAttention(
 ): boolean {
   const now = Date.now();
   return periods.some((p) => {
-    if (p.isComplete) return false;
+    if (p.isComplete || p.isSuppressed) return false;
     if (p.isOverdue) return true;
     const accountsDueSoon =
       !p.accountsFiled &&

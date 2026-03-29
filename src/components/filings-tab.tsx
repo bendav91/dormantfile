@@ -5,8 +5,9 @@ import FilingStatusBadge from "@/components/filing-status-badge";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { type PeriodInfo } from "@/lib/periods";
 import { FilingStatus } from "@prisma/client";
-import { AlertTriangle, Calendar, CheckCircle2 } from "lucide-react";
+import { AlertTriangle, Calendar, CheckCircle2, EyeOff } from "lucide-react";
 import Link from "next/link";
+import SuppressButton from "@/components/suppress-button";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -42,9 +43,24 @@ export default function FilingsTab({
   filings,
   now,
 }: FilingsTabProps) {
-  const incompletePeriods = periods.filter((p) => !p.isComplete);
-  const completePeriods = periods.filter((p) => p.isComplete);
-  const hasDisclosurePeriods = periods.some((p) => p.isDisclosureTerritory);
+  const incompletedPeriods = periods.filter((p) => !p.isComplete && !p.isSuppressed);
+  const suppressedPeriods = periods.filter((p) => !p.isComplete && p.isSuppressed);
+  const hasDisclosurePeriods = incompletedPeriods.some((p) => p.isDisclosureTerritory);
+
+  // Build completed periods from Filing records (not from getOutstandingPeriods,
+  // which only generates periods from the oldest unfiled forward)
+  const completedPeriodMap = new Map<number, { periodStart: Date; periodEnd: Date }>();
+  for (const f of filings) {
+    if (f.filingType === "accounts" && f.status === "accepted") {
+      completedPeriodMap.set(f.periodEnd.getTime(), {
+        periodStart: f.periodStart,
+        periodEnd: f.periodEnd,
+      });
+    }
+  }
+  const completedPeriods = [...completedPeriodMap.values()].sort(
+    (a, b) => a.periodEnd.getTime() - b.periodEnd.getTime(),
+  );
 
   function getFilingForPeriod(period: PeriodInfo, filingType: "accounts" | "ct600") {
     return filings.find(
@@ -66,7 +82,7 @@ export default function FilingsTab({
     transition: "opacity 200ms",
   };
 
-  const [activeTab, setActiveTab] = useState<"outstanding" | "completed">("outstanding");
+  const [activeTab, setActiveTab] = useState<"outstanding" | "suppressed" | "completed">("outstanding");
 
   const segmentContainerStyle: React.CSSProperties = {
     display: "flex",
@@ -137,13 +153,21 @@ export default function FilingsTab({
           style={segmentButtonStyle(activeTab === "outstanding")}
           onClick={() => setActiveTab("outstanding")}
         >
-          Outstanding ({incompletePeriods.length})
+          Outstanding ({incompletedPeriods.length})
         </button>
+        {suppressedPeriods.length > 0 && (
+          <button
+            style={segmentButtonStyle(activeTab === "suppressed")}
+            onClick={() => setActiveTab("suppressed")}
+          >
+            Suppressed ({suppressedPeriods.length})
+          </button>
+        )}
         <button
           style={segmentButtonStyle(activeTab === "completed")}
           onClick={() => setActiveTab("completed")}
         >
-          Completed ({completePeriods.length})
+          Completed ({completedPeriods.length})
         </button>
       </div>
 
@@ -151,7 +175,7 @@ export default function FilingsTab({
       {activeTab === "outstanding" && (
       <>
       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        {incompletePeriods.map((period, index) => {
+        {incompletedPeriods.map((period, index) => {
           const accountsFiling = getFilingForPeriod(period, "accounts");
           const ct600Filing = getFilingForPeriod(period, "ct600");
           const periodEndISO = period.periodEnd.toISOString().split("T")[0];
@@ -177,7 +201,7 @@ export default function FilingsTab({
                   alignItems: "center",
                   gap: "8px",
                   marginBottom:
-                    period.hasEarlierGaps || (isFirst && incompletePeriods.length > 1)
+                    period.hasEarlierGaps || (isFirst && incompletedPeriods.length > 1)
                       ? "8px"
                       : "14px",
                 }}
@@ -213,7 +237,7 @@ export default function FilingsTab({
               </div>
 
               {/* Contextual hint */}
-              {isFirst && incompletePeriods.length > 1 && !period.hasEarlierGaps && (
+              {isFirst && incompletedPeriods.length > 1 && !period.hasEarlierGaps && (
                 <p
                   style={{
                     fontSize: "12px",
@@ -433,13 +457,24 @@ export default function FilingsTab({
                   </div>
                 )}
               </div>
+
+              {/* Suppress button */}
+              {period.isOverdue && (
+                <div style={{ marginTop: "10px", display: "flex", justifyContent: "flex-end" }}>
+                  <SuppressButton
+                    companyId={companyId}
+                    periodEnd={periodEndISO}
+                    isSuppressed={false}
+                  />
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
       {/* Outstanding empty state */}
-      {incompletePeriods.length === 0 && (
+      {incompletedPeriods.length === 0 && (
         <div
           style={{
             textAlign: "center",
@@ -477,14 +512,88 @@ export default function FilingsTab({
       </>
       )}
 
+      {/* Suppressed tab */}
+      {activeTab === "suppressed" && (
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {suppressedPeriods.map((period) => {
+              const periodEndISO = period.periodEnd.toISOString().split("T")[0];
+
+              return (
+                <div
+                  key={period.periodEnd.toISOString()}
+                  style={{
+                    backgroundColor: "var(--color-bg-card)",
+                    borderRadius: "12px",
+                    padding: "20px",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
+                    border: "1px solid var(--color-border)",
+                    opacity: 0.7,
+                  }}
+                >
+                  {/* Period header */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "8px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <span style={{ color: "var(--color-text-secondary)", display: "flex" }}>
+                        <EyeOff size={16} color="currentColor" strokeWidth={2} />
+                      </span>
+                      <h2
+                        style={{
+                          fontSize: "16px",
+                          fontWeight: 700,
+                          color: "var(--color-text-primary)",
+                          margin: 0,
+                        }}
+                      >
+                        {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
+                      </h2>
+                    </div>
+                    <SuppressButton
+                      companyId={companyId}
+                      periodEnd={periodEndISO}
+                      isSuppressed={true}
+                    />
+                  </div>
+
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "var(--color-text-secondary)",
+                      margin: 0,
+                    }}
+                  >
+                    Accounts deadline: {formatShortDate(period.accountsDeadline)}
+                    {" \u00b7 "}
+                    This period is suppressed and excluded from warnings and reminders.
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
       {/* Completed tab */}
       {activeTab === "completed" && (
         <>
-          {completePeriods.length > 0 ? (
+          {completedPeriods.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {[...completePeriods].reverse().map((period) => {
-                const accountsFiling = getFilingForPeriod(period, "accounts");
-                const ct600Filing = getFilingForPeriod(period, "ct600");
+              {[...completedPeriods].reverse().map((period) => {
+                const periodEndTime = period.periodEnd.getTime();
+                const accountsFiling = filings.find(
+                  (f) => f.filingType === "accounts" && f.periodEnd.getTime() === periodEndTime,
+                );
+                const ct600Filing = filings.find(
+                  (f) => f.filingType === "ct600" && f.periodEnd.getTime() === periodEndTime,
+                );
 
                 return (
                   <div

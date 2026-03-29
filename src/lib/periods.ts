@@ -17,6 +17,8 @@ export interface PeriodInfo {
   isBlockedTerritory: boolean;
   /** At least one filing deadline has passed */
   isOverdue: boolean;
+  /** Period has been suppressed by the user */
+  isSuppressed: boolean;
 }
 
 /**
@@ -37,6 +39,11 @@ export function getOutstandingPeriods(
     filingType: string;
     status: string;
   }>,
+  options?: {
+    dateOfCreation?: Date | null;
+    accountsDueOn?: Date | null;
+    suppressedPeriodEnds?: Set<number>;
+  },
 ): PeriodInfo[] {
   const now = new Date();
   const fourYearsAgo = new Date(now);
@@ -44,13 +51,45 @@ export function getOutstandingPeriods(
   const sixYearsAgo = new Date(now);
   sixYearsAgo.setUTCFullYear(sixYearsAgo.getUTCFullYear() - 6);
 
+  const dateOfCreation = options?.dateOfCreation ?? undefined;
+  const accountsDueOn = options?.accountsDueOn ?? undefined;
+  const suppressedPeriodEnds = options?.suppressedPeriodEnds ?? new Set<number>();
+
   const periods: PeriodInfo[] = [];
   let pStart = new Date(currentPeriodStart);
   let pEnd = new Date(currentPeriodEnd);
 
+  // Collect all period ends first so we can identify the last one
+  const allPeriodEnds: Date[] = [];
+  {
+    let tempEnd = new Date(currentPeriodEnd);
+    while (tempEnd.getTime() <= now.getTime()) {
+      allPeriodEnds.push(new Date(tempEnd));
+      tempEnd = new Date(tempEnd);
+      tempEnd.setUTCFullYear(tempEnd.getUTCFullYear() + 1);
+    }
+  }
+  const lastPeriodEnd = allPeriodEnds.length > 0 ? allPeriodEnds[allPeriodEnds.length - 1] : null;
+
   // Generate periods until the period end is in the future
   while (pEnd.getTime() <= now.getTime()) {
-    const accountsDeadline = calculateAccountsDeadline(pEnd);
+    const isFirstPeriod =
+      dateOfCreation &&
+      pStart.getTime() === dateOfCreation.getTime();
+
+    const isLastPeriod =
+      lastPeriodEnd && pEnd.getTime() === lastPeriodEnd.getTime();
+
+    // Priority: CH-provided deadline > first-accounts rule > standard 9-month
+    let accountsDeadline: Date;
+    if (isLastPeriod && accountsDueOn) {
+      accountsDeadline = accountsDueOn;
+    } else if (isFirstPeriod) {
+      accountsDeadline = calculateAccountsDeadline(pEnd, dateOfCreation);
+    } else {
+      accountsDeadline = calculateAccountsDeadline(pEnd);
+    }
+
     const ct600Deadline = calculateCT600Deadline(pEnd);
 
     const accountsFiled = filings.some(
@@ -71,7 +110,8 @@ export function getOutstandingPeriods(
     // track CT600 status for periods filed before the user enabled corp tax.
     const isComplete = accountsFiled;
 
-    const isOverdue = !isComplete && accountsDeadline.getTime() < now.getTime();
+    const isSuppressed = suppressedPeriodEnds.has(pEnd.getTime());
+    const isOverdue = !isComplete && !isSuppressed && accountsDeadline.getTime() < now.getTime();
 
     periods.push({
       periodStart: new Date(pStart),
@@ -85,6 +125,7 @@ export function getOutstandingPeriods(
       isDisclosureTerritory: pEnd.getTime() <= fourYearsAgo.getTime(),
       isBlockedTerritory: pEnd.getTime() <= sixYearsAgo.getTime(),
       isOverdue,
+      isSuppressed,
     });
 
     // Advance to next annual period

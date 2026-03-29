@@ -119,7 +119,11 @@ export async function rollForwardPeriod(
       await prisma.$transaction([
         prisma.company.update({
           where: { id: companyId },
-          data: { accountingPeriodStart: nextStart, accountingPeriodEnd: nextEnd },
+          data: {
+            accountingPeriodStart: nextStart,
+            accountingPeriodEnd: nextEnd,
+            accountsDueOn: null,
+          },
         }),
         prisma.reminder.deleteMany({ where: { companyId } }),
         ...reminders.map((r) => prisma.reminder.create({ data: r })),

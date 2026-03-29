@@ -15,9 +15,20 @@ export interface ResyncResult {
  * Fetch the CH company profile to get incorporation date and ARD.
  * Same API call the onboarding flow makes.
  */
+interface CompanyProfile {
+  dateOfCreation: string;
+  ardMonth: number;
+  ardDay: number;
+  accountsDueOn: string | null;
+  companyStatus: string | null;
+  companyType: string | null;
+  registeredAddress: string | null;
+  sicCodes: string | null;
+}
+
 async function fetchCompanyProfile(
   companyNumber: string,
-): Promise<{ dateOfCreation: string; ardMonth: number; ardDay: number }> {
+): Promise<CompanyProfile> {
   const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
   const endpoint = process.env.COMPANY_INFORMATION_API_ENDPOINT;
   if (!apiKey || !endpoint) {
@@ -50,10 +61,22 @@ async function fetchCompanyProfile(
     throw new Error("Cannot determine accounting reference date");
   }
 
+  const addr = data.registered_office_address;
+  const registeredAddress = addr
+    ? [addr.address_line_1, addr.address_line_2, addr.locality, addr.region, addr.postal_code]
+        .filter(Boolean)
+        .join(", ")
+    : null;
+
   return {
     dateOfCreation: data.date_of_creation,
     ardMonth,
     ardDay,
+    accountsDueOn: data.accounts?.next_accounts?.due_on ?? null,
+    companyStatus: data.company_status ?? null,
+    companyType: data.type ?? null,
+    registeredAddress,
+    sicCodes: Array.isArray(data.sic_codes) ? data.sic_codes.join(",") : null,
   };
 }
 
@@ -65,18 +88,30 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
   });
   if (!company) return { newFilingsCount: 0, error: "Company not found" };
 
-  // Step 2: Fetch CH profile for incorporation date and ARD
-  let dateOfCreation: string;
-  let ardMonth: number;
-  let ardDay: number;
+  // Step 2: Fetch CH profile for incorporation date, ARD, and next deadline
+  let profile: CompanyProfile;
   try {
-    const profile = await fetchCompanyProfile(company.companyRegistrationNumber);
-    dateOfCreation = profile.dateOfCreation;
-    ardMonth = profile.ardMonth;
-    ardDay = profile.ardDay;
+    profile = await fetchCompanyProfile(company.companyRegistrationNumber);
   } catch (err) {
     return { newFilingsCount: 0, error: (err as Error).message };
   }
+
+  const { dateOfCreation, ardMonth, ardDay, accountsDueOn } = profile;
+
+  // Update company with latest CH data
+  await prisma.company.update({
+    where: { id: companyId },
+    data: {
+      dateOfCreation: new Date(dateOfCreation),
+      accountsDueOn: accountsDueOn ? new Date(accountsDueOn) : null,
+      companyStatus: profile.companyStatus,
+      companyType: profile.companyType,
+      registeredAddress: profile.registeredAddress,
+      sicCodes: profile.sicCodes,
+      ardMonth,
+      ardDay,
+    },
+  });
 
   // Step 3: Fetch filing history (strict — throws on failure)
   let filedPeriodEnds: Date[];

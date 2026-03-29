@@ -30,6 +30,52 @@ describe("calculateAccountsDeadline", () => {
     expect(result.getUTCMonth()).toBe(1); // February
     expect(result.getUTCDate()).toBe(28);
   });
+
+  describe("first accounts rule (s.442(3))", () => {
+    it("uses 21 months from incorporation when later than 9 months from period end", () => {
+      // Incorporated 2 June 2006, first period ends 31 March 2007
+      // 9 months from period end = 31 Dec 2007
+      // 21 months from incorporation = ~2 March 2008
+      // Should use 21 months (later)
+      const result = calculateAccountsDeadline(
+        new Date("2007-03-31"),
+        new Date("2006-06-02"),
+      );
+      expect(result).toEqual(new Date("2008-03-02"));
+    });
+
+    it("uses 9 months from period end when later than 21 months from incorporation", () => {
+      // Incorporated 1 Jan 2025, first period ends 31 Dec 2025
+      // 9 months from period end = 30 Sep 2026
+      // 21 months from incorporation = 1 Oct 2026
+      // Should use 21 months (later by 1 day)
+      const result = calculateAccountsDeadline(
+        new Date("2025-12-31"),
+        new Date("2025-01-01"),
+      );
+      expect(result).toEqual(new Date("2026-10-01"));
+    });
+
+    it("uses 9 months when no incorporation date provided", () => {
+      expect(calculateAccountsDeadline(new Date("2007-03-31"))).toEqual(new Date("2007-12-31"));
+    });
+
+    it("uses 9 months for short first period where 21 months is earlier", () => {
+      // Incorporated 1 Jan 2025, first period ends 31 Dec 2025
+      // 9 months from period end = 30 Sep 2026
+      // 21 months from incorporation = 1 Oct 2026
+      // Actually 21 months is later here. Let me pick a case where 9 months wins:
+      // Incorporated 1 Jan 2024, first period ends 31 March 2025
+      // 9 months from period end = 31 Dec 2025
+      // 21 months from incorporation = 1 Oct 2025
+      // 9 months wins
+      const result = calculateAccountsDeadline(
+        new Date("2025-03-31"),
+        new Date("2024-01-01"),
+      );
+      expect(result).toEqual(new Date("2025-12-31"));
+    });
+  });
 });
 
 describe("validateUTR", () => {

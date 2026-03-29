@@ -116,6 +116,11 @@ export async function POST(req: NextRequest) {
   let accountingPeriodEnd: string;
   let accountingPeriodStart: string;
   let dateOfCreation: string | undefined;
+  let accountsDueOn: string | undefined;
+  let companyStatus: string | undefined;
+  let companyType: string | undefined;
+  let registeredAddress: string | undefined;
+  let sicCodes: string | undefined;
   let ardMonth: number | null = null;
   let ardDay: number | null = null;
   let gapResult: GapDetectionResult | null = null;
@@ -140,8 +145,29 @@ export async function POST(req: NextRequest) {
 
     const chData = await chRes.json();
     companyName = chData.company_name;
+    companyStatus = chData.company_status;
+    companyType = chData.type;
+    dateOfCreation = chData.date_of_creation;
 
-    const companyStatus: string | undefined = chData.company_status;
+    // Build formatted address
+    const addr = chData.registered_office_address;
+    if (addr) {
+      registeredAddress = [
+        addr.address_line_1,
+        addr.address_line_2,
+        addr.locality,
+        addr.region,
+        addr.postal_code,
+      ]
+        .filter(Boolean)
+        .join(", ");
+    }
+
+    // SIC codes as comma-separated string
+    if (Array.isArray(chData.sic_codes) && chData.sic_codes.length > 0) {
+      sicCodes = chData.sic_codes.join(",");
+    }
+
     if (companyStatus === "dissolved" || companyStatus === "converted-closed") {
       return NextResponse.json(
         {
@@ -153,7 +179,7 @@ export async function POST(req: NextRequest) {
     }
 
     const nextAccounts = chData.accounts?.next_accounts;
-    dateOfCreation = chData.date_of_creation;
+    accountsDueOn = nextAccounts?.due_on;
 
     // Fetch filing history for gap detection (graceful degradation on failure)
     const filedPeriodEnds = await fetchFilingHistory(paddedNumber);
@@ -284,6 +310,14 @@ export async function POST(req: NextRequest) {
             typeof shareCapital === "number" && shareCapital >= 0 ? Math.round(shareCapital) : 0,
           accountingPeriodStart: periodStart,
           accountingPeriodEnd: periodEnd,
+          dateOfCreation: dateOfCreation ? new Date(dateOfCreation) : null,
+          accountsDueOn: accountsDueOn ? new Date(accountsDueOn) : null,
+          companyStatus: companyStatus ?? null,
+          companyType: companyType ?? null,
+          registeredAddress: registeredAddress ?? null,
+          sicCodes: sicCodes ?? null,
+          ardMonth,
+          ardDay,
           deletedAt: null,
           reminders: {
             create: reminderData,
@@ -307,6 +341,14 @@ export async function POST(req: NextRequest) {
           typeof shareCapital === "number" && shareCapital >= 0 ? Math.round(shareCapital) : 0,
         accountingPeriodStart: periodStart,
         accountingPeriodEnd: periodEnd,
+        dateOfCreation: dateOfCreation ? new Date(dateOfCreation) : null,
+        accountsDueOn: accountsDueOn ? new Date(accountsDueOn) : null,
+        companyStatus: companyStatus ?? null,
+        companyType: companyType ?? null,
+        registeredAddress: registeredAddress ?? null,
+        sicCodes: sicCodes ?? null,
+        ardMonth,
+        ardDay,
         reminders: {
           create: reminderData,
         },

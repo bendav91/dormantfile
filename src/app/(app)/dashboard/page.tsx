@@ -200,18 +200,27 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       filings: {
         orderBy: { createdAt: "desc" },
       },
+      suppressedPeriods: true,
     },
   });
 
   // Pre-compute sort keys for each company
   const companiesWithSortData = allMatchingCompanies.map((c) => {
+    const suppressedPeriodEnds = new Set(
+      c.suppressedPeriods.map((sp) => sp.periodEnd.getTime()),
+    );
     const periods = getOutstandingPeriods(
       c.accountingPeriodStart,
       c.accountingPeriodEnd,
       c.registeredForCorpTax,
       c.filings,
+      {
+        dateOfCreation: c.dateOfCreation,
+        accountsDueOn: c.accountsDueOn,
+        suppressedPeriodEnds,
+      },
     );
-    const incompletePeriods = periods.filter((p) => !p.isComplete);
+    const incompletePeriods = periods.filter((p) => !p.isComplete && !p.isSuppressed);
     const outstandingCount = incompletePeriods.length;
 
     // Earliest deadline across all outstanding periods (for "most overdue" sort)
@@ -541,7 +550,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       >
         {paginatedCompanies.map(({ company, periods, outstandingCount }) => {
           // Show the current (oldest unfiled) period's deadlines
-          const currentPeriod = periods.find((p) => !p.isComplete) ?? periods[0];
+          const currentPeriod = periods.find((p) => !p.isComplete && !p.isSuppressed) ?? periods[0];
           const accountsDeadline =
             currentPeriod?.accountsDeadline ??
             calculateAccountsDeadline(company.accountingPeriodEnd);

@@ -27,15 +27,27 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
 
   const company = await prisma.company.findFirst({
     where: { id: companyId, userId: session.user.id, deletedAt: null },
-    include: { filings: { orderBy: { createdAt: "desc" } } },
+    include: {
+      filings: { orderBy: { createdAt: "desc" } },
+      suppressedPeriods: true,
+    },
   });
   if (!company) redirect("/dashboard");
+
+  const suppressedPeriodEnds = new Set(
+    company.suppressedPeriods.map((sp) => sp.periodEnd.getTime()),
+  );
 
   const periods = getOutstandingPeriods(
     company.accountingPeriodStart,
     company.accountingPeriodEnd,
     company.registeredForCorpTax,
     company.filings,
+    {
+      dateOfCreation: company.dateOfCreation,
+      accountsDueOn: company.accountsDueOn,
+      suppressedPeriodEnds,
+    },
   );
   const incompletePeriods = periods.filter((p) => !p.isComplete);
 
@@ -172,7 +184,29 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           now={Date.now()}
         />
       )}
-      {tab === "overview" && <OverviewTab companyNumber={company.companyRegistrationNumber} />}
+      {tab === "overview" && (
+        <OverviewTab
+          companyName={company.companyName}
+          companyNumber={company.companyRegistrationNumber}
+          companyStatus={company.companyStatus}
+          companyType={company.companyType}
+          dateOfCreation={company.dateOfCreation}
+          registeredAddress={company.registeredAddress}
+          sicCodes={company.sicCodes}
+          ardMonth={company.ardMonth}
+          ardDay={company.ardDay}
+          accountsDueOn={company.accountsDueOn}
+          lastAccountsMadeUpTo={
+            company.filings
+              .filter((f) => f.filingType === "accounts" && f.status === "accepted")
+              .sort((a, b) => b.periodEnd.getTime() - a.periodEnd.getTime())[0]?.periodEnd ?? null
+          }
+          accountsOverdue={
+            company.accountsDueOn ? company.accountsDueOn.getTime() < Date.now() : false
+          }
+          filings={company.filings}
+        />
+      )}
       {tab === "settings" && (
         <SettingsTab
           companyId={companyId}
