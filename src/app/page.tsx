@@ -225,13 +225,13 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold mb-6" style={{ color: "var(--color-text-primary)" }}>
             CATO closed. Now what?
           </h2>
-          <p className="text-lg leading-relaxed mb-4" style={{ color: "var(--color-text-body)" }}>
+          <p className="text-pretty text-lg leading-relaxed mb-4" style={{ color: "var(--color-text-body)" }}>
             On 31 March 2026, HMRC shut down its free Corporation Tax filing
             tool (CATO). Thousands of directors of dormant companies — side
             projects, holding structures, companies kept for future use — lost
             their only free way to file a CT600 return.
           </p>
-          <p className="text-lg leading-relaxed" style={{ color: "var(--color-text-body)" }}>
+          <p className="text-pretty text-lg leading-relaxed" style={{ color: "var(--color-text-body)" }}>
             DormantFile was built as the direct replacement. We handle both of
             the filings a dormant company needs: annual accounts to Companies
             House and nil CT600 returns to HMRC. One dashboard, under two
