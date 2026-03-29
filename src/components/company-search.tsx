@@ -39,7 +39,7 @@ export default function CompanySearch() {
   }
 
   return (
-    <div style={{ position: "relative", marginBottom: "24px" }}>
+    <div style={{ position: "relative", flex: 1 }}>
       <Search
         size={16}
         strokeWidth={2}
