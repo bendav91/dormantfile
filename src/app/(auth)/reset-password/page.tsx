@@ -3,6 +3,14 @@
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import {
+  BrandPanel,
+  BrandPanelMobile,
+  FormPanel,
+  AuthInput,
+  AuthButton,
+  AuthError,
+} from "@/components/auth";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -14,20 +22,24 @@ function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div>
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
+      <FormPanel>
+        <h1
+          className="text-2xl font-bold mb-2"
+          style={{ color: "var(--color-text-primary)" }}
+        >
           Invalid link
         </h1>
-        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
+        <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
           This password reset link is invalid. Please request a new one.
         </p>
         <Link
           href="/forgot-password"
-          className="block w-full text-center bg-blue-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors"
+          className="hoverable-btn focus-ring block w-full text-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
+          style={{ backgroundColor: "var(--color-primary)", color: "#fff" }}
         >
-          Request new link
+          Request a new link
         </Link>
-      </div>
+      </FormPanel>
     );
   }
 
@@ -61,79 +73,87 @@ function ResetPasswordForm() {
 
   if (success) {
     return (
-      <div>
-        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
+      <FormPanel>
+        <h1
+          className="text-2xl font-bold mb-2"
+          style={{ color: "var(--color-text-primary)" }}
+        >
           Password reset
         </h1>
-        <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
+        <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
           Your password has been reset successfully.
         </p>
         <Link
           href="/login"
-          className="block w-full text-center bg-blue-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors"
+          className="hoverable-btn focus-ring block w-full text-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
+          style={{ backgroundColor: "var(--color-primary)", color: "#fff" }}
         >
           Sign in
         </Link>
-      </div>
+      </FormPanel>
     );
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
-        Set new password
+    <FormPanel>
+      <h1
+        className="text-2xl font-bold mb-1"
+        style={{ color: "var(--color-text-primary)" }}
+      >
+        Set a new password
       </h1>
-      <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">
-        Enter your new password below.
+      <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
+        Choose a new password for your account
       </p>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1"
-          >
-            New password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="At least 8 characters"
-            minLength={8}
-            required
-            autoComplete="new-password"
-            className="w-full rounded-lg border border-gray-300 dark:border-slate-600 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus-visible:border-blue-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 dark:bg-slate-800"
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Must include at least one letter and one number.
-          </p>
-        </div>
-        {error && (
-          <p role="alert" className="text-red-600 dark:text-red-400 text-sm mb-4">
-            {error}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-lg px-4 py-2.5 text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-        >
-          {loading ? "Resetting\u2026" : "Reset password"}
-        </button>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <AuthInput
+          id="password"
+          label="New password"
+          type="password"
+          required
+          minLength={8}
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="At least 8 characters"
+          helperText="Must include at least one letter and one number"
+        />
+
+        <AuthError message={error} />
+
+        <AuthButton type="submit" loading={loading} loadingText="Resetting…">
+          Reset password
+        </AuthButton>
       </form>
-    </div>
+    </FormPanel>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="text-center text-gray-500 dark:text-gray-400">{"Loading\u2026"}</div>
-      }
-    >
-      <ResetPasswordForm />
-    </Suspense>
+    <>
+      <BrandPanel variant="returning" />
+      <div className="flex flex-col" style={{ backgroundColor: "var(--color-bg-card)" }}>
+        <BrandPanelMobile />
+        <Suspense
+          fallback={
+            <FormPanel>
+              <div className="flex items-center justify-center py-12">
+                <div
+                  className="w-6 h-6 border-2 rounded-full animate-spin"
+                  style={{
+                    borderColor: "var(--color-border)",
+                    borderTopColor: "var(--color-primary)",
+                  }}
+                />
+              </div>
+            </FormPanel>
+          }
+        >
+          <ResetPasswordForm />
+        </Suspense>
+      </div>
+    </>
   );
 }
