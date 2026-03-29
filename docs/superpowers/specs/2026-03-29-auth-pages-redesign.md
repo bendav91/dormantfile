@@ -114,7 +114,7 @@ No new tokens or colours introduced.
 
 | Component | Type | Props | Purpose |
 |-----------|------|-------|---------|
-| `AuthLayout.tsx` | Server | `children`, `variant: "register" \| "returning"` | Split-screen shell. Contains brand panel. Wraps form content. |
+| `AuthLayout.tsx` | Server | `children` | Split-screen grid shell. Wraps form content. Does not contain brand panel — pages render that directly. |
 | `BrandPanel.tsx` | Server | `variant: "register" \| "returning"` | Left panel: logo, headline, steps, trust signals. Handles mobile collapse. |
 | `AuthInput.tsx` | Server | `label`, `type`, `placeholder`, `helperText`, `...React.InputHTMLAttributes<HTMLInputElement>` | Labelled input with consistent styling. Pure presentational — no client hooks needed. Rendered inside client page components. |
 | `AuthButton.tsx` | Server | `children`, `loading`, `loadingText`, `disabled` | Primary submit button with loading/disabled state. `loadingText` displays during loading (e.g. "Signing in...", "Creating account..."). Pure presentational. |
