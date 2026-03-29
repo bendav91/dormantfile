@@ -71,7 +71,7 @@ export default async function GuidePage({ params }: Props) {
           {guide.frontmatter.title}
         </h1>
         <p className="text-sm mb-8" style={{ color: "var(--color-text-muted)" }}>
-          Updated{" "}
+          By DormantFile &middot; Updated{" "}
           {new Date(guide.frontmatter.updatedAt).toLocaleDateString("en-GB", {
             day: "numeric",
             month: "long",

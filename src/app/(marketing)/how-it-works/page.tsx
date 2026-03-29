@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getPageBySlug } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
+import { ProductPreview } from "@/components/marketing/ProductPreview";
 import { BreadcrumbJsonLd, HowToJsonLd } from "@/lib/content/json-ld";
 
 const SLUG = "how-it-works";
@@ -116,6 +117,23 @@ export default async function HowItWorksPage() {
         )}
         {page.content}
       </article>
+
+      <section style={{ marginTop: "3rem", marginBottom: "3rem" }}>
+        <h2
+          style={{
+            fontSize: "1.5rem",
+            fontWeight: 700,
+            color: "var(--color-text-primary)",
+            textAlign: "center",
+            marginBottom: "1.5rem",
+            letterSpacing: "-0.02em",
+          }}
+        >
+          See it in action
+        </h2>
+        <ProductPreview />
+      </section>
+
       {showCTA && <ContentCTA />}
     </>
   );

@@ -7,6 +7,7 @@ import { Callout } from "@/components/marketing/mdx/Callout";
 import { EmailLink } from "@/components/marketing/mdx/EmailLink";
 import { ContactForm } from "@/components/marketing/ContactForm";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
+import { ProductPreview } from "@/components/marketing/ProductPreview";
 
 export const mdxComponents = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -150,4 +151,5 @@ export const mdxComponents = {
   EmailLink,
   ContactForm,
   ContentCTA,
+  ProductPreview,
 };

@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
 import Link from "next/link";
-import { Shield, Clock, FileCheck, CheckCircle, ArrowRight } from "lucide-react";
+import { Shield, Clock, FileCheck, CheckCircle, ArrowRight, KeyRound, RotateCcw } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { FAQPageJsonLd } from "@/lib/content/json-ld";
-import { LaunchBanner } from "@/components/launch-banner";
-import { isPreviewMode } from "@/lib/launch-mode";
+import { isFilingLive } from "@/lib/launch-mode";
+import { MicroTrust } from "@/components/marketing/MicroTrust";
+import { TrustSection } from "@/components/marketing/TrustSection";
+import { TrustBadges } from "@/components/marketing/TrustBadges";
+import { FilingCounter } from "@/components/marketing/FilingCounter";
+import { Testimonials } from "@/components/marketing/Testimonials";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -61,9 +65,6 @@ export default function LandingPage() {
       className={ibmPlexSans.className}
       style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)" }}
     >
-      {/* Launch Banner */}
-      <LaunchBanner variant="marketing" />
-
       {/* Navigation */}
       <MarketingNav />
 
@@ -94,11 +95,20 @@ export default function LandingPage() {
               borderRadius: "8px",
             }}
           >
-            {isPreviewMode ? "Get started" : "Start filing"} <ArrowRight size={18} />
+            {isFilingLive() ? "Start filing" : "Set up your account"} <ArrowRight size={18} />
           </Link>
           <p className="mt-5 text-sm" style={{ color: "var(--color-text-secondary)" }}>
             For genuinely dormant companies only — no trading activity, no assets, no income.
           </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2">
+            <MicroTrust icon={Shield} text="Files via official government APIs" />
+            <MicroTrust icon={KeyRound} text="Credentials used once, never stored" />
+          </div>
+          {!isFilingLive() && (
+            <p className="mt-4 text-xs" style={{ color: "var(--color-text-muted)" }}>
+              Filing opens soon — set up now so you&apos;re ready on day one.
+            </p>
+          )}
         </div>
       </section>
 
@@ -399,6 +409,9 @@ export default function LandingPage() {
                 >
                   Get started
                 </Link>
+                <div className="mt-3 text-center">
+                  <MicroTrust icon={RotateCcw} text="14-day refund guarantee" />
+                </div>
               </div>
             ))}
           </div>
@@ -408,6 +421,16 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
+
+      {/* Trust Section */}
+      <TrustSection />
+      <div className="max-w-[960px] mx-auto px-6">
+        <FilingCounter />
+        <TrustBadges />
+      </div>
+
+      {/* Testimonials (hidden until populated) */}
+      <Testimonials />
 
       {/* FAQ */}
       <FAQPageJsonLd items={faqItems} />
@@ -469,8 +492,11 @@ export default function LandingPage() {
               borderRadius: "8px",
             }}
           >
-            {isPreviewMode ? "Get started today" : "Start filing today"} <ArrowRight size={18} />
+            {isFilingLive() ? "Start filing today" : "Get ready to file"} <ArrowRight size={18} />
           </Link>
+          <p className="mt-5 text-xs" style={{ color: "var(--color-text-muted)" }}>
+            Official APIs &middot; Credentials never stored &middot; Cancel anytime
+          </p>
         </div>
       </section>
 

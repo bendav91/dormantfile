@@ -1,7 +1,6 @@
 import { IBM_Plex_Sans } from "next/font/google";
 import { MarketingNav } from "@/components/marketing/MarketingNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { LaunchBanner } from "@/components/launch-banner";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -21,7 +20,6 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         flexDirection: "column",
       }}
     >
-      <LaunchBanner variant="marketing" />
       <MarketingNav />
       <main
         id="main-content"

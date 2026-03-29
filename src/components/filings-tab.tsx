@@ -8,7 +8,7 @@ import { FilingStatus } from "@prisma/client";
 import { AlertTriangle, Calendar, CheckCircle2, EyeOff } from "lucide-react";
 import Link from "next/link";
 import SuppressButton from "@/components/suppress-button";
-import { isPreviewMode } from "@/lib/launch-mode";
+import { isFilingLive } from "@/lib/launch-mode";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -382,7 +382,7 @@ export default function FilingsTab({
                               status={accountsFiling.status}
                               filingType="accounts"
                             />
-                            {!isPreviewMode &&
+                            {isFilingLive() &&
                               (accountsFiling.status === "failed" ||
                                 accountsFiling.status === "rejected") && (
                                 <Link
@@ -393,7 +393,7 @@ export default function FilingsTab({
                                 </Link>
                               )}
                           </>
-                        ) : !isPreviewMode ? (
+                        ) : isFilingLive() ? (
                           <Link
                             href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
                             style={filingBtnStyle}
@@ -441,7 +441,7 @@ export default function FilingsTab({
                           {ct600Filing && ct600Filing.status !== "outstanding" ? (
                             <>
                               <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
-                              {!isPreviewMode &&
+                              {isFilingLive() &&
                                 (ct600Filing.status === "failed" ||
                                   ct600Filing.status === "rejected") && (
                                   <Link
@@ -457,7 +457,7 @@ export default function FilingsTab({
                           ) : (
                             <>
                               <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} />
-                              {!isPreviewMode && (
+                              {isFilingLive() && (
                                 <Link
                                   href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`}
                                   style={filingBtnStyle}

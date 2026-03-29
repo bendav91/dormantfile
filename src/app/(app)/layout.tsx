@@ -7,7 +7,6 @@ import Link from "next/link";
 import SignOutButton from "@/components/sign-out-button";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { LaunchBanner } from "@/components/launch-banner";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -34,7 +33,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         backgroundColor: "var(--color-bg-page)",
       }}
     >
-      <LaunchBanner variant="app" />
       <nav
         style={{
           backgroundColor: "var(--color-bg-card)",

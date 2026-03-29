@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email/client";
 import { buildReminderEmail, type ReminderSection } from "@/lib/email/templates";
-import { isPreviewMode } from "@/lib/launch-mode";
+import { isFilingLive } from "@/lib/launch-mode";
 
 // Upcoming: remind at these days-before-deadline thresholds.
 // Overdue: remind at these days-after-deadline thresholds.
@@ -68,8 +68,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (isPreviewMode) {
-    return NextResponse.json({ sent: 0, skipped: "preview mode" });
+  if (!isFilingLive()) {
+    return NextResponse.json({ sent: 0, skipped: "filing not live" });
   }
 
   const now = new Date();

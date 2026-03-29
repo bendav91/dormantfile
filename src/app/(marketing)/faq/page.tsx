@@ -29,7 +29,7 @@ export default async function FAQPage() {
   const page = await getPageBySlug(SLUG);
   if (!page) notFound();
 
-  const { title, showCTA, breadcrumbs, faqCategories = [] } = page.frontmatter;
+  const { title, showCTA, breadcrumbs, updatedAt, faqCategories = [] } = page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
 
   // Flatten categories into a flat array for JSON-LD structured data
@@ -62,6 +62,16 @@ export default async function FAQPage() {
         >
           {title}
         </h1>
+        {updatedAt && (
+          <p className="text-sm mb-8" style={{ color: "var(--color-text-muted)" }}>
+            Last reviewed{" "}
+            {new Date(updatedAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        )}
         {page.content}
         <FAQAccordion categories={faqCategories} />
       </article>

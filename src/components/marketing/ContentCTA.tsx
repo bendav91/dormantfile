@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Shield } from "lucide-react";
+import { MicroTrust } from "@/components/marketing/MicroTrust";
 
 export function ContentCTA() {
   return (
@@ -32,6 +34,9 @@ export function ContentCTA() {
       >
         Get started &rarr;
       </Link>
+      <div className="mt-3">
+        <MicroTrust icon={Shield} text="Official government APIs · Credentials never stored" />
+      </div>
     </div>
   );
 }

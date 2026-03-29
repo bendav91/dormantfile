@@ -69,7 +69,7 @@ export default async function AnswerPage({ params }: Props) {
           {answer.frontmatter.title}
         </h1>
         <p className="text-sm mb-8" style={{ color: "var(--color-text-muted)" }}>
-          Updated{" "}
+          By DormantFile &middot; Updated{" "}
           {new Date(answer.frontmatter.updatedAt).toLocaleDateString("en-GB", {
             day: "numeric",
             month: "long",
