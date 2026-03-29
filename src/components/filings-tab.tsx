@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import FilingStatusBadge from "@/components/filing-status-badge";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { type PeriodInfo } from "@/lib/periods";
@@ -20,6 +23,8 @@ interface Filing {
   periodEnd: Date;
   status: FilingStatus;
   createdAt: Date;
+  confirmedAt: Date | null;
+  submittedAt: Date | null;
 }
 
 interface FilingsTabProps {
