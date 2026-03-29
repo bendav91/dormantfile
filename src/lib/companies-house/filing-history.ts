@@ -7,6 +7,45 @@ export interface GapDetectionResult {
 
 const TOLERANCE_MS = 31 * 24 * 60 * 60 * 1000; // 31 days
 
+/**
+ * Fetches the list of dates that annual accounts were filed for from
+ * the Companies House filing history API.
+ *
+ * Returns an array of `made_up_date` values for accounts filings.
+ * Returns an empty array on API failure (graceful degradation).
+ */
+export async function fetchFilingHistory(
+  companyNumber: string,
+): Promise<Date[]> {
+  const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
+  const endpoint = process.env.COMPANY_INFORMATION_API_ENDPOINT;
+  if (!apiKey || !endpoint) return [];
+
+  const basicAuth = Buffer.from(`${apiKey}:`).toString("base64");
+
+  try {
+    const res = await fetch(
+      `${endpoint}/company/${encodeURIComponent(companyNumber)}/filing-history?category=accounts&items_per_page=100`,
+      { headers: { Authorization: `Basic ${basicAuth}` } },
+    );
+
+    if (!res.ok) {
+      console.error(`CH filing history API returned ${res.status} for ${companyNumber}`);
+      return [];
+    }
+
+    const data = await res.json();
+    const items: Array<{ type?: string; made_up_date?: string }> = data.items ?? [];
+
+    return items
+      .filter((item) => item.type?.startsWith("AA") && item.made_up_date)
+      .map((item) => new Date(item.made_up_date!));
+  } catch (error) {
+    console.error("Failed to fetch CH filing history:", error);
+    return [];
+  }
+}
+
 export function computeFirstPeriodEnd(
   incorporationDate: Date,
   ardMonth: number, // 1-12
