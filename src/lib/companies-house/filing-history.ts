@@ -35,11 +35,14 @@ export async function fetchFilingHistory(
     }
 
     const data = await res.json();
-    const items: Array<{ type?: string; made_up_date?: string }> = data.items ?? [];
+    const items: Array<{
+      type?: string;
+      description_values?: { made_up_date?: string };
+    }> = data.items ?? [];
 
     return items
-      .filter((item) => item.type?.startsWith("AA") && item.made_up_date)
-      .map((item) => new Date(item.made_up_date!));
+      .filter((item) => item.type?.startsWith("AA") && item.description_values?.made_up_date)
+      .map((item) => new Date(item.description_values!.made_up_date!));
   } catch (error) {
     console.error("Failed to fetch CH filing history:", error);
     return [];
@@ -51,12 +54,18 @@ export function computeFirstPeriodEnd(
   ardMonth: number, // 1-12
   ardDay: number,
 ): Date {
+  // CH rule: first period ends on the first ARD that is more than 6 months
+  // after incorporation, but no more than 18 months.
+  const sixMonthsLater = new Date(incorporationDate);
+  sixMonthsLater.setUTCMonth(sixMonthsLater.getUTCMonth() + 6);
+
   const firstArd = new Date(
-    Date.UTC(incorporationDate.getUTCFullYear(), ardMonth - 1, ardDay),
+    Date.UTC(sixMonthsLater.getUTCFullYear(), ardMonth - 1, ardDay),
   );
-  if (firstArd.getTime() <= incorporationDate.getTime()) {
+  if (firstArd.getTime() < sixMonthsLater.getTime()) {
     firstArd.setUTCFullYear(firstArd.getUTCFullYear() + 1);
   }
+
   const eighteenMonthsLater = new Date(incorporationDate);
   eighteenMonthsLater.setUTCMonth(eighteenMonthsLater.getUTCMonth() + 18);
   if (firstArd.getTime() > eighteenMonthsLater.getTime()) {

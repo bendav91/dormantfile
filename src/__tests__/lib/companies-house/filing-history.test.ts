@@ -36,6 +36,17 @@ describe("computeFirstPeriodEnd", () => {
     expect(result).toEqual(new Date("2015-03-31"));
   });
 
+  it("skips ARD that is less than 6 months after incorporation", () => {
+    // Incorporated 2015-05-16, ARD 31 May
+    // 2015-05-31 is only 15 days later — must skip to 2016-05-31
+    const result = computeFirstPeriodEnd(
+      new Date("2015-05-16"),
+      5,
+      31,
+    );
+    expect(result).toEqual(new Date("2016-05-31"));
+  });
+
   it("does not apply 18-month cap when not needed", () => {
     // Incorporated 2015-09-01, ARD 31 March → first ARD strictly after = 2016-03-31
     // 18 months after 2015-09-01 = 2017-03-01; 2016-03-31 is within that, no cap needed
