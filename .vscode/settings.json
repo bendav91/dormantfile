@@ -14,5 +14,6 @@
   "stylelint.customSyntax": "postcss-scss",
   "eslint.validate": ["typescript", "typescriptreact", "javascript", "javascriptreact"],
   "js/ts.tsserver.experimental.enableProjectDiagnostics": true,
-  "git.terminalAuthentication": true
+  "git.terminalAuthentication": true,
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

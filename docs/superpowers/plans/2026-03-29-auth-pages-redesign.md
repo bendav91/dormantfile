@@ -16,32 +16,33 @@
 
 ### New files
 
-| File | Responsibility |
-|------|---------------|
-| `src/components/auth/AuthLayout.tsx` | Split-screen grid shell (server component). Two-column on md+, single column on mobile. Wraps `<main id="main-content">`. |
+| File                                 | Responsibility                                                                                                             |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `src/components/auth/AuthLayout.tsx` | Split-screen grid shell (server component). Two-column on md+, single column on mobile. Wraps `<main id="main-content">`.  |
 | `src/components/auth/BrandPanel.tsx` | Left brand panel (server component). Variant-driven headline, 3-step process, trust signals. Collapses to strip on mobile. |
-| `src/components/auth/FormPanel.tsx` | Form-side content wrapper (server component). Consistent padding and centering for the right column. |
-| `src/components/auth/AuthInput.tsx` | Labelled input with token-based styling (server component). Extends `React.InputHTMLAttributes<HTMLInputElement>`. |
-| `src/components/auth/AuthButton.tsx` | Primary submit button with loading state (server component). Accepts `loadingText`. |
-| `src/components/auth/AuthError.tsx` | Styled error alert using danger tokens (server component). |
-| `src/components/auth/index.ts` | Barrel export for all auth components. |
+| `src/components/auth/FormPanel.tsx`  | Form-side content wrapper (server component). Consistent padding and centering for the right column.                       |
+| `src/components/auth/AuthInput.tsx`  | Labelled input with token-based styling (server component). Extends `React.InputHTMLAttributes<HTMLInputElement>`.         |
+| `src/components/auth/AuthButton.tsx` | Primary submit button with loading state (server component). Accepts `loadingText`.                                        |
+| `src/components/auth/AuthError.tsx`  | Styled error alert using danger tokens (server component).                                                                 |
+| `src/components/auth/index.ts`       | Barrel export for all auth components.                                                                                     |
 
 ### Modified files
 
-| File | Change summary |
-|------|---------------|
-| `src/app/globals.css` | Add `.auth-input::placeholder` and `.auth-step-badge` CSS classes for token-driven placeholder colour and dark-mode step badge background. |
-| `src/app/(auth)/layout.tsx` | Replace all markup with `<AuthLayout>`. Keep session check + redirect. |
-| `src/app/(auth)/login/page.tsx` | Replace inline markup with shared components. Add `BrandPanel variant="returning"`. |
-| `src/app/(auth)/register/page.tsx` | Replace inline markup with shared components. Add `BrandPanel variant="register"`. |
-| `src/app/(auth)/forgot-password/page.tsx` | Replace inline markup with shared components. Add `BrandPanel variant="returning"`. |
-| `src/app/(auth)/reset-password/page.tsx` | Replace inline markup with shared components. Add `BrandPanel variant="returning"`. Keep Suspense. |
+| File                                      | Change summary                                                                                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/app/globals.css`                     | Add `.auth-input::placeholder` and `.auth-step-badge` CSS classes for token-driven placeholder colour and dark-mode step badge background. |
+| `src/app/(auth)/layout.tsx`               | Replace all markup with `<AuthLayout>`. Keep session check + redirect.                                                                     |
+| `src/app/(auth)/login/page.tsx`           | Replace inline markup with shared components. Add `BrandPanel variant="returning"`.                                                        |
+| `src/app/(auth)/register/page.tsx`        | Replace inline markup with shared components. Add `BrandPanel variant="register"`.                                                         |
+| `src/app/(auth)/forgot-password/page.tsx` | Replace inline markup with shared components. Add `BrandPanel variant="returning"`.                                                        |
+| `src/app/(auth)/reset-password/page.tsx`  | Replace inline markup with shared components. Add `BrandPanel variant="returning"`. Keep Suspense.                                         |
 
 ---
 
 ## Task 1: Add CSS utility classes for auth components
 
 **Files:**
+
 - Modify: `src/app/globals.css`
 
 Two small classes that solve token-based styling needs that inline styles can't handle (placeholder pseudo-element, dark-mode conditional background).
@@ -81,6 +82,7 @@ git commit -m "feat(auth): add CSS utility classes for auth input placeholder an
 ## Task 2: Create AuthError component
 
 **Files:**
+
 - Create: `src/components/auth/AuthError.tsx`
 
 Create `src/components/auth/` directory first — it does not exist yet.
@@ -131,6 +133,7 @@ git commit -m "feat(auth): add AuthError component with danger token styling"
 ## Task 3: Create AuthInput component
 
 **Files:**
+
 - Create: `src/components/auth/AuthInput.tsx`
 
 Uses `focus-ring-input` class from `globals.css` for focus styling and the new `auth-input` class for placeholder colour.
@@ -194,6 +197,7 @@ git commit -m "feat(auth): add AuthInput component with token-based styling"
 ## Task 4: Create AuthButton component
 
 **Files:**
+
 - Create: `src/components/auth/AuthButton.tsx`
 
 Uses `hoverable-btn` class from `globals.css` for hover effect and `focus-ring` class for focus styling — matching the pattern used by all other interactive elements in the codebase.
@@ -249,6 +253,7 @@ git commit -m "feat(auth): add AuthButton component with loading state"
 ## Task 5: Create BrandPanel component
 
 **Files:**
+
 - Create: `src/components/auth/BrandPanel.tsx`
 
 Renders the left side of the split-screen. Uses `auth-step-badge` class for dark-mode-aware step number backgrounds.
@@ -281,8 +286,7 @@ export function BrandPanel({ variant }: BrandPanelProps) {
     <div
       className="hidden md:flex flex-col justify-center px-10 lg:px-16 py-12"
       style={{
-        background:
-          "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
+        background: "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
       }}
     >
       {/* Wordmark */}
@@ -298,9 +302,7 @@ export function BrandPanel({ variant }: BrandPanelProps) {
         className="text-2xl lg:text-3xl font-bold mb-2 leading-tight"
         style={{ color: "var(--color-text-primary)" }}
       >
-        {isRegister
-          ? "Three steps. Two filings. One less thing to worry about."
-          : "Welcome back."}
+        {isRegister ? "Three steps. Two filings. One less thing to worry about." : "Welcome back."}
       </h2>
 
       {!isRegister && (
@@ -325,10 +327,7 @@ export function BrandPanel({ variant }: BrandPanelProps) {
               {step.number}
             </div>
             <div>
-              <p
-                className="text-sm font-semibold"
-                style={{ color: "var(--color-text-primary)" }}
-              >
+              <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
                 {step.title}
               </p>
               <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
@@ -349,11 +348,7 @@ export function BrandPanel({ variant }: BrandPanelProps) {
         }}
       >
         {TRUST_SIGNALS.map((signal) => (
-          <p
-            key={signal}
-            className="text-xs"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p key={signal} className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
             {signal}
           </p>
         ))}
@@ -370,8 +365,7 @@ export function BrandPanelMobile() {
     <div
       className="md:hidden px-6 py-4"
       style={{
-        background:
-          "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
+        background: "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
       }}
     >
       <p
@@ -405,6 +399,7 @@ git commit -m "feat(auth): add BrandPanel with variant headlines, steps, trust s
 ## Task 6: Create FormPanel and AuthLayout, barrel export
 
 **Files:**
+
 - Create: `src/components/auth/FormPanel.tsx`
 - Create: `src/components/auth/AuthLayout.tsx`
 - Create: `src/components/auth/index.ts`
@@ -476,6 +471,7 @@ git commit -m "feat(auth): add FormPanel, AuthLayout, and barrel export"
 ## Task 7: Rewrite (auth)/layout.tsx
 
 **Files:**
+
 - Modify: `src/app/(auth)/layout.tsx`
 
 Strip out the old centered-card markup. Keep session check. Use `AuthLayout`.
@@ -519,6 +515,7 @@ git commit -m "refactor(auth): replace centered-card layout with AuthLayout shel
 ## Task 8: Rewrite login page
 
 **Files:**
+
 - Modify: `src/app/(auth)/login/page.tsx`
 
 Keep all state management and handlers. Replace inline markup with shared components. Add BrandPanel.
@@ -578,10 +575,7 @@ export default function LoginPage() {
       <div className="flex flex-col" style={{ backgroundColor: "var(--color-bg-card)" }}>
         <BrandPanelMobile />
         <FormPanel>
-          <h1
-            className="text-2xl font-bold mb-1"
-            style={{ color: "var(--color-text-primary)" }}
-          >
+          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
             Sign in
           </h1>
           <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -630,10 +624,7 @@ export default function LoginPage() {
             </AuthButton>
           </form>
 
-          <p
-            className="mt-6 text-center text-sm"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p className="mt-6 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
             Don&apos;t have an account?{" "}
             <Link
               href="/register"
@@ -654,6 +645,7 @@ export default function LoginPage() {
 
 Run: `npm run dev`
 Open http://localhost:3000/login — verify:
+
 - Split-screen layout on desktop (brand panel left, form right)
 - Mobile: brand strip at top, form below
 - Dark mode: toggle and verify both panels adapt
@@ -678,6 +670,7 @@ git commit -m "feat(auth): redesign login page with split-screen layout"
 ## Task 9: Rewrite register page
 
 **Files:**
+
 - Modify: `src/app/(auth)/register/page.tsx`
 
 - [ ] **Step 1: Rewrite register/page.tsx**
@@ -750,10 +743,7 @@ export default function RegisterPage() {
       <div className="flex flex-col" style={{ backgroundColor: "var(--color-bg-card)" }}>
         <BrandPanelMobile />
         <FormPanel>
-          <h1
-            className="text-2xl font-bold mb-1"
-            style={{ color: "var(--color-text-primary)" }}
-          >
+          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
             Create your account
           </h1>
           <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -799,10 +789,7 @@ export default function RegisterPage() {
 
             <AuthError message={error} />
 
-            <p
-              className="text-xs leading-relaxed"
-              style={{ color: "var(--color-text-muted)" }}
-            >
+            <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
               By creating an account, you agree to our{" "}
               <Link
                 href="/terms"
@@ -835,10 +822,7 @@ export default function RegisterPage() {
             </AuthButton>
           </form>
 
-          <p
-            className="mt-6 text-center text-sm"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p className="mt-6 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
             Already have an account?{" "}
             <Link
               href="/login"
@@ -858,6 +842,7 @@ export default function RegisterPage() {
 - [ ] **Step 2: Verify visually**
 
 Open http://localhost:3000/register — verify:
+
 - Brand panel shows "Three steps. Two filings..." headline
 - Form has name, email, password fields with helper text
 - Terms/privacy/AUP links appear above the submit button
@@ -876,6 +861,7 @@ git commit -m "feat(auth): redesign register page with split-screen layout"
 ## Task 10: Rewrite forgot-password page
 
 **Files:**
+
 - Modify: `src/app/(auth)/forgot-password/page.tsx`
 
 - [ ] **Step 1: Rewrite forgot-password/page.tsx**
@@ -943,8 +929,8 @@ export default function ForgotPasswordPage() {
                 Check your email
               </h1>
               <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
-                If an account exists with that email, we have sent a password reset link. It
-                expires in 1 hour.
+                If an account exists with that email, we have sent a password reset link. It expires
+                in 1 hour.
               </p>
               <Link
                 href="/login"
@@ -1013,6 +999,7 @@ Note: The footer text changes from "Back to sign in" to "Remember your password?
 - [ ] **Step 2: Verify visually**
 
 Open http://localhost:3000/forgot-password — verify:
+
 - Form shows "Reset your password" heading
 - Submit the form — success state shows "Check your email"
 - Rate limit error displays correctly
@@ -1030,6 +1017,7 @@ git commit -m "feat(auth): redesign forgot-password page with split-screen layou
 ## Task 11: Rewrite reset-password page
 
 **Files:**
+
 - Modify: `src/app/(auth)/reset-password/page.tsx`
 
 This page has three states (invalid token, form, success) and a Suspense boundary. Uses `FormPanel` for each state.
@@ -1064,10 +1052,7 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <FormPanel>
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
           Invalid link
         </h1>
         <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -1115,10 +1100,7 @@ function ResetPasswordForm() {
   if (success) {
     return (
       <FormPanel>
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
           Password reset
         </h1>
         <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -1137,10 +1119,7 @@ function ResetPasswordForm() {
 
   return (
     <FormPanel>
-      <h1
-        className="text-2xl font-bold mb-1"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
         Set a new password
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -1203,6 +1182,7 @@ export default function ResetPasswordPage() {
 - [ ] **Step 2: Verify all three states**
 
 Open http://localhost:3000/reset-password — verify:
+
 - No token: "Invalid link" with "Request a new link" button
 - With token `?token=test`: form appears with "Set a new password"
 - Submitting with invalid token shows error
@@ -1241,12 +1221,12 @@ Expected: No matches. All colours should use CSS custom properties. (`text-white
 
 Run dev server and check each page:
 
-| Page | Desktop split | Mobile collapse | Dark mode | Form works | Links work |
-|------|:---:|:---:|:---:|:---:|:---:|
-| /login | ? | ? | ? | ? | ? |
-| /register | ? | ? | ? | ? | ? |
-| /forgot-password | ? | ? | ? | ? | ? |
-| /reset-password | ? | ? | ? | ? | ? |
+| Page             | Desktop split | Mobile collapse | Dark mode | Form works | Links work |
+| ---------------- | :-----------: | :-------------: | :-------: | :--------: | :--------: |
+| /login           |       ?       |        ?        |     ?     |     ?      |     ?      |
+| /register        |       ?       |        ?        |     ?     |     ?      |     ?      |
+| /forgot-password |       ?       |        ?        |     ?     |     ?      |     ?      |
+| /reset-password  |       ?       |        ?        |     ?     |     ?      |     ?      |
 
 - [ ] **Step 5: Commit any cleanup**
 

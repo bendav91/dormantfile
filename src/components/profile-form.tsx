@@ -9,7 +9,11 @@ interface ProfileFormProps {
   pendingEmail: string | null;
 }
 
-export default function ProfileForm({ name: initialName, email: initialEmail, pendingEmail: initialPendingEmail }: ProfileFormProps) {
+export default function ProfileForm({
+  name: initialName,
+  email: initialEmail,
+  pendingEmail: initialPendingEmail,
+}: ProfileFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(initialEmail);

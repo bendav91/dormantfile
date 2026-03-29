@@ -23,10 +23,7 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <FormPanel>
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
           Invalid link
         </h1>
         <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -74,10 +71,7 @@ function ResetPasswordForm() {
   if (success) {
     return (
       <FormPanel>
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
           Password reset
         </h1>
         <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -96,10 +90,7 @@ function ResetPasswordForm() {
 
   return (
     <FormPanel>
-      <h1
-        className="text-2xl font-bold mb-1"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
         Set a new password
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>

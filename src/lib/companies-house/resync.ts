@@ -4,7 +4,6 @@ import {
   detectAccountsGaps,
   computeFirstPeriodEnd,
 } from "@/lib/companies-house/filing-history";
-import { rollForwardPeriod } from "@/lib/roll-forward";
 
 export interface ResyncResult {
   newFilingsCount: number;
@@ -26,9 +25,7 @@ interface CompanyProfile {
   sicCodes: string | null;
 }
 
-async function fetchCompanyProfile(
-  companyNumber: string,
-): Promise<CompanyProfile> {
+async function fetchCompanyProfile(companyNumber: string): Promise<CompanyProfile> {
   const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
   const endpoint = process.env.COMPANY_INFORMATION_API_ENDPOINT;
   if (!apiKey || !endpoint) {
@@ -133,75 +130,58 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
     return { newFilingsCount: 0 };
   }
 
-  // Step 5: Compare against existing Filing records
+  // Step 5: Find externally filed periods and transition outstanding Filings
   const existingFilings = await prisma.filing.findMany({
     where: { companyId, filingType: "accounts" },
-    select: { periodEnd: true },
+    select: { id: true, periodEnd: true, status: true },
   });
-  const existingPeriodEnds = new Set(existingFilings.map((f) => f.periodEnd.getTime()));
-
-  const firstPeriodEnd = computeFirstPeriodEnd(new Date(dateOfCreation), ardMonth, ardDay);
-
-  // Step 6: Build new filing records
-  const newFilings: Array<{
-    companyId: string;
-    filingType: "accounts";
-    periodStart: Date;
-    periodEnd: Date;
-    status: "accepted";
-    correlationId: null;
-    confirmedAt: Date;
-  }> = [];
 
   const sortedPeriodEnds = [...gapResult.filedPeriodEnds.values()].sort(
     (a, b) => a.getTime() - b.getTime(),
   );
 
-  for (const periodEnd of sortedPeriodEnds) {
-    if (existingPeriodEnds.has(periodEnd.getTime())) continue;
+  const firstPeriodEnd = computeFirstPeriodEnd(new Date(dateOfCreation), ardMonth, ardDay);
+  let transitioned = 0;
 
-    let periodStart: Date;
-    if (periodEnd.getTime() === firstPeriodEnd.getTime()) {
-      periodStart = new Date(dateOfCreation);
-    } else {
-      periodStart = new Date(periodEnd);
-      periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
-      periodStart.setUTCDate(periodStart.getUTCDate() + 1);
+  for (const periodEnd of sortedPeriodEnds) {
+    const existing = existingFilings.find((f) => f.periodEnd.getTime() === periodEnd.getTime());
+
+    if (existing && existing.status === "accepted") {
+      // Already accepted — skip
+      continue;
     }
 
-    newFilings.push({
-      companyId,
-      filingType: "accounts",
-      periodStart,
-      periodEnd,
-      status: "accepted",
-      correlationId: null,
-      confirmedAt: new Date(),
-    });
+    if (existing && existing.status === "outstanding") {
+      // Transition outstanding → accepted
+      await prisma.filing.update({
+        where: { id: existing.id },
+        data: { status: "accepted", confirmedAt: new Date() },
+      });
+      transitioned++;
+    } else if (!existing) {
+      // No Filing record exists — create one (edge case: pre-migration data)
+      let periodStart: Date;
+      if (periodEnd.getTime() === firstPeriodEnd.getTime()) {
+        periodStart = new Date(dateOfCreation);
+      } else {
+        periodStart = new Date(periodEnd);
+        periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
+        periodStart.setUTCDate(periodStart.getUTCDate() + 1);
+      }
+
+      await prisma.filing.create({
+        data: {
+          companyId,
+          filingType: "accounts",
+          periodStart,
+          periodEnd,
+          status: "accepted",
+          confirmedAt: new Date(),
+        },
+      });
+      transitioned++;
+    }
   }
 
-  if (newFilings.length === 0) {
-    return { newFilingsCount: 0 };
-  }
-
-  // Create records
-  await prisma.filing.createMany({
-    data: newFilings,
-    skipDuplicates: true,
-  });
-
-  // Step 7: Roll forward for each new filing (chronological order)
-  for (const filing of newFilings) {
-    await rollForwardPeriod(
-      companyId,
-      filing.periodEnd,
-      company.registeredForCorpTax,
-      "accounts",
-      company.user.email,
-      company.companyName,
-      { skipEmail: true },
-    );
-  }
-
-  return { newFilingsCount: newFilings.length };
+  return { newFilingsCount: transitioned };
 }

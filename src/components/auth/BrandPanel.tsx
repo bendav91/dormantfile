@@ -21,8 +21,7 @@ export function BrandPanel({ variant }: BrandPanelProps) {
     <div
       className="hidden md:flex flex-col justify-center px-10 lg:px-16 py-12"
       style={{
-        background:
-          "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
+        background: "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
       }}
     >
       <p
@@ -36,9 +35,7 @@ export function BrandPanel({ variant }: BrandPanelProps) {
         className="text-2xl lg:text-3xl font-bold mb-2 leading-tight"
         style={{ color: "var(--color-text-primary)" }}
       >
-        {isRegister
-          ? "Three steps. Two filings. One less thing to worry about."
-          : "Welcome back."}
+        {isRegister ? "Three steps. Two filings. One less thing to worry about." : "Welcome back."}
       </h2>
 
       {!isRegister && (
@@ -62,10 +59,7 @@ export function BrandPanel({ variant }: BrandPanelProps) {
               {step.number}
             </div>
             <div>
-              <p
-                className="text-sm font-semibold"
-                style={{ color: "var(--color-text-primary)" }}
-              >
+              <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
                 {step.title}
               </p>
               <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
@@ -85,11 +79,7 @@ export function BrandPanel({ variant }: BrandPanelProps) {
         }}
       >
         {TRUST_SIGNALS.map((signal) => (
-          <p
-            key={signal}
-            className="text-xs"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p key={signal} className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
             {signal}
           </p>
         ))}
@@ -103,8 +93,7 @@ export function BrandPanelMobile() {
     <div
       className="md:hidden px-6 py-4"
       style={{
-        background:
-          "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
+        background: "linear-gradient(160deg, var(--color-primary-bg), var(--color-primary-border))",
       }}
     >
       <p

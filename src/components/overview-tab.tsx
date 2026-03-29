@@ -136,9 +136,7 @@ export default function OverviewTab({
         )}
         {sicCodes && (
           <div style={{ ...rowStyle, borderBottom: "none" }}>
-            <span style={labelStyle}>
-              SIC code{sicCodes.includes(",") ? "s" : ""}
-            </span>
+            <span style={labelStyle}>SIC code{sicCodes.includes(",") ? "s" : ""}</span>
             <span style={valueStyle}>{sicCodes.replace(/,/g, ", ")}</span>
           </div>
         )}

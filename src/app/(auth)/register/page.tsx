@@ -63,10 +63,7 @@ export default function RegisterPage() {
       <div className="flex flex-col" style={{ backgroundColor: "var(--color-bg-card)" }}>
         <BrandPanelMobile />
         <FormPanel>
-          <h1
-            className="text-2xl font-bold mb-1"
-            style={{ color: "var(--color-text-primary)" }}
-          >
+          <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
             Create your account
           </h1>
           <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -112,10 +109,7 @@ export default function RegisterPage() {
 
             <AuthError message={error} />
 
-            <p
-              className="text-xs leading-relaxed"
-              style={{ color: "var(--color-text-muted)" }}
-            >
+            <p className="text-xs leading-relaxed" style={{ color: "var(--color-text-muted)" }}>
               By creating an account, you agree to our{" "}
               <Link
                 href="/terms"
@@ -148,10 +142,7 @@ export default function RegisterPage() {
             </AuthButton>
           </form>
 
-          <p
-            className="mt-6 text-center text-sm"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p className="mt-6 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
             Already have an account?{" "}
             <Link
               href="/login"

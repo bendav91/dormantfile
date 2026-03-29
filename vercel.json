@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/resync-filings",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/create-periods",
+      "schedule": "30 7 * * *"
     }
   ]
 }

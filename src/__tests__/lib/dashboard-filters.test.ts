@@ -5,7 +5,7 @@ import {
   matchesIssues,
   computeFilterCounts,
 } from "@/lib/dashboard-filters";
-import type { PeriodInfo } from "@/lib/periods";
+import type { PeriodView } from "@/lib/filing-queries";
 
 function filing(overrides: Record<string, unknown> = {}) {
   return {
@@ -18,16 +18,19 @@ function filing(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function period(overrides: Partial<PeriodInfo> = {}): PeriodInfo {
+function period(overrides: Partial<PeriodView> = {}): PeriodView {
   return {
     periodStart: new Date("2024-04-01"),
     periodEnd: new Date("2025-03-31"),
     accountsDeadline: new Date("2026-01-01"),
     ct600Deadline: new Date("2026-03-31"),
+    accountsFiling: null,
+    ct600Filing: null,
     accountsFiled: false,
     ct600Filed: false,
     isComplete: false,
     isOverdue: false,
+    isSuppressed: false,
     hasEarlierGaps: false,
     isDisclosureTerritory: false,
     isBlockedTerritory: false,

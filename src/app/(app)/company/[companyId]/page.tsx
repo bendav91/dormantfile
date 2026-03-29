@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { ArrowLeft, Building2 } from "lucide-react";
-import { getOutstandingPeriods } from "@/lib/periods";
+import { buildPeriodViews } from "@/lib/filing-queries";
 import FilingsTab from "@/components/filings-tab";
 import SettingsTab from "@/components/settings-tab";
 import OverviewTab from "@/components/overview-tab";
@@ -29,27 +29,12 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
     where: { id: companyId, userId: session.user.id, deletedAt: null },
     include: {
       filings: { orderBy: { createdAt: "desc" } },
-      suppressedPeriods: true,
     },
   });
   if (!company) redirect("/dashboard");
 
-  const suppressedPeriodEnds = new Set(
-    company.suppressedPeriods.map((sp) => sp.periodEnd.getTime()),
-  );
-
-  const periods = getOutstandingPeriods(
-    company.accountingPeriodStart,
-    company.accountingPeriodEnd,
-    company.registeredForCorpTax,
-    company.filings,
-    {
-      dateOfCreation: company.dateOfCreation,
-      accountsDueOn: company.accountsDueOn,
-      suppressedPeriodEnds,
-    },
-  );
-  const incompletePeriods = periods.filter((p) => !p.isComplete);
+  const periods = buildPeriodViews(company.filings);
+  const incompletePeriods = periods.filter((p) => !p.isComplete && !p.isSuppressed);
 
   const activeCT600Count = company.filings.filter(
     (f) =>
@@ -58,6 +43,8 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
 
   const { tab: tabParam } = await searchParams;
   const tab = ["filings", "settings", "overview"].includes(tabParam ?? "") ? tabParam! : "filings";
+  // eslint-disable-next-line react-hooks/purity -- server component, runs once
+  const now = Date.now();
 
   return (
     <div>
@@ -181,7 +168,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           registeredForCorpTax={company.registeredForCorpTax}
           periods={periods}
           filings={company.filings}
-          now={Date.now()}
+          now={now}
         />
       )}
       {tab === "overview" && (
@@ -202,7 +189,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
               .sort((a, b) => b.periodEnd.getTime() - a.periodEnd.getTime())[0]?.periodEnd ?? null
           }
           accountsOverdue={
-            company.accountsDueOn ? company.accountsDueOn.getTime() < Date.now() : false
+            company.accountsDueOn ? company.accountsDueOn.getTime() < now : false
           }
           filings={company.filings}
         />

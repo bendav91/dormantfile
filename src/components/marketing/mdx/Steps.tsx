@@ -5,7 +5,8 @@ interface StepProps {
   children: React.ReactNode;
 }
 
-export function Step({ title, children }: StepProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function Step(props: StepProps) {
   return null;
 }
 

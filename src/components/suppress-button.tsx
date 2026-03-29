@@ -10,7 +10,11 @@ interface SuppressButtonProps {
   isSuppressed: boolean;
 }
 
-export default function SuppressButton({ companyId, periodEnd, isSuppressed }: SuppressButtonProps) {
+export default function SuppressButton({
+  companyId,
+  periodEnd,
+  isSuppressed,
+}: SuppressButtonProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 

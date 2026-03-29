@@ -49,12 +49,12 @@ Single column, stacked:
 
 ### Contextual headline variant
 
-| Page | Headline | Subtitle |
-|------|----------|----------|
-| Register | "Three steps. Two filings. One less thing to worry about." | (none — the steps speak for themselves) |
-| Login | "Welcome back." | "Your filings are waiting." |
-| Forgot password | "Welcome back." | "Your filings are waiting." |
-| Reset password | "Welcome back." | "Your filings are waiting." |
+| Page            | Headline                                                   | Subtitle                                |
+| --------------- | ---------------------------------------------------------- | --------------------------------------- |
+| Register        | "Three steps. Two filings. One less thing to worry about." | (none — the steps speak for themselves) |
+| Login           | "Welcome back."                                            | "Your filings are waiting."             |
+| Forgot password | "Welcome back."                                            | "Your filings are waiting."             |
+| Reset password  | "Welcome back."                                            | "Your filings are waiting."             |
 
 ## Individual Page Designs
 
@@ -112,13 +112,13 @@ No new tokens or colours introduced.
 
 ### New components (`src/components/auth/`)
 
-| Component | Type | Props | Purpose |
-|-----------|------|-------|---------|
-| `AuthLayout.tsx` | Server | `children` | Split-screen grid shell. Wraps form content. Does not contain brand panel — pages render that directly. |
-| `BrandPanel.tsx` | Server | `variant: "register" \| "returning"` | Left panel: logo, headline, steps, trust signals. Handles mobile collapse. |
-| `AuthInput.tsx` | Server | `label`, `type`, `placeholder`, `helperText`, `...React.InputHTMLAttributes<HTMLInputElement>` | Labelled input with consistent styling. Pure presentational — no client hooks needed. Rendered inside client page components. |
-| `AuthButton.tsx` | Server | `children`, `loading`, `loadingText`, `disabled` | Primary submit button with loading/disabled state. `loadingText` displays during loading (e.g. "Signing in...", "Creating account..."). Pure presentational. |
-| `AuthError.tsx` | Server | `message: string \| null` | Styled error alert box. Uses `--color-danger-bg`, `--color-danger-border`, `--color-danger-text` tokens with `role="alert"`. Consistent across all four pages. |
+| Component        | Type   | Props                                                                                          | Purpose                                                                                                                                                        |
+| ---------------- | ------ | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AuthLayout.tsx` | Server | `children`                                                                                     | Split-screen grid shell. Wraps form content. Does not contain brand panel — pages render that directly.                                                        |
+| `BrandPanel.tsx` | Server | `variant: "register" \| "returning"`                                                           | Left panel: logo, headline, steps, trust signals. Handles mobile collapse.                                                                                     |
+| `AuthInput.tsx`  | Server | `label`, `type`, `placeholder`, `helperText`, `...React.InputHTMLAttributes<HTMLInputElement>` | Labelled input with consistent styling. Pure presentational — no client hooks needed. Rendered inside client page components.                                  |
+| `AuthButton.tsx` | Server | `children`, `loading`, `loadingText`, `disabled`                                               | Primary submit button with loading/disabled state. `loadingText` displays during loading (e.g. "Signing in...", "Creating account..."). Pure presentational.   |
+| `AuthError.tsx`  | Server | `message: string \| null`                                                                      | Styled error alert box. Uses `--color-danger-bg`, `--color-danger-border`, `--color-danger-text` tokens with `role="alert"`. Consistent across all four pages. |
 
 ### Variant resolution
 
@@ -131,13 +131,13 @@ No new tokens or colours introduced.
 
 ### Modified files
 
-| File | Changes |
-|------|---------|
-| `(auth)/layout.tsx` | Session check stays. All markup replaced with `<AuthLayout>`. No variant logic — just the shell. |
-| `login/page.tsx` | Keeps state/logic. Renders `<BrandPanel variant="returning" />` + form using `AuthInput`, `AuthButton`, `AuthError`. Loading text: "Signing in..." |
-| `register/page.tsx` | Same treatment. Renders `<BrandPanel variant="register" />`. Loading text: "Creating account..." |
-| `forgot-password/page.tsx` | Same treatment. `variant="returning"`. Loading text: "Sending..." |
-| `reset-password/page.tsx` | Same treatment. `variant="returning"`. Loading text: "Resetting...". Suspense boundary stays; loading fallback uses the split-screen shell with a spinner in the form panel. |
+| File                       | Changes                                                                                                                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `(auth)/layout.tsx`        | Session check stays. All markup replaced with `<AuthLayout>`. No variant logic — just the shell.                                                                             |
+| `login/page.tsx`           | Keeps state/logic. Renders `<BrandPanel variant="returning" />` + form using `AuthInput`, `AuthButton`, `AuthError`. Loading text: "Signing in..."                           |
+| `register/page.tsx`        | Same treatment. Renders `<BrandPanel variant="register" />`. Loading text: "Creating account..."                                                                             |
+| `forgot-password/page.tsx` | Same treatment. `variant="returning"`. Loading text: "Sending..."                                                                                                            |
+| `reset-password/page.tsx`  | Same treatment. `variant="returning"`. Loading text: "Resetting...". Suspense boundary stays; loading fallback uses the split-screen shell with a spinner in the form panel. |
 
 ### Behaviour preserved
 

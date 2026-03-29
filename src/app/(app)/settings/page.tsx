@@ -67,10 +67,14 @@ export default async function SettingsPage() {
         </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <ProfileForm
-        name={user.name}
-        email={user.email}
-        pendingEmail={user.pendingEmailChange && user.pendingEmailChange.expiresAt > new Date() ? user.pendingEmailChange.newEmail : null}
-      />
+            name={user.name}
+            email={user.email}
+            pendingEmail={
+              user.pendingEmailChange && user.pendingEmailChange.expiresAt > new Date()
+                ? user.pendingEmailChange.newEmail
+                : null
+            }
+          />
           <div>
             <p
               style={{

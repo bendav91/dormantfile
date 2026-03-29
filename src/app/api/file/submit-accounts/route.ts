@@ -8,7 +8,6 @@ import {
   pollCompaniesHouse,
 } from "@/lib/companies-house/submission-client";
 import { rollForwardPeriod } from "@/lib/roll-forward";
-import { getOutstandingPeriods } from "@/lib/periods";
 import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
 
 // CH typically processes within 24h, so keep inline polling brief
@@ -99,30 +98,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
-  // Validate the requested period is a legitimate outstanding period
-  const companyFilings = await prisma.filing.findMany({
-    where: { companyId },
-    select: { periodStart: true, periodEnd: true, filingType: true, status: true },
-  });
-  const periods = getOutstandingPeriods(
-    company.accountingPeriodStart,
-    company.accountingPeriodEnd,
-    company.registeredForCorpTax,
-    companyFilings,
-    {
-      dateOfCreation: company.dateOfCreation,
-      accountsDueOn: company.accountsDueOn,
+  // Validate the requested period exists as an outstanding Filing
+  const outstandingFiling = await prisma.filing.findFirst({
+    where: {
+      companyId,
+      filingType: "accounts",
+      periodStart: targetPeriodStart,
+      periodEnd: targetPeriodEnd,
+      status: "outstanding",
     },
-  );
-  const targetPeriod = periods.find(
-    (p) =>
-      p.periodStart.getTime() === targetPeriodStart.getTime() &&
-      p.periodEnd.getTime() === targetPeriodEnd.getTime(),
-  );
-  if (!targetPeriod) {
+  });
+  if (!outstandingFiling) {
     return NextResponse.json({ error: "Invalid period for this company" }, { status: 400 });
   }
-  if (targetPeriod.isBlockedTerritory) {
+
+  const sixYearsAgo = new Date();
+  sixYearsAgo.setUTCFullYear(sixYearsAgo.getUTCFullYear() - 6);
+  if (targetPeriodEnd.getTime() <= sixYearsAgo.getTime()) {
     return NextResponse.json(
       {
         error:

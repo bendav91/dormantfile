@@ -3,7 +3,6 @@ import {
   calculateCT600Deadline,
   calculateAccountsDeadline,
   validateUTR,
-  calculateNextReminderDate,
   validatePassword,
   validateEmail,
 } from "@/lib/utils";
@@ -37,10 +36,7 @@ describe("calculateAccountsDeadline", () => {
       // 9 months from period end = 31 Dec 2007
       // 21 months from incorporation = ~2 March 2008
       // Should use 21 months (later)
-      const result = calculateAccountsDeadline(
-        new Date("2007-03-31"),
-        new Date("2006-06-02"),
-      );
+      const result = calculateAccountsDeadline(new Date("2007-03-31"), new Date("2006-06-02"));
       expect(result).toEqual(new Date("2008-03-02"));
     });
 
@@ -49,10 +45,7 @@ describe("calculateAccountsDeadline", () => {
       // 9 months from period end = 30 Sep 2026
       // 21 months from incorporation = 1 Oct 2026
       // Should use 21 months (later by 1 day)
-      const result = calculateAccountsDeadline(
-        new Date("2025-12-31"),
-        new Date("2025-01-01"),
-      );
+      const result = calculateAccountsDeadline(new Date("2025-12-31"), new Date("2025-01-01"));
       expect(result).toEqual(new Date("2026-10-01"));
     });
 
@@ -69,10 +62,7 @@ describe("calculateAccountsDeadline", () => {
       // 9 months from period end = 31 Dec 2025
       // 21 months from incorporation = 1 Oct 2025
       // 9 months wins
-      const result = calculateAccountsDeadline(
-        new Date("2025-03-31"),
-        new Date("2024-01-01"),
-      );
+      const result = calculateAccountsDeadline(new Date("2025-03-31"), new Date("2024-01-01"));
       expect(result).toEqual(new Date("2025-12-31"));
     });
   });
@@ -93,50 +83,6 @@ describe("validateUTR", () => {
 
   it("rejects an empty string", () => {
     expect(validateUTR("")).toBe(false);
-  });
-});
-
-describe("calculateNextReminderDate", () => {
-  it("returns 90 days before deadline when 0 reminders sent", () => {
-    const deadline = new Date("2027-03-31");
-    const next = calculateNextReminderDate(deadline, 0);
-    expect(next).toEqual(new Date("2026-12-31"));
-  });
-
-  it("returns 30 days before deadline when 1 reminder sent", () => {
-    const deadline = new Date("2027-03-31");
-    const next = calculateNextReminderDate(deadline, 1);
-    expect(next).toEqual(new Date("2027-03-01"));
-  });
-
-  it("returns 14 days before deadline when 2 reminders sent", () => {
-    const deadline = new Date("2027-03-31");
-    const next = calculateNextReminderDate(deadline, 2);
-    expect(next).toEqual(new Date("2027-03-17"));
-  });
-
-  it("returns 7 days before deadline when 3 reminders sent", () => {
-    const deadline = new Date("2027-03-31");
-    const next = calculateNextReminderDate(deadline, 3);
-    expect(next).toEqual(new Date("2027-03-24"));
-  });
-
-  it("returns 3 days before deadline when 4 reminders sent", () => {
-    const deadline = new Date("2027-03-31");
-    const next = calculateNextReminderDate(deadline, 4);
-    expect(next).toEqual(new Date("2027-03-28"));
-  });
-
-  it("returns 1 day before deadline when 5 reminders sent", () => {
-    const deadline = new Date("2027-03-31");
-    const next = calculateNextReminderDate(deadline, 5);
-    expect(next).toEqual(new Date("2027-03-30"));
-  });
-
-  it("returns null when all 6 reminders sent", () => {
-    const deadline = new Date("2027-03-31");
-    const next = calculateNextReminderDate(deadline, 6);
-    expect(next).toBeNull();
   });
 });
 

@@ -13,10 +13,9 @@ import {
   matchesFilter,
   computeFilterCounts,
 } from "@/lib/dashboard-filters";
-import { calculateAccountsDeadline } from "@/lib/utils";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
-import { getOutstandingPeriods } from "@/lib/periods";
+import { buildPeriodViews } from "@/lib/filing-queries";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -200,26 +199,12 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       filings: {
         orderBy: { createdAt: "desc" },
       },
-      suppressedPeriods: true,
     },
   });
 
   // Pre-compute sort keys for each company
   const companiesWithSortData = allMatchingCompanies.map((c) => {
-    const suppressedPeriodEnds = new Set(
-      c.suppressedPeriods.map((sp) => sp.periodEnd.getTime()),
-    );
-    const periods = getOutstandingPeriods(
-      c.accountingPeriodStart,
-      c.accountingPeriodEnd,
-      c.registeredForCorpTax,
-      c.filings,
-      {
-        dateOfCreation: c.dateOfCreation,
-        accountsDueOn: c.accountsDueOn,
-        suppressedPeriodEnds,
-      },
-    );
+    const periods = buildPeriodViews(c.filings);
     const incompletePeriods = periods.filter((p) => !p.isComplete && !p.isSuppressed);
     const outstandingCount = incompletePeriods.length;
 
@@ -551,9 +536,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         {paginatedCompanies.map(({ company, periods, outstandingCount }) => {
           // Show the current (oldest unfiled) period's deadlines
           const currentPeriod = periods.find((p) => !p.isComplete && !p.isSuppressed) ?? periods[0];
-          const accountsDeadline =
-            currentPeriod?.accountsDeadline ??
-            calculateAccountsDeadline(company.accountingPeriodEnd);
+          const accountsDeadline = currentPeriod?.accountsDeadline ?? company.accountingPeriodEnd;
 
           const accountsDaysLeft = Math.ceil(
             (accountsDeadline.getTime() - now) / (1000 * 60 * 60 * 24),

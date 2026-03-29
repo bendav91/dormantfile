@@ -1,4 +1,4 @@
-import type { PeriodInfo } from "@/lib/periods";
+import type { PeriodView } from "@/lib/filing-queries";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
@@ -8,7 +8,7 @@ interface FilingLike {
 }
 
 interface CompanyForCounts {
-  periods: PeriodInfo[];
+  periods: PeriodView[];
   registeredForCorpTax: boolean;
   filings: FilingLike[];
 }
@@ -23,7 +23,7 @@ export interface FilterCounts {
 export type FilterType = "needs-attention" | "recently-filed" | "issues" | "";
 
 export function matchesNeedsAttention(
-  periods: PeriodInfo[],
+  periods: PeriodView[],
   registeredForCorpTax: boolean,
 ): boolean {
   const now = Date.now();
@@ -67,7 +67,7 @@ export function computeFilterCounts(companies: CompanyForCounts[]): FilterCounts
 
 export function matchesFilter(
   filter: FilterType,
-  periods: PeriodInfo[],
+  periods: PeriodView[],
   registeredForCorpTax: boolean,
   filings: FilingLike[],
 ): boolean {

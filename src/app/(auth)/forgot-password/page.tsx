@@ -58,8 +58,8 @@ export default function ForgotPasswordPage() {
                 Check your email
               </h1>
               <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
-                If an account exists with that email, we have sent a password reset link. It
-                expires in 1 hour.
+                If an account exists with that email, we have sent a password reset link. It expires
+                in 1 hour.
               </p>
               <Link
                 href="/login"

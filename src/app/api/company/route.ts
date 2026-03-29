@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import {
-  calculateAccountsDeadline,
-  calculateCT600Deadline,
-  calculateNextReminderDate,
-} from "@/lib/utils";
+import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 import { canAddCompany } from "@/lib/subscription";
 import { Prisma } from "@prisma/client";
 import {
@@ -16,54 +12,112 @@ import {
 } from "@/lib/companies-house/filing-history";
 import type { GapDetectionResult } from "@/lib/companies-house/filing-history";
 
-async function seedFilingHistory(
+/**
+ * Creates Filing records for all periods from incorporation to present:
+ * - Filed periods (from CH gap detection) → status: "accepted"
+ * - Unfiled periods (gaps) → status: "outstanding" with computed deadlines
+ */
+async function materialiseFilings(
   companyId: string,
   dateOfCreation: string | undefined,
   gapResult: GapDetectionResult | null,
   ardMonth: number | null,
   ardDay: number | null,
+  registeredForCorpTax: boolean,
+  accountsDueOn: string | undefined,
 ) {
-  if (!gapResult || gapResult.filedPeriodEnds.size === 0) return;
-
   const incDate = dateOfCreation ? new Date(dateOfCreation) : null;
+  const now = new Date();
 
-  // Use computeFirstPeriodEnd to identify the first period
   let firstPeriodEnd: Date | null = null;
   if (incDate && ardMonth && ardDay) {
     firstPeriodEnd = computeFirstPeriodEnd(incDate, ardMonth, ardDay);
   }
 
-  // The Map values are the computed expected periodEnd dates (not raw CH dates).
-  // This ensures seeded filings match what getOutstandingPeriods() generates.
-  const sortedExpectedEnds = [...gapResult.filedPeriodEnds.values()].sort(
-    (a, b) => a.getTime() - b.getTime(),
-  );
-
-  const filingData = sortedExpectedEnds.map((periodEnd) => {
-    let periodStart: Date;
-    // Check if this is the first period
-    if (firstPeriodEnd && incDate && periodEnd.getTime() === firstPeriodEnd.getTime()) {
-      periodStart = incDate;
-    } else {
-      // Standard: periodStart = periodEnd - 1 year + 1 day
-      periodStart = new Date(periodEnd);
-      periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
-      periodStart.setUTCDate(periodStart.getUTCDate() + 1);
+  // Build the set of filed period ends from gap detection
+  const filedPeriodEndSet = new Set<number>();
+  if (gapResult) {
+    for (const periodEnd of gapResult.filedPeriodEnds.values()) {
+      filedPeriodEndSet.add(periodEnd.getTime());
     }
-    return {
-      companyId,
-      filingType: "accounts" as const,
-      periodStart,
-      periodEnd,
-      status: "accepted" as const,
-      confirmedAt: new Date(),
-    };
-  });
+  }
 
-  await prisma.filing.createMany({
-    data: filingData,
-    skipDuplicates: true,
-  });
+  // Generate ALL periods from first period to present
+  if (!firstPeriodEnd || !incDate) return;
+
+  const filingData: Array<{
+    companyId: string;
+    filingType: "accounts" | "ct600";
+    periodStart: Date;
+    periodEnd: Date;
+    status: "accepted" | "outstanding";
+    accountsDeadline: Date | null;
+    ct600Deadline: Date | null;
+    confirmedAt: Date | null;
+  }> = [];
+
+  let pEnd = new Date(firstPeriodEnd);
+  let pStart = new Date(incDate);
+
+  while (pEnd.getTime() <= now.getTime()) {
+    const isFiled = filedPeriodEndSet.has(pEnd.getTime());
+    const isFirstPeriod = pStart.getTime() === incDate.getTime();
+
+    const accountsDeadline = isFirstPeriod
+      ? calculateAccountsDeadline(pEnd, incDate)
+      : calculateAccountsDeadline(pEnd);
+    const ct600Deadline = calculateCT600Deadline(pEnd);
+
+    // Use CH's due_on for the last period if available
+    const isLastPeriod = (() => {
+      const nextEnd = new Date(pEnd);
+      nextEnd.setUTCFullYear(nextEnd.getUTCFullYear() + 1);
+      return nextEnd.getTime() > now.getTime();
+    })();
+    const finalAccountsDeadline =
+      isLastPeriod && accountsDueOn ? new Date(accountsDueOn) : accountsDeadline;
+
+    // Accounts filing
+    filingData.push({
+      companyId,
+      filingType: "accounts",
+      periodStart: new Date(pStart),
+      periodEnd: new Date(pEnd),
+      status: isFiled ? "accepted" : "outstanding",
+      accountsDeadline: finalAccountsDeadline,
+      ct600Deadline,
+      confirmedAt: isFiled ? new Date() : null,
+    });
+
+    // CT600 filing (only outstanding — we don't know external CT600 status)
+    if (registeredForCorpTax && !isFiled) {
+      filingData.push({
+        companyId,
+        filingType: "ct600",
+        periodStart: new Date(pStart),
+        periodEnd: new Date(pEnd),
+        status: "outstanding",
+        accountsDeadline: finalAccountsDeadline,
+        ct600Deadline,
+        confirmedAt: null,
+      });
+    }
+
+    // Advance to next annual period
+    const nextStart = new Date(pEnd);
+    nextStart.setUTCDate(nextStart.getUTCDate() + 1);
+    const nextEnd = new Date(pEnd);
+    nextEnd.setUTCFullYear(nextEnd.getUTCFullYear() + 1);
+    pStart = nextStart;
+    pEnd = nextEnd;
+  }
+
+  if (filingData.length > 0) {
+    await prisma.filing.createMany({
+      data: filingData,
+      skipDuplicates: true,
+    });
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -248,34 +302,6 @@ export async function POST(req: NextRequest) {
   const periodEnd = new Date(accountingPeriodEnd);
   const periodStart = new Date(accountingPeriodStart);
 
-  const accountsDeadline = calculateAccountsDeadline(periodEnd);
-  const accountsReminderAt = calculateNextReminderDate(accountsDeadline, 0);
-
-  const reminderData: Array<{
-    filingType: "accounts" | "ct600";
-    filingDeadline: Date;
-    remindersSent: number;
-    nextReminderAt: Date | null;
-  }> = [
-    {
-      filingType: "accounts",
-      filingDeadline: accountsDeadline,
-      remindersSent: 0,
-      nextReminderAt: accountsReminderAt,
-    },
-  ];
-
-  if (registeredForCorpTax) {
-    const ct600Deadline = calculateCT600Deadline(periodEnd);
-    const ct600ReminderAt = calculateNextReminderDate(ct600Deadline, 0);
-    reminderData.push({
-      filingType: "ct600",
-      filingDeadline: ct600Deadline,
-      remindersSent: 0,
-      nextReminderAt: ct600ReminderAt,
-    });
-  }
-
   // Check if a soft-deleted record exists for this company — restore it instead of creating a new row
   // (the unique constraint on [userId, companyRegistrationNumber] prevents creating a second row)
   const softDeleted = await prisma.company.findFirst({
@@ -288,15 +314,11 @@ export async function POST(req: NextRequest) {
 
   try {
     if (softDeleted) {
-      // Delete old reminders and restore the company with fresh data
-      await prisma.reminder.deleteMany({ where: { companyId: softDeleted.id } });
-
-      // Delete only seeded filings (accepted, no correlationId) — preserve real submissions
+      // Delete old filings (seeded ones without correlationId) and outstanding ones
       await prisma.filing.deleteMany({
         where: {
           companyId: softDeleted.id,
-          status: "accepted",
-          correlationId: null,
+          OR: [{ status: "accepted", correlationId: null }, { status: "outstanding" }],
         },
       });
 
@@ -319,13 +341,18 @@ export async function POST(req: NextRequest) {
           ardMonth,
           ardDay,
           deletedAt: null,
-          reminders: {
-            create: reminderData,
-          },
         },
       });
 
-      await seedFilingHistory(softDeleted.id, dateOfCreation, gapResult, ardMonth, ardDay);
+      await materialiseFilings(
+        softDeleted.id,
+        dateOfCreation,
+        gapResult,
+        ardMonth,
+        ardDay,
+        !!registeredForCorpTax,
+        accountsDueOn,
+      );
 
       return NextResponse.json({ id: company.id }, { status: 201 });
     }
@@ -349,13 +376,18 @@ export async function POST(req: NextRequest) {
         sicCodes: sicCodes ?? null,
         ardMonth,
         ardDay,
-        reminders: {
-          create: reminderData,
-        },
       },
     });
 
-    await seedFilingHistory(company.id, dateOfCreation, gapResult, ardMonth, ardDay);
+    await materialiseFilings(
+      company.id,
+      dateOfCreation,
+      gapResult,
+      ardMonth,
+      ardDay,
+      !!registeredForCorpTax,
+      accountsDueOn,
+    );
 
     return NextResponse.json({ id: company.id }, { status: 201 });
   } catch (error) {

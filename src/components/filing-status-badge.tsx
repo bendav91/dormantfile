@@ -9,6 +9,11 @@ const statusConfig: Record<
   FilingStatus,
   { label: string; backgroundColor: string; color: string }
 > = {
+  outstanding: {
+    label: "Outstanding",
+    backgroundColor: "var(--color-neutral-bg)",
+    color: "var(--color-neutral-text)",
+  },
   pending: {
     label: "Pending",
     backgroundColor: "var(--color-neutral-bg)",

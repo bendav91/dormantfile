@@ -37,9 +37,9 @@ export async function DELETE() {
     await stripe.customers.del(user.stripeCustomerId);
   }
 
-  // Delete in order: reminders → filings → companies → user
+  // Delete in order: notifications → filings → companies → user
   for (const company of user.companies) {
-    await prisma.reminder.deleteMany({
+    await prisma.notification.deleteMany({
       where: { companyId: company.id },
     });
 

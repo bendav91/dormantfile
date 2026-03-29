@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { calculateCT600Deadline, calculateNextReminderDate, validateUTR } from "@/lib/utils";
+import { calculateCT600Deadline, validateUTR } from "@/lib/utils";
 
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -39,8 +39,9 @@ export async function PATCH(req: NextRequest) {
         where: { id: companyId },
         data: { registeredForCorpTax: false, uniqueTaxReference: null },
       }),
-      prisma.reminder.deleteMany({
-        where: { companyId, filingType: "ct600" },
+      // Delete outstanding ct600 Filings (keep accepted ones)
+      prisma.filing.deleteMany({
+        where: { companyId, filingType: "ct600", status: "outstanding" },
       }),
     ]);
     return NextResponse.json({ success: true });
@@ -70,27 +71,40 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "UTR must be exactly 10 digits" }, { status: 400 });
     }
 
-    const ct600Deadline = calculateCT600Deadline(company.accountingPeriodEnd);
-    const ct600ReminderAt = calculateNextReminderDate(ct600Deadline, 0);
+    // Create outstanding ct600 Filings for all existing outstanding periods
+    const outstandingAccounts = await prisma.filing.findMany({
+      where: { companyId, filingType: "accounts", status: "outstanding" },
+      select: {
+        periodStart: true,
+        periodEnd: true,
+        accountsDeadline: true,
+        ct600Deadline: true,
+        suppressedAt: true,
+      },
+    });
+
+    const ct600Filings = outstandingAccounts.map((f) => ({
+      companyId,
+      filingType: "ct600" as const,
+      periodStart: f.periodStart,
+      periodEnd: f.periodEnd,
+      status: "outstanding" as const,
+      accountsDeadline: f.accountsDeadline,
+      ct600Deadline: f.ct600Deadline ?? calculateCT600Deadline(f.periodEnd),
+      suppressedAt: f.suppressedAt,
+    }));
 
     await prisma.$transaction([
       prisma.company.update({
         where: { id: companyId },
-        data: {
-          registeredForCorpTax: true,
-          uniqueTaxReference: uniqueTaxReference,
-        },
+        data: { registeredForCorpTax: true, uniqueTaxReference },
       }),
-      prisma.reminder.create({
-        data: {
-          companyId,
-          filingType: "ct600",
-          filingDeadline: ct600Deadline,
-          remindersSent: 0,
-          nextReminderAt: ct600ReminderAt,
-        },
+      prisma.filing.createMany({
+        data: ct600Filings,
+        skipDuplicates: true,
       }),
     ]);
+
     return NextResponse.json({ success: true });
   }
 

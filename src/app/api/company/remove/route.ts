@@ -25,12 +25,8 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
-  // Soft delete: mark as deleted, remove reminders (no longer needed)
+  // Soft delete: mark as deleted
   // Filings are preserved for billing period counting
-  await prisma.reminder.deleteMany({
-    where: { companyId: company.id },
-  });
-
   await prisma.company.update({
     where: { id: company.id },
     data: { deletedAt: new Date() },

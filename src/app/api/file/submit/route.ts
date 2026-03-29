@@ -5,7 +5,6 @@ import { prisma } from "@/lib/db";
 import { buildGovTalkMessage } from "@/lib/hmrc/xml-builder";
 import { submitToHmrc, pollHmrc } from "@/lib/hmrc/submission-client";
 import { rollForwardPeriod } from "@/lib/roll-forward";
-import { getOutstandingPeriods } from "@/lib/periods";
 import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
 import { generateDormantTaxComputationsIxbrl } from "@/lib/ixbrl/tax-computations";
 import type { VendorCredentials } from "@/lib/hmrc/types";
@@ -117,30 +116,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Validate the requested period is a legitimate outstanding period
-  const companyFilings = await prisma.filing.findMany({
-    where: { companyId },
-    select: { periodStart: true, periodEnd: true, filingType: true, status: true },
-  });
-  const periods = getOutstandingPeriods(
-    company.accountingPeriodStart,
-    company.accountingPeriodEnd,
-    company.registeredForCorpTax,
-    companyFilings,
-    {
-      dateOfCreation: company.dateOfCreation,
-      accountsDueOn: company.accountsDueOn,
+  // Validate the requested period exists as an outstanding Filing
+  const outstandingFiling = await prisma.filing.findFirst({
+    where: {
+      companyId,
+      filingType: "ct600",
+      periodStart: targetPeriodStart,
+      periodEnd: targetPeriodEnd,
+      status: "outstanding",
     },
-  );
-  const targetPeriod = periods.find(
-    (p) =>
-      p.periodStart.getTime() === targetPeriodStart.getTime() &&
-      p.periodEnd.getTime() === targetPeriodEnd.getTime(),
-  );
-  if (!targetPeriod) {
+  });
+  if (!outstandingFiling) {
     return NextResponse.json({ error: "Invalid period for this company" }, { status: 400 });
   }
-  if (targetPeriod.isBlockedTerritory) {
+
+  const sixYearsAgo = new Date();
+  sixYearsAgo.setUTCFullYear(sixYearsAgo.getUTCFullYear() - 6);
+  if (targetPeriodEnd.getTime() <= sixYearsAgo.getTime()) {
     return NextResponse.json(
       {
         error:

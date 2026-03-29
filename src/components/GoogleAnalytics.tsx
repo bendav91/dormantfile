@@ -17,7 +17,7 @@ export function GoogleAnalytics() {
   const consented = useSyncExternalStore(
     subscribeConsent,
     () => localStorage.getItem("cookie-consent") === "accepted",
-    () => false
+    () => false,
   );
 
   if (!consented || !gaId) return null;

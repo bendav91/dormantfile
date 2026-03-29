@@ -15,7 +15,10 @@ export async function POST() {
 
   const { success } = rateLimit(`resend-verification:${session.user.id}`, 1, 60_000);
   if (!success) {
-    return NextResponse.json({ error: "Please wait before requesting another email." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Please wait before requesting another email." },
+      { status: 429 },
+    );
   }
 
   const user = await prisma.user.findUnique({

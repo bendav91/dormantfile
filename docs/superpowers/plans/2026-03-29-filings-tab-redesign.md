@@ -15,6 +15,7 @@
 ### Task 1: Extend Filing interface and add client directive
 
 **Files:**
+
 - Modify: `src/components/filings-tab.tsx:1-31`
 
 - [ ] **Step 1: Add `"use client"` directive and extend Filing interface**
@@ -63,6 +64,7 @@ git commit -m "refactor: convert FilingsTab to client component and extend Filin
 ### Task 2: Add segment control sub-tab bar
 
 **Files:**
+
 - Modify: `src/components/filings-tab.tsx`
 
 - [ ] **Step 1: Add sub-tab state and render segment control**
@@ -120,53 +122,55 @@ Render the segment control in the JSX (after the disclosure warning, before the 
 Wrap the existing outstanding periods `<div>` (the `<div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>` containing `incompletePeriods.map(...)`) in a conditional:
 
 ```tsx
-{activeTab === "outstanding" && (
-  <>
-    {/* existing outstanding periods content */}
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-      {incompletePeriods.map((period, index) => {
-        // ... existing card code unchanged ...
-      })}
-    </div>
-
-    {/* Empty state — show when no outstanding periods */}
-    {incompletePeriods.length === 0 && (
-      <div
-        style={{
-          textAlign: "center",
-          padding: "48px 24px",
-          backgroundColor: "var(--color-bg-card)",
-          borderRadius: "12px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-        }}
-      >
-        <span
-          style={{
-            color: "var(--color-success)",
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: "12px",
-          }}
-        >
-          <CheckCircle2 size={32} color="currentColor" strokeWidth={2} />
-        </span>
-        <p
-          style={{
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "var(--color-text-primary)",
-            margin: "0 0 4px 0",
-          }}
-        >
-          All caught up
-        </p>
-        <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>
-          No outstanding accounting periods for this company.
-        </p>
+{
+  activeTab === "outstanding" && (
+    <>
+      {/* existing outstanding periods content */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        {incompletePeriods.map((period, index) => {
+          // ... existing card code unchanged ...
+        })}
       </div>
-    )}
-  </>
-)}
+
+      {/* Empty state — show when no outstanding periods */}
+      {incompletePeriods.length === 0 && (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "48px 24px",
+            backgroundColor: "var(--color-bg-card)",
+            borderRadius: "12px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+          }}
+        >
+          <span
+            style={{
+              color: "var(--color-success)",
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "12px",
+            }}
+          >
+            <CheckCircle2 size={32} color="currentColor" strokeWidth={2} />
+          </span>
+          <p
+            style={{
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--color-text-primary)",
+              margin: "0 0 4px 0",
+            }}
+          >
+            All caught up
+          </p>
+          <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>
+            No outstanding accounting periods for this company.
+          </p>
+        </div>
+      )}
+    </>
+  );
+}
 ```
 
 - [ ] **Step 3: Remove the old completed periods section and the old empty state**
@@ -190,6 +194,7 @@ git commit -m "feat: add segment control sub-tabs to FilingsTab"
 ### Task 3: Build the Completed tab content
 
 **Files:**
+
 - Modify: `src/components/filings-tab.tsx`
 
 - [ ] **Step 1: Add the completed tab rendering**
@@ -197,95 +202,53 @@ git commit -m "feat: add segment control sub-tabs to FilingsTab"
 Add the completed tab conditional block after the outstanding tab block:
 
 ```tsx
-{activeTab === "completed" && (
-  <>
-    {completePeriods.length > 0 ? (
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        {[...completePeriods].reverse().map((period) => {
-          const accountsFiling = getFilingForPeriod(period, "accounts");
-          const ct600Filing = getFilingForPeriod(period, "ct600");
+{
+  activeTab === "completed" && (
+    <>
+      {completePeriods.length > 0 ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {[...completePeriods].reverse().map((period) => {
+            const accountsFiling = getFilingForPeriod(period, "accounts");
+            const ct600Filing = getFilingForPeriod(period, "ct600");
 
-          return (
-            <div
-              key={period.periodEnd.toISOString()}
-              style={{
-                backgroundColor: "var(--color-bg-card)",
-                borderRadius: "12px",
-                padding: "20px",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
-                border: "1px solid var(--color-border)",
-              }}
-            >
-              {/* Period header */}
+            return (
               <div
+                key={period.periodEnd.toISOString()}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginBottom: "14px",
+                  backgroundColor: "var(--color-bg-card)",
+                  borderRadius: "12px",
+                  padding: "20px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
+                  border: "1px solid var(--color-border)",
                 }}
               >
-                <span style={{ color: "var(--color-success)", display: "flex" }}>
-                  <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
-                </span>
-                <h2
-                  style={{
-                    fontSize: "16px",
-                    fontWeight: 700,
-                    color: "var(--color-text-primary)",
-                    margin: 0,
-                  }}
-                >
-                  {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
-                </h2>
-              </div>
-
-              {/* Filing rows */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                {/* Accounts row */}
+                {/* Period header */}
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "10px 12px",
-                    backgroundColor: "var(--color-bg-inset)",
-                    borderRadius: "8px",
+                    gap: "8px",
+                    marginBottom: "14px",
                   }}
                 >
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        color: "var(--color-text-primary)",
-                        margin: 0,
-                      }}
-                    >
-                      Accounts
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--color-text-secondary)",
-                        margin: 0,
-                      }}
-                    >
-                      {accountsFiling?.confirmedAt
-                        ? `Accepted ${formatShortDate(accountsFiling.confirmedAt)}`
-                        : "Accepted"}
-                      {" · "}
-                      {accountsFiling?.submittedAt ? "Filed via DormantFile" : "Filed elsewhere"}
-                    </p>
-                  </div>
-                  <FilingStatusBadge
-                    status={accountsFiling?.status ?? ("accepted" as FilingStatus)}
-                    filingType="accounts"
-                  />
+                  <span style={{ color: "var(--color-success)", display: "flex" }}>
+                    <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
+                  </span>
+                  <h2
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: "var(--color-text-primary)",
+                      margin: 0,
+                    }}
+                  >
+                    {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
+                  </h2>
                 </div>
 
-                {/* CT600 row — only if registered for corp tax */}
-                {registeredForCorpTax && (
+                {/* Filing rows */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  {/* Accounts row */}
                   <div
                     style={{
                       display: "flex",
@@ -305,7 +268,7 @@ Add the completed tab conditional block after the outstanding tab block:
                           margin: 0,
                         }}
                       >
-                        CT600
+                        Accounts
                       </p>
                       <p
                         style={{
@@ -314,68 +277,116 @@ Add the completed tab conditional block after the outstanding tab block:
                           margin: 0,
                         }}
                       >
-                        {ct600Filing
-                          ? <>
+                        {accountsFiling?.confirmedAt
+                          ? `Accepted ${formatShortDate(accountsFiling.confirmedAt)}`
+                          : "Accepted"}
+                        {" · "}
+                        {accountsFiling?.submittedAt ? "Filed via DormantFile" : "Filed elsewhere"}
+                      </p>
+                    </div>
+                    <FilingStatusBadge
+                      status={accountsFiling?.status ?? ("accepted" as FilingStatus)}
+                      filingType="accounts"
+                    />
+                  </div>
+
+                  {/* CT600 row — only if registered for corp tax */}
+                  {registeredForCorpTax && (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "10px 12px",
+                        backgroundColor: "var(--color-bg-inset)",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      <div>
+                        <p
+                          style={{
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            color: "var(--color-text-primary)",
+                            margin: 0,
+                          }}
+                        >
+                          CT600
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--color-text-secondary)",
+                            margin: 0,
+                          }}
+                        >
+                          {ct600Filing ? (
+                            <>
                               {ct600Filing.confirmedAt
                                 ? `Accepted ${formatShortDate(ct600Filing.confirmedAt)}`
                                 : "Accepted"}
                               {" · "}
-                              {ct600Filing.submittedAt ? "Filed via DormantFile" : "Filed elsewhere"}
+                              {ct600Filing.submittedAt
+                                ? "Filed via DormantFile"
+                                : "Filed elsewhere"}
                             </>
-                          : "Not tracked for this period"}
-                      </p>
+                          ) : (
+                            "Not tracked for this period"
+                          )}
+                        </p>
+                      </div>
+                      {ct600Filing ? (
+                        <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                      ) : (
+                        <span
+                          style={{
+                            padding: "4px 10px",
+                            borderRadius: "9999px",
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            backgroundColor: "var(--color-bg-inset)",
+                            color: "var(--color-text-secondary)",
+                            border: "1px solid var(--color-border)",
+                          }}
+                        >
+                          N/A
+                        </span>
+                      )}
                     </div>
-                    {ct600Filing ? (
-                      <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
-                    ) : (
-                      <span
-                        style={{
-                          padding: "4px 10px",
-                          borderRadius: "9999px",
-                          fontSize: "11px",
-                          fontWeight: 600,
-                          backgroundColor: "var(--color-bg-inset)",
-                          color: "var(--color-text-secondary)",
-                          border: "1px solid var(--color-border)",
-                        }}
-                      >
-                        N/A
-                      </span>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    ) : (
-      <div
-        style={{
-          textAlign: "center",
-          padding: "48px 24px",
-          backgroundColor: "var(--color-bg-card)",
-          borderRadius: "12px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-        }}
-      >
-        <p
+            );
+          })}
+        </div>
+      ) : (
+        <div
           style={{
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "var(--color-text-primary)",
-            margin: "0 0 4px 0",
+            textAlign: "center",
+            padding: "48px 24px",
+            backgroundColor: "var(--color-bg-card)",
+            borderRadius: "12px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
           }}
         >
-          No completed filings yet
-        </p>
-        <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>
-          Completed filings will appear here once accepted by Companies House or HMRC.
-        </p>
-      </div>
-    )}
-  </>
-)}
+          <p
+            style={{
+              fontSize: "16px",
+              fontWeight: 600,
+              color: "var(--color-text-primary)",
+              margin: "0 0 4px 0",
+            }}
+          >
+            No completed filings yet
+          </p>
+          <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }}>
+            Completed filings will appear here once accepted by Companies House or HMRC.
+          </p>
+        </div>
+      )}
+    </>
+  );
+}
 ```
 
 - [ ] **Step 2: Verify it builds**
@@ -399,6 +410,7 @@ git commit -m "feat: add detailed completed filings tab with filing history"
 Run: `npm run dev`
 
 Check the following on a company page:
+
 1. Sub-tab bar renders below the disclosure warning (if any) with correct counts
 2. Outstanding tab shows existing period cards with all actions working
 3. Completed tab shows detailed cards with status badges, dates, and source hints

@@ -10,7 +10,9 @@ vi.mock("@/lib/db", () => ({
     },
     filing: {
       findMany: vi.fn(),
+      create: vi.fn(),
       createMany: vi.fn(),
+      update: vi.fn(),
     },
   },
 }));
@@ -19,10 +21,6 @@ vi.mock("@/lib/companies-house/filing-history", () => ({
   fetchFilingHistoryStrict: vi.fn(),
   detectAccountsGaps: vi.fn(),
   computeFirstPeriodEnd: vi.fn(),
-}));
-
-vi.mock("@/lib/roll-forward", () => ({
-  rollForwardPeriod: vi.fn(),
 }));
 
 // Mock the CH company profile fetch
@@ -35,7 +33,6 @@ import {
   detectAccountsGaps,
   computeFirstPeriodEnd,
 } from "@/lib/companies-house/filing-history";
-import { rollForwardPeriod } from "@/lib/roll-forward";
 
 const mockCompany = {
   id: "comp-1",
@@ -81,32 +78,18 @@ describe("resyncFromCompaniesHouse", () => {
 
     // No existing filings match
     vi.mocked(prisma.filing.findMany).mockResolvedValue([]);
-    vi.mocked(prisma.filing.createMany).mockResolvedValue({ count: 1 });
 
     const result = await resyncFromCompaniesHouse("comp-1");
 
     expect(result.newFilingsCount).toBe(1);
-    expect(prisma.filing.createMany).toHaveBeenCalledWith({
-      data: [
-        expect.objectContaining({
-          companyId: "comp-1",
-          filingType: "accounts",
-          periodEnd: new Date("2024-03-31"),
-          status: "accepted",
-          correlationId: null,
-        }),
-      ],
-      skipDuplicates: true,
+    expect(prisma.filing.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        companyId: "comp-1",
+        filingType: "accounts",
+        periodEnd: new Date("2024-03-31"),
+        status: "accepted",
+      }),
     });
-    expect(rollForwardPeriod).toHaveBeenCalledWith(
-      "comp-1",
-      new Date("2024-03-31"),
-      false,
-      "accounts",
-      "test@example.com",
-      "TEST LTD",
-      { skipEmail: true },
-    );
   });
 
   it("returns zero when no new filings detected", async () => {
@@ -126,8 +109,7 @@ describe("resyncFromCompaniesHouse", () => {
     const result = await resyncFromCompaniesHouse("comp-1");
 
     expect(result.newFilingsCount).toBe(0);
-    expect(prisma.filing.createMany).not.toHaveBeenCalled();
-    expect(rollForwardPeriod).not.toHaveBeenCalled();
+    expect(prisma.filing.create).not.toHaveBeenCalled();
   });
 
   it("returns error when CH API fails", async () => {
@@ -183,18 +165,15 @@ describe("resyncFromCompaniesHouse", () => {
     vi.mocked(computeFirstPeriodEnd).mockReturnValue(firstPeriodEnd);
 
     vi.mocked(prisma.filing.findMany).mockResolvedValue([]);
-    vi.mocked(prisma.filing.createMany).mockResolvedValue({ count: 1 });
 
     await resyncFromCompaniesHouse("comp-1");
 
-    expect(prisma.filing.createMany).toHaveBeenCalledWith({
-      data: [
-        expect.objectContaining({
-          periodStart: new Date("2020-06-01"), // incorporation date from CH profile
-          periodEnd: firstPeriodEnd,
-        }),
-      ],
-      skipDuplicates: true,
+    expect(prisma.filing.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        periodStart: new Date("2020-06-01"), // incorporation date from CH profile
+        periodEnd: firstPeriodEnd,
+        status: "accepted",
+      }),
     });
   });
 });

@@ -15,7 +15,7 @@ export function CookieConsent() {
   const stored = useSyncExternalStore(
     subscribeCookieConsent,
     () => localStorage.getItem("cookie-consent"),
-    () => "pending" // SSR: assume pending so it renders nothing server-side
+    () => "pending", // SSR: assume pending so it renders nothing server-side
   );
   const visible = stored === null;
 
