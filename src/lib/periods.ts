@@ -13,6 +13,8 @@ export interface PeriodInfo {
   hasEarlierGaps: boolean;
   /** Period ended more than 4 years ago — HMRC disclosure territory */
   isDisclosureTerritory: boolean;
+  /** Period ended more than 6 years ago — filing blocked, professional advice needed */
+  isBlockedTerritory: boolean;
   /** At least one filing deadline has passed */
   isOverdue: boolean;
 }
@@ -39,6 +41,8 @@ export function getOutstandingPeriods(
   const now = new Date();
   const fourYearsAgo = new Date(now);
   fourYearsAgo.setUTCFullYear(fourYearsAgo.getUTCFullYear() - 4);
+  const sixYearsAgo = new Date(now);
+  sixYearsAgo.setUTCFullYear(sixYearsAgo.getUTCFullYear() - 6);
 
   const periods: PeriodInfo[] = [];
   let pStart = new Date(currentPeriodStart);
@@ -80,6 +84,7 @@ export function getOutstandingPeriods(
       isComplete,
       hasEarlierGaps: false, // computed below
       isDisclosureTerritory: pEnd.getTime() <= fourYearsAgo.getTime(),
+      isBlockedTerritory: pEnd.getTime() <= sixYearsAgo.getTime(),
       isOverdue,
     });
 
