@@ -24,6 +24,14 @@ export async function POST(req: Request) {
   });
 
   if (!record || record.usedAt || record.expiresAt < new Date()) {
+    console.error("verify-email failed:", {
+      tokenLength: token.length,
+      hashPrefix: hashedToken.slice(0, 8),
+      found: !!record,
+      usedAt: record?.usedAt ?? null,
+      expiresAt: record?.expiresAt ?? null,
+      now: new Date().toISOString(),
+    });
     return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
   }
 
