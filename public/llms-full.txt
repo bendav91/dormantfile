@@ -1,0 +1,401 @@
+# DormantFile
+
+> DormantFile is a UK SaaS service that files dormant company accounts to Companies House and nil CT600 corporation tax returns to HMRC. It provides direct submission to government APIs, requires no accounting knowledge, and takes under two minutes per filing. Built as an affordable alternative after HMRC shut down its free CATO filing tool on 31 March 2026.
+
+## Overview
+
+DormantFile helps UK limited company directors file the two annual obligations every dormant company must meet: dormant accounts at Companies House and a nil CT600 return at HMRC. The service handles XML generation, IRmark computation, digital submission, and status polling — all through a simple web interface. Credentials are used once for submission and never stored.
+
+Pricing starts at £19/year for a single company, £39/year for up to 10 companies, and £49/year for up to 100 companies (Agent tier for accountants and company secretaries).
+
+DormantFile was built as the direct replacement for CATO (Corporation Tax Online), the free HMRC filing tool that closed on 31 March 2026. Thousands of directors of dormant companies — side projects, holding structures, companies kept for future use — lost their only free way to file a CT600 return. DormantFile handles both filings from one dashboard.
+
+For genuinely dormant companies only — no trading activity, no assets, no income.
+
+## About
+
+Our founder built DormantFile out of necessity. He runs several dormant limited companies in the UK — holding structures, side projects that never launched, companies kept open for future plans. Every year, each one needs the same two filings:
+
+- Annual accounts to Companies House
+- A nil CT600 Corporation Tax return to HMRC
+
+The companies do nothing, but the paperwork never stops.
+
+For years, the free HMRC tool (CATO) handled the tax return side. It wasn't pretty, but it worked and it cost nothing. When HMRC announced CATO was closing — it closed on 31 March 2026 — the alternatives were bleak: hire an accountant at £80–£150 per company per year for a zero-activity filing, or buy general-purpose accounting software that's overkill for a company with no transactions.
+
+Neither option made sense. So we built DormantFile.
+
+DormantFile handles both filings that a dormant UK limited company needs each year:
+
+- Annual accounts — prepared and submitted directly to Companies House via their official software filing API.
+- Nil CT600 Corporation Tax return — prepared and submitted directly to HMRC via their GovTalk API.
+
+Both filings confirm that your company was dormant during the accounting period. No transactions, no tax liability. DormantFile handles the XML, the submission, and the confirmation — you just review and click submit.
+
+We also send email reminders at 90, 30, 14, 7, 3, and 1 days before each deadline, so you never miss a filing date.
+
+DormantFile is built and run by a solo founder based in the UK. He's a software engineer, not an accountant. DormantFile is software — it prepares and submits your filings, but it does not provide accounting or tax advice.
+
+Our approach:
+
+- Affordable — from £19/year, because filing a nil return shouldn't cost more than the company earns (which is nothing).
+- Secure — your HMRC credentials are used once to submit your filing and then discarded. We never store them.
+- Simple — no features you don't need. No invoicing, no payroll, no VAT. Just the two filings a dormant company actually requires.
+
+## How it works
+
+From sign-up to filed — the whole process takes under five minutes.
+
+1. Create your account: Sign up with your email address and set a password. It takes about 30 seconds.
+2. Add your company: Enter your company registration number and we look up the name from Companies House automatically. Then add your UTR (Unique Taxpayer Reference) and your accounting period dates.
+3. Choose your plan: Pick the plan that fits. Basic is £19/year for one company, Multiple is £39/year for up to 10, and Agent is £49/year for up to 100.
+4. Get deadline reminders: We calculate your filing deadlines automatically — nine months after your accounting reference date for accounts, twelve months for CT600. You get email reminders at 90, 30, 14, 7, 3, and 1 day before each deadline.
+5. File your accounts: Submit your dormant accounts to Companies House. Enter your authentication code and we handle the rest via the Companies House software filing API.
+6. File your CT600: Submit a nil CT600 to HMRC. Enter your Government Gateway credentials — they are used once and never stored. We file directly via HMRC's GovTalk API.
+7. Get confirmation: Once your filing is accepted, we show confirmation in your dashboard and send you an email. Filing records are stored so you always have a history.
+
+Behind on your filings? DormantFile shows all outstanding periods for your company. File them one at a time, starting from the oldest, and your company will be brought up to date.
+
+Not registered for Corporation Tax? No problem. Accounts and CT600 are independent filings — you can file one without the other. Many dormant companies only need to file annual accounts with Companies House.
+
+## Pricing
+
+One dormant company or a hundred — pick the plan that fits.
+
+- Basic: £19/year — 1 dormant company. Both filings (accounts and CT600), file any outstanding period, direct submission via official APIs, email deadline reminders, filing confirmation emails and history.
+- Multiple: £39/year — Up to 10 companies. Everything in Basic, manage all companies from one dashboard, catch up on missed periods.
+- Agent: £49/year — Up to 100 companies. Everything in Multiple, file as agent on behalf of clients, built for accountants and company secretaries.
+
+Comparison:
+
+| Method | Cost | Time | Notes |
+|--------|------|------|-------|
+| DormantFile | From £19/year | Under 2 minutes | Both filings from one dashboard. Catch up on missed years |
+| Accountant | £80–£150+ per company | Varies | Professional advice included, but overkill for nil returns |
+| General accounting software | £100+/year | 30+ minutes | Designed for trading companies, not dormant |
+| DIY (manual filing) | Free (accounts only) | 1–2 hours | No CT600 option since CATO closed on 31 March 2026 |
+
+Every plan includes both filings — dormant accounts to Companies House and nil CT600 returns to HMRC — for any outstanding period. Plans are based on how many companies you manage, not how many filings you make. Your HMRC Gateway credentials are used once at the point of submission and never stored.
+
+14-day cooling-off period: If you cancel within 14 days and haven't submitted a filing, we issue a full refund. Upgrades take effect immediately, downgrades at the end of the current billing period. Cancel anytime via the billing portal.
+
+## Security
+
+The number one question we get: "Can I trust you with my credentials?" Here's exactly how DormantFile handles your HMRC Gateway login and Companies House authentication code.
+
+- HMRC credentials never stored: Your HMRC Government Gateway user ID and password are entered once at the point of CT600 submission. They are transmitted to HMRC over an encrypted TLS connection and immediately discarded from server memory once HMRC responds. They are never written to our database.
+- Companies House auth code never stored: Your six-character Companies House authentication code is entered at the point of accounts filing. It is transmitted to Companies House as part of the submission and is not stored in our database.
+- Encryption in transit: All data between your browser and our servers is encrypted using TLS. Your credentials travel over the same encrypted channel to HMRC and Companies House.
+- Secure password storage: Your DormantFile account password is hashed using bcrypt before it is saved. We never store it in plain text.
+- Minimal cookies: One essential session cookie to keep you logged in, plus an optional analytics cookie — only loaded if you consent.
+
+What data we store: email address and hashed password, company details (name, registration number, UTR, accounting period dates), filing records, and Stripe customer ID for billing (card details are held by Stripe, not us).
+
+Third-party services: HMRC (receives company details and Gateway credentials during CT600 filing), Companies House (receives company details and authentication code during accounts filing), Stripe (processes payments), Resend (delivers transactional emails).
+
+## FAQ
+
+### Filing
+
+**What filings does DormantFile handle?**
+We handle two filings for dormant companies: annual dormant accounts submitted to Companies House and a nil CT600 Corporation Tax return submitted to HMRC. Both confirm your company was dormant during the accounting period.
+
+**What if my company isn't registered for Corporation Tax?**
+That's fine. Many dormant companies only need to file annual accounts with Companies House. If yours isn't registered for Corporation Tax, you can skip the CT600 entirely. We handle both scenarios.
+
+**Can I use DormantFile if my company is trading?**
+No. DormantFile is designed exclusively for genuinely dormant companies — those with no significant transactions during the period. If your company has traded, you need a qualified accountant.
+
+**What do I need before I start?**
+For Companies House accounts: your company registration number and Companies House authentication code. For the CT600: your Unique Taxpayer Reference (UTR) and HMRC Government Gateway credentials (user ID and password). You will also need your accounting period dates for both filings.
+
+**How long does filing take?**
+Under two minutes. You click file, enter the relevant credentials, and we handle the rest.
+
+**What happens after I file?**
+Companies House and HMRC process your submission. Once accepted, we show the confirmation in your dashboard and send you an email. Your filing records are kept so you have a permanent history.
+
+**What accounting periods can I file for?**
+You can file for any accounting period where your company was dormant. We calculate your deadlines based on the period dates you enter.
+
+**What if I'm behind on my filings?**
+DormantFile lets you file for any outstanding period. If your company has missed several years, you can work through each period from your dashboard. We recommend filing the oldest period first.
+
+**Can I use DormantFile if my company has a Bounce Back Loan?**
+Yes, as long as the company is genuinely dormant. A Bounce Back Loan is a creditor obligation — it does not affect your company's dormant status under the Companies Act (provided repayments are not made through the company's own bank account).
+
+### Security
+
+**Is my data secure?**
+Yes. All data is transmitted over TLS encryption. Your DormantFile password is hashed with bcrypt. Payment is handled by Stripe — we never see your card details.
+
+**How do you handle my HMRC Gateway credentials?**
+Your HMRC Government Gateway user ID and password are used once during the CT600 submission. They are transmitted to HMRC over TLS, never stored in our database, and discarded from server memory immediately after HMRC responds.
+
+**How do you handle my Companies House authentication code?**
+Your Companies House authentication code is entered at the point of filing and transmitted directly to Companies House over TLS. We do not store it in our database.
+
+**What data do you collect?**
+We collect your email address, a hashed password, company details (name, registration number, UTR, accounting dates), and filing records. Payment is handled entirely by Stripe — we never see or store your card details.
+
+### Pricing
+
+**How much does it cost?**
+Basic is £19/year for one company. Multiple is £39/year for up to 10 companies. Agent is £49/year for up to 100 companies. All plans include both filings for any outstanding period.
+
+**Is there a free trial?**
+We don't currently offer a free trial, but the Basic plan is just £19/year — less than what most accountants charge for a single nil filing.
+
+**Can I cancel anytime?**
+Yes. Cancel via the billing portal and your subscription stays active until the end of the current billing period.
+
+**What happens if my subscription lapses?**
+You won't be able to file new returns, but your account and filing history remain accessible. You can resubscribe at any time.
+
+### Account
+
+**Can I manage multiple companies?**
+Yes, on the Multiple or Agent plan. Each company has its own filing record, deadlines, and reminders.
+
+**When do I get filing reminders?**
+We send email reminders at 90, 30, 14, 7, 3, and 1 days before each deadline.
+
+**How do I add or remove a company?**
+Add a company from your dashboard by entering its registration number. Remove a company from your settings — the filing history is preserved.
+
+**How do I delete my account?**
+You can delete your account from the settings page. This removes all your personal data and company records. This action is permanent and cannot be undone.
+
+## Guides
+
+### How to file dormant company accounts with Companies House
+
+Every UK limited company must file annual accounts with Companies House, even if the company is dormant and has done nothing all year. For dormant companies, this means filing a simplified set of dormant accounts.
+
+Dormant company accounts confirm your company had no significant accounting transactions during the period. Under section 1169 of the Companies Act 2006, a company is dormant if it has had no "significant accounting transactions" — the only exceptions being shares taken by subscribers on formation and fees paid to Companies House.
+
+What you need: company registration number, Companies House authentication code (a 6-character alphanumeric code sent to your registered office), and accounting period dates.
+
+Deadline: 9 months after the end of the accounting reference period. For first-year accounts, the deadline is the later of 9 months after the end of the accounting period or 21 months from the date of incorporation.
+
+Late filing penalties: £150 (up to 1 month), £375 (1–3 months), £750 (3–6 months), £1,500 (more than 6 months). These penalties double if late two consecutive years.
+
+Filing options: Companies House WebFiling (free, 15–30 minutes), DormantFile (under 2 minutes, from £19/year), or hire an accountant (£80–£150 per company).
+
+### How to file a nil CT600 tax return with HMRC
+
+If your dormant company is registered for Corporation Tax, you need to file a CT600 return with HMRC every year — even if the company owes no tax. This is called a nil CT600 because every figure on the return is zero.
+
+What you need: Unique Taxpayer Reference (UTR), HMRC Government Gateway credentials (user ID and password), and accounting period dates.
+
+Deadline: 12 months after the end of the accounting period.
+
+HMRC's free CATO service closed on 31 March 2026, so commercial software is now required. DormantFile submits your nil CT600 directly to HMRC via their GovTalk API. Your Gateway credentials are used once and never stored.
+
+### Do I need to file a CT600 for a dormant company?
+
+Not every dormant company needs to file a CT600. Whether you need to depends on one question: is your company registered for Corporation Tax?
+
+If your company is registered (you have a UTR from HMRC), you file a nil CT600 every year. If not, you only file annual accounts with Companies House.
+
+Your company is probably registered if HMRC sent you a UTR, you notified HMRC the company was active, or it traded at some point. It probably is not registered if it was incorporated but never traded, you never notified HMRC, and you never received a UTR.
+
+If unsure, call HMRC's Corporation Tax helpline on 0300 200 3410.
+
+Regardless of Corporation Tax status, every dormant company must file annual accounts with Companies House and a confirmation statement (CS01) at least once every 12 months.
+
+### Late filing penalties for dormant companies
+
+Even if your company is dormant and has done nothing all year, you are still legally required to file. If you do not file on time, penalties apply automatically.
+
+Companies House penalties for late annual accounts (private companies): £150 (up to 1 month), £375 (1–3 months), £750 (3–6 months), £1,500 (more than 6 months). Penalties double if late two consecutive years.
+
+HMRC penalties for late CT600: £100 (1 day late), another £100 (3 months late), 10% of estimated tax (6 months late), further 10% (12 months late).
+
+Persistent non-filing risks compulsory strike-off by Companies House.
+
+### How to catch up on overdue dormant company filings
+
+If your dormant company has fallen behind, you can fix this. Companies House and HMRC both accept late filings at any time. There is no cut-off point. The sooner you do it, the sooner penalties stop getting worse.
+
+File in chronological order — oldest period first. Companies House requires accounts to be filed sequentially. For a genuinely dormant company, each filing takes about two minutes. Three years behind on both filings? That is six submissions — done in under 15 minutes.
+
+Filing now stops further penalties accumulating and prevents strike-off. Already-issued penalties cannot be reversed, but you can prevent new ones.
+
+### CATO has closed — what are your options now?
+
+HMRC shut down its free Corporation Tax Online service (CATO) on 31 March 2026. Alternatives:
+
+1. DormantFile — purpose-built for dormant companies, from £19/year, both filings from one dashboard.
+2. Commercial accounting software (Xero, FreeAgent, Sage, TaxCalc) — full-featured, £100+/year, overkill for nil returns.
+3. Hire an accountant — £80–£150 per company per year.
+4. HMRC's approved software list — mostly general-purpose tools.
+
+### Dormant company filing deadlines explained
+
+Annual accounts (Companies House): 9 months after accounting period end. CT600 (HMRC): 12 months after accounting period end. Confirmation statement: every 12 months from incorporation/last CS01, £34 online / £62 paper.
+
+First-year accounts deadline: the later of 9 months after period end or 21 months from incorporation.
+
+### Dormant vs non-trading company: what is the difference?
+
+"Dormant" (Companies Act) means no significant accounting transactions. "Non-trading" (HMRC) means no trade, income, or gains. They usually overlap, but a company can be non-trading without being dormant (e.g., if it earns bank interest). If dormant under both: file dormant accounts + nil CT600. If non-trading but not dormant: you need full accounts.
+
+### How to check if your company is dormant
+
+Under section 1169 of the Companies Act 2006, a company is dormant if it has had no significant accounting transactions. The only excluded transactions are shares on formation and Companies House fees. Everything else counts — including bank interest.
+
+Common scenarios: incorporated but never traded (dormant), holding company with no activity (typically dormant), company that stopped trading (dormant if no lingering transactions), company with interest-earning bank account (not dormant).
+
+Check your bank statements. Any transaction means the company is not dormant.
+
+### How to close a dormant company (and when to keep it open)
+
+Apply to Companies House using form DS01 (£33 filing fee). Company must not have traded, changed name, or disposed of property in last 3 months. Notify all interested parties within 7 days. Companies House publishes Gazette notice, 2-month objection window. Total timeline: approximately 3 months.
+
+Reasons to keep it open: protect the company name, possible future use, outstanding debts or Bounce Back Loans, holding assets, low cost of filing (from £19/year with DormantFile vs £12 to re-incorporate).
+
+### Bounce Back Loan and a dormant company
+
+If your company has an outstanding BBL, you cannot close it — the lender can object to strike-off and can restore a dissolved company. Stopping filing does not help; penalties accumulate and the debt remains.
+
+A BBL does not affect dormant status, provided repayments are not made through the company's own bank account. Total annual compliance cost: £53/year (DormantFile at £19 + CS01 at £34). Once the loan is repaid, you can close the company or continue filing.
+
+### How much does it cost to file dormant accounts?
+
+| Method | Annual cost | What you get |
+|--------|------------|-------------|
+| DormantFile | From £19/year | Both filings from one dashboard |
+| Companies House WebFiling (DIY) | Free | Accounts only — no CT600 since CATO closed |
+| General accounting software | £100–£300+/year | CT600 + accounts, plus unused features |
+| Accountant | £80–£150+ per company | Both filings, plus professional advice |
+
+### Do I need an accountant for a dormant company?
+
+You do NOT need an accountant if: your company is genuinely dormant, you are confident in its status, it has no bank account (or non-interest-bearing), no transactions, no assets, and nothing unusual in its history.
+
+You DO need an accountant if: you are not sure whether the company is dormant, it partially traded, it received any income, it holds assets, there are director loans, or it has a complex history.
+
+### First year filing for a new dormant company
+
+Three filings: annual accounts (Companies House), confirmation statement (Companies House), and CT600 (HMRC, only if registered for Corporation Tax).
+
+First-year accounts deadline: the later of 9 months after accounting period end or 21 months from incorporation. Confirmation statement: due within 12 months of incorporation, £34 online. CT600: 12 months after period end.
+
+### How to reactivate a dormant company
+
+Steps: notify HMRC (register for Corporation Tax if not already), open a business bank account, update SIC codes, file full accounts for the first trading period, register for VAT if turnover exceeds £90,000, register for PAYE if hiring. An accountant is recommended for the transition from dormant to trading.
+
+### How to keep your dormant company compliant without an accountant
+
+Three annual obligations: annual dormant accounts (Companies House, 9 months after ARD), nil CT600 (HMRC, 12 months after period end, if registered for CT), confirmation statement (Companies House, every 12 months, £34).
+
+Cheapest legitimate route: DormantFile at £19/year + CS01 at £34/year = £53/year total.
+
+### What happens if Companies House strikes off your company?
+
+Companies House strikes off companies that persistently fail to file. Process: warning letter, first Gazette notice, two-month objection window, second Gazette notice and dissolution (3–4 months total).
+
+Consequences: company ceases to exist, assets become Crown property (bona vacantia), you lose the company name, outstanding debts are not cancelled. Administrative restoration is possible within 6 years (£500 plus penalties). Court restoration is more expensive.
+
+### Annual accounts vs confirmation statement: what is the difference?
+
+Annual accounts report on financial position, due 9 months after ARD, free to file. Confirmation statement confirms company details (directors, shareholders, registered office), due every 12 months from incorporation, costs £34 online. Both are required even when dormant.
+
+## Answers
+
+### What is a CT600?
+
+A CT600 is the Corporation Tax return that UK companies file with HMRC. It reports income, gains, and Corporation Tax owed. Dormant companies registered for CT file a nil CT600 (every figure is zero). Not filing triggers automatic penalties starting at £100 for one day late.
+
+### What is the HMRC Gateway?
+
+The HMRC Government Gateway is an online authentication system for accessing HMRC's digital services. You need Gateway credentials (user ID and password) to file a nil CT600. If you have lost your credentials, reset your password through the Gateway service or call HMRC on 0300 200 3410.
+
+### What are dormant company accounts?
+
+Dormant company accounts are simplified annual accounts confirming no significant accounting transactions during the period. They contain a balance sheet (typically zero or nominal share capital), a dormant statement, and the director's name. Due 9 months after the accounting reference date.
+
+### What does 'dormant' mean under the Companies Act?
+
+Under the Companies Act 2006 (section 1169), a company is dormant during any period in which it has no significant accounting transactions. Only two transactions are excluded: shares taken by subscribers on formation and fees paid to Companies House. Everything else — even bank interest — counts.
+
+### What is a UTR number?
+
+A UTR (Unique Taxpayer Reference) is a 10-digit number issued by HMRC to identify your company for Corporation Tax purposes. You need it to file a CT600. If you do not have one, your company may not be registered for Corporation Tax and you may only need to file dormant accounts.
+
+### What is an accounting reference date?
+
+Your accounting reference date (ARD) is the date your company's annual accounts are prepared to each year. Default: last day of the month in which the anniversary of incorporation falls. Determines filing deadlines: accounts due 9 months after ARD, CT600 due 12 months after period end.
+
+### What is a Companies House authentication code?
+
+A 6-character alphanumeric code that verifies you are authorised to file documents online for your company. Posted to the registered office address. Request a new one via Companies House WebFiling (delivered within 5 working days). Does not expire; linked to the company, not the individual.
+
+### What is a confirmation statement (CS01)?
+
+A filing with Companies House that confirms your company's details are up to date (registered office, directors, shareholders, SIC codes, PSC). Due at least every 12 months. Costs £34 online / £62 paper. Separate from annual accounts. Required even for dormant companies.
+
+### What does 'no significant accounting transactions' mean?
+
+A significant accounting transaction is any transaction that must be entered in the company's accounting records — receiving money, making payments, issuing invoices, buying or selling anything. The only excluded transactions are subscriber shares on formation and Companies House fees. Even bank interest counts.
+
+### What is the difference between dissolved and dormant?
+
+Dormant: still on the Companies House register, but not trading. Must still file annual accounts, confirmation statement, and CT600 (if registered for CT). Dissolved: removed from the register, no longer exists as a legal entity, no filing obligations. A dormant company can be voluntarily dissolved via DS01 (£33, ~3 months).
+
+### What are Companies House late filing penalties?
+
+Automatic, fixed penalties with no grace period: £150 (up to 1 month), £375 (1–3 months), £750 (3–6 months), £1,500 (6+ months). These apply to private companies. Penalties double if late two consecutive years. Apply even to dormant companies.
+
+### What is a SIC code?
+
+A 5-digit Standard Industrial Classification code describing what your company does. Dormant companies should use 99999 (dormant company — no significant trading activity). Update via your next confirmation statement (CS01) on Companies House.
+
+### What is Companies House WebFiling?
+
+The free online filing service from Companies House. Covers annual accounts (including dormant accounts), confirmation statements, and other statutory forms. Does not cover CT600 returns (that is an HMRC filing requiring separate software).
+
+### What is Making Tax Digital (MTD)?
+
+HMRC's programme to digitise the UK tax system. MTD for Corporation Tax has no mandation date yet, but CATO's closure on 31 March 2026 means directors already need commercial software to file CT600 returns.
+
+### What is a registered office address?
+
+The official address of a UK limited company, displayed on the public Companies House register. Must be a physical address (not a PO Box). Companies House posts authentication codes to this address. Change it by filing form AD01 (free via WebFiling).
+
+### What are persons with significant control?
+
+People who own more than 25% of a company's shares or voting rights, or who otherwise exercise significant control. Must be reported on the PSC register and confirmed in the confirmation statement (CS01). Required even for dormant companies.
+
+### Can you close a company with an outstanding Bounce Back Loan?
+
+In practice, no. The lender can object to voluntary strike-off and can restore a dissolved company to recover the debt. You must continue filing annually until the loan is repaid.
+
+## Legal
+
+### Privacy Policy
+
+DormantFile collects: account information (email, name, hashed password), company details (name, CRN, UTR, accounting dates), filing records, Stripe customer ID. HMRC Gateway credentials are used once at submission and never stored. Companies House authentication codes likewise not stored.
+
+Third parties: HMRC (filing submission), Companies House (filing submission), Stripe (payments), Resend (emails), Google Analytics (if consented).
+
+Data retention: account data retained while active plus 12 months. Filing records retained 6 years per HMRC requirements.
+
+Your rights under UK GDPR: access, rectification, erasure, restriction, portability, objection, withdrawal of consent. Contact: privacy@dormantfile.co.uk.
+
+### Terms of Service
+
+DormantFile provides software only — not accountancy, tax advice, or regulated financial services. Designed exclusively for genuinely dormant companies. Users must be a director or authorised officer of a UK limited company.
+
+HMRC credentials are used once at submission, transmitted to HMRC over TLS, and never stored. Companies House authentication codes handled the same way.
+
+Subscription renews annually, cancel anytime. 14-day cooling-off period under Consumer Contracts Regulations 2013. Liability limited to fees paid in the preceding 12 months. Governed by laws of England and Wales.
+
+### Refund and Cancellation Policy
+
+14-day cooling-off period: cancel within 14 days for a full refund if no filing has been submitted. Cancel via billing portal in account settings. After 14 days, no refunds for partial periods. Account data retained 12 months after cancellation. Filing records retained 6 years. Refund requests: hello@dormantfile.co.uk.
+
+## Contact
+
+Email: hello@dormantfile.co.uk

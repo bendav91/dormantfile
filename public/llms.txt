@@ -1,0 +1,50 @@
+# DormantFile
+
+> DormantFile is a UK SaaS service that files dormant company accounts to Companies House and nil CT600 corporation tax returns to HMRC. It provides direct submission to government APIs, requires no accounting knowledge, and takes under two minutes per filing. Built as an affordable alternative after HMRC shut down its free CATO filing tool on 31 March 2026.
+
+## Overview
+
+DormantFile helps UK limited company directors file the two annual obligations every dormant company must meet: dormant accounts at Companies House and a nil CT600 return at HMRC. The service handles XML generation, IRmark computation, digital submission, and status polling — all through a simple web interface. Credentials are used once for submission and never stored.
+
+Pricing starts at £19/year for a single company, £39/year for up to 10 companies, and £49/year for up to 100 companies (Agent tier for accountants and company secretaries).
+
+## Key pages
+
+- [Home](https://dormantfile.com/): Landing page with value proposition, how it works, pricing, and FAQs
+- [How It Works](https://dormantfile.com/how-it-works): Step-by-step walkthrough of the filing process
+- [Pricing](https://dormantfile.com/pricing): Plan comparison and pricing details
+- [About](https://dormantfile.com/about): Why DormantFile exists and how it works
+- [FAQ](https://dormantfile.com/faq): Common questions about filing, security, pricing, and account management
+- [Security](https://dormantfile.com/security): How credentials and data are handled
+- [Contact](https://dormantfile.com/contact): Contact form and support email
+
+## Guides
+
+In-depth articles covering dormant company filing in the UK:
+
+- [How to File Dormant Company Accounts](https://dormantfile.com/guides/how-to-file-dormant-company-accounts)
+- [Do I Need a CT600 for a Dormant Company?](https://dormantfile.com/guides/do-i-need-a-ct600-for-a-dormant-company)
+- [Late Filing Penalties](https://dormantfile.com/guides/late-filing-penalties)
+- [Catching Up on Overdue Dormant Company Filings](https://dormantfile.com/guides/catching-up-overdue-dormant-company-filings)
+- [How to Close a Dormant Company](https://dormantfile.com/guides/how-to-close-a-dormant-company)
+- [Bounce Back Loan and Dormant Companies](https://dormantfile.com/guides/bounce-back-loan-dormant-company)
+- [Cost to File Dormant Accounts](https://dormantfile.com/guides/cost-to-file-dormant-accounts)
+- [All Guides](https://dormantfile.com/guides): 36 guides across filing, deadlines, penalties, eligibility, and alternatives
+
+## Answers
+
+Quick-reference definitions for common terms:
+
+- [What Is a CT600?](https://dormantfile.com/answers/what-is-a-ct600)
+- [What Is the HMRC Gateway?](https://dormantfile.com/answers/what-is-the-hmrc-gateway)
+- [What Are Persons with Significant Control?](https://dormantfile.com/answers/what-are-persons-with-significant-control)
+- [Companies House Late Filing Penalties](https://dormantfile.com/answers/companies-house-late-filing-penalties)
+- [All Answers](https://dormantfile.com/answers): 17 quick-reference definitions
+
+## Legal
+
+- [Terms of Service](https://dormantfile.com/terms)
+- [Privacy Policy](https://dormantfile.com/privacy)
+- [Refund & Cancellation Policy](https://dormantfile.com/refund)
+- [Acceptable Use Policy](https://dormantfile.com/acceptable-use)
+- [Cookie Policy](https://dormantfile.com/cookies)

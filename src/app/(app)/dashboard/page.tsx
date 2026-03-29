@@ -32,7 +32,12 @@ interface DashboardProps {
   searchParams: Promise<{ page?: string; q?: string; filter?: string; sort?: string }>;
 }
 
+function getNow() {
+  return Date.now();
+}
+
 export default async function DashboardPage({ searchParams }: DashboardProps) {
+  const now = getNow();
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -350,10 +355,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           const ct600Deadline = currentPeriod?.ct600Deadline ?? calculateCT600Deadline(company.accountingPeriodEnd);
 
           const accountsDaysLeft = Math.ceil(
-            (accountsDeadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+            (accountsDeadline.getTime() - now) / (1000 * 60 * 60 * 24)
           );
           const ct600DaysLeft = Math.ceil(
-            (ct600Deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+            (ct600Deadline.getTime() - now) / (1000 * 60 * 60 * 24)
           );
 
           // Pre-compute deadline text
