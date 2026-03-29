@@ -8,6 +8,7 @@ import { getOutstandingPeriods } from "@/lib/periods";
 import FilingsTab from "@/components/filings-tab";
 import SettingsTab from "@/components/settings-tab";
 import OverviewTab from "@/components/overview-tab";
+import SyncButton from "@/components/sync-button";
 
 interface PageProps {
   params: Promise<{ companyId: string }>;
@@ -66,34 +67,37 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
 
       {/* Company header */}
       <div style={{ marginBottom: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-          <div
-            style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "10px",
-              backgroundColor: "var(--color-primary-bg)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ color: "var(--color-primary)" }}>
-              <Building2 size={20} color="currentColor" strokeWidth={2} />
-            </span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div
+              style={{
+                width: "42px",
+                height: "42px",
+                borderRadius: "10px",
+                backgroundColor: "var(--color-primary-bg)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ color: "var(--color-primary)" }}>
+                <Building2 size={20} color="currentColor" strokeWidth={2} />
+              </span>
+            </div>
+            <div>
+              <h1 style={{ fontSize: "26px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
+                {company.companyName}
+              </h1>
+              <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0, marginTop: "2px" }}>
+                {company.companyRegistrationNumber}
+                {incompletePeriods.length > 0 && (
+                  <> &middot; {incompletePeriods.length} outstanding {incompletePeriods.length === 1 ? "period" : "periods"}</>
+                )}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 style={{ fontSize: "26px", fontWeight: 700, color: "var(--color-text-primary)", margin: 0, letterSpacing: "-0.02em" }}>
-              {company.companyName}
-            </h1>
-            <p style={{ fontSize: "14px", color: "var(--color-text-secondary)", margin: 0, marginTop: "2px" }}>
-              {company.companyRegistrationNumber}
-              {incompletePeriods.length > 0 && (
-                <> &middot; {incompletePeriods.length} outstanding {incompletePeriods.length === 1 ? "period" : "periods"}</>
-              )}
-            </p>
-          </div>
+          <SyncButton companyId={companyId} />
         </div>
       </div>
 
@@ -101,8 +105,8 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       <div style={{ display: "flex", gap: "0", borderBottom: "1px solid var(--color-border)", marginBottom: "24px" }}>
         {[
           { key: "filings", label: "Filings", href: `/company/${companyId}` },
-          { key: "settings", label: "Settings", href: `/company/${companyId}?tab=settings` },
           { key: "overview", label: "Overview", href: `/company/${companyId}?tab=overview` },
+          { key: "settings", label: "Settings", href: `/company/${companyId}?tab=settings` },
         ].map(({ key, label, href }) => (
           <Link
             key={key}
@@ -131,6 +135,9 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           filings={company.filings}
         />
       )}
+      {tab === "overview" && (
+        <OverviewTab companyNumber={company.companyRegistrationNumber} />
+      )}
       {tab === "settings" && (
         <SettingsTab
           companyId={companyId}
@@ -140,9 +147,6 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           shareCapital={company.shareCapital}
           activeCT600Count={activeCT600Count}
         />
-      )}
-      {tab === "overview" && (
-        <OverviewTab companyNumber={company.companyRegistrationNumber} />
       )}
     </div>
   );
