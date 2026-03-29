@@ -1,11 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function VerifyEmailChangePage() {
+  return (
+    <Suspense fallback={<p className="text-center text-sm text-gray-500">Loading&hellip;</p>}>
+      <VerifyEmailChangeContent />
+    </Suspense>
+  );
+}
+
+function VerifyEmailChangeContent() {
   const { update } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<p className="text-center text-sm text-gray-500">Loading&hellip;</p>}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
+
+function VerifyEmailContent() {
   const { data: session, update } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
