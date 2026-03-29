@@ -153,12 +153,19 @@ input[type="search"]::-webkit-search-cancel-button {
   appearance: none;
 }
 
-/* Dashboard filter/sort active pill hover states */
-.filter-pill.active:hover {
-  background-color: var(--color-primary-hover) !important;
+/* Segmented filter control */
+.segmented-tab:hover {
+  background-color: color-mix(in srgb, var(--color-bg-card) 50%, transparent);
 }
-.sort-pill.active:hover {
-  background-color: var(--color-text-body) !important;
+.segmented-tab[aria-selected="true"]:hover {
+  background-color: var(--color-bg-card);
+}
+
+/* Sort dropdown: hide label text on mobile */
+@media (max-width: 639px) {
+  .sort-dropdown-label {
+    display: none;
+  }
 }
 
 /* Focus ring for inline-styled inputs */
