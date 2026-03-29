@@ -22,7 +22,7 @@ export default function NotFoundPage() {
         padding: "24px",
       }}
     >
-      <FileQuestion size={48} color="#CBD5E1" strokeWidth={1.5} />
+      <FileQuestion size={48} style={{ color: "var(--color-bg-disabled)" }} strokeWidth={1.5} />
       <h1
         style={{
           fontSize: "72px",

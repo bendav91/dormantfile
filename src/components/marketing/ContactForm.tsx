@@ -27,7 +27,7 @@ export function ContactForm() {
 
   if (status === "sent") {
     return (
-      <p style={{ color: "#16A34A", fontWeight: 500, fontSize: "15px" }}>
+      <p style={{ color: "var(--color-success)", fontWeight: 500, fontSize: "15px" }}>
         Thanks for your message. We&apos;ll get back to you soon.
       </p>
     );
