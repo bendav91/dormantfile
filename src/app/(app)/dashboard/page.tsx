@@ -2,17 +2,24 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Building2, Plus, AlertTriangle, ArrowUpDown, ChevronRight } from "lucide-react";
+import { Building2, Plus, AlertTriangle, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import SubscriptionBanner from "@/components/subscription-banner";
 import FilingStatusBadge from "@/components/filing-status-badge";
 import EnableCorpTax from "@/components/enable-corp-tax";
 import EditUTR from "@/components/edit-utr";
 import CompanySearch from "@/components/company-search";
+import SortDropdown, { type SortType } from "@/components/sort-dropdown";
+import {
+  type FilterType,
+  type FilterCounts,
+  matchesFilter,
+  computeFilterCounts,
+} from "@/lib/dashboard-filters";
 import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
-import { getOutstandingPeriods, getIncompletePeriodsCount } from "@/lib/periods";
+import { getOutstandingPeriods } from "@/lib/periods";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -23,17 +30,6 @@ function formatDate(date: Date): string {
 }
 
 const PAGE_SIZE = 10;
-
-type FilterType = "overdue" | "due-soon" | "recently-filed" | "accepted" | "rejected" | "failed" | "";
-type SortType = "most-overdue" | "most-outstanding" | "name-asc" | "date-added-newest" | "date-added-oldest";
-
-const SORT_OPTIONS: { key: SortType; label: string }[] = [
-  { key: "most-overdue", label: "Most Overdue" },
-  { key: "most-outstanding", label: "Most Outstanding" },
-  { key: "name-asc", label: "A\u2013Z" },
-  { key: "date-added-newest", label: "Newest first" },
-  { key: "date-added-oldest", label: "Oldest first" },
-];
 
 interface DashboardProps {
   searchParams: Promise<{ page?: string; q?: string; filter?: string; sort?: string }>;
@@ -70,62 +66,16 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
   const { page: pageParam, q: searchQuery, filter: filterParam, sort: sortParam } = await searchParams;
   const search = searchQuery?.trim() || "";
-  const validFilters = ["overdue", "due-soon", "recently-filed", "accepted", "rejected", "failed"];
-  const filter = (validFilters.includes(filterParam ?? "") ? filterParam : "") as FilterType;
+  const validFilters: FilterType[] = ["needs-attention", "recently-filed", "issues"];
+  const filter: FilterType = validFilters.includes(filterParam as FilterType)
+    ? (filterParam as FilterType)
+    : "";
   const validSorts: SortType[] = ["most-overdue", "most-outstanding", "name-asc", "date-added-newest", "date-added-oldest"];
   const sort: SortType = validSorts.includes(sortParam as SortType) ? (sortParam as SortType) : "most-overdue";
-
-  // For overdue/due-soon filters, compute deadlines across ALL outstanding periods.
-  let filterIds: string[] | null = null;
-  if (filter === "overdue" || filter === "due-soon") {
-    const allCompanies = await prisma.company.findMany({
-      where: { userId: user.id, deletedAt: null },
-      include: { filings: { select: { periodStart: true, periodEnd: true, filingType: true, status: true } } },
-    });
-    const now = Date.now();
-    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-
-    filterIds = allCompanies
-      .filter((c) => {
-        const periods = getOutstandingPeriods(c.accountingPeriodStart, c.accountingPeriodEnd, c.registeredForCorpTax, c.filings);
-        return periods.some((p) => {
-          if (p.isComplete) return false;
-          if (filter === "overdue") return p.isOverdue;
-          // due-soon: any deadline within 30 days
-          const accountsDueSoon = !p.accountsFiled && p.accountsDeadline.getTime() >= now && p.accountsDeadline.getTime() <= now + thirtyDaysMs;
-          const ct600DueSoon = c.registeredForCorpTax && !p.ct600Filed && p.ct600Deadline.getTime() >= now && p.ct600Deadline.getTime() <= now + thirtyDaysMs;
-          return accountsDueSoon || ct600DueSoon;
-        });
-      })
-      .map((c) => c.id);
-  } else if (filter === "recently-filed") {
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const recentFilings = await prisma.filing.findMany({
-      where: {
-        company: { userId: user.id, deletedAt: null },
-        status: "accepted",
-        confirmedAt: { gte: thirtyDaysAgo },
-      },
-      select: { companyId: true },
-      distinct: ["companyId"],
-    });
-    filterIds = recentFilings.map((f) => f.companyId);
-  } else if (filter === "accepted" || filter === "rejected" || filter === "failed") {
-    const matchingFilings = await prisma.filing.findMany({
-      where: {
-        company: { userId: user.id, deletedAt: null },
-        status: filter,
-      },
-      select: { companyId: true },
-      distinct: ["companyId"],
-    });
-    filterIds = matchingFilings.map((f) => f.companyId);
-  }
 
   const baseWhere = {
     userId: user.id,
     deletedAt: null,
-    ...(filterIds !== null ? { id: { in: filterIds } } : {}),
     ...(search
       ? {
           OR: [
@@ -178,10 +128,26 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
     }
   });
 
-  const totalCompanies = companiesWithSortData.length;
+  // Compute filter counts over the search-filtered set (counts reflect what the user sees)
+  const filterCounts: FilterCounts = computeFilterCounts(
+    companiesWithSortData.map((c) => ({
+      periods: c.periods,
+      registeredForCorpTax: c.company.registeredForCorpTax,
+      filings: c.company.filings,
+    })),
+  );
+
+  // Apply active filter as JS predicate
+  const filteredCompanies = filter
+    ? companiesWithSortData.filter((c) =>
+        matchesFilter(filter, c.periods, c.company.registeredForCorpTax, c.company.filings),
+      )
+    : companiesWithSortData;
+
+  const totalCompanies = filteredCompanies.length;
   const totalPages = Math.max(1, Math.ceil(totalCompanies / PAGE_SIZE));
   const currentPage = Math.max(1, Math.min(totalPages, parseInt(pageParam ?? "1", 10) || 1));
-  const paginatedCompanies = companiesWithSortData.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const paginatedCompanies = filteredCompanies.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const canFile = user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
   const showAddCompany = canAddCompany(user.subscriptionTier, allCompanyCount);
@@ -276,83 +242,83 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         )}
       </div>
 
-      {/* Search, filters, and sort — show when there are 2+ companies, or when a search/filter is active */}
+      {/* Filters, search, and sort — show when there are 2+ companies, or when a search/filter is active */}
       {(allCompanyCount > 1 || search || filter) && (
         <>
-          <CompanySearch />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", flexWrap: "wrap", gap: "8px" }}>
-            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {([
-                { key: "", label: "All" },
-                { key: "overdue", label: "Overdue" },
-                { key: "due-soon", label: "Due Soon" },
-                { key: "recently-filed", label: "Recently Filed" },
-                { key: "accepted", label: "Accepted" },
-                { key: "rejected", label: "Rejected" },
-                { key: "failed", label: "Failed" },
-              ] as const).map((f) => {
-                const isActive = filter === f.key;
-                const params = new URLSearchParams();
-                if (f.key) params.set("filter", f.key);
-                if (search) params.set("q", search);
-                if (sort !== "most-overdue") params.set("sort", sort);
-                const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
-                return (
-                  <Link
-                    key={f.key}
-                    href={href}
-                    className={`focus-ring ${isActive ? "filter-pill active" : "hoverable-subtle filter-pill"}`}
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: "6px",
-                      fontSize: "13px",
-                      fontWeight: 600,
-                      textDecoration: "none",
-                      transition: "opacity 200ms, background-color 200ms",
-                      backgroundColor: isActive ? "var(--color-primary)" : "var(--color-bg-card)",
-                      color: isActive ? "var(--color-bg-card)" : "var(--color-text-body)",
-                      border: `1px solid ${isActive ? "var(--color-primary)" : "var(--color-border)"}`,
-                    }}
-                  >
-                    {f.label}
-                  </Link>
-                );
-              })}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "var(--color-text-muted)", display: "flex" }}>
-                <ArrowUpDown size={14} color="currentColor" strokeWidth={2} aria-hidden="true" />
-              </span>
-              <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
-                {SORT_OPTIONS.map((s) => {
-                  const isActive = sort === s.key;
-                  const params = new URLSearchParams();
-                  if (filter) params.set("filter", filter);
-                  if (search) params.set("q", search);
-                  if (s.key !== "most-overdue") params.set("sort", s.key);
-                  const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
-                  return (
-                    <Link
-                      key={s.key}
-                      href={href}
-                      className={`focus-ring ${isActive ? "sort-pill active" : "hoverable-subtle sort-pill"}`}
+          {/* Segmented filter control */}
+          <div
+            style={{
+              display: "inline-flex",
+              backgroundColor: "var(--color-bg-inset)",
+              borderRadius: "8px",
+              padding: "3px",
+              marginBottom: "10px",
+            }}
+          >
+            {([
+              { key: "" as FilterType, label: "All", mobileLabel: "All", count: filterCounts.all, urgent: false },
+              { key: "needs-attention" as FilterType, label: "Needs Attention", mobileLabel: "Attention", count: filterCounts.needsAttention, urgent: true },
+              { key: "recently-filed" as FilterType, label: "Recently Filed", mobileLabel: "Filed", count: filterCounts.recentlyFiled, urgent: false },
+              { key: "issues" as FilterType, label: "Issues", mobileLabel: "Issues", count: filterCounts.issues, urgent: true },
+            ]).map((f) => {
+              const isActive = filter === f.key;
+              const params = new URLSearchParams();
+              if (f.key) params.set("filter", f.key);
+              if (search) params.set("q", search);
+              if (sort !== "most-overdue") params.set("sort", sort);
+              const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
+              const showUrgentBadge = f.urgent && f.count > 0;
+              return (
+                <Link
+                  key={f.key}
+                  href={href}
+                  role="tab"
+                  aria-selected={isActive}
+                  className="focus-ring segmented-tab"
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    fontWeight: isActive ? 600 : 500,
+                    textDecoration: "none",
+                    whiteSpace: "nowrap",
+                    transition: "background-color 150ms, box-shadow 150ms",
+                    backgroundColor: isActive ? "var(--color-bg-card)" : "transparent",
+                    color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+                    boxShadow: isActive ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
+                  }}
+                >
+                  <span className="segmented-tab-label-full">{f.label}</span>
+                  {" "}
+                  {showUrgentBadge ? (
+                    <span
                       style={{
-                        padding: "6px 12px",
-                        borderRadius: "5px",
-                        fontSize: "12px",
-                        fontWeight: 500,
-                        textDecoration: "none",
-                        backgroundColor: isActive ? "var(--color-text-secondary)" : "transparent",
-                        color: isActive ? "var(--color-bg-card)" : "var(--color-text-muted)",
-                        transition: "opacity 200ms, background-color 200ms",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "var(--color-danger-bg)",
+                        color: "var(--color-danger)",
+                        padding: "1px 6px",
+                        borderRadius: "9999px",
+                        fontSize: "10px",
+                        fontWeight: 600,
+                        minWidth: "18px",
                       }}
                     >
-                      {s.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
+                      {f.count}
+                    </span>
+                  ) : (
+                    <span style={{ color: "var(--color-text-muted)", fontWeight: 500 }}>{f.count}</span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Search + sort row */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+            <CompanySearch />
+            <SortDropdown currentSort={sort} />
           </div>
         </>
       )}
