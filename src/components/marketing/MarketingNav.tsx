@@ -2,12 +2,20 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+const resourceLinks = [
+  { href: "/guides", label: "Guides" },
+  { href: "/answers", label: "Answers" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/security", label: "Security" },
+];
+
 export function MarketingNav() {
   const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -24,6 +32,11 @@ export function MarketingNav() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+    setResourcesOpen(false);
   }, []);
 
   return (
@@ -48,7 +61,26 @@ export function MarketingNav() {
         >
           <Logo height={24} />
         </Link>
-        <div className="flex items-center gap-6">
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-expanded={mobileMenuOpen}
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          className="md:hidden"
+          style={{
+            color: "var(--color-text-primary)",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "4px",
+          }}
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-6">
           <Link
             href="/pricing"
             className="text-sm font-medium transition-colors duration-200"
@@ -109,12 +141,7 @@ export function MarketingNav() {
                   zIndex: 51,
                 }}
               >
-                {[
-                  { href: "/guides", label: "Guides" },
-                  { href: "/answers", label: "Answers" },
-                  { href: "/faq", label: "FAQ" },
-                  { href: "/security", label: "Security" },
-                ].map((item) => (
+                {resourceLinks.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -156,6 +183,94 @@ export function MarketingNav() {
           </Link>
         </div>
       </div>
+
+      {/* Mobile menu panel */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden"
+          style={{
+            backgroundColor: "var(--color-bg-card)",
+            borderTop: "1px solid var(--color-border)",
+            padding: "0.75rem 1.5rem 1.25rem",
+          }}
+        >
+          <div className="flex flex-col gap-4">
+            <Link
+              href="/pricing"
+              onClick={closeMobileMenu}
+              className="text-sm font-medium"
+              style={{ color: "var(--color-text-primary)", textDecoration: "none" }}
+            >
+              Pricing
+            </Link>
+            <div>
+              <button
+                onClick={() => setResourcesOpen(!resourcesOpen)}
+                className="text-sm font-medium flex items-center gap-1"
+                style={{
+                  color: "var(--color-text-primary)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                Resources
+                <ChevronDown
+                  size={14}
+                  style={{
+                    transform: resourcesOpen ? "rotate(180deg)" : "none",
+                    transition: "transform 0.2s",
+                  }}
+                />
+              </button>
+              {resourcesOpen && (
+                <div className="flex flex-col gap-2 mt-2 pl-3">
+                  {resourceLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={closeMobileMenu}
+                      className="text-sm"
+                      style={{
+                        color: "var(--color-text-body)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-4" style={{ borderTop: "1px solid var(--color-border)", paddingTop: "0.75rem" }}>
+              <ThemeToggle />
+              <Link
+                href="/login"
+                onClick={closeMobileMenu}
+                className="text-sm font-medium"
+                style={{ color: "var(--color-text-primary)", textDecoration: "none" }}
+              >
+                Sign in
+              </Link>
+            </div>
+            <Link
+              href="/register"
+              onClick={closeMobileMenu}
+              className="text-sm font-semibold text-center"
+              style={{
+                backgroundColor: "var(--color-cta)",
+                color: "#ffffff",
+                padding: "10px 20px",
+                borderRadius: "8px",
+                textDecoration: "none",
+              }}
+            >
+              Get started
+            </Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
