@@ -234,6 +234,29 @@ export default async function FilingSelector({ params }: PageProps) {
                 </div>
               )}
 
+              {/* Blocked territory warning */}
+              {period.isBlockedTerritory && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "6px 10px",
+                    backgroundColor: "var(--color-danger-bg)",
+                    border: "1px solid var(--color-danger-border)",
+                    borderRadius: "6px",
+                    marginBottom: "14px",
+                  }}
+                >
+                  <span style={{ color: "var(--color-danger)", flexShrink: 0, display: "flex" }}>
+                    <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
+                  </span>
+                  <p style={{ fontSize: "12px", color: "var(--color-danger-text)", margin: 0, fontWeight: 500 }}>
+                    This period is more than 6 years overdue. We recommend consulting an accountant or contacting HMRC and Companies House directly.
+                  </p>
+                </div>
+              )}
+
               {/* Filing rows */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {/* Accounts */}
@@ -263,7 +286,21 @@ export default async function FilingSelector({ params }: PageProps) {
                     </p>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    {accountsFiling ? (
+                    {period.isBlockedTerritory ? (
+                      <span
+                        style={{
+                          padding: "6px 14px",
+                          borderRadius: "6px",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          color: "var(--color-text-secondary)",
+                          backgroundColor: "var(--color-bg-inset)",
+                          border: "1px solid var(--color-border)",
+                        }}
+                      >
+                        Seek professional advice
+                      </span>
+                    ) : accountsFiling ? (
                       <>
                         <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
                         {(accountsFiling.status === "failed" || accountsFiling.status === "rejected") && (
@@ -304,7 +341,21 @@ export default async function FilingSelector({ params }: PageProps) {
                       </p>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      {ct600Filing ? (
+                      {period.isBlockedTerritory ? (
+                        <span
+                          style={{
+                            padding: "6px 14px",
+                            borderRadius: "6px",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            color: "var(--color-text-secondary)",
+                            backgroundColor: "var(--color-bg-inset)",
+                            border: "1px solid var(--color-border)",
+                          }}
+                        >
+                          Seek professional advice
+                        </span>
+                      ) : ct600Filing ? (
                         <>
                           <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
                           {(ct600Filing.status === "failed" || ct600Filing.status === "rejected") && (
