@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { CheckCircle, Loader2 } from "lucide-react";
 import { SubscriptionTier } from "@prisma/client";
+import { CheckCircle, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface PlanPickerProps {
   currentTier: SubscriptionTier;
@@ -338,7 +338,6 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
           period.
         </p>
       )}
-
     </>
   );
 }
