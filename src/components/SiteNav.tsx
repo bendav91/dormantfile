@@ -3,14 +3,28 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Menu, X } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  ChevronDown,
+  HelpCircle,
+  Menu,
+  Shield,
+  X,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import SignOutButton from "@/components/sign-out-button";
 
 // --- Types ---
 
-type NavLink = { href: string; label: string };
+type NavLink = {
+  href: string;
+  label: string;
+  description?: string;
+  icon?: LucideIcon;
+};
 type NavGroup = { label: string; children: NavLink[] };
 type NavItem = NavLink | NavGroup;
 
@@ -30,18 +44,39 @@ interface SiteNavProps {
   user?: { email: string };
 }
 
+function isLinkActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
 // --- Configs ---
 
 const MARKETING_CONFIG: NavConfig = {
   links: [
+    { href: "/how-it-works", label: "How it works" },
     { href: "/pricing", label: "Pricing" },
+    { href: "/faq", label: "FAQ" },
     {
-      label: "Resources",
+      label: "More",
       children: [
-        { href: "/guides", label: "Guides" },
-        { href: "/answers", label: "Answers" },
-        { href: "/faq", label: "FAQ" },
-        { href: "/security", label: "Security" },
+        {
+          href: "/guides",
+          label: "Guides",
+          description: "Step-by-step filing walkthroughs",
+          icon: BookOpen,
+        },
+        {
+          href: "/answers",
+          label: "Answers",
+          description: "Quick answers to dormant filing",
+          icon: HelpCircle,
+        },
+        {
+          href: "/security",
+          label: "Security",
+          description: "How we protect your data",
+          icon: Shield,
+        },
       ],
     },
   ],
@@ -62,7 +97,13 @@ const APP_CONFIG: NavConfig = {
 
 // --- Desktop Dropdown ---
 
-function DesktopDropdown({ group }: { group: NavGroup }) {
+function DesktopDropdown({
+  group,
+  pathname,
+}: {
+  group: NavGroup;
+  pathname: string;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -82,6 +123,10 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const hasActiveChild = group.children.some((c) =>
+    isLinkActive(pathname, c.href)
+  );
+
   return (
     <div ref={ref} className="relative">
       <button
@@ -92,21 +137,23 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
         }}
         aria-expanded={open}
         aria-haspopup="true"
-        className="text-sm font-medium transition-colors duration-200 flex items-center gap-1"
+        className="text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 cursor-pointer flex items-center gap-1 hoverable-subtle"
         style={{
-          color: "var(--color-text-primary)",
-          background: "none",
+          color: hasActiveChild
+            ? "var(--color-primary)"
+            : "var(--color-text-secondary)",
+          backgroundColor:
+            hasActiveChild || open ? "var(--color-primary-bg)" : "transparent",
           border: "none",
-          cursor: "pointer",
-          padding: 0,
         }}
       >
         {group.label}
         <ChevronDown
-          size={14}
+          size={13}
           style={{
             transform: open ? "rotate(180deg)" : "none",
-            transition: "transform 0.2s",
+            transition: "transform 200ms",
+            opacity: 0.5,
           }}
         />
       </button>
@@ -116,36 +163,84 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
           onKeyDown={(e) => {
             if (e.key === "Escape") close();
           }}
+          className="rounded-xl"
           style={{
             position: "absolute",
-            top: "100%",
+            top: "calc(100% + 8px)",
             right: 0,
-            marginTop: "0.5rem",
             backgroundColor: "var(--color-bg-card)",
             border: "1px solid var(--color-border)",
-            borderRadius: "0.5rem",
-            boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
-            minWidth: "10rem",
-            padding: "0.25rem 0",
+            boxShadow:
+              "0 8px 30px -4px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04)",
+            width: "280px",
+            padding: "6px",
             zIndex: 51,
           }}
         >
-          {group.children.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              role="menuitem"
-              onClick={() => setOpen(false)}
-              className="block text-sm transition-colors duration-200"
-              style={{
-                padding: "0.5rem 1rem",
-                color: "var(--color-text-body)",
-                textDecoration: "none",
-              }}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {group.children.map((item) => {
+            const Icon = item.icon;
+            const active = isLinkActive(pathname, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="flex items-start gap-3 rounded-lg transition-all duration-150 hoverable-subtle"
+                style={{
+                  padding: "10px 12px",
+                  color: "var(--color-text-body)",
+                  textDecoration: "none",
+                  backgroundColor: active
+                    ? "var(--color-primary-bg)"
+                    : "transparent",
+                }}
+              >
+                {Icon && (
+                  <div
+                    className="flex items-center justify-center flex-shrink-0"
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "8px",
+                      backgroundColor: "var(--color-bg-inset)",
+                      marginTop: "1px",
+                    }}
+                  >
+                    <Icon
+                      size={16}
+                      style={{
+                        color: active
+                          ? "var(--color-primary)"
+                          : "var(--color-text-muted)",
+                      }}
+                    />
+                  </div>
+                )}
+                <div>
+                  <p
+                    className="text-sm font-medium"
+                    style={{
+                      color: active
+                        ? "var(--color-primary)"
+                        : "var(--color-text-primary)",
+                      margin: 0,
+                    }}
+                  >
+                    {item.label}
+                  </p>
+                  {item.description && (
+                    <p
+                      className="text-xs mt-0.5"
+                      style={{ color: "var(--color-text-muted)", margin: 0 }}
+                    >
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
@@ -158,7 +253,7 @@ export function SiteNav({ variant, user }: SiteNavProps) {
   const config = variant === "marketing" ? MARKETING_CONFIG : APP_CONFIG;
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [accordionOpen, setAccordionOpen] = useState(false);
+  const [, setAccordionOpen] = useState(false);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -218,29 +313,24 @@ export function SiteNav({ variant, user }: SiteNavProps) {
   }, []);
 
   return (
+    <>
     <nav
+      className="px-6"
       style={{
         position: "sticky",
         top: 0,
         zIndex: 50,
-        backgroundColor: "var(--color-bg-card)",
+        backgroundColor:
+          "color-mix(in srgb, var(--color-bg-card) 80%, transparent)",
+        backdropFilter: "saturate(180%) blur(12px)",
+        WebkitBackdropFilter: "saturate(180%) blur(12px)",
         borderBottom: "1px solid var(--color-border)",
       }}
     >
       {/* Top bar */}
-      <div
-        style={{
-          maxWidth: "960px",
-          margin: "0 auto",
-          padding: "0 1.5rem",
-          height: "64px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+      <div className="max-w-[960px] mx-auto h-16 flex items-center justify-between">
         {/* Left: logo + links */}
-        <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
           <Link
             href={config.logoHref}
             style={{ display: "flex", alignItems: "center" }}
@@ -248,19 +338,28 @@ export function SiteNav({ variant, user }: SiteNavProps) {
             <Logo height={22} />
           </Link>
           <div
-            className="hidden md:flex"
-            style={{ alignItems: "center", gap: "24px" }}
+            className="hidden lg:flex"
+            style={{ alignItems: "center", gap: "4px" }}
           >
             {config.links.map((item) =>
               isNavGroup(item) ? (
-                <DesktopDropdown key={item.label} group={item} />
+                <DesktopDropdown
+                  key={item.label}
+                  group={item}
+                  pathname={pathname}
+                />
               ) : (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-sm font-medium transition-colors duration-200"
+                  className="text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 hoverable-subtle"
                   style={{
-                    color: "var(--color-text-primary)",
+                    color: isLinkActive(pathname, item.href)
+                      ? "var(--color-primary)"
+                      : "var(--color-text-secondary)",
+                    backgroundColor: isLinkActive(pathname, item.href)
+                      ? "var(--color-primary-bg)"
+                      : "transparent",
                     textDecoration: "none",
                   }}
                 >
@@ -277,22 +376,23 @@ export function SiteNav({ variant, user }: SiteNavProps) {
           onClick={() => setDrawerOpen(!drawerOpen)}
           aria-expanded={drawerOpen}
           aria-label={drawerOpen ? "Close menu" : "Open menu"}
-          className="md:hidden"
+          className="lg:hidden flex items-center justify-center"
           style={{
             color: "var(--color-text-primary)",
             background: "none",
             border: "none",
             cursor: "pointer",
-            padding: "4px",
+            width: "44px",
+            height: "44px",
           }}
         >
-          {drawerOpen ? <X size={24} /> : <Menu size={24} />}
+          {drawerOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
 
         {/* Right: desktop actions */}
         <div
-          className="hidden md:flex"
-          style={{ alignItems: "center", gap: "16px" }}
+          className="hidden lg:flex"
+          style={{ alignItems: "center", gap: "12px" }}
         >
           <ThemeToggle />
           {variant === "app" && user && (
@@ -314,10 +414,13 @@ export function SiteNav({ variant, user }: SiteNavProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium transition-colors duration-200 nav-signin-link"
+              className="text-sm font-medium transition-all duration-150 hoverable-subtle"
               style={{
                 color: "var(--color-text-primary)",
                 textDecoration: "none",
+                padding: "8px 16px",
+                borderRadius: "8px",
+                border: "1px solid var(--color-border)",
               }}
             >
               {link.label}
@@ -326,22 +429,25 @@ export function SiteNav({ variant, user }: SiteNavProps) {
           {config.cta && (
             <Link
               href={config.cta.href}
-              className="text-sm font-semibold"
+              className="text-sm font-semibold inline-flex items-center gap-1.5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 cursor-pointer"
               style={{
                 backgroundColor: "var(--color-cta)",
                 color: "#ffffff",
-                padding: "8px 16px",
+                padding: "8px 18px",
                 borderRadius: "8px",
                 textDecoration: "none",
+                boxShadow: "0 1px 3px rgba(249, 115, 22, 0.25)",
               }}
             >
               {config.cta.label}
+              <ArrowRight size={14} />
             </Link>
           )}
         </div>
       </div>
+    </nav>
 
-      {/* Mobile drawer overlay */}
+    {/* Mobile drawer overlay */}
       {drawerOpen && (
         <div
           onClick={closeDrawer}
@@ -350,7 +456,8 @@ export function SiteNav({ variant, user }: SiteNavProps) {
             inset: 0,
             backgroundColor: "rgba(0, 0, 0, 0.4)",
             zIndex: 40,
-            transition: "opacity 250ms ease-out",
+            backdropFilter: "blur(4px)",
+            WebkitBackdropFilter: "blur(4px)",
           }}
           aria-hidden="true"
         />
@@ -367,7 +474,8 @@ export function SiteNav({ variant, user }: SiteNavProps) {
           top: 0,
           left: 0,
           bottom: 0,
-          width: "260px",
+          width: "300px",
+          maxWidth: "85vw",
           backgroundColor: "var(--color-bg-card)",
           borderRight: "1px solid var(--color-border)",
           zIndex: 50,
@@ -397,12 +505,14 @@ export function SiteNav({ variant, user }: SiteNavProps) {
           <button
             onClick={closeDrawer}
             aria-label="Close menu"
+            className="flex items-center justify-center"
             style={{
               color: "var(--color-text-primary)",
               background: "none",
               border: "none",
               cursor: "pointer",
-              padding: "4px",
+              width: "44px",
+              height: "44px",
             }}
           >
             <X size={20} />
@@ -410,90 +520,138 @@ export function SiteNav({ variant, user }: SiteNavProps) {
         </div>
 
         {/* Drawer nav links */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "8px 0" }}>
-          {config.links.map((item) =>
-            isNavGroup(item) ? (
-              <div key={item.label}>
-                <button
-                  onClick={() => setAccordionOpen(!accordionOpen)}
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
+          {/* Main links */}
+          <div style={{ marginBottom: "8px" }}>
+            {config.links
+              .filter((item) => !isNavGroup(item))
+              .map((item) => {
+                const link = item as NavLink;
+                const active = isLinkActive(pathname, link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={closeDrawer}
+                    className="flex items-center rounded-lg transition-colors duration-150"
+                    style={{
+                      padding: "12px 12px",
+                      fontSize: "15px",
+                      fontWeight: 500,
+                      color: active
+                        ? "var(--color-primary)"
+                        : "var(--color-text-primary)",
+                      backgroundColor: active
+                        ? "var(--color-primary-bg)"
+                        : "transparent",
+                      textDecoration: "none",
+                      minHeight: "44px",
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+          </div>
+
+          {/* Grouped links */}
+          {config.links.filter(isNavGroup).map((item) => (
+            <div key={item.label}>
+              <div
+                style={{
+                  borderTop: "1px solid var(--color-border)",
+                  paddingTop: "12px",
+                  marginTop: "4px",
+                }}
+              >
+                <p
+                  className="text-xs font-semibold uppercase tracking-wide"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    padding: "12px 20px",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    color: "var(--color-text-primary)",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    minHeight: "44px",
+                    color: "var(--color-text-muted)",
+                    padding: "4px 12px 8px",
+                    margin: 0,
                   }}
                 >
                   {item.label}
-                  <ChevronDown
-                    size={14}
-                    style={{
-                      transform: accordionOpen ? "rotate(180deg)" : "none",
-                      transition: "transform 0.2s",
-                      color: "var(--color-text-muted)",
-                    }}
-                  />
-                </button>
-                {accordionOpen && (
-                  <div style={{ padding: "0 0 4px 0" }}>
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        onClick={closeDrawer}
-                        style={{
-                          display: "block",
-                          padding: "10px 20px 10px 36px",
-                          fontSize: "14px",
-                          color: "var(--color-text-body)",
-                          textDecoration: "none",
-                          minHeight: "44px",
-                          lineHeight: "24px",
-                        }}
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                </p>
+                {item.children.map((child) => {
+                  const Icon = child.icon;
+                  const active = isLinkActive(pathname, child.href);
+                  return (
+                    <Link
+                      key={child.href}
+                      href={child.href}
+                      onClick={closeDrawer}
+                      className="flex items-center gap-3 rounded-lg transition-colors duration-150"
+                      style={{
+                        padding: "10px 12px",
+                        textDecoration: "none",
+                        minHeight: "44px",
+                        backgroundColor: active
+                          ? "var(--color-primary-bg)"
+                          : "transparent",
+                      }}
+                    >
+                      {Icon && (
+                        <div
+                          className="flex items-center justify-center flex-shrink-0"
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "8px",
+                            backgroundColor: "var(--color-bg-inset)",
+                          }}
+                        >
+                          <Icon
+                            size={16}
+                            style={{
+                              color: active
+                                ? "var(--color-primary)"
+                                : "var(--color-text-muted)",
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <p
+                          className="text-sm font-medium"
+                          style={{
+                            color: active
+                              ? "var(--color-primary)"
+                              : "var(--color-text-primary)",
+                            margin: 0,
+                          }}
+                        >
+                          {child.label}
+                        </p>
+                        {child.description && (
+                          <p
+                            className="text-xs"
+                            style={{
+                              color: "var(--color-text-muted)",
+                              margin: "1px 0 0 0",
+                            }}
+                          >
+                            {child.description}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-            ) : (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={closeDrawer}
-                style={{
-                  display: "block",
-                  padding: "12px 20px",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  color: "var(--color-text-primary)",
-                  textDecoration: "none",
-                  minHeight: "44px",
-                  lineHeight: "20px",
-                }}
-              >
-                {item.label}
-              </Link>
-            )
-          )}
+            </div>
+          ))}
         </div>
 
         {/* Drawer footer */}
         <div
           style={{
             borderTop: "1px solid var(--color-border)",
-            padding: "16px 20px",
+            padding: "16px",
             display: "flex",
             flexDirection: "column",
-            gap: "12px",
+            gap: "10px",
           }}
         >
           <div
@@ -522,10 +680,13 @@ export function SiteNav({ variant, user }: SiteNavProps) {
               key={link.href}
               href={link.href}
               onClick={closeDrawer}
-              className="text-sm font-medium"
+              className="text-sm font-medium text-center"
               style={{
                 color: "var(--color-text-primary)",
                 textDecoration: "none",
+                padding: "10px 20px",
+                borderRadius: "8px",
+                border: "1px solid var(--color-border)",
               }}
             >
               {link.label}
@@ -536,20 +697,22 @@ export function SiteNav({ variant, user }: SiteNavProps) {
             <Link
               href={config.cta.href}
               onClick={closeDrawer}
-              className="text-sm font-semibold text-center"
+              className="text-sm font-semibold text-center inline-flex items-center justify-center gap-1.5"
               style={{
                 backgroundColor: "var(--color-cta)",
                 color: "#ffffff",
-                padding: "10px 20px",
+                padding: "12px 20px",
                 borderRadius: "8px",
                 textDecoration: "none",
+                boxShadow: "0 1px 3px rgba(249, 115, 22, 0.25)",
               }}
             >
               {config.cta.label}
+              <ArrowRight size={14} />
             </Link>
           )}
         </div>
       </div>
-    </nav>
+    </>
   );
 }

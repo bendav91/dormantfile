@@ -10,12 +10,18 @@ import { FAQPageJsonLd } from "@/lib/content/json-ld";
 import { isFilingLive } from "@/lib/launch-mode";
 import {
   ArrowRight,
+  Bell,
+  Briefcase,
   CheckCircle,
   Clock,
   FileCheck,
   KeyRound,
+  Monitor,
   RotateCcw,
+  Search,
+  Send,
   Shield,
+  Zap,
 } from "lucide-react";
 import type { Metadata } from "next";
 import { IBM_Plex_Sans } from "next/font/google";
@@ -42,29 +48,34 @@ export const metadata: Metadata = {
 
 const faqItems = [
   {
-    question: "Is my data secure?",
+    question: "My company has been trading \u2014 can I use this?",
     answer:
-      "Yes. Your HMRC Gateway credentials are used only at the moment of submission and are never written to our database. All data is transmitted over TLS and stored securely.",
+      "No. DormantFile is for genuinely dormant companies only \u2014 no income, no expenditure, no assets. If your company has been trading, you\u2019ll need a full accountant.",
   },
   {
-    question: "What filings does DormantFile handle?",
+    question: "Do I need my HMRC Gateway login?",
     answer:
-      "DormantFile handles two filings: annual accounts to Companies House (required for all companies) and a nil CT600 Corporation Tax return to HMRC (for companies registered for Corporation Tax). Both confirm that your company was dormant during the period.",
+      "Yes, to file the CT600 you\u2019ll enter your Government Gateway credentials. They\u2019re used once at submission and immediately discarded \u2014 never stored.",
   },
   {
-    question: "What if my company isn't registered for Corporation Tax?",
+    question: "I\u2019ve missed filing deadlines. Can I catch up?",
     answer:
-      "No problem — most dormant companies only need to file annual accounts with Companies House. You can add Corporation Tax filing later if needed.",
+      "Yes. You can file any outstanding period, not just the current one. Catch up on missed years in a single sitting.",
   },
   {
-    question: "Can I use this if my company is trading?",
+    question: "What if a filing gets rejected?",
     answer:
-      "No. DormantFile is designed exclusively for genuinely dormant companies with no income, expenditure, or assets. If your company has been trading, you will need a full accountant.",
+      "You\u2019ll see the rejection reason in your dashboard and can correct and resubmit. Common causes are simple data mismatches that take seconds to fix.",
   },
   {
-    question: "What happens after I file?",
+    question: "I only need Companies House \u2014 not the CT600.",
     answer:
-      "You receive acknowledgements from Companies House and HMRC, which we display in your dashboard and send to you by email. Your filing records are stored so you have a history of past submissions.",
+      "That\u2019s fine. Most dormant companies only need annual accounts. You can skip CT600 filing if your company isn\u2019t registered for Corporation Tax.",
+  },
+  {
+    question: "Can my accountant file on behalf of clients?",
+    answer:
+      "Yes \u2014 the Agent plan covers up to 100 companies and supports filing on behalf of clients. It\u2019s \u00A349 a year, which works out to 49p per company.",
   },
 ];
 
@@ -80,9 +91,9 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="pt-16 sm:pt-24 pb-20 sm:pb-28 px-6">
         <div className="max-w-[960px] mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
             {/* Copy */}
-            <div className="text-center md:text-left">
+            <div className="text-center lg:text-left">
               <h1
                 className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-5"
                 style={{ color: "var(--color-text-primary)" }}
@@ -101,7 +112,7 @@ export default function LandingPage() {
                 via official APIs. No accounting knowledge needed.
               </p>
 
-              <div className="flex flex-wrap gap-3 mb-8 justify-center md:justify-start">
+              <div className="flex flex-wrap gap-3 mb-8 justify-center lg:justify-start">
                 <Link
                   href="/register"
                   className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
@@ -127,7 +138,7 @@ export default function LandingPage() {
                 </Link>
               </div>
 
-              <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center md:justify-start">
+              <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center lg:justify-start">
                 <MicroTrust icon={Shield} text="Official government APIs" />
                 <MicroTrust icon={KeyRound} text="Credentials never stored" />
               </div>
@@ -140,7 +151,7 @@ export default function LandingPage() {
             </div>
 
             {/* Product preview */}
-            <div className="relative hidden md:block">
+            <div className="relative hidden lg:block">
               <BrowserFrame>
                 <div className="flex items-center justify-between mb-5">
                   <div>
@@ -241,49 +252,140 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Trust Indicators */}
+      {/* How we compare */}
       <section
         style={{
           backgroundColor: "var(--color-bg-card)",
           borderTop: "1px solid var(--color-border)",
           borderBottom: "1px solid var(--color-border)",
         }}
-        className="py-10 px-6"
+        className="py-16 px-6"
       >
         <div className="max-w-[960px] mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center sm:text-left">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-              <Shield size={22} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
-              <div>
-                <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
-                  Credentials never stored
-                </p>
-                <p className="text-sm mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-                  Your Gateway password is used once and discarded.
+          <h2
+            className="text-2xl font-bold text-center mb-3"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
+          >
+            Not another accounting tool
+          </h2>
+          <p
+            className="text-sm text-center mb-10"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            Your options for filing a dormant company&apos;s returns.
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Accountant */}
+            <div
+              className="rounded-xl p-6"
+              style={{
+                border: "1px solid var(--color-border)",
+                backgroundColor: "var(--color-bg-page)",
+              }}
+            >
+              <div className="flex items-center gap-2.5 mb-4">
+                <Briefcase size={18} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  Your accountant
                 </p>
               </div>
+              <ul className="space-y-2.5">
+                {[
+                  "Typically £150+/yr",
+                  "Wait days for them to file",
+                  "Paying for expertise you don\u2019t need",
+                  "Overkill for a dormant company",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-sm"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    <span
+                      className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: "var(--color-text-muted)" }}
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-              <Clock size={22} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
-              <div>
-                <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
-                  File in under 2 minutes
-                </p>
-                <p className="text-sm mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-                  No accounting knowledge required.
+
+            {/* Accounting software */}
+            <div
+              className="rounded-xl p-6"
+              style={{
+                border: "1px solid var(--color-border)",
+                backgroundColor: "var(--color-bg-page)",
+              }}
+            >
+              <div className="flex items-center gap-2.5 mb-4">
+                <Monitor size={18} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  Accounting software
                 </p>
               </div>
+              <ul className="space-y-2.5">
+                {[
+                  "Typically £50+/yr",
+                  "Hours to set up and learn",
+                  "Built for trading companies",
+                  "Features you\u2019ll never touch",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-sm"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    <span
+                      className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: "var(--color-text-muted)" }}
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-              <FileCheck size={22} style={{ color: "var(--color-primary)", flexShrink: 0 }} />
-              <div>
-                <p className="font-semibold text-sm" style={{ color: "var(--color-text-primary)" }}>
-                  Direct submission
-                </p>
-                <p className="text-sm mt-0.5" style={{ color: "var(--color-text-secondary)" }}>
-                  Filed directly with Companies House and HMRC — no middlemen.
-                </p>
+
+            {/* DormantFile — highlighted */}
+            <div
+              className="rounded-xl p-6"
+              style={{
+                backgroundColor: "var(--color-primary)",
+              }}
+            >
+              <div className="flex items-center gap-2.5 mb-4">
+                <Zap size={18} style={{ color: "rgba(255,255,255,0.7)", flexShrink: 0 }} />
+                <p className="text-sm font-semibold text-white">DormantFile</p>
               </div>
+              <ul className="space-y-2.5">
+                {[
+                  "From £19/yr",
+                  "Both filings in under 2 minutes",
+                  "Purpose-built for dormant companies",
+                  "Direct to government APIs",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-2.5 text-sm"
+                    style={{ color: "rgba(255,255,255,0.9)" }}
+                  >
+                    <CheckCircle
+                      size={16}
+                      className="mt-0.5 flex-shrink-0"
+                      style={{ color: "rgba(255,255,255,0.7)" }}
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
@@ -293,78 +395,92 @@ export default function LandingPage() {
       <section className="py-20 px-6">
         <div className="max-w-[960px] mx-auto">
           <h2
-            className="text-3xl font-bold text-center mb-14"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-2xl font-bold text-center mb-3"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
           >
-            How it works
+            Three steps. Under two minutes.
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 relative">
-            {/* Step 1 */}
-            <div className="flex flex-col items-center text-center">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4 flex-shrink-0"
-                style={{ backgroundColor: "var(--color-primary)" }}
-              >
-                1
+          <p
+            className="text-sm text-center mb-12"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            From company number to filed returns — here&apos;s the whole process.
+          </p>
+
+          <div className="max-w-2xl mx-auto">
+            {[
+              {
+                icon: Search,
+                time: "~30 seconds",
+                heading: "Look up your company",
+                description:
+                  "Type your company number. We pull your name, incorporation date, and filing history from Companies House automatically.",
+              },
+              {
+                icon: Bell,
+                time: "Automatic",
+                heading: "We watch your deadlines",
+                description:
+                  "Email reminders at 90, 30, 14, 7, 3, and 1 day before each filing is due. We calculate the dates — you just show up.",
+              },
+              {
+                icon: Send,
+                time: "~1 minute",
+                heading: "File both returns",
+                description:
+                  "Confirm your details and submit. Dormant accounts go to Companies House and your nil CT600 goes to HMRC — both via official APIs.",
+              },
+            ].map((step, i, arr) => (
+              <div key={step.heading} className="flex gap-5 sm:gap-7">
+                {/* Timeline node + connector */}
+                <div className="flex flex-col items-center">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{
+                      backgroundColor: "var(--color-primary-bg)",
+                      border: "2px solid var(--color-primary-border)",
+                    }}
+                  >
+                    <step.icon size={18} style={{ color: "var(--color-primary)" }} />
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div
+                      className="w-px flex-1 mt-0"
+                      style={{ backgroundColor: "var(--color-border)" }}
+                    />
+                  )}
+                </div>
+
+                {/* Content */}
+                <div style={{ paddingBottom: i < arr.length - 1 ? "2.5rem" : 0 }} className="pt-1.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <h3
+                      className="font-semibold text-base"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      {step.heading}
+                    </h3>
+                    <span
+                      className="text-xs font-medium px-2.5 py-0.5 rounded-full flex-shrink-0"
+                      style={{
+                        backgroundColor: "var(--color-bg-inset)",
+                        color: "var(--color-text-muted)",
+                      }}
+                    >
+                      {step.time}
+                    </span>
+                  </div>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    {step.description}
+                  </p>
+                </div>
               </div>
-              <h3
-                className="font-semibold text-lg mb-2"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                Add your company
-              </h3>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                Enter your company number — we look up the rest from Companies House. No data entry
-                needed.
-              </p>
-            </div>
-            {/* Step 2 */}
-            <div className="flex flex-col items-center text-center">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4 flex-shrink-0"
-                style={{ backgroundColor: "var(--color-primary)" }}
-              >
-                2
-              </div>
-              <h3
-                className="font-semibold text-lg mb-2"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                We remind you
-              </h3>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                Email reminders at 90, 30, 14, 7, 3, and 1 day before each filing deadline.
-              </p>
-            </div>
-            {/* Step 3 */}
-            <div className="flex flex-col items-center text-center">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mb-4 flex-shrink-0"
-                style={{ backgroundColor: "var(--color-primary)" }}
-              >
-                3
-              </div>
-              <h3
-                className="font-semibold text-lg mb-2"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                File in minutes
-              </h3>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                Submit your dormant accounts and nil CT600 return directly to Companies House and
-                HMRC.
-              </p>
-            </div>
+            ))}
           </div>
+
           <p className="text-center mt-8">
             <Link
               href="/how-it-works"
@@ -386,26 +502,97 @@ export default function LandingPage() {
         }}
         className="py-20 px-6"
       >
-        <div className="max-w-[960px] mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6" style={{ color: "var(--color-text-primary)" }}>
-            CATO closed. Now what?
-          </h2>
-          <p
-            className="text-pretty text-lg leading-relaxed mb-4"
-            style={{ color: "var(--color-text-body)" }}
-          >
-            On 31 March 2026, HMRC shut down its free Corporation Tax filing tool (CATO). Thousands
-            of directors of dormant companies — side projects, holding structures, companies kept
-            for future use — lost their only free way to file a CT600 return.
-          </p>
-          <p
-            className="text-pretty text-lg leading-relaxed"
-            style={{ color: "var(--color-text-body)" }}
-          >
-            DormantFile was built as the direct replacement. We handle both of the filings a dormant
-            company needs: annual accounts to Companies House and nil CT600 returns to HMRC. One
-            dashboard, under two minutes, from £19 a year.
-          </p>
+        <div className="max-w-[960px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+            {/* The problem */}
+            <div>
+              <p
+                className="text-xs font-semibold uppercase tracking-wide mb-3"
+                style={{ color: "var(--color-warning)" }}
+              >
+                31 March 2026
+              </p>
+              <h2
+                className="text-2xl font-bold leading-snug mb-4"
+                style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
+              >
+                Your free CT600 tool is gone.
+                <br />
+                Your filing obligations aren&apos;t.
+              </h2>
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "var(--color-text-body)" }}
+              >
+                HMRC shut down CATO — the only free way to file a Corporation Tax
+                return. If you&apos;re a director of a dormant company, you still
+                need to file every year or face penalties.
+              </p>
+            </div>
+
+            {/* What to do about it */}
+            <div>
+              <p
+                className="text-xs font-semibold uppercase tracking-wide mb-4"
+                style={{ color: "var(--color-primary)" }}
+              >
+                What you still need to file
+              </p>
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <FileCheck
+                    size={18}
+                    style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "2px" }}
+                  />
+                  <div>
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      Annual accounts
+                    </p>
+                    <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                      To Companies House — every year, for every company
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FileCheck
+                    size={18}
+                    style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "2px" }}
+                  />
+                  <div>
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      Nil CT600 return
+                    </p>
+                    <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                      To HMRC — every year, if registered for Corporation Tax
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <p
+                className="text-sm font-semibold mb-5"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                DormantFile handles both. From £19/yr.
+              </p>
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2 text-sm font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
+                style={{
+                  backgroundColor: "var(--color-cta)",
+                  color: "var(--color-bg-card)",
+                  padding: "12px 24px",
+                }}
+              >
+                {isFilingLive() ? "Start filing" : "Get started"} <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -413,56 +600,67 @@ export default function LandingPage() {
       <section className="py-20 px-6">
         <div className="max-w-[960px] mx-auto">
           <h2
-            className="text-3xl font-bold text-center mb-4"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-2xl font-bold text-center mb-3"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
           >
-            Simple, transparent pricing
+            Both filings. From £19 a year.
           </h2>
           <p
-            className="text-center text-base mb-12 max-w-xl mx-auto"
+            className="text-sm text-center mb-12 max-w-lg mx-auto"
             style={{ color: "var(--color-text-secondary)" }}
           >
-            One dormant company or a hundred — pick the plan that fits.
+            Every plan includes annual accounts and CT600. No add-ons, no hidden fees.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {[
               {
                 name: "Basic",
                 price: "19",
                 period: "per year",
-                description: "1 dormant company",
+                perUnit: null,
+                description: "You have one dormant company on the register.",
                 features: [
-                  "Both filings — accounts and CT600",
+                  "Annual accounts to Companies House",
+                  "Nil CT600 return to HMRC",
                   "File any outstanding period",
-                  "Direct submission to CH and HMRC",
                   "Email deadline reminders",
+                  "Direct submission via official APIs",
                 ],
+                cta: "Get started",
                 highlighted: false,
               },
               {
                 name: "Multiple",
                 price: "39",
                 period: "per year",
-                description: "Up to 10 companies",
+                perUnit: "£3.90 per company",
+                description:
+                  "Side projects, holding structures, or a few companies on the register.",
                 features: [
-                  "Everything in Basic",
-                  "File for up to 10 dormant companies",
-                  "Manage all companies from one dashboard",
-                  "Catch up on missed periods",
+                  "Accounts + CT600 for up to 10 companies",
+                  "One dashboard — all companies at a glance",
+                  "File any outstanding period per company",
+                  "Email deadline reminders for every company",
+                  "Direct submission via official APIs",
                 ],
+                cta: "Get started",
                 highlighted: true,
               },
               {
                 name: "Agent",
                 price: "49",
                 period: "per year",
-                description: "Up to 100 companies",
+                perUnit: "49p per company",
+                description:
+                  "For accountants and formation agents filing on behalf of clients.",
                 features: [
-                  "Everything in Multiple",
-                  "File for up to 100 dormant companies",
-                  "File as agent on behalf of clients",
-                  "Ideal for accountants",
+                  "Accounts + CT600 for up to 100 companies",
+                  "File as agent on behalf of your clients",
+                  "One dashboard — all clients at a glance",
+                  "File any outstanding period per company",
+                  "Email deadline reminders for every company",
                 ],
+                cta: "Get started",
                 highlighted: false,
               },
             ].map((plan) => (
@@ -510,7 +708,21 @@ export default function LandingPage() {
                     {plan.period}
                   </span>
                 </div>
-                <p className="text-sm mb-6" style={{ color: "var(--color-text-secondary)" }}>
+                {plan.perUnit && (
+                  <p
+                    className="text-xs font-medium mb-4"
+                    style={{ color: "var(--color-primary)" }}
+                  >
+                    {plan.perUnit}
+                  </p>
+                )}
+                <p
+                  className="text-sm leading-relaxed mb-6"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    marginTop: plan.perUnit ? 0 : "0.5rem",
+                  }}
+                >
                   {plan.description}
                 </p>
                 <ul className="space-y-2.5 mb-7 flex-1">
@@ -528,15 +740,16 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href="/register"
-                  className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
+                  className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
                   style={{
-                    backgroundColor: plan.highlighted ? "var(--color-cta)" : "var(--color-primary)",
+                    backgroundColor: plan.highlighted
+                      ? "var(--color-cta)"
+                      : "var(--color-primary)",
                     color: "var(--color-bg-card)",
                     padding: "12px 24px",
-                    borderRadius: "8px",
                   }}
                 >
-                  Get started
+                  {plan.cta}
                 </Link>
                 <div className="mt-3 text-center">
                   <MicroTrust icon={RotateCcw} text="14-day refund guarantee" />
@@ -571,26 +784,50 @@ export default function LandingPage() {
       >
         <div className="max-w-[960px] mx-auto">
           <h2
-            className="text-3xl font-bold text-center mb-12"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-2xl font-bold text-center mb-3"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
           >
-            Common questions
+            You&apos;re probably wondering
           </h2>
-          <div className="space-y-8">
-            {faqItems.map(({ question, answer }) => (
+          <p
+            className="text-sm text-center mb-12"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            The things we&apos;d want to know before signing up.{" "}
+            <Link
+              href="/faq"
+              className="font-medium transition-colors duration-200"
+              style={{ color: "var(--color-primary)" }}
+            >
+              See all FAQs &rarr;
+            </Link>
+          </p>
+          <div
+            className="max-w-3xl mx-auto"
+            style={{ borderTop: "1px solid var(--color-border)" }}
+          >
+            {faqItems.map(({ question, answer }, i) => (
               <div
                 key={question}
+                className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 lg:gap-10 py-8"
                 style={{ borderBottom: "1px solid var(--color-border)" }}
-                className="pb-8"
               >
-                <h3
-                  className="font-semibold text-lg mb-2"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
-                  {question}
-                </h3>
+                <div className="flex gap-4">
+                  <span
+                    className="text-2xl font-bold tabular-nums leading-none"
+                    style={{ color: "var(--color-border)", marginTop: "2px" }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3
+                    className="text-base font-semibold leading-snug text-balance"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    {question}
+                  </h3>
+                </div>
                 <p
-                  className="text-sm leading-relaxed"
+                  className="text-sm leading-relaxed lg:pt-1 ml-[3.25rem] lg:ml-0"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
                   {answer}

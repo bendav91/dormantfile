@@ -1,27 +1,4 @@
-import { Code2, Shield, KeyRound, MessageCircle, RotateCcw } from "lucide-react";
-
-const trustPoints = [
-  {
-    icon: Shield,
-    heading: "Official APIs",
-    description: "Files directly via HMRC GovTalk and Companies House Software Filing APIs.",
-  },
-  {
-    icon: KeyRound,
-    heading: "Credentials never stored",
-    description: "Your Gateway password is used once at submission, then immediately discarded.",
-  },
-  {
-    icon: MessageCircle,
-    heading: "Email support",
-    description: "Replies within one working day.",
-  },
-  {
-    icon: RotateCcw,
-    heading: "14-day refund",
-    description: "Full refund within 14 days if you haven\u2019t filed.",
-  },
-];
+import { Check, X, Code2, RotateCcw, Mail, Shield } from "lucide-react";
 
 export function TrustSection({ children }: { children?: React.ReactNode }) {
   return (
@@ -34,100 +11,148 @@ export function TrustSection({ children }: { children?: React.ReactNode }) {
       }}
     >
       <div className="max-w-[960px] mx-auto">
-        <h2
-          className="text-2xl font-bold text-center mb-10"
-          style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
-        >
-          Why trust DormantFile?
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Founder card */}
-          <div
-            style={{
-              backgroundColor: "var(--color-bg-page)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "12px",
-              padding: "2rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          {/* Left — founder statement */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
               <div
+                className="flex items-center justify-center flex-shrink-0"
                 style={{
-                  width: "48px",
-                  height: "48px",
+                  width: "44px",
+                  height: "44px",
                   borderRadius: "12px",
                   backgroundColor: "var(--color-bg-inset)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
                 }}
               >
-                <Code2 size={24} style={{ color: "var(--color-primary)" }} />
+                <Code2 size={22} style={{ color: "var(--color-primary)" }} />
               </div>
               <div>
-                <h3
-                  className="text-lg font-semibold"
+                <p
+                  className="text-base font-semibold"
                   style={{ color: "var(--color-text-primary)", margin: 0 }}
                 >
                   Built by Ben
-                </h3>
+                </p>
                 <p className="text-xs" style={{ color: "var(--color-text-muted)", margin: 0 }}>
                   Founder &amp; developer
                 </p>
               </div>
             </div>
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--color-text-body)", margin: 0 }}
+
+            <h2
+              className="text-2xl font-bold leading-snug mb-5"
+              style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
             >
-              Software engineer based in the UK. I built DormantFile because dormant company filing
-              shouldn&apos;t require an accountant or expensive software.
-            </p>
+              New doesn&apos;t mean unproven.
+              <br />
+              It means purpose-built.
+            </h2>
+
+            <div className="space-y-4">
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "var(--color-text-body)" }}
+              >
+                DormantFile exists because the old tools either shut down or were
+                never built for this job. I&apos;m a UK software engineer, and I
+                built it from scratch — not adapted from accounting software, not
+                a side feature in a bigger product.
+              </p>
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "var(--color-text-body)" }}
+              >
+                Your filings go through the same official HMRC GovTalk and
+                Companies House Software Filing APIs that Xero and FreeAgent use.
+                Same infrastructure, fraction of the price, and nothing you
+                don&apos;t need.
+              </p>
+            </div>
           </div>
 
-          {/* Trust points grid */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "1rem",
-            }}
-          >
-            {trustPoints.map((point) => (
-              <div
-                key={point.heading}
-                style={{
-                  backgroundColor: "var(--color-bg-page)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "12px",
-                  padding: "1.25rem",
-                }}
-              >
-                <point.icon
-                  size={20}
-                  style={{ color: "var(--color-primary)", marginBottom: "8px" }}
-                />
-                <h4
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--color-text-primary)", margin: "0 0 4px 0" }}
+          {/* Right — trust points as a clean list */}
+          <div>
+            <p
+              className="text-xs font-semibold uppercase tracking-wide mb-5"
+              style={{ color: "var(--color-text-muted)" }}
+            >
+              The details that matter
+            </p>
+
+            <div
+              className="space-y-0"
+              style={{ borderTop: "1px solid var(--color-border)" }}
+            >
+              {[
+                {
+                  icon: Shield,
+                  label: "Official APIs",
+                  detail:
+                    "Filed via HMRC GovTalk and CH Software Filing — the same APIs the big tools use.",
+                },
+                {
+                  icon: X,
+                  label: "Credentials never stored",
+                  detail:
+                    "Your HMRC Gateway password is used once at submission, then immediately discarded from memory.",
+                },
+                {
+                  icon: Check,
+                  label: "Your data, transparent",
+                  detail:
+                    "We store your company info, email, and filing history. We never store passwords, financial data, or card details.",
+                },
+                {
+                  icon: RotateCcw,
+                  label: "14-day refund guarantee",
+                  detail:
+                    "Full refund within 14 days if you haven\u2019t filed. No questions, no hoops.",
+                },
+                {
+                  icon: Mail,
+                  label: "Founder-direct support",
+                  detail:
+                    "Email support with replies within one working day. You talk to the person who built it.",
+                },
+              ].map((item, i, arr) => (
+                <div
+                  key={item.label}
+                  className="flex gap-4 py-5"
+                  style={{
+                    borderBottom:
+                      i < arr.length - 1
+                        ? "1px solid var(--color-border)"
+                        : "1px solid var(--color-border)",
+                  }}
                 >
-                  {point.heading}
-                </h4>
-                <p
-                  className="text-xs leading-relaxed"
-                  style={{ color: "var(--color-text-secondary)", margin: 0 }}
-                >
-                  {point.description}
-                </p>
-              </div>
-            ))}
+                  <item.icon
+                    size={18}
+                    style={{
+                      color: "var(--color-primary)",
+                      flexShrink: 0,
+                      marginTop: "2px",
+                    }}
+                  />
+                  <div>
+                    <p
+                      className="text-sm font-semibold mb-0.5"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      {item.label}
+                    </p>
+                    <p
+                      className="text-sm leading-relaxed"
+                      style={{ color: "var(--color-text-secondary)", margin: 0 }}
+                    >
+                      {item.detail}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
         {children}
       </div>
     </section>
