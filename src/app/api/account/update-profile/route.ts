@@ -13,7 +13,19 @@ export async function PATCH(req: Request) {
   }
 
   const body = await req.json();
-  const { name, email } = body;
+  const { name, email, remindersMuted } = body;
+
+  // Handle remindersMuted-only update
+  if (remindersMuted !== undefined && name === undefined && email === undefined) {
+    if (typeof remindersMuted !== "boolean") {
+      return NextResponse.json({ error: "remindersMuted must be a boolean" }, { status: 400 });
+    }
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { remindersMuted },
+    });
+    return NextResponse.json({ success: true });
+  }
 
   if (!name || typeof name !== "string" || name.trim().length === 0) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -29,7 +41,10 @@ export async function PATCH(req: Request) {
   // Name always updates immediately
   await prisma.user.update({
     where: { id: session.user.id },
-    data: { name: trimmedName },
+    data: {
+      name: trimmedName,
+      ...(typeof remindersMuted === "boolean" ? { remindersMuted } : {}),
+    },
   });
 
   // Email change: verify-before-swap
