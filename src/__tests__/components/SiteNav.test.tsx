@@ -124,8 +124,10 @@ describe("SiteNav", () => {
     it("closes drawer on Escape key", () => {
       render(<SiteNav variant="marketing" />);
       fireEvent.click(screen.getByLabelText("Open menu"));
+      expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
       fireEvent.keyDown(document, { key: "Escape" });
       expect(document.body.style.overflow).toBe("");
+      expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-modal", "true");
     });
 
     it("expands accordion in drawer", () => {
