@@ -36,15 +36,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
       <main
         id="main-content"
-        style={{
-          maxWidth: "960px",
-          width: "100%",
-          margin: "0 auto",
-          padding: "2.5rem 1.5rem",
-          flex: 1,
-        }}
+        className="px-6 py-10 flex-1"
       >
-        {children}
+        <div className="max-w-[960px] mx-auto">
+          {children}
+        </div>
       </main>
 
       <SiteFooter variant="app" />
