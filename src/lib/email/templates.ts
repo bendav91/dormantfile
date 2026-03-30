@@ -47,6 +47,8 @@ export function emailShell({
       .email-body { background-color: #111827 !important; }
       .email-card { background-color: #1f2937 !important; }
       .email-header { border-bottom-color: #3b82f6 !important; }
+      .logo-light { display: none !important; }
+      .logo-dark { display: block !important; }
       .email-footer { background-color: #111827 !important; border-top-color: #374151 !important; }
       .email-footer a { color: #6b7280 !important; }
       .email-footer-text { color: #6b7280 !important; }
@@ -70,7 +72,8 @@ export function emailShell({
           <!-- Header -->
           <tr>
             <td class="email-header" style="padding:28px 32px 20px;border-bottom:2px solid #2563eb;">
-              <img src="${baseUrl}/logo.png" alt="DormantFile" width="140" style="display:block;height:auto;border:0;" />
+              <img src="${baseUrl}/logo.png" alt="DormantFile" width="140" class="logo-light" style="display:block;height:auto;border:0;" />
+              <img src="${baseUrl}/logo-dark-mode.png" alt="DormantFile" width="140" class="logo-dark" style="display:none;height:auto;border:0;" />
             </td>
           </tr>
           <!-- Content -->
