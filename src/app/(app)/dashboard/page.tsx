@@ -16,6 +16,7 @@ import {
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
 import { buildPeriodViews } from "@/lib/filing-queries";
+import { isFilingLive } from "@/lib/launch-mode";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -267,6 +268,33 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   return (
     <div style={{ maxWidth: "960px", margin: "0 auto" }}>
       <SubscriptionBanner status={user.subscriptionStatus} />
+
+      {!isFilingLive() && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            padding: "14px 20px",
+            backgroundColor: "var(--color-primary-bg)",
+            border: "1px solid var(--color-primary-border)",
+            borderRadius: "12px",
+            marginBottom: "24px",
+          }}
+        >
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--color-primary-text)",
+              margin: 0,
+              fontWeight: 500,
+            }}
+          >
+            Filing isn&apos;t available just yet. Add your companies and explore the dashboard &mdash;
+            we&apos;ll notify you when you can choose a plan and start filing.
+          </p>
+        </div>
+      )}
 
       {canFile && companyLimit > 0 && allCompanyCount > companyLimit && (
         <div

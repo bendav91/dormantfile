@@ -21,6 +21,10 @@ export default async function ChoosePlanPage() {
     redirect("/login");
   }
 
+  if (!isFilingLive()) {
+    redirect("/dashboard");
+  }
+
   const isUpgrade =
     user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
 

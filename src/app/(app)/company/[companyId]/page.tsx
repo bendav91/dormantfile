@@ -9,6 +9,7 @@ import FilingsTab from "@/components/filings-tab";
 import SettingsTab from "@/components/settings-tab";
 import OverviewTab from "@/components/overview-tab";
 import SyncButton from "@/components/sync-button";
+import { isFilingLive } from "@/lib/launch-mode";
 
 interface PageProps {
   params: Promise<{ companyId: string }>;
@@ -22,7 +23,10 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
   const { companyId } = await params;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling"))
+  if (
+    isFilingLive() &&
+    (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling"))
+  )
     redirect("/dashboard");
 
   const company = await prisma.company.findFirst({

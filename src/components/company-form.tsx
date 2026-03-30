@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { validateUTR } from "@/lib/utils";
 import { Loader2, Building2, Hash, FileDigit, Calendar, CheckCircle2 } from "lucide-react";
+import { isFilingLive } from "@/lib/launch-mode";
 
 interface FormErrors {
   companyRegistrationNumber?: string;
@@ -246,8 +247,8 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         return;
       }
 
-      // First company: go to plan picker. Additional companies: go to dashboard.
-      if (isFirstCompany) {
+      // First company: go to plan picker (if filing is live). Otherwise: dashboard.
+      if (isFirstCompany && isFilingLive()) {
         window.location.href = "/choose-plan";
       } else {
         window.location.href = "/dashboard";
