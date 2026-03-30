@@ -1,6 +1,6 @@
 import { BrowserFrame } from "@/components/marketing/BrowserFrame";
 import { FilingCounter } from "@/components/marketing/FilingCounter";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { SiteFooter } from "@/components/SiteFooter";
 import { MicroTrust } from "@/components/marketing/MicroTrust";
 import { Testimonials } from "@/components/marketing/Testimonials";
 import { TrustBadges } from "@/components/marketing/TrustBadges";
@@ -839,34 +839,104 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section style={{ backgroundColor: "#1E293B" }} className="py-24 px-6 text-center">
+      <section
+        className="py-20 sm:py-24 px-6"
+        style={{
+          backgroundColor: "var(--color-primary-bg)",
+          borderTop: "1px solid var(--color-primary-border)",
+          borderBottom: "1px solid var(--color-primary-border)",
+        }}
+      >
         <div className="max-w-[960px] mx-auto">
-          <h2 className="text-4xl font-bold mb-6 text-white">
-            Ready to file your dormant company returns?
-          </h2>
-          <p className="text-lg mb-10" style={{ color: "var(--color-text-muted)" }}>
-            Set up in minutes. File in seconds. Done for the year.
-          </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
-            style={{
-              backgroundColor: "var(--color-cta)",
-              color: "var(--color-bg-card)",
-              padding: "16px 32px",
-              borderRadius: "8px",
-            }}
+          {/* Value stat blocks */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-5 max-w-sm sm:max-w-md mx-auto mb-12">
+            {[
+              { value: "£19", unit: "/yr", label: "From" },
+              { value: "2", unit: " min", label: "Under" },
+              { value: "2", unit: "", label: "Filings" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="text-center rounded-xl py-4 px-2"
+                style={{
+                  backgroundColor: "var(--color-bg-card)",
+                  border: "1px solid var(--color-border)",
+                }}
+              >
+                <p
+                  className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest mb-1.5"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  {stat.label}
+                </p>
+                <p className="text-2xl sm:text-3xl font-bold leading-none" style={{ color: "var(--color-primary)" }}>
+                  {stat.value}
+                  {stat.unit && (
+                    <span
+                      className="text-base sm:text-lg font-medium"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      {stat.unit}
+                    </span>
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Headline + sub */}
+          <h2
+            className="text-3xl sm:text-4xl font-bold text-center leading-tight mb-5"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.025em" }}
           >
-            {isFilingLive() ? "Start filing today" : "Get ready to file"} <ArrowRight size={18} />
-          </Link>
-          <p className="mt-5 text-xs" style={{ color: "var(--color-text-muted)" }}>
-            Official APIs &middot; Credentials never stored &middot; Cancel anytime
+            Get your dormant filings sorted.
+          </h2>
+          <p
+            className="text-base sm:text-lg text-center leading-relaxed mb-10 max-w-lg mx-auto"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            Set up your company in minutes. When it&apos;s time to file, both
+            returns go directly to Companies House and HMRC. From £19 a year.
           </p>
+
+          {/* CTA */}
+          <div className="text-center mb-8">
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2.5 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
+              style={{
+                backgroundColor: "var(--color-cta)",
+                color: "var(--color-bg-card)",
+                padding: "16px 36px",
+              }}
+            >
+              {isFilingLive() ? "Start filing today" : "Get ready to file"}{" "}
+              <ArrowRight size={18} />
+            </Link>
+          </div>
+
+          {/* Trust signals */}
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+            {[
+              { icon: Shield, text: "Official government APIs" },
+              { icon: KeyRound, text: "Credentials never stored" },
+              { icon: RotateCcw, text: "14-day refund guarantee" },
+            ].map((item) => (
+              <span
+                key={item.text}
+                className="inline-flex items-center gap-1.5 text-xs"
+                style={{ color: "var(--color-text-muted)" }}
+              >
+                <item.icon size={12} strokeWidth={2} />
+                {item.text}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <MarketingFooter />
+      <SiteFooter variant="marketing" />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { IBM_Plex_Sans } from "next/font/google";
 import { SiteNav } from "@/components/SiteNav";
-import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { SiteFooter } from "@/components/SiteFooter";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -33,7 +33,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       >
         {children}
       </main>
-      <MarketingFooter />
+      <SiteFooter variant="marketing" />
     </div>
   );
 }
