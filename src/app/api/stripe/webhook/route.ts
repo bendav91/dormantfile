@@ -5,6 +5,8 @@ import { tierFromPriceId } from "@/lib/subscription";
 import { prisma } from "@/lib/db";
 import Stripe from "stripe";
 import { SubscriptionTier } from "@prisma/client";
+import { sendEmail } from "@/lib/email/client";
+import { buildPaymentFailedEmail, buildSubscriptionCancelledEmail } from "@/lib/email/templates";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -126,6 +128,37 @@ export async function POST(req: NextRequest) {
           ...(resetAgent ? { filingAsAgent: false } : {}),
         },
       });
+
+      // Send transactional emails for payment failure and cancellation.
+      // Note: user may not exist if account was just deleted (which cancels
+      // Stripe subscriptions, triggering this webhook). findFirst handles
+      // this gracefully — if null, we skip the email.
+      if (status === "past_due" || status === "cancelled") {
+        const user = await prisma.user.findFirst({
+          where: { stripeCustomerId: customerId },
+          select: { email: true },
+        });
+
+        if (user) {
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+
+          try {
+            if (status === "past_due") {
+              const { subject, html } = buildPaymentFailedEmail({
+                settingsUrl: `${appUrl}/settings`,
+              });
+              await sendEmail({ to: user.email, subject, html });
+            } else if (status === "cancelled") {
+              const { subject, html } = buildSubscriptionCancelledEmail({
+                choosePlanUrl: `${appUrl}/choose-plan`,
+              });
+              await sendEmail({ to: user.email, subject, html });
+            }
+          } catch {
+            // Email failure shouldn't break the webhook
+          }
+        }
+      }
     }
   }
 
