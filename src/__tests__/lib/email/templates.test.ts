@@ -1,11 +1,70 @@
 import {
+  emailShell,
   buildEmailChangeEmail,
   buildEmailChangeNotificationEmail,
   buildFilingConfirmationEmail,
+  buildPasswordResetEmail,
   buildReminderEmail,
   buildVerificationEmail,
 } from "@/lib/email/templates";
 import { describe, expect, it } from "vitest";
+
+describe("emailShell", () => {
+  const baseHtml = emailShell({ content: "<p>Hello world</p>" });
+
+  it("wraps content in a valid HTML document", () => {
+    expect(baseHtml).toContain("<!DOCTYPE html>");
+    expect(baseHtml).toContain('<html lang="en"');
+    expect(baseHtml).toContain("</html>");
+  });
+
+  it("includes the logo image", () => {
+    expect(baseHtml).toContain('alt="DormantFile"');
+    expect(baseHtml).toContain("/logo.png");
+  });
+
+  it("includes dark mode CSS media query", () => {
+    expect(baseHtml).toContain("prefers-color-scheme: dark");
+  });
+
+  it("includes the content passed in", () => {
+    expect(baseHtml).toContain("<p>Hello world</p>");
+  });
+
+  it("includes footer with links and copyright", () => {
+    expect(baseHtml).toContain("/answers");
+    expect(baseHtml).toContain("/privacy");
+    expect(baseHtml).toContain("/terms");
+    expect(baseHtml).toContain(`© ${new Date().getFullYear()}`);
+    expect(baseHtml).toContain("dormantfile.co.uk");
+  });
+
+  it("includes address placeholder in footer", () => {
+    expect(baseHtml).toContain("Company address placeholder");
+  });
+
+  it("does NOT include unsubscribe link by default", () => {
+    expect(baseHtml).not.toContain("Mute reminder emails");
+  });
+
+  it("includes unsubscribe link when includeUnsubscribe is true", () => {
+    const html = emailShell({
+      content: "<p>Reminder</p>",
+      includeUnsubscribe: true,
+      unsubscribeUrl: "https://example.com/mute?uid=123&exp=999&sig=abc",
+    });
+    expect(html).toContain("Mute reminder emails");
+    expect(html).toContain("https://example.com/mute?uid=123&exp=999&sig=abc");
+  });
+
+  it("includes preheader text when provided", () => {
+    const html = emailShell({
+      content: "<p>Test</p>",
+      preheader: "Preview text here",
+    });
+    expect(html).toContain("Preview text here");
+  });
+});
 
 describe("buildReminderEmail", () => {
   const data = {
@@ -130,5 +189,14 @@ describe("buildEmailChangeNotificationEmail", () => {
     const result = buildEmailChangeNotificationEmail({ newEmail: "new@example.com" });
     expect(result.subject).toBe("Email change requested on your DormantFile account");
     expect(result.html).toContain("new@example.com");
+  });
+});
+
+describe("buildPasswordResetEmail", () => {
+  it("returns correct subject and includes reset URL in html", () => {
+    const result = buildPasswordResetEmail({ resetUrl: "https://example.com/reset?token=abc" });
+    expect(result.subject).toBe("Reset your DormantFile password");
+    expect(result.html).toContain("https://example.com/reset?token=abc");
+    expect(result.html).toContain("1 hour");
   });
 });
