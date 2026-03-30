@@ -3,10 +3,23 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AuthButton, AuthError, AuthSuccess } from "@/components/auth";
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<p className="text-center text-sm text-gray-500">Loading&hellip;</p>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-12">
+          <div
+            className="w-6 h-6 border-2 rounded-full animate-spin"
+            style={{
+              borderColor: "var(--color-border)",
+              borderTopColor: "var(--color-primary)",
+            }}
+          />
+        </div>
+      }
+    >
       <VerifyEmailContent />
     </Suspense>
   );
@@ -80,34 +93,78 @@ function VerifyEmailContent() {
   if (token) {
     return (
       <div className="text-center">
-        {verifying ? (
+        {verifying && (
           <>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+            <div className="mb-6 flex justify-center">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: "var(--color-primary-bg)" }}
+              >
+                <div
+                  className="w-5 h-5 border-2 rounded-full animate-spin"
+                  style={{
+                    borderColor: "var(--color-primary-border)",
+                    borderTopColor: "var(--color-primary)",
+                  }}
+                />
+              </div>
+            </div>
+            <h1
+              className="text-2xl font-bold mb-2"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Verifying your email&hellip;
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Just a moment.</p>
+            <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+              Just a moment.
+            </p>
           </>
-        ) : verifyError ? (
+        )}
+
+        {!verifying && verifyError && (
           <>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+            <div className="mb-6 flex justify-center">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: "var(--color-danger-bg)" }}
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  style={{ color: "var(--color-danger)" }}
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+              </div>
+            </div>
+            <h1
+              className="text-2xl font-bold mb-3"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Verification failed
             </h1>
-            <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2.5 mb-6">
-              {verifyError}
-            </p>
-            <button
+            <div className="mb-6">
+              <AuthError message={verifyError} />
+            </div>
+            <AuthButton
               onClick={handleResend}
               disabled={sending || cooldown > 0}
-              className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              loading={sending}
+              loadingText="Sending…"
             >
-              {sending
-                ? "Sending\u2026"
-                : cooldown > 0
-                  ? `Resend in ${cooldown}s`
-                  : "Resend verification email"}
-            </button>
+              {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend verification email"}
+            </AuthButton>
           </>
-        ) : null}
+        )}
       </div>
     );
   }
@@ -116,42 +173,73 @@ function VerifyEmailContent() {
   return (
     <>
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Check your inbox</h1>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+        <div className="mb-6 flex justify-center">
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: "var(--color-primary-bg)" }}
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              style={{ color: "var(--color-primary)" }}
+            >
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+          </div>
+        </div>
+        <h1
+          className="text-2xl font-bold mb-2"
+          style={{ color: "var(--color-text-primary)" }}
+        >
+          Check your inbox
+        </h1>
+        <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
           We sent a verification link to
         </p>
         {session?.user?.email && (
-          <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+          <p
+            className="mt-1 text-sm font-semibold"
+            style={{ color: "var(--color-text-primary)" }}
+          >
             {session.user.email}
           </p>
         )}
-        <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+        <p
+          className="mt-3 text-sm"
+          style={{ color: "var(--color-text-muted)" }}
+        >
           Click the link in the email to verify your account.
         </p>
       </div>
 
-      {sent && (
-        <p className="mb-4 text-center text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg px-4 py-2.5">
-          Email sent!
-        </p>
-      )}
+      {sent && <div className="mb-4"><AuthSuccess message="Verification email sent!" /></div>}
 
-      <button
+      <AuthButton
         onClick={handleResend}
         disabled={sending || cooldown > 0}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        loading={sending}
+        loadingText="Sending…"
       >
-        {sending ? "Sending\u2026" : cooldown > 0 ? `Resend in ${cooldown}s` : "Resend"}
-      </button>
+        {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend verification email"}
+      </AuthButton>
 
-      <p className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+      <div className="mt-6 text-center">
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="text-blue-600 dark:text-blue-400 hover:underline"
+          className="text-sm font-medium hover:underline focus-ring rounded px-1"
+          style={{ color: "var(--color-primary)" }}
         >
           Wrong email? Sign out
         </button>
-      </p>
+      </div>
     </>
   );
 }

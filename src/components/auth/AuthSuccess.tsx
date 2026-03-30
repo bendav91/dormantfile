@@ -1,20 +1,20 @@
-interface AuthErrorProps {
+interface AuthSuccessProps {
   message: string | null;
 }
 
-export function AuthError({ message }: AuthErrorProps) {
+export function AuthSuccess({ message }: AuthSuccessProps) {
   if (!message) return null;
 
   return (
     <div
-      role="alert"
+      role="status"
       className="flex items-start gap-2.5 text-sm rounded-lg px-4 py-3"
       style={{
-        color: "var(--color-danger-text)",
-        backgroundColor: "var(--color-danger-bg)",
+        color: "var(--color-success-text)",
+        backgroundColor: "var(--color-success-bg)",
         borderWidth: "1px",
         borderStyle: "solid",
-        borderColor: "var(--color-danger-border)",
+        borderColor: "var(--color-success-border)",
       }}
     >
       <svg
@@ -29,9 +29,8 @@ export function AuthError({ message }: AuthErrorProps) {
         aria-hidden="true"
         className="shrink-0 mt-0.5"
       >
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
       </svg>
       <span>{message}</span>
     </div>

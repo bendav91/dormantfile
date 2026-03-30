@@ -1,12 +1,19 @@
+import { IBM_Plex_Sans } from "next/font/google";
+import { AuthLayout } from "@/components/auth";
+
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-ibm-plex-sans",
+});
+
 export default function VerifyLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main
-      id="main-content"
-      className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 px-6 py-12"
+    <div
+      className={ibmPlexSans.variable}
+      style={{ fontFamily: "var(--font-ibm-plex-sans), sans-serif" }}
     >
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 shadow-md rounded-xl p-8">
-        {children}
-      </div>
-    </main>
+      <AuthLayout>{children}</AuthLayout>
+    </div>
   );
 }

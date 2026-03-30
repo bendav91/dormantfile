@@ -4,10 +4,23 @@ import { Suspense, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { AuthError } from "@/components/auth";
 
 export default function VerifyEmailChangePage() {
   return (
-    <Suspense fallback={<p className="text-center text-sm text-gray-500">Loading&hellip;</p>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-12">
+          <div
+            className="w-6 h-6 border-2 rounded-full animate-spin"
+            style={{
+              borderColor: "var(--color-border)",
+              borderTopColor: "var(--color-primary)",
+            }}
+          />
+        </div>
+      }
+    >
       <VerifyEmailChangeContent />
     </Suspense>
   );
@@ -53,10 +66,29 @@ function VerifyEmailChangeContent() {
   if (status === "loading") {
     return (
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+        <div className="mb-6 flex justify-center">
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: "var(--color-primary-bg)" }}
+          >
+            <div
+              className="w-5 h-5 border-2 rounded-full animate-spin"
+              style={{
+                borderColor: "var(--color-primary-border)",
+                borderTopColor: "var(--color-primary)",
+              }}
+            />
+          </div>
+        </div>
+        <h1
+          className="text-2xl font-bold mb-2"
+          style={{ color: "var(--color-text-primary)" }}
+        >
           Confirming your new email&hellip;
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Just a moment.</p>
+        <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+          Just a moment.
+        </p>
       </div>
     );
   }
@@ -64,15 +96,42 @@ function VerifyEmailChangeContent() {
   if (status === "error") {
     return (
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+        <div className="mb-6 flex justify-center">
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: "var(--color-danger-bg)" }}
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              style={{ color: "var(--color-danger)" }}
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          </div>
+        </div>
+        <h1
+          className="text-2xl font-bold mb-3"
+          style={{ color: "var(--color-text-primary)" }}
+        >
           Email change failed
         </h1>
-        <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-2.5 mb-6">
-          {error}
-        </p>
+        <div className="mb-6">
+          <AuthError message={error} />
+        </div>
         <Link
           href="/settings"
-          className="inline-block text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+          className="text-sm font-semibold hover:underline focus-ring rounded px-1"
+          style={{ color: "var(--color-primary)" }}
         >
           Back to settings
         </Link>
