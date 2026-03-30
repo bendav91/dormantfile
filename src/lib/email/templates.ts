@@ -17,7 +17,12 @@ interface EmailShellOptions {
   unsubscribeUrl?: string;
 }
 
-export function emailShell({ content, preheader, includeUnsubscribe, unsubscribeUrl }: EmailShellOptions): string {
+export function emailShell({
+  content,
+  preheader,
+  includeUnsubscribe,
+  unsubscribeUrl,
+}: EmailShellOptions): string {
   const baseUrl = getBaseUrl();
   const year = new Date().getFullYear();
 
@@ -25,9 +30,10 @@ export function emailShell({ content, preheader, includeUnsubscribe, unsubscribe
     ? `<div style="display:none;font-size:1px;color:#f8f9fa;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>`
     : "";
 
-  const unsubscribeHtml = includeUnsubscribe && unsubscribeUrl
-    ? `<br><a href="${unsubscribeUrl}" style="color:#9ca3af;text-decoration:underline;">Mute reminder emails</a>`
-    : "";
+  const unsubscribeHtml =
+    includeUnsubscribe && unsubscribeUrl
+      ? `<br><a href="${unsubscribeUrl}" style="color:#9ca3af;text-decoration:underline;">Mute reminder emails</a>`
+      : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -83,7 +89,7 @@ export function emailShell({ content, preheader, includeUnsubscribe, unsubscribe
                 <br>
                 © ${year} dormantfile.co.uk
                 <br>
-                <span style="color:#c0c5cc;">Company address placeholder</span>
+                ${false && '<span style="color:#c0c5cc;">Company address placeholder</span>'}
                 ${unsubscribeHtml}
               </p>
             </td>
@@ -469,7 +475,9 @@ interface SubscriptionCancelledEmailResult {
   html: string;
 }
 
-export function buildSubscriptionCancelledEmail(data: SubscriptionCancelledEmailData): SubscriptionCancelledEmailResult {
+export function buildSubscriptionCancelledEmail(
+  data: SubscriptionCancelledEmailData,
+): SubscriptionCancelledEmailResult {
   return {
     subject: "Your DormantFile subscription has ended",
     html: emailShell({
