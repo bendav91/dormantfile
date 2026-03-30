@@ -11,6 +11,8 @@ interface SettingsActionsProps {
   hasStripeCustomer: boolean;
   isAgentTier: boolean;
   filingAsAgent: boolean;
+  remindersMuted: boolean;
+  showMutedSuccess?: boolean;
   companies: { id: string; name: string }[];
 }
 
@@ -19,6 +21,8 @@ export default function SettingsActions({
   hasStripeCustomer,
   isAgentTier,
   filingAsAgent,
+  remindersMuted,
+  showMutedSuccess,
   companies,
 }: SettingsActionsProps) {
   const router = useRouter();
@@ -30,12 +34,30 @@ export default function SettingsActions({
   const [removeError, setRemoveError] = useState("");
   const [agentMode, setAgentMode] = useState(filingAsAgent);
   const [savingAgentMode, setSavingAgentMode] = useState(false);
+  const [muted, setMuted] = useState(remindersMuted);
+  const [savingMuted, setSavingMuted] = useState(false);
 
   async function handleManageBilling() {
     const res = await fetch("/api/stripe/create-portal", { method: "POST" });
     if (res.ok) {
       const { url } = await res.json();
       if (url) window.location.href = url;
+    }
+  }
+
+  async function handleToggleMuted() {
+    setSavingMuted(true);
+    try {
+      const res = await fetch("/api/account/update-profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ remindersMuted: !muted }),
+      });
+      if (res.ok) {
+        setMuted(!muted);
+      }
+    } finally {
+      setSavingMuted(false);
     }
   }
 
@@ -243,6 +265,107 @@ export default function SettingsActions({
           </button>
         </div>
       )}
+
+      {/* Notifications section */}
+      <div
+        style={{
+          backgroundColor: "var(--color-bg-card)",
+          borderRadius: "12px",
+          padding: "28px",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+          marginBottom: "24px",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "17px",
+            fontWeight: 700,
+            color: "var(--color-text-primary)",
+            margin: "0 0 8px 0",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Notifications
+        </h2>
+        <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
+          Control which emails you receive from DormantFile.
+        </p>
+        {showMutedSuccess && (
+          <div
+            style={{
+              backgroundColor: "var(--color-bg-success, #f0fdf4)",
+              border: "1px solid var(--color-border-success, #bbf7d0)",
+              borderRadius: "8px",
+              padding: "12px 16px",
+              marginBottom: "16px",
+              fontSize: "14px",
+              color: "var(--color-text-success, #166534)",
+            }}
+          >
+            Reminder emails have been muted.
+          </div>
+        )}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "12px 0",
+          }}
+        >
+          <div>
+            <p
+              style={{
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "var(--color-text-primary)",
+                margin: "0 0 2px 0",
+              }}
+            >
+              Reminder emails
+            </p>
+            <p
+              style={{
+                fontSize: "13px",
+                color: "var(--color-text-muted)",
+                margin: 0,
+              }}
+            >
+              Receive email reminders when filing deadlines are approaching
+            </p>
+          </div>
+          <button
+            onClick={handleToggleMuted}
+            disabled={savingMuted}
+            className="focus-ring"
+            style={{
+              position: "relative",
+              width: "44px",
+              height: "24px",
+              borderRadius: "12px",
+              border: "none",
+              cursor: savingMuted ? "wait" : "pointer",
+              backgroundColor: muted ? "var(--color-border, #d1d5db)" : "var(--color-primary)",
+              transition: "background-color 200ms",
+              flexShrink: 0,
+            }}
+          >
+            <span
+              style={{
+                position: "absolute",
+                top: "2px",
+                left: muted ? "2px" : "22px",
+                width: "20px",
+                height: "20px",
+                borderRadius: "50%",
+                backgroundColor: "white",
+                transition: "left 200ms",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+              }}
+            />
+          </button>
+        </div>
+      </div>
 
       {/* Companies section */}
       {companies.length > 0 && (

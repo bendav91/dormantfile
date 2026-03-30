@@ -6,7 +6,12 @@ import SettingsActions from "@/components/settings-actions";
 import ProfileForm from "@/components/profile-form";
 import { TIER_LABELS } from "@/lib/subscription";
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reminders?: string }>;
+}) {
+  const params = await searchParams;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -113,6 +118,8 @@ export default async function SettingsPage() {
         hasStripeCustomer={!!user.stripeCustomerId}
         isAgentTier={user.subscriptionTier === "agent"}
         filingAsAgent={user.filingAsAgent}
+        remindersMuted={user.remindersMuted}
+        showMutedSuccess={params.reminders === "muted"}
         companies={user.companies.map((c) => ({ id: c.id, name: c.companyName }))}
       />
     </div>
