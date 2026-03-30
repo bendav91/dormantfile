@@ -17,12 +17,14 @@ export async function sendEmail({
   html,
   text,
   replyTo,
+  headers,
 }: {
   to: string;
   subject: string;
   html?: string;
   text?: string;
   replyTo?: string;
+  headers?: Record<string, string>;
 }) {
   return resend.emails.send({
     from: FROM_ADDRESS,
@@ -30,5 +32,6 @@ export async function sendEmail({
     subject,
     ...(html ? { html } : { text: text ?? "" }),
     ...(replyTo && { replyTo }),
+    ...(headers && { headers }),
   });
 }
