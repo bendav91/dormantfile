@@ -80,7 +80,7 @@ export default function LandingPage() {
       <section className="py-24 px-6">
         <div className="max-w-[960px] mx-auto text-center">
           <h1
-            className="text-5xl sm:text-6xl font-bold leading-tight tracking-tight mb-6"
+            className="text-3xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-6"
             style={{ color: "var(--color-text-primary)" }}
           >
             Dormant company filing, <span style={{ color: "var(--color-primary)" }}>sorted</span>
@@ -347,7 +347,7 @@ export default function LandingPage() {
             ].map((plan) => (
               <div
                 key={plan.name}
-                className="rounded-xl p-7 flex flex-col"
+                className="rounded-xl p-5 sm:p-7 flex flex-col"
                 style={{
                   border: plan.highlighted
                     ? "2px solid var(--color-primary)"

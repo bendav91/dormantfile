@@ -391,9 +391,9 @@ export default function SettingsTab({
             style={{
               backgroundColor: "var(--color-bg-card)",
               borderRadius: "12px",
-              padding: "24px",
+              padding: "20px",
               maxWidth: "420px",
-              width: "100%",
+              width: "calc(100% - 32px)",
               boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
             }}
           >
@@ -466,9 +466,9 @@ export default function SettingsTab({
             style={{
               backgroundColor: "var(--color-bg-card)",
               borderRadius: "12px",
-              padding: "24px",
+              padding: "20px",
               maxWidth: "420px",
-              width: "100%",
+              width: "calc(100% - 32px)",
               boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
             }}
           >

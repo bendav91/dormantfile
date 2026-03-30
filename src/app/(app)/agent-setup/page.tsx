@@ -68,7 +68,7 @@ export default function AgentSetupPage() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <button
           onClick={() => handleChoice(true)}
           disabled={loading}

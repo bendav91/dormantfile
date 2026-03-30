@@ -262,10 +262,10 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div
+        className="p-5 sm:p-8"
         style={{
           backgroundColor: "var(--color-bg-card)",
           borderRadius: "12px",
-          padding: "32px",
           boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
           display: "flex",
           flexDirection: "column",
