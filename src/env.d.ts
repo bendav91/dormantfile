@@ -37,10 +37,12 @@ declare namespace NodeJS {
     NEXT_PUBLIC_APP_URL: string;
     NEXT_PUBLIC_GA_ID?: string;
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
-    NEXT_PUBLIC_FILING_LIVE?: string;
     NEXT_PUBLIC_FILING_COUNT?: string;
 
     // Node
     NODE_ENV: "development" | "production" | "test";
+
+    // Filing Live
+    NEXT_PUBLIC_FILING_LIVE?: "true" | "false";
   }
 }
