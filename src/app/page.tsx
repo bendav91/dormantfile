@@ -1,6 +1,6 @@
 import { FilingCounter } from "@/components/marketing/FilingCounter";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { SiteNav } from "@/components/SiteNav";
 import { MicroTrust } from "@/components/marketing/MicroTrust";
 import { Testimonials } from "@/components/marketing/Testimonials";
 import { TrustBadges } from "@/components/marketing/TrustBadges";
@@ -74,7 +74,7 @@ export default function LandingPage() {
       style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)" }}
     >
       {/* Navigation */}
-      <MarketingNav />
+      <SiteNav variant="marketing" />
 
       {/* Hero Section */}
       <section className="py-24 px-6">

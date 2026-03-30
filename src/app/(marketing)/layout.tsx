@@ -1,5 +1,5 @@
 import { IBM_Plex_Sans } from "next/font/google";
-import { MarketingNav } from "@/components/marketing/MarketingNav";
+import { SiteNav } from "@/components/SiteNav";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -20,7 +20,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
         flexDirection: "column",
       }}
     >
-      <MarketingNav />
+      <SiteNav variant="marketing" />
       <main
         id="main-content"
         style={{
