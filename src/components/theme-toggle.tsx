@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
-import { useTheme } from "./theme-provider";
+import { useTheme } from "next-themes";
 
 const CYCLE: Array<"system" | "light" | "dark"> = ["system", "light", "dark"];
 
@@ -13,9 +14,14 @@ const LABELS: Record<string, string> = {
 
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
 
   function handleClick() {
-    const currentIndex = CYCLE.indexOf(theme);
+    const currentIndex = CYCLE.indexOf(theme as "system" | "light" | "dark");
     const next = CYCLE[(currentIndex + 1) % CYCLE.length];
     setTheme(next);
   }
@@ -25,8 +31,8 @@ export function ThemeToggle() {
   return (
     <button
       onClick={handleClick}
-      aria-label={LABELS[theme]}
-      title={LABELS[theme]}
+      aria-label={LABELS[theme ?? "system"]}
+      title={LABELS[theme ?? "system"]}
       className="focus-ring"
       style={{
         display: "flex",

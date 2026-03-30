@@ -35,7 +35,14 @@ export default function RootLayout({
           Skip to main content
         </a>
         <Providers>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
         </Providers>
         <GoogleAnalytics />
         <CookieConsent />

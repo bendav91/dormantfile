@@ -1,91 +1,26 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import type { ComponentProps } from "react";
 
-type Theme = "system" | "light" | "dark";
-
-interface ThemeContextValue {
-  theme: Theme;
-  resolvedTheme: "light" | "dark";
-  setTheme: (theme: Theme) => void;
+// Suppress false-positive React 19 script tag warning in dev.
+// next-themes injects an inline <script> via SSR HTML for FOUC prevention —
+// React warns about it during client rendering but it already ran correctly.
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  const origError = console.error;
+  console.error = (...args: unknown[]) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("Encountered a script tag")
+    )
+      return;
+    origError.apply(console, args);
+  };
 }
 
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
-
-function getSystemTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-function resolveTheme(theme: Theme): "light" | "dark" {
-  if (theme === "system") return getSystemTheme();
-  return theme;
-}
-
-function applyTheme(resolved: "light" | "dark") {
-  const root = document.documentElement;
-  if (resolved === "dark") {
-    root.classList.add("dark");
-  } else {
-    root.classList.remove("dark");
-  }
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) {
-    meta.setAttribute("content", resolved === "dark" ? "#0F172A" : "#ffffff");
-  }
-}
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Start with "light" default to match SSR — real theme applied after mount
-  const [theme, setThemeState] = useState<Theme>("light");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-  const [mounted, setMounted] = useState(false);
-
-  const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem("theme", newTheme);
-    const resolved = resolveTheme(newTheme);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
-  }, []);
-
-  // Read stored theme and apply after mount to avoid hydration mismatch
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const initial: Theme =
-      stored === "light" || stored === "dark" || stored === "system"
-        ? stored
-        : "light";
-    setThemeState(initial);
-    const resolved = resolveTheme(initial);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    function handleChange() {
-      if (theme === "system") {
-        const resolved = getSystemTheme();
-        setResolvedTheme(resolved);
-        applyTheme(resolved);
-      }
-    }
-    mq.addEventListener("change", handleChange);
-    return () => mq.removeEventListener("change", handleChange);
-  }, [theme, mounted]);
-
-  return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) throw new Error("useTheme must be used within ThemeProvider");
-  return context;
+export function ThemeProvider({
+  children,
+  ...props
+}: ComponentProps<typeof NextThemesProvider>) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }

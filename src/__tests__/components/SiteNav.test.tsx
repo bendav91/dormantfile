@@ -23,8 +23,8 @@ vi.mock("next-auth/react", () => ({
   signOut: vi.fn(),
 }));
 
-// Mock theme provider
-vi.mock("@/components/theme-provider", () => ({
+// Mock next-themes
+vi.mock("next-themes", () => ({
   useTheme: () => ({ theme: "system", setTheme: vi.fn(), resolvedTheme: "light" }),
 }));
 
