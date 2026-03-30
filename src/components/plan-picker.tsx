@@ -154,7 +154,7 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {PLANS.map((plan) => {
           const isCurrent = plan.tier === currentTier;
           const isDowngrade =
@@ -166,10 +166,10 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
           return (
             <div
               key={plan.tier}
+              className="p-5 sm:p-7"
               style={{
                 backgroundColor: "var(--color-bg-card)",
                 borderRadius: "12px",
-                padding: "28px",
                 border: plan.popular
                   ? "2px solid var(--color-primary)"
                   : "1px solid var(--color-border)",
@@ -339,13 +339,6 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
         </p>
       )}
 
-      <style>{`
-        @media (max-width: 640px) {
-          div[style*="grid-template-columns: repeat(3"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </>
   );
 }
