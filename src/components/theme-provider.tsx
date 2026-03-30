@@ -35,17 +35,11 @@ function applyTheme(resolved: "light" | "dark") {
   }
 }
 
-function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "light";
-  const stored = localStorage.getItem("theme");
-  return stored === "light" || stored === "dark" || stored === "system" ? stored : "light";
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(getStoredTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() =>
-    resolveTheme(getStoredTheme()),
-  );
+  // Start with "light" default to match SSR — real theme applied after mount
+  const [theme, setThemeState] = useState<Theme>("light");
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
+  const [mounted, setMounted] = useState(false);
 
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
@@ -55,11 +49,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyTheme(resolved);
   }, []);
 
+  // Read stored theme and apply after mount to avoid hydration mismatch
   useEffect(() => {
-    applyTheme(resolvedTheme);
-  }, [resolvedTheme]);
+    const stored = localStorage.getItem("theme");
+    const initial: Theme =
+      stored === "light" || stored === "dark" || stored === "system"
+        ? stored
+        : "light";
+    setThemeState(initial);
+    const resolved = resolveTheme(initial);
+    setResolvedTheme(resolved);
+    applyTheme(resolved);
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     function handleChange() {
       if (theme === "system") {
@@ -70,7 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
     mq.addEventListener("change", handleChange);
     return () => mq.removeEventListener("change", handleChange);
-  }, [theme]);
+  }, [theme, mounted]);
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>
