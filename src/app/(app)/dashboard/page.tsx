@@ -313,12 +313,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
       {/* Page heading */}
       <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          marginBottom: "32px",
-        }}
+        className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+        style={{ marginBottom: "32px" }}
       >
         <div>
           <h1
@@ -398,13 +394,13 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         <>
           {/* Segmented filter control */}
           <div
+            className="flex w-full sm:inline-flex sm:w-auto overflow-x-auto scrollbar-none"
             style={{
-              display: "inline-flex",
               backgroundColor: "var(--color-bg-inset)",
               borderRadius: "8px",
               padding: "3px",
               marginBottom: "10px",
-              overflowX: "auto",
+              WebkitOverflowScrolling: "touch",
             }}
           >
             {[
@@ -450,11 +446,12 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   href={href}
                   role="tab"
                   aria-selected={isActive}
-                  className="focus-ring segmented-tab"
+                  className="focus-ring segmented-tab flex-1 sm:flex-none"
                   style={{
-                    padding: "6px 14px",
+                    padding: "6px 10px",
                     borderRadius: "6px",
                     fontSize: "12px",
+                    textAlign: "center",
                     fontWeight: isActive ? 600 : 500,
                     textDecoration: "none",
                     whiteSpace: "nowrap",
@@ -494,7 +491,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           </div>
 
           {/* Search + sort row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2.5" style={{ marginBottom: "16px" }}>
             <CompanySearch />
             <SortDropdown currentSort={sort} />
           </div>
@@ -526,13 +523,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       )}
 
       {/* Company cards */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(420px, 1fr))",
-          gap: "16px",
-        }}
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {paginatedCompanies.map(({ company, periods, outstandingCount }) => {
           // Show the current (oldest unfiled) period's deadlines
           const currentPeriod = periods.find((p) => !p.isComplete && !p.isSuppressed) ?? periods[0];
