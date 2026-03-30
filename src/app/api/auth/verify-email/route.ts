@@ -2,6 +2,8 @@ import { createHash } from "crypto";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { sendEmail } from "@/lib/email/client";
+import { buildWelcomeEmail } from "@/lib/email/templates";
 
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
@@ -49,6 +51,24 @@ export async function POST(req: Request) {
       data: { usedAt: new Date() },
     }),
   ]);
+
+  // Send welcome email
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: record.userId },
+      select: { name: true, email: true },
+    });
+    if (user) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+      const { subject, html } = buildWelcomeEmail({
+        userName: user.name,
+        dashboardUrl: `${appUrl}/dashboard`,
+      });
+      await sendEmail({ to: user.email, subject, html });
+    }
+  } catch {
+    // Welcome email failure shouldn't block verification
+  }
 
   return NextResponse.json({ success: true });
 }
