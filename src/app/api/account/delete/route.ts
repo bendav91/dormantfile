@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe/client";
+import { sendEmail } from "@/lib/email/client";
+import { buildAccountDeletedEmail } from "@/lib/email/templates";
 
 export async function DELETE() {
   const session = await getServerSession(authOptions);
@@ -20,6 +22,17 @@ export async function DELETE() {
 
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  // Send deletion confirmation while we still have the email
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+  try {
+    const { subject, html } = buildAccountDeletedEmail({
+      contactUrl: `${appUrl}/contact`,
+    });
+    await sendEmail({ to: user.email, subject, html });
+  } catch {
+    // Email failure shouldn't block deletion
   }
 
   // Cancel all Stripe subscriptions and delete the customer
