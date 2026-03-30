@@ -1,10 +1,11 @@
+import { BrowserFrame } from "@/components/marketing/BrowserFrame";
 import { FilingCounter } from "@/components/marketing/FilingCounter";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
-import { SiteNav } from "@/components/SiteNav";
 import { MicroTrust } from "@/components/marketing/MicroTrust";
 import { Testimonials } from "@/components/marketing/Testimonials";
 import { TrustBadges } from "@/components/marketing/TrustBadges";
 import { TrustSection } from "@/components/marketing/TrustSection";
+import { SiteNav } from "@/components/SiteNav";
 import { FAQPageJsonLd } from "@/lib/content/json-ld";
 import { isFilingLive } from "@/lib/launch-mode";
 import {
@@ -77,46 +78,166 @@ export default function LandingPage() {
       <SiteNav variant="marketing" />
 
       {/* Hero Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-[960px] mx-auto text-center">
-          <h1
-            className="text-3xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-6"
-            style={{ color: "var(--color-text-primary)" }}
-          >
-            Dormant company filing, <span style={{ color: "var(--color-primary)" }}>sorted</span>
-          </h1>
-          <p
-            className="text-xl leading-relaxed mb-10 max-w-2xl mx-auto text-balance"
-            style={{ color: "var(--color-text-body)" }}
-          >
-            Annual accounts to Companies House and nil Corporation Tax returns to HMRC — filed
-            directly from one dashboard. Catch up on missed periods or stay current. No accounting
-            knowledge needed.
-          </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
-            style={{
-              backgroundColor: "var(--color-cta)",
-              color: "var(--color-bg-card)",
-              padding: "16px 32px",
-              borderRadius: "8px",
-            }}
-          >
-            {isFilingLive() ? "Start filing" : "Set up your account"} <ArrowRight size={18} />
-          </Link>
-          <p className="mt-5 text-sm" style={{ color: "var(--color-text-secondary)" }}>
+      <section className="pt-16 sm:pt-24 pb-20 sm:pb-28 px-6">
+        <div className="max-w-[960px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-center">
+            {/* Copy */}
+            <div className="text-center md:text-left">
+              <h1
+                className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-5"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Both dormant filings.
+                <br />
+                Two minutes.
+                <br />
+                <span style={{ color: "var(--color-primary)" }}>£19 a year.</span>
+              </h1>
+              <p
+                className="text-lg leading-relaxed mb-8"
+                style={{ color: "var(--color-text-body)" }}
+              >
+                Annual accounts to Companies House and nil CT600 returns to HMRC — filed directly
+                via official APIs. No accounting knowledge needed.
+              </p>
+
+              <div className="flex flex-wrap gap-3 mb-8 justify-center md:justify-start">
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
+                  style={{
+                    backgroundColor: "var(--color-cta)",
+                    color: "var(--color-bg-card)",
+                    padding: "14px 28px",
+                  }}
+                >
+                  {isFilingLive() ? "Start filing" : "Set up your account"} <ArrowRight size={18} />
+                </Link>
+                <Link
+                  href="/how-it-works"
+                  className="inline-flex items-center gap-2 text-base font-medium rounded-lg transition-colors duration-200 cursor-pointer"
+                  style={{
+                    color: "var(--color-primary)",
+                    padding: "14px 28px",
+                    border: "1px solid var(--color-border)",
+                    backgroundColor: "var(--color-bg-card)",
+                  }}
+                >
+                  See how it works
+                </Link>
+              </div>
+
+              <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center md:justify-start">
+                <MicroTrust icon={Shield} text="Official government APIs" />
+                <MicroTrust icon={KeyRound} text="Credentials never stored" />
+              </div>
+
+              {!isFilingLive() && (
+                <p className="mt-4 text-xs" style={{ color: "var(--color-text-muted)" }}>
+                  Filing opens soon — set up now so you&apos;re ready on day one.
+                </p>
+              )}
+            </div>
+
+            {/* Product preview */}
+            <div className="relative hidden md:block">
+              <BrowserFrame>
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      ACME HOLDINGS LTD
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+                      Company #12345678
+                    </p>
+                  </div>
+                  <span
+                    className="text-xs font-medium px-2.5 py-1 rounded-full"
+                    style={{
+                      backgroundColor: "var(--color-primary-bg)",
+                      color: "var(--color-primary)",
+                    }}
+                  >
+                    Dormant
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {[
+                    { label: "Annual Accounts", org: "Companies House" },
+                    { label: "CT600 Return", org: "HMRC" },
+                  ].map((filing) => (
+                    <div
+                      key={filing.label}
+                      className="flex items-center justify-between p-3.5 rounded-lg"
+                      style={{
+                        border: "1px solid var(--color-border)",
+                        backgroundColor: "var(--color-bg-inset)",
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileCheck
+                          size={18}
+                          style={{ color: "var(--color-success)", flexShrink: 0 }}
+                        />
+                        <div>
+                          <p
+                            className="text-sm font-medium"
+                            style={{ color: "var(--color-text-primary)" }}
+                          >
+                            {filing.label}
+                          </p>
+                          <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                            {filing.org}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className="text-xs font-semibold px-2.5 py-1 rounded-md"
+                        style={{
+                          backgroundColor: "rgba(21, 128, 61, 0.08)",
+                          color: "var(--color-success)",
+                        }}
+                      >
+                        Filed
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 flex items-center gap-2">
+                  <Clock size={14} style={{ color: "var(--color-text-muted)" }} />
+                  <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                    Both filed in 1m 47s
+                  </p>
+                </div>
+              </BrowserFrame>
+
+              {/* Price comparison floating badge */}
+              <div
+                className="absolute -bottom-4 -left-4 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium"
+                style={{
+                  backgroundColor: "var(--color-bg-card)",
+                  border: "1px solid var(--color-border)",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
+                  color: "var(--color-text-primary)",
+                }}
+              >
+                <span className="line-through" style={{ color: "var(--color-text-muted)" }}>
+                  £100+
+                </span>
+                <span style={{ color: "var(--color-primary)", fontWeight: 700 }}>£19/yr</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Dormant-only disclaimer */}
+          <p className="text-center mt-12 text-sm" style={{ color: "var(--color-text-secondary)" }}>
             For genuinely dormant companies only — no trading activity, no assets, no income.
           </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2">
-            <MicroTrust icon={Shield} text="Files via official government APIs" />
-            <MicroTrust icon={KeyRound} text="Credentials used once, never stored" />
-          </div>
-          {!isFilingLive() && (
-            <p className="mt-4 text-xs" style={{ color: "var(--color-text-muted)" }}>
-              Filing opens soon — set up now so you&apos;re ready on day one.
-            </p>
-          )}
         </div>
       </section>
 
