@@ -154,7 +154,7 @@ function DesktopDropdown({ group }: { group: NavGroup }) {
 
 // --- SiteNav ---
 
-export default function SiteNav({ variant, user }: SiteNavProps) {
+export function SiteNav({ variant, user }: SiteNavProps) {
   const config = variant === "marketing" ? MARKETING_CONFIG : APP_CONFIG;
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -223,17 +223,17 @@ export default function SiteNav({ variant, user }: SiteNavProps) {
         position: "sticky",
         top: 0,
         zIndex: 50,
-        backgroundColor: "var(--color-bg-page)",
+        backgroundColor: "var(--color-bg-card)",
         borderBottom: "1px solid var(--color-border)",
       }}
     >
       {/* Top bar */}
       <div
         style={{
-          maxWidth: "1200px",
+          maxWidth: "960px",
           margin: "0 auto",
-          padding: "0 20px",
-          height: "56px",
+          padding: "0 1.5rem",
+          height: "64px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -314,7 +314,7 @@ export default function SiteNav({ variant, user }: SiteNavProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium transition-colors duration-200"
+              className="text-sm font-medium transition-colors duration-200 nav-signin-link"
               style={{
                 color: "var(--color-text-primary)",
                 textDecoration: "none",
