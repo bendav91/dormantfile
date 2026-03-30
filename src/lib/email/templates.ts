@@ -388,3 +388,133 @@ export function buildPasswordResetEmail(data: PasswordResetEmailData): PasswordR
 
   return { subject, html };
 }
+
+interface WelcomeEmailData {
+  userName: string;
+  dashboardUrl: string;
+}
+
+interface WelcomeEmailResult {
+  subject: string;
+  html: string;
+}
+
+export function buildWelcomeEmail(data: WelcomeEmailData): WelcomeEmailResult {
+  const { userName, dashboardUrl } = data;
+  const baseUrl = getBaseUrl();
+
+  return {
+    subject: "Welcome to DormantFile",
+    html: emailShell({
+      preheader: "Your account is verified and ready to use",
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Welcome to DormantFile</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
+          Hi ${userName}, your account is verified and ready to use.
+        </p>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
+          DormantFile helps you file dormant company returns with HMRC and Companies House quickly and affordably.
+        </p>
+        <p>
+          <a href="${dashboardUrl}" class="primary-button" style="display:inline-block;background-color:#2563eb;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">
+            Add Your First Company
+          </a>
+        </p>
+        <p class="secondary-text" style="color:#9ca3af;font-size:12px;margin-top:20px;">
+          Need help? Check our <a href="${baseUrl}/answers" class="primary-link" style="color:#2563eb;">answers</a>.
+        </p>`,
+    }),
+  };
+}
+
+interface PaymentFailedEmailData {
+  settingsUrl: string;
+}
+
+interface PaymentFailedEmailResult {
+  subject: string;
+  html: string;
+}
+
+export function buildPaymentFailedEmail(data: PaymentFailedEmailData): PaymentFailedEmailResult {
+  return {
+    subject: "Payment failed — action required",
+    html: emailShell({
+      preheader: "We couldn't process your latest payment",
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Payment failed</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
+          We couldn't process your latest payment. Your filing access will be
+          paused if this isn't resolved.
+        </p>
+        <p>
+          <a href="${data.settingsUrl}" class="primary-button" style="display:inline-block;background-color:#2563eb;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">
+            Update Payment Method
+          </a>
+        </p>
+        <p class="secondary-text" style="color:#9ca3af;font-size:12px;margin-top:20px;">
+          If your payment details are up to date, your bank may have declined
+          the charge. Please try again or use a different card.
+        </p>`,
+    }),
+  };
+}
+
+interface SubscriptionCancelledEmailData {
+  choosePlanUrl: string;
+}
+
+interface SubscriptionCancelledEmailResult {
+  subject: string;
+  html: string;
+}
+
+export function buildSubscriptionCancelledEmail(data: SubscriptionCancelledEmailData): SubscriptionCancelledEmailResult {
+  return {
+    subject: "Your DormantFile subscription has ended",
+    html: emailShell({
+      preheader: "Your subscription has ended — here's what that means",
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Your subscription has ended</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 12px;">
+          <strong>What's preserved:</strong> Your filing history and company records remain accessible.
+        </p>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
+          <strong>What changes:</strong> You can no longer submit new filings, and deadline reminders are paused.
+        </p>
+        <p>
+          <a href="${data.choosePlanUrl}" class="primary-button" style="display:inline-block;background-color:#2563eb;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">
+            Resubscribe
+          </a>
+        </p>`,
+    }),
+  };
+}
+
+interface AccountDeletedEmailData {
+  contactUrl: string;
+}
+
+interface AccountDeletedEmailResult {
+  subject: string;
+  html: string;
+}
+
+export function buildAccountDeletedEmail(data: AccountDeletedEmailData): AccountDeletedEmailResult {
+  return {
+    subject: "Your DormantFile account has been deleted",
+    html: emailShell({
+      preheader: "Your account and data have been permanently deleted",
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Account deleted</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
+          Your DormantFile account and all associated data have been permanently deleted.
+          This includes your company records, filing history, and payment information.
+        </p>
+        <p class="secondary-text" style="color:#9ca3af;font-size:12px;">
+          If you didn't request this, please
+          <a href="${data.contactUrl}" class="primary-link" style="color:#2563eb;">contact us</a> immediately.
+        </p>`,
+    }),
+  };
+}

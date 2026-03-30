@@ -6,6 +6,10 @@ import {
   buildPasswordResetEmail,
   buildReminderEmail,
   buildVerificationEmail,
+  buildWelcomeEmail,
+  buildPaymentFailedEmail,
+  buildSubscriptionCancelledEmail,
+  buildAccountDeletedEmail,
 } from "@/lib/email/templates";
 import { describe, expect, it } from "vitest";
 
@@ -198,5 +202,59 @@ describe("buildPasswordResetEmail", () => {
     expect(result.subject).toBe("Reset your DormantFile password");
     expect(result.html).toContain("https://example.com/reset?token=abc");
     expect(result.html).toContain("1 hour");
+  });
+});
+
+describe("buildWelcomeEmail", () => {
+  it("returns correct subject", () => {
+    const { subject } = buildWelcomeEmail({ userName: "Ben", dashboardUrl: "https://example.com/dashboard" });
+    expect(subject).toBe("Welcome to DormantFile");
+  });
+
+  it("html includes greeting and CTA", () => {
+    const { html } = buildWelcomeEmail({ userName: "Ben", dashboardUrl: "https://example.com/dashboard" });
+    expect(html).toContain("Ben");
+    expect(html).toContain("https://example.com/dashboard");
+    expect(html).toContain("Add Your First Company");
+  });
+});
+
+describe("buildPaymentFailedEmail", () => {
+  it("returns correct subject", () => {
+    const { subject } = buildPaymentFailedEmail({ settingsUrl: "https://example.com/settings" });
+    expect(subject).toContain("Payment failed");
+  });
+
+  it("html includes settings link", () => {
+    const { html } = buildPaymentFailedEmail({ settingsUrl: "https://example.com/settings" });
+    expect(html).toContain("https://example.com/settings");
+    expect(html).toContain("Update Payment Method");
+  });
+});
+
+describe("buildSubscriptionCancelledEmail", () => {
+  it("returns correct subject", () => {
+    const { subject } = buildSubscriptionCancelledEmail({ choosePlanUrl: "https://example.com/choose-plan" });
+    expect(subject).toContain("subscription has ended");
+  });
+
+  it("html explains what is preserved and lost", () => {
+    const { html } = buildSubscriptionCancelledEmail({ choosePlanUrl: "https://example.com/choose-plan" });
+    expect(html).toContain("preserved");
+    expect(html).toContain("Resubscribe");
+    expect(html).toContain("https://example.com/choose-plan");
+  });
+});
+
+describe("buildAccountDeletedEmail", () => {
+  it("returns correct subject", () => {
+    const { subject } = buildAccountDeletedEmail({ contactUrl: "https://example.com/contact" });
+    expect(subject).toContain("deleted");
+  });
+
+  it("html confirms deletion", () => {
+    const { html } = buildAccountDeletedEmail({ contactUrl: "https://example.com/contact" });
+    expect(html).toContain("permanently deleted");
+    expect(html).toContain("https://example.com/contact");
   });
 });
