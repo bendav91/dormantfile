@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email/client";
 import { buildReminderEmail, type ReminderSection } from "@/lib/email/templates";
 import { isFilingLive } from "@/lib/launch-mode";
+import { generateMuteUrl } from "@/lib/email/mute-token";
 
 // Upcoming: remind at these days-before-deadline thresholds.
 // Overdue: remind at these days-after-deadline thresholds.
@@ -74,7 +75,7 @@ export async function GET(req: NextRequest) {
 
   const now = new Date();
   const sixYearsAgo = new Date(now.getTime() - SIX_YEARS_MS);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://dormantfile.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://dormantfile.co.uk";
 
   const filings = await prisma.filing.findMany({
     where: {
@@ -85,7 +86,10 @@ export async function GET(req: NextRequest) {
       periodEnd: { gt: sixYearsAgo },
       company: {
         deletedAt: null,
-        user: { subscriptionStatus: { in: ["active", "cancelling"] } },
+        user: {
+          subscriptionStatus: { in: ["active", "cancelling"] },
+          remindersMuted: false,
+        },
       },
     },
     include: {
@@ -120,7 +124,7 @@ export async function GET(req: NextRequest) {
 
   let sent = 0;
 
-  for (const userData of userMap.values()) {
+  for (const [userId, userData] of userMap.entries()) {
     // For each filing, check if its current tier needs a notification
     const sectionMap = new Map<
       string,
@@ -184,13 +188,24 @@ export async function GET(req: NextRequest) {
     }));
 
     try {
+      const unsubscribeUrl = generateMuteUrl(userId);
+
       const { subject, html } = buildReminderEmail({
         userName: userData.name,
         dashboardUrl: `${appUrl}/dashboard`,
         sections: emailSections,
+        unsubscribeUrl,
       });
 
-      await sendEmail({ to: userData.email, subject, html });
+      await sendEmail({
+        to: userData.email,
+        subject,
+        html,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      });
 
       // Record one notification per filing so we don't re-send this tier
       await prisma.notification.createMany({
