@@ -4,6 +4,7 @@ import { IBM_Plex_Sans } from "next/font/google";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MicroTrust } from "@/components/marketing/MicroTrust";
+import { AggregateRating } from "@/components/marketing/AggregateRating";
 import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
 import { isFilingLive } from "@/lib/launch-mode";
 import {
@@ -200,6 +201,9 @@ export default function PricingPage() {
           }}
         >
           <div className="max-w-[960px] mx-auto">
+            <div className="mb-8">
+              <AggregateRating variant="centered" />
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {plans.map((plan) => (
                 <div

@@ -2,7 +2,9 @@ import { BrowserFrame } from "@/components/marketing/BrowserFrame";
 import { FilingCounter } from "@/components/marketing/FilingCounter";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MicroTrust } from "@/components/marketing/MicroTrust";
-import { Testimonials } from "@/components/marketing/Testimonials";
+import { AggregateRating } from "@/components/marketing/AggregateRating";
+import { AggregateRatingJsonLd } from "@/lib/content/json-ld";
+import { getReviewStats } from "@/lib/reviews";
 import { TrustBadges } from "@/components/marketing/TrustBadges";
 import { TrustSection } from "@/components/marketing/TrustSection";
 import { SiteNav } from "@/components/SiteNav";
@@ -83,6 +85,12 @@ const faqItems = [
   },
 ];
 
+async function ReviewsJsonLdSection() {
+  const stats = await getReviewStats();
+  if (!stats) return null;
+  return <AggregateRatingJsonLd avgRating={stats.avgRating} reviewCount={stats.reviewCount} />;
+}
+
 export default function LandingPage() {
   return (
     <div
@@ -145,6 +153,10 @@ export default function LandingPage() {
               <div className="flex flex-wrap gap-x-5 gap-y-2 justify-center lg:justify-start">
                 <MicroTrust icon={Shield} text="Official government APIs" />
                 <MicroTrust icon={KeyRound} text="Credentials never stored" />
+              </div>
+
+              <div className="flex justify-center lg:justify-start mt-3">
+                <AggregateRating variant="inline" />
               </div>
 
               {!isFilingLive() && (
@@ -781,8 +793,8 @@ export default function LandingPage() {
         <TrustBadges />
       </TrustSection>
 
-      {/* Testimonials (hidden until populated) */}
-      <Testimonials />
+      {/* Reviews JSON-LD */}
+      <ReviewsJsonLdSection />
 
       {/* FAQ */}
       <FAQPageJsonLd items={faqItems} />

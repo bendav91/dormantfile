@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, BookOpen, ChevronDown, HelpCircle, Menu, Shield, X } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, HelpCircle, Menu, Shield, Star, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -68,6 +68,12 @@ const MARKETING_CONFIG: NavConfig = {
           label: "Security",
           description: "How we protect your data",
           icon: Shield,
+        },
+        {
+          href: "/reviews",
+          label: "Reviews",
+          description: "What our customers say",
+          icon: Star,
         },
       ],
     },

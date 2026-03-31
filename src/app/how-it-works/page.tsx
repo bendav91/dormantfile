@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ProductPreview } from "@/components/marketing/ProductPreview";
 import { MicroTrust } from "@/components/marketing/MicroTrust";
+import { ReviewCTA } from "@/components/marketing/ReviewCTA";
 import { BreadcrumbJsonLd, HowToJsonLd } from "@/lib/content/json-ld";
 import { isFilingLive } from "@/lib/launch-mode";
 import {
@@ -773,6 +774,13 @@ export default function HowItWorksPage() {
                 <MicroTrust key={item.text} icon={item.icon} text={item.text} />
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Review CTA */}
+        <section className="py-12 px-6">
+          <div className="max-w-md mx-auto">
+            <ReviewCTA />
           </div>
         </section>
       </main>

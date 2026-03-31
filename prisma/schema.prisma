@@ -47,6 +47,7 @@ model User {
   subscriptionPeriodStart DateTime?
   filingAsAgent      Boolean            @default(false)
   remindersMuted     Boolean            @default(false)
+  isAdmin            Boolean            @default(false)
   emailVerified      DateTime?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -54,6 +55,7 @@ model User {
   resetTokens        PasswordResetToken[]
   verificationTokens EmailVerificationToken[]
   pendingEmailChange PendingEmailChange?
+  review             Review?
 }
 
 model Company {
@@ -149,4 +151,17 @@ model Notification {
   sentAt    DateTime @default(now())
   company   Company  @relation(fields: [companyId], references: [id])
   filing    Filing   @relation(fields: [filingId], references: [id])
+}
+
+model Review {
+  id        String    @id @default(cuid())
+  userId    String?   @unique
+  rating    Int
+  text      String?
+  name      String
+  verified  Boolean   @default(false)
+  approved  Boolean   @default(false)
+  hiddenAt  DateTime?
+  createdAt DateTime  @default(now())
+  user      User?     @relation(fields: [userId], references: [id])
 }

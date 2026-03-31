@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { AggregateRating } from "@/components/marketing/AggregateRating";
 
 // --- Types ---
 
@@ -33,6 +34,7 @@ const MARKETING_CONFIG: FooterConfig = {
         { href: "/how-it-works", label: "How it works" },
         { href: "/pricing", label: "Pricing" },
         { href: "/faq", label: "FAQ" },
+        { href: "/reviews", label: "Reviews" },
         { href: "/security", label: "Security" },
       ],
     },
@@ -172,6 +174,11 @@ export function SiteFooter({ variant }: SiteFooterProps) {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* Aggregate rating */}
+        <div className="flex justify-center mb-6">
+          <AggregateRating variant="inline" />
         </div>
 
         {/* Bottom: copyright + disclaimer */}

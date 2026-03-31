@@ -17,6 +17,7 @@ import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription"
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
 import { buildPeriodViews } from "@/lib/filing-queries";
 import { isFilingLive } from "@/lib/launch-mode";
+import { ReviewPrompt } from "@/components/marketing/ReviewPrompt";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -58,9 +59,21 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const freshUser = await prisma.user.findUnique({ where: { id: user.id } });
   if (freshUser) Object.assign(user, freshUser);
 
-  const allCompanyCount = await prisma.company.count({
-    where: { userId: user.id, deletedAt: null },
-  });
+  const [allCompanyCount, hasAcceptedFiling, existingReview] = await Promise.all([
+    prisma.company.count({
+      where: { userId: user.id, deletedAt: null },
+    }),
+    prisma.filing.findFirst({
+      where: { company: { userId: user.id }, status: "accepted" },
+      select: { id: true },
+    }),
+    prisma.review.findUnique({
+      where: { userId: user.id },
+      select: { id: true },
+    }),
+  ]);
+
+  const showReviewPrompt = !!hasAcceptedFiling && !existingReview;
 
   if (allCompanyCount === 0) {
     return (
@@ -268,6 +281,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   return (
     <div style={{ maxWidth: "960px", margin: "0 auto" }}>
       <SubscriptionBanner status={user.subscriptionStatus} />
+
+      {showReviewPrompt && <ReviewPrompt />}
 
       {!isFilingLive() && (
         <div

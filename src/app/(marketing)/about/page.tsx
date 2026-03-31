@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getPageBySlug } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
+import { ReviewCTA } from "@/components/marketing/ReviewCTA";
 import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
 
 const SLUG = "about";
@@ -86,6 +87,9 @@ export default async function AboutPage() {
         {page.content}
       </article>
       {showCTA && <ContentCTA />}
+      <div className="mt-12 max-w-md mx-auto">
+        <ReviewCTA />
+      </div>
     </>
   );
 }

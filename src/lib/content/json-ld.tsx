@@ -84,6 +84,79 @@ interface HowToStep {
   text: string;
 }
 
+export function AggregateRatingJsonLd({
+  avgRating,
+  reviewCount,
+}: {
+  avgRating: number;
+  reviewCount: number;
+}) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: "DormantFile",
+    description:
+      "Dormant company filing made simple. File your annual accounts and nil CT600 returns online.",
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: avgRating.toString(),
+      reviewCount: reviewCount.toString(),
+      bestRating: "5",
+      worstRating: "1",
+    },
+  };
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+  );
+}
+
+interface ReviewJsonLdItem {
+  name: string;
+  rating: number;
+  text: string | null;
+  createdAt: Date;
+}
+
+export function ReviewListJsonLd({
+  reviews,
+  avgRating,
+  reviewCount,
+}: {
+  reviews: ReviewJsonLdItem[];
+  avgRating: number;
+  reviewCount: number;
+}) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: "DormantFile",
+    description:
+      "Dormant company filing made simple. File your annual accounts and nil CT600 returns online.",
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: avgRating.toString(),
+      reviewCount: reviewCount.toString(),
+      bestRating: "5",
+      worstRating: "1",
+    },
+    review: reviews.map((r) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: r.name },
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: r.rating.toString(),
+        bestRating: "5",
+        worstRating: "1",
+      },
+      datePublished: new Date(r.createdAt).toISOString().split("T")[0],
+      ...(r.text ? { reviewBody: r.text } : {}),
+    })),
+  };
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
+  );
+}
+
 export function HowToJsonLd({
   name,
   description,
