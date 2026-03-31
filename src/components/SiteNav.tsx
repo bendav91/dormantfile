@@ -34,6 +34,7 @@ interface NavConfig {
 interface SiteNavProps {
   variant: "marketing" | "app";
   user?: { email: string };
+  isAdmin?: boolean;
 }
 
 function isLinkActive(pathname: string, href: string) {
@@ -230,8 +231,11 @@ function DesktopDropdown({ group, pathname }: { group: NavGroup; pathname: strin
 
 // --- SiteNav ---
 
-export function SiteNav({ variant, user }: SiteNavProps) {
-  const config = variant === "marketing" ? MARKETING_CONFIG : APP_CONFIG;
+export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
+  const baseConfig = variant === "marketing" ? MARKETING_CONFIG : APP_CONFIG;
+  const config = isAdmin
+    ? { ...baseConfig, links: [...baseConfig.links, { href: "/admin", label: "Admin" }] }
+    : baseConfig;
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [, setAccordionOpen] = useState(false);
