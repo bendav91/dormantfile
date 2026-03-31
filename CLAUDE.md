@@ -36,6 +36,7 @@ src/
   components/      # Shared React components
   lib/
     auth.ts        # NextAuth config
+    cn.ts          # Tailwind class merge utility (clsx + tailwind-merge)
     db.ts          # Prisma client
     hmrc/          # GovTalk XML builder, IRmark, submission
     companies-house/ # CH XML Gateway, submission
@@ -59,7 +60,7 @@ content/
 
 - **Route groups**: `(app)`, `(auth)`, `(marketing)` each have their own layout
 - **Path alias**: `@/*` maps to `./src/*`
-- **CSS tokens**: Design uses CSS custom properties (`--color-*`) with a `dark` variant via `.dark` class
+- **Styling**: All styling via Tailwind utility classes — never use inline `style={{}}` props. Use `cn()` from `@/lib/cn` for conditional classes. Design tokens are defined in `@theme` in `globals.css` with dark mode via `.dark` class overrides. Key token names: `bg-card`, `bg-page`, `bg-inset`, `text-foreground`, `text-body`, `text-secondary`, `text-muted`, `bg-primary`, `bg-cta`, `border-border`, `shadow-card`, etc.
 - **Filing flow**: Build XML -> compute IRmark/signature -> submit -> poll for result -> update status
 - **Soft deletes**: Companies use `deletedAt` field to preserve filing records
 - **Crons**: Daily reminders (8am), filing poll every 4 hours — configured in `vercel.json`
