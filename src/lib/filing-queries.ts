@@ -79,8 +79,8 @@ export function buildPeriodViews(filings: FilingRecord[]): PeriodView[] {
   const periods: PeriodView[] = [];
 
   for (const group of sortedPeriods) {
-    const accountsFiled = group.accounts?.status === "accepted";
-    const ct600Filed = group.ct600?.status === "accepted";
+    const accountsFiled = group.accounts?.status === "accepted" || group.accounts?.status === "filed_elsewhere";
+    const ct600Filed = group.ct600?.status === "accepted" || group.ct600?.status === "filed_elsewhere";
     const isComplete = accountsFiled;
 
     // Suppressed if the accounts filing has suppressedAt set

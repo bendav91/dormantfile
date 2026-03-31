@@ -92,7 +92,7 @@ export function buildActivityTimeline(
       });
     }
 
-    if (filing.confirmedAt && filing.status === "accepted") {
+    if (filing.confirmedAt && (filing.status === "accepted" || filing.status === "filed_elsewhere")) {
       events.push({
         id: `filing-accepted-${filing.id}`,
         type: "filing_accepted",

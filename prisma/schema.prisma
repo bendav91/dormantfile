@@ -29,6 +29,7 @@ enum FilingStatus {
   accepted
   rejected
   failed
+  filed_elsewhere
 }
 
 enum FilingType {

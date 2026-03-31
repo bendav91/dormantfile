@@ -46,7 +46,7 @@ export function matchesNeedsAttention(
 export function matchesRecentlyFiled(filings: FilingLike[]): boolean {
   const cutoff = Date.now() - THIRTY_DAYS_MS;
   return filings.some(
-    (f) => f.status === "accepted" && f.confirmedAt && f.confirmedAt.getTime() >= cutoff,
+    (f) => (f.status === "accepted" || f.status === "filed_elsewhere") && f.confirmedAt && f.confirmedAt.getTime() >= cutoff,
   );
 }
 

@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const existing = await prisma.filing.findFirst({
     where: { companyId, filingType: filingType as "accounts" | "ct600", periodEnd: periodEndDate },
   });
-  if (existing && existing.status !== "outstanding") {
+  if (existing && existing.status !== "outstanding" && existing.status !== "failed" && existing.status !== "rejected") {
     return NextResponse.json({ error: "A filing already exists for this period" }, { status: 409 });
   }
 
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   if (existing) {
     await prisma.filing.update({
       where: { id: existing.id },
-      data: { status: "accepted", confirmedAt: new Date() },
+      data: { status: "filed_elsewhere", confirmedAt: new Date() },
     });
   } else {
     await prisma.filing.create({
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         filingType: filingType as "accounts" | "ct600",
         periodStart: periodStartDate,
         periodEnd: periodEndDate,
-        status: "accepted",
+        status: "filed_elsewhere",
         confirmedAt: new Date(),
       },
     });

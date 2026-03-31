@@ -38,6 +38,10 @@ const statusConfig: Record<
     label: "Failed",
     className: "bg-danger-bg text-danger-deep",
   },
+  filed_elsewhere: {
+    label: "Filed elsewhere",
+    className: "bg-neutral-bg text-neutral-text",
+  },
 };
 
 export default function FilingStatusBadge({ status, filingType }: FilingStatusBadgeProps) {

@@ -9,6 +9,7 @@ import { AlertTriangle, Calendar, CheckCircle2, EyeOff, FileText } from "lucide-
 import Link from "next/link";
 import SuppressButton from "@/components/suppress-button";
 import CopyFilingSummary from "@/components/copy-filing-summary";
+import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
 import { isFilingLive } from "@/lib/launch-mode";
 import { cn } from "@/lib/cn";
 
@@ -58,7 +59,7 @@ export default function FilingsTab({
   // which only generates periods from the oldest unfiled forward)
   const completedPeriodMap = new Map<number, { periodStart: Date; periodEnd: Date }>();
   for (const f of filings) {
-    if (f.filingType === "accounts" && f.status === "accepted") {
+    if (f.filingType === "accounts" && (f.status === "accepted" || f.status === "filed_elsewhere")) {
       completedPeriodMap.set(f.periodEnd.getTime(), {
         periodStart: f.periodStart,
         periodEnd: f.periodEnd,
@@ -244,16 +245,20 @@ export default function FilingsTab({
                               status={accountsFiling.status}
                               filingType="accounts"
                             />
-                            {isFilingLive() &&
-                              (accountsFiling.status === "failed" ||
-                                accountsFiling.status === "rejected") && (
-                                <Link
-                                  href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
-                                  className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
-                                >
-                                  Retry
-                                </Link>
-                              )}
+                            {(accountsFiling.status === "failed" ||
+                              accountsFiling.status === "rejected") && (
+                              <>
+                                <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="accounts" />
+                                {isFilingLive() && (
+                                  <Link
+                                    href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
+                                    className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
+                                  >
+                                    Retry
+                                  </Link>
+                                )}
+                              </>
+                            )}
                           </>
                         ) : (
                           <div className="flex items-center gap-1.5">
@@ -286,16 +291,20 @@ export default function FilingsTab({
                           {ct600Filing && ct600Filing.status !== "outstanding" ? (
                             <>
                               <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
-                              {isFilingLive() &&
-                                (ct600Filing.status === "failed" ||
-                                  ct600Filing.status === "rejected") && (
-                                  <Link
-                                    href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`}
-                                    className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
-                                  >
-                                    Retry
-                                  </Link>
-                                )}
+                              {(ct600Filing.status === "failed" ||
+                                ct600Filing.status === "rejected") && (
+                                <>
+                                  <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
+                                  {isFilingLive() && (
+                                    <Link
+                                      href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`}
+                                      className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
+                                    >
+                                      Retry
+                                    </Link>
+                                  )}
+                                </>
+                              )}
                             </>
                           ) : period.isBlockedTerritory ? (
                             <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
@@ -433,17 +442,18 @@ export default function FilingsTab({
                             Accounts
                           </p>
                           <p className="text-xs text-secondary m-0">
-                            {accountsFiling?.confirmedAt
-                              ? `Accepted ${formatShortDate(accountsFiling.confirmedAt)}`
-                              : "Accepted"}
-                            {" \u00b7 "}
-                            {accountsFiling?.submittedAt
-                              ? "Filed via DormantFile"
-                              : "Filed elsewhere"}
+                            {accountsFiling?.status === "filed_elsewhere"
+                              ? "Filed elsewhere"
+                              : accountsFiling?.confirmedAt
+                                ? `Accepted ${formatShortDate(accountsFiling.confirmedAt)}`
+                                : "Accepted"}
+                            {accountsFiling?.submittedAt && " \u00b7 Filed via DormantFile"}
                           </p>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          {accountsFiling?.submittedAt && (
+                          {accountsFiling?.status === "filed_elsewhere" ? (
+                            <UndoMarkFiledButton filingId={accountsFiling.id} />
+                          ) : accountsFiling?.submittedAt ? (
                             <>
                               <CopyFilingSummary
                                 companyName={companyName}
@@ -461,7 +471,7 @@ export default function FilingsTab({
                                 <FileText size={14} strokeWidth={2} />
                               </Link>
                             </>
-                          )}
+                          ) : null}
                           <FilingStatusBadge
                             status={accountsFiling?.status ?? ("accepted" as FilingStatus)}
                             filingType="accounts"
@@ -479,13 +489,12 @@ export default function FilingsTab({
                             <p className="text-xs text-secondary m-0">
                               {ct600Filing ? (
                                 <>
-                                  {ct600Filing.confirmedAt
-                                    ? `Accepted ${formatShortDate(ct600Filing.confirmedAt)}`
-                                    : "Accepted"}
-                                  {" \u00b7 "}
-                                  {ct600Filing.submittedAt
-                                    ? "Filed via DormantFile"
-                                    : "Filed elsewhere"}
+                                  {ct600Filing.status === "filed_elsewhere"
+                                    ? "Filed elsewhere"
+                                    : ct600Filing.confirmedAt
+                                      ? `Accepted ${formatShortDate(ct600Filing.confirmedAt)}`
+                                      : "Accepted"}
+                                  {ct600Filing.submittedAt && " \u00b7 Filed via DormantFile"}
                                 </>
                               ) : (
                                 "Not tracked for this period"
@@ -494,7 +503,9 @@ export default function FilingsTab({
                           </div>
                           {ct600Filing ? (
                             <div className="flex items-center gap-1.5">
-                              {ct600Filing.submittedAt && (
+                              {ct600Filing.status === "filed_elsewhere" ? (
+                                <UndoMarkFiledButton filingId={ct600Filing.id} />
+                              ) : ct600Filing.submittedAt ? (
                                 <>
                                   <CopyFilingSummary
                                     companyName={companyName}
@@ -512,7 +523,7 @@ export default function FilingsTab({
                                     <FileText size={14} strokeWidth={2} />
                                   </Link>
                                 </>
-                              )}
+                              ) : null}
                               <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
                             </div>
                           ) : (

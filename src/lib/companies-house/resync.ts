@@ -146,8 +146,8 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
   for (const periodEnd of sortedPeriodEnds) {
     const existing = existingFilings.find((f) => f.periodEnd.getTime() === periodEnd.getTime());
 
-    if (existing && existing.status === "accepted") {
-      // Already accepted — skip
+    if (existing && (existing.status === "accepted" || existing.status === "filed_elsewhere")) {
+      // Already accepted or marked as filed elsewhere — skip
       continue;
     }
 
