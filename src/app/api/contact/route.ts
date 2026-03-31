@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email/client";
+import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   const { name, email, message } = await request.json();
@@ -9,12 +10,17 @@ export async function POST(request: Request) {
   }
 
   try {
-    await sendEmail({
-      to: "hello@dormantfile.co.uk",
-      replyTo: email,
-      subject: `Contact form: ${name}`,
-      text: `From: ${name} (${email})\n\n${message}`,
-    });
+    await Promise.all([
+      sendEmail({
+        to: "hello@dormantfile.co.uk",
+        replyTo: email,
+        subject: `Contact form: ${name}`,
+        text: `From: ${name} (${email})\n\n${message}`,
+      }),
+      prisma.contactMessage.create({
+        data: { name, email, message },
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch {

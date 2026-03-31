@@ -1,0 +1,212 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { StatusBadge } from "@/components/admin/StatusBadge";
+
+interface Filing {
+  id: string;
+  filingType: string;
+  periodStart: string;
+  periodEnd: string;
+  status: string;
+  accountsDeadline: string | null;
+  ct600Deadline: string | null;
+  submittedAt: string | null;
+  confirmedAt: string | null;
+  correlationId: string | null;
+  companyName: string;
+  crn: string;
+  userId: string;
+  userEmail: string;
+}
+
+export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const pollingTimeoutFilings = filings.filter((f) => f.status === "polling_timeout");
+  const hasSelectable = pollingTimeoutFilings.length > 0;
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    if (selected.size === pollingTimeoutFilings.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(pollingTimeoutFilings.map((f) => f.id)));
+    }
+  }
+
+  async function handleAction(id: string, action: "retry" | "reset") {
+    setLoading(id);
+    try {
+      const res = await fetch("/api/admin/filings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action }),
+      });
+      if (res.ok) router.refresh();
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function handleBulkRetry() {
+    if (selected.size === 0) return;
+    setLoading("bulk");
+    try {
+      const res = await fetch("/api/admin/filings/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selected) }),
+      });
+      if (res.ok) {
+        setSelected(new Set());
+        router.refresh();
+      }
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+  if (filings.length === 0) {
+    return (
+      <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+        No filings match the current filters.
+      </p>
+    );
+  }
+
+  return (
+    <div>
+      {hasSelectable && selected.size > 0 && (
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+            {selected.size} selected
+          </span>
+          <button
+            onClick={handleBulkRetry}
+            disabled={loading === "bulk"}
+            className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50"
+            style={{ color: "var(--color-primary)", border: "1px solid var(--color-primary-border)", backgroundColor: "var(--color-primary-bg)" }}
+          >
+            Retry selected
+          </button>
+        </div>
+      )}
+
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
+      >
+        {/* Header row */}
+        <div
+          className="flex items-center gap-3 px-4 py-2 text-xs font-medium"
+          style={{ color: "var(--color-text-muted)", borderBottom: "1px solid var(--color-border)" }}
+        >
+          {hasSelectable && (
+            <input
+              type="checkbox"
+              checked={selected.size === pollingTimeoutFilings.length && pollingTimeoutFilings.length > 0}
+              onChange={toggleAll}
+              className="cursor-pointer"
+            />
+          )}
+          <span className="flex-1">Company</span>
+          <span style={{ width: "80px" }}>Type</span>
+          <span style={{ width: "180px" }}>Period</span>
+          <span style={{ width: "90px" }}>Status</span>
+          <span style={{ width: "90px" }}>Deadline</span>
+          <span style={{ width: "90px" }}>Submitted</span>
+          <span style={{ width: "100px" }}></span>
+        </div>
+
+        {filings.map((filing, i) => {
+          const deadline = filing.filingType === "accounts" ? filing.accountsDeadline : filing.ct600Deadline;
+          const isOverdue = deadline && new Date(deadline) < new Date() && filing.status === "outstanding";
+          const canRetry = filing.status === "polling_timeout" || (filing.status === "failed" && filing.correlationId);
+          const canReset = filing.status === "rejected" || filing.status === "failed";
+          const isSelectable = filing.status === "polling_timeout";
+
+          return (
+            <div
+              key={filing.id}
+              className="flex items-center gap-3 px-4 py-2.5 text-xs"
+              style={{ borderBottom: i < filings.length - 1 ? "1px solid var(--color-border)" : "none" }}
+            >
+              {hasSelectable && (
+                <input
+                  type="checkbox"
+                  checked={selected.has(filing.id)}
+                  onChange={() => toggleSelect(filing.id)}
+                  disabled={!isSelectable}
+                  className="cursor-pointer disabled:opacity-30"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <Link
+                  href={`/admin/customers/${filing.userId}`}
+                  className="font-medium truncate block"
+                  style={{ color: "var(--color-primary)", textDecoration: "none" }}
+                >
+                  {filing.companyName}
+                </Link>
+                <span style={{ color: "var(--color-text-muted)" }}>{filing.crn} · {filing.userEmail}</span>
+              </div>
+              <span style={{ width: "80px" }}>
+                <StatusBadge status={filing.filingType} label={filing.filingType === "ct600" ? "CT600" : "Accounts"} />
+              </span>
+              <span style={{ width: "180px", color: "var(--color-text-body)" }}>
+                {fmt(filing.periodStart)} — {fmt(filing.periodEnd)}
+              </span>
+              <span style={{ width: "90px" }}>
+                <StatusBadge status={filing.status} />
+              </span>
+              <span style={{ width: "90px", color: isOverdue ? "var(--color-danger)" : "var(--color-text-muted)" }}>
+                {deadline ? fmt(deadline) : "—"}
+              </span>
+              <span style={{ width: "90px", color: "var(--color-text-muted)" }}>
+                {filing.submittedAt ? fmt(filing.submittedAt) : "—"}
+              </span>
+              <div className="flex gap-1" style={{ width: "100px" }}>
+                {canRetry && (
+                  <button
+                    onClick={() => handleAction(filing.id, "retry")}
+                    disabled={loading === filing.id}
+                    className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50"
+                    style={{ color: "var(--color-primary)", border: "1px solid var(--color-primary-border)", backgroundColor: "var(--color-primary-bg)" }}
+                  >
+                    Retry
+                  </button>
+                )}
+                {canReset && (
+                  <button
+                    onClick={() => handleAction(filing.id, "reset")}
+                    disabled={loading === filing.id}
+                    className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50"
+                    style={{ color: "var(--color-text-secondary)", border: "1px solid var(--color-border)", backgroundColor: "transparent" }}
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

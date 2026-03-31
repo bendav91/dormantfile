@@ -104,6 +104,7 @@ model Filing {
   submittedAt      DateTime?
   confirmedAt      DateTime?
   createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
   company          Company      @relation(fields: [companyId], references: [id])
   notifications    Notification[]
 
@@ -164,4 +165,13 @@ model Review {
   hiddenAt  DateTime?
   createdAt DateTime  @default(now())
   user      User?     @relation(fields: [userId], references: [id])
+}
+
+model ContactMessage {
+  id        String    @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
 }

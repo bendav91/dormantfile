@@ -2,10 +2,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Star } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Mail, Star } from "lucide-react";
+import { AdminNav } from "./AdminNav";
 
 const adminNavItems = [
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/filings", label: "Filings", icon: FileText },
+  { href: "/admin/messages", label: "Messages", icon: Mail, showBadge: true },
   { href: "/admin/reviews", label: "Reviews", icon: Star },
 ];
 
@@ -23,6 +27,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!user?.isAdmin) {
     notFound();
+  }
+
+  let unreadCount = 0;
+  try {
+    unreadCount = await prisma.contactMessage.count({ where: { readAt: null } });
+  } catch {
+    // Table may not exist yet
   }
 
   return (
@@ -45,26 +56,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </span>
       </div>
 
-      <div className="flex gap-2 mb-8">
-        {adminNavItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md transition-colors duration-150"
-              style={{
-                color: "var(--color-text-secondary)",
-                border: "1px solid var(--color-border)",
-                textDecoration: "none",
-              }}
-            >
-              <Icon size={14} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </div>
+      <AdminNav items={adminNavItems} unreadCount={unreadCount} />
 
       {children}
     </div>

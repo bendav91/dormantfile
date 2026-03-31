@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StarRating } from "@/components/marketing/StarRating";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import { CheckCircle } from "lucide-react";
 
 interface AdminReview {
@@ -14,37 +15,6 @@ interface AdminReview {
   approved: boolean;
   hiddenAt: string | null;
   createdAt: string;
-}
-
-function ReviewStatus({ review }: { review: AdminReview }) {
-  if (review.hiddenAt) {
-    return (
-      <span
-        className="text-xs font-medium px-2 py-0.5 rounded-full"
-        style={{ backgroundColor: "rgba(220, 38, 38, 0.08)", color: "var(--color-danger)" }}
-      >
-        Hidden
-      </span>
-    );
-  }
-  if (!review.approved) {
-    return (
-      <span
-        className="text-xs font-medium px-2 py-0.5 rounded-full"
-        style={{ backgroundColor: "rgba(202, 138, 4, 0.08)", color: "var(--color-warning)" }}
-      >
-        Pending
-      </span>
-    );
-  }
-  return (
-    <span
-      className="text-xs font-medium px-2 py-0.5 rounded-full"
-      style={{ backgroundColor: "rgba(21, 128, 61, 0.08)", color: "var(--color-success)" }}
-    >
-      Published
-    </span>
-  );
 }
 
 export function AdminReviewsTable({ reviews }: { reviews: AdminReview[] }) {
@@ -82,7 +52,7 @@ export function AdminReviewsTable({ reviews }: { reviews: AdminReview[] }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1.5">
               <StarRating rating={review.rating} size={14} />
-              <ReviewStatus review={review} />
+              <StatusBadge status={review.hiddenAt ? "hidden" : review.approved ? "published" : "pending"} />
             </div>
 
             {review.text && (
