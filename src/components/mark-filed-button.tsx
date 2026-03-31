@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 interface MarkFiledButtonProps {
   companyId: string;
   periodEnd: string;
+  filingType: "accounts" | "ct600";
 }
 
-export default function MarkFiledButton({ companyId, periodEnd }: MarkFiledButtonProps) {
+export default function MarkFiledButton({ companyId, periodEnd, filingType }: MarkFiledButtonProps) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ export default function MarkFiledButton({ companyId, periodEnd }: MarkFiledButto
       const res = await fetch("/api/file/mark-filed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companyId, periodEnd, filingType: "ct600" }),
+        body: JSON.stringify({ companyId, periodEnd, filingType }),
       });
       if (res.ok) {
         router.refresh();

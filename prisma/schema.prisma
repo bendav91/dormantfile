@@ -49,6 +49,7 @@ model User {
   remindersMuted     Boolean            @default(false)
   isAdmin            Boolean            @default(false)
   emailVerified      DateTime?
+  calendarFeedToken  String?            @unique
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   companies          Company[]

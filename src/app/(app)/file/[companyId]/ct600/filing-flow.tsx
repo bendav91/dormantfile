@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
 
 // ─── Shared style constants ───────────────────────────────────────────────────
 
@@ -996,6 +997,10 @@ export default function FilingFlow({
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");
   const [result, setResult] = useState<ResultState | null>(null);
+  const [pendingCredentials, setPendingCredentials] = useState<{
+    username: string;
+    password: string;
+  } | null>(null);
 
   async function handleSubmit(gatewayUsername: string, gatewayPassword: string) {
     setStep("submitting");
@@ -1071,7 +1076,28 @@ export default function FilingFlow({
   }
 
   if (step === "credentials") {
-    return <StepCredentials onSubmit={handleSubmit} onBack={() => setStep("confirm")} />;
+    return (
+      <>
+        <StepCredentials
+          onSubmit={(username, password) => setPendingCredentials({ username, password })}
+          onBack={() => setStep("confirm")}
+        />
+        {pendingCredentials !== null && (
+          <FilingConfirmationDialog
+            filingType="ct600"
+            companyName={companyName}
+            periodStart={periodStart}
+            periodEnd={periodEnd}
+            onConfirm={() => {
+              const { username, password } = pendingCredentials;
+              setPendingCredentials(null);
+              handleSubmit(username, password);
+            }}
+            onCancel={() => setPendingCredentials(null)}
+          />
+        )}
+      </>
+    );
   }
 
   if (step === "submitting") {

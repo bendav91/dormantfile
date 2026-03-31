@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Building2, Plus, AlertTriangle, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Building2, Plus, AlertTriangle, ChevronRight, CheckCircle2, Download } from "lucide-react";
 import Link from "next/link";
 import SubscriptionBanner from "@/components/subscription-banner";
 import CompanySearch from "@/components/company-search";
@@ -408,28 +408,52 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             </span>
           </div>
         </div>
-        {showAddCompany && (
-          <Link
-            href="/onboarding"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              backgroundColor: "var(--color-primary)",
-              color: "var(--color-bg-card)",
-              padding: "10px 20px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "14px",
-              textDecoration: "none",
-              transition: "opacity 200ms, background-color 200ms",
-              flexShrink: 0,
-            }}
-          >
-            <Plus size={16} strokeWidth={2.5} />
-            <span className="add-company-label">Add company</span>
-          </Link>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+          {canFile && (
+            <a
+              href="/api/export/companies-csv"
+              download
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "10px 20px",
+                borderRadius: "8px",
+                fontWeight: 600,
+                fontSize: "14px",
+                textDecoration: "none",
+                color: "var(--color-text-secondary)",
+                border: "1px solid var(--color-border)",
+                transition: "opacity 200ms",
+              }}
+            >
+              <Download size={16} strokeWidth={2} />
+              Export CSV
+            </a>
+          )}
+          {showAddCompany && (
+            <Link
+              href="/onboarding"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                backgroundColor: "var(--color-primary)",
+                color: "var(--color-bg-card)",
+                padding: "10px 20px",
+                borderRadius: "8px",
+                fontWeight: 600,
+                fontSize: "14px",
+                textDecoration: "none",
+                transition: "opacity 200ms, background-color 200ms",
+                flexShrink: 0,
+              }}
+            >
+              <Plus size={16} strokeWidth={2.5} />
+              <span className="add-company-label">Add company</span>
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Filters, search, and sort — show when there are 2+ companies, or when a search/filter is active */}

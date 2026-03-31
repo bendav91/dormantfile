@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, ShieldCheck, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
 
 // ─── Shared style constants ───────────────────────────────────────────────────
 
@@ -875,6 +876,7 @@ export default function AccountsFlow({
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");
   const [result, setResult] = useState<ResultState | null>(null);
+  const [pendingAuthCode, setPendingAuthCode] = useState<string | null>(null);
 
   async function handleSubmit(companyAuthCode: string) {
     setStep("submitting");
@@ -953,7 +955,25 @@ export default function AccountsFlow({
   }
 
   if (step === "authenticate") {
-    return <StepAuthenticate onSubmit={handleSubmit} />;
+    return (
+      <>
+        <StepAuthenticate onSubmit={(authCode) => setPendingAuthCode(authCode)} />
+        {pendingAuthCode !== null && (
+          <FilingConfirmationDialog
+            filingType="accounts"
+            companyName={companyName}
+            periodStart={periodStart}
+            periodEnd={periodEnd}
+            onConfirm={() => {
+              const code = pendingAuthCode;
+              setPendingAuthCode(null);
+              handleSubmit(code);
+            }}
+            onCancel={() => setPendingAuthCode(null)}
+          />
+        )}
+      </>
+    );
   }
 
   if (step === "submitting") {

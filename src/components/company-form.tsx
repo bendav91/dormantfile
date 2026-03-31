@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { validateUTR } from "@/lib/utils";
-import { Loader2, Building2, Hash, FileDigit, Calendar, CheckCircle2 } from "lucide-react";
+import { Loader2, Building2, Hash, FileDigit, Calendar, CheckCircle2, AlertTriangle } from "lucide-react";
 import { isFilingLive } from "@/lib/launch-mode";
 
 interface FormErrors {
@@ -135,6 +135,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
   const [uniqueTaxReference, setUniqueTaxReference] = useState("");
   const [registeredForCorpTax, setRegisteredForCorpTax] = useState(false);
   const [shareCapitalPounds, setShareCapitalPounds] = useState("");
+  const [deletedWarning, setDeletedWarning] = useState<{ companyName: string; deletedAt: string } | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [lookupStatus, setLookupStatus] = useState<
@@ -152,6 +153,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         setCompanyName("");
         setPeriodStartOn(null);
         setPeriodEndOn(null);
+        setDeletedWarning(null);
       }, 0);
       return;
     }
@@ -185,6 +187,21 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           setShareCapitalPounds(String(data.shareCapitalPence / 100));
         }
         setLookupStatus("found");
+
+        // Non-blocking check for previously deleted company with same CRN
+        try {
+          const delRes = await fetch(`/api/company/check-deleted?number=${encodeURIComponent(num)}`);
+          if (delRes.ok) {
+            const delData = await delRes.json();
+            if (delData.hasDeleted) {
+              setDeletedWarning({ companyName: delData.companyName, deletedAt: delData.deletedAt });
+            } else {
+              setDeletedWarning(null);
+            }
+          }
+        } catch {
+          // Silently ignore — this check is informational only
+        }
       } catch {
         setLookupStatus("error");
       }
@@ -380,6 +397,30 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
             <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
               Verified from Companies House. This cannot be edited.
             </p>
+          </div>
+        )}
+
+        {deletedWarning && lookupStatus === "found" && (
+          <div style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "10px",
+            padding: "14px 16px",
+            backgroundColor: "var(--color-warning-bg)",
+            border: "1px solid var(--color-warning-border)",
+            borderRadius: "8px",
+            marginTop: "8px",
+          }}>
+            <AlertTriangle size={18} style={{ color: "var(--color-warning)", flexShrink: 0, marginTop: "1px" }} />
+            <div>
+              <p style={{ fontSize: "14px", color: "var(--color-warning-text)", margin: 0, fontWeight: 600 }}>
+                Previously removed company
+              </p>
+              <p style={{ fontSize: "13px", color: "var(--color-warning-text)", margin: "4px 0 0 0" }}>
+                You removed {deletedWarning.companyName} on {new Date(deletedWarning.deletedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.
+                Adding it again will restore your previous filing history.
+              </p>
+            </div>
           </div>
         )}
 

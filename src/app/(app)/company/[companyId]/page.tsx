@@ -8,7 +8,9 @@ import { buildPeriodViews } from "@/lib/filing-queries";
 import FilingsTab from "@/components/filings-tab";
 import SettingsTab from "@/components/settings-tab";
 import OverviewTab from "@/components/overview-tab";
+import ActivityTab from "@/components/activity-tab";
 import SyncButton from "@/components/sync-button";
+import { buildActivityTimeline } from "@/lib/activity-timeline";
 interface PageProps {
   params: Promise<{ companyId: string }>;
   searchParams: Promise<{ tab?: string }>;
@@ -37,7 +39,9 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
   ).length;
 
   const { tab: tabParam } = await searchParams;
-  const tab = ["filings", "settings", "overview"].includes(tabParam ?? "") ? tabParam! : "filings";
+  const tab = ["filings", "settings", "overview", "activity"].includes(tabParam ?? "")
+    ? tabParam!
+    : "filings";
   // eslint-disable-next-line react-hooks/purity -- server component, runs once
   const now = Date.now();
 
@@ -136,6 +140,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           { key: "filings", label: "Filings", href: `/company/${companyId}` },
           { key: "overview", label: "Overview", href: `/company/${companyId}?tab=overview` },
           { key: "settings", label: "Settings", href: `/company/${companyId}?tab=settings` },
+          { key: "activity", label: "Activity", href: `/company/${companyId}?tab=activity` },
         ].map(({ key, label, href }) => (
           <Link
             key={key}
@@ -160,6 +165,8 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       {tab === "filings" && (
         <FilingsTab
           companyId={companyId}
+          companyName={company.companyName}
+          companyNumber={company.companyRegistrationNumber}
           registeredForCorpTax={company.registeredForCorpTax}
           periods={periods}
           filings={company.filings}
@@ -197,6 +204,54 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           activeCT600Count={activeCT600Count}
         />
       )}
+      {tab === "activity" && <ActivityTabSection companyId={companyId} companyCreatedAt={company.createdAt} filings={company.filings} />}
     </div>
   );
+}
+
+async function ActivityTabSection({
+  companyId,
+  companyCreatedAt,
+  filings,
+}: {
+  companyId: string;
+  companyCreatedAt: Date;
+  filings: Array<{
+    id: string;
+    filingType: string;
+    periodStart: Date;
+    periodEnd: Date;
+    status: string;
+    submittedAt: Date | null;
+    confirmedAt: Date | null;
+    createdAt: Date;
+  }>;
+}) {
+  const notifications = await prisma.notification.findMany({
+    where: { companyId },
+    orderBy: { sentAt: "desc" },
+  });
+
+  const events = buildActivityTimeline(
+    companyCreatedAt,
+    filings.map((f) => ({
+      ...f,
+      filingType: f.filingType as "accounts" | "ct600",
+    })),
+    notifications,
+  );
+
+  const formatDate = (d: Date) =>
+    d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+  const formattedEvents = events.map((e) => ({
+    id: e.id,
+    type: e.type,
+    date: formatDate(e.date),
+    title: e.title,
+    detail: e.detail,
+    filingType: e.filingType,
+  }));
+
+  return <ActivityTab events={formattedEvents} />;
 }

@@ -5,9 +5,10 @@ import FilingStatusBadge from "@/components/filing-status-badge";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { type PeriodView } from "@/lib/filing-queries";
 import { FilingStatus } from "@prisma/client";
-import { AlertTriangle, Calendar, CheckCircle2, EyeOff } from "lucide-react";
+import { AlertTriangle, Calendar, CheckCircle2, EyeOff, FileText } from "lucide-react";
 import Link from "next/link";
 import SuppressButton from "@/components/suppress-button";
+import CopyFilingSummary from "@/components/copy-filing-summary";
 import { isFilingLive } from "@/lib/launch-mode";
 
 function formatDate(date: Date): string {
@@ -31,6 +32,8 @@ interface Filing {
 
 interface FilingsTabProps {
   companyId: string;
+  companyName: string;
+  companyNumber: string;
   registeredForCorpTax: boolean;
   periods: PeriodView[];
   filings: Filing[];
@@ -39,6 +42,8 @@ interface FilingsTabProps {
 
 export default function FilingsTab({
   companyId,
+  companyName,
+  companyNumber,
   registeredForCorpTax,
   periods,
   filings,
@@ -393,14 +398,19 @@ export default function FilingsTab({
                                 </Link>
                               )}
                           </>
-                        ) : isFilingLive() ? (
-                          <Link
-                            href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
-                            style={filingBtnStyle}
-                          >
-                            File
-                          </Link>
-                        ) : null}
+                        ) : (
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="accounts" />
+                            {isFilingLive() && (
+                              <Link
+                                href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
+                                style={filingBtnStyle}
+                              >
+                                File
+                              </Link>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -453,10 +463,10 @@ export default function FilingsTab({
                                 )}
                             </>
                           ) : period.isBlockedTerritory ? (
-                            <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} />
+                            <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
                           ) : (
                             <>
-                              <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} />
+                              <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
                               {isFilingLive() && (
                                 <Link
                                   href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`}
@@ -689,10 +699,41 @@ export default function FilingsTab({
                               : "Filed elsewhere"}
                           </p>
                         </div>
-                        <FilingStatusBadge
-                          status={accountsFiling?.status ?? ("accepted" as FilingStatus)}
-                          filingType="accounts"
-                        />
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          {accountsFiling?.submittedAt && (
+                            <>
+                              <CopyFilingSummary
+                                companyName={companyName}
+                                companyNumber={companyNumber}
+                                filingType="accounts"
+                                periodStart={period.periodStart}
+                                periodEnd={period.periodEnd}
+                                confirmedAt={accountsFiling.confirmedAt}
+                              />
+                              <Link
+                                href={`/company/${companyId}/receipt/${accountsFiling.id}`}
+                                title="View receipt"
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  width: "28px",
+                                  height: "28px",
+                                  borderRadius: "6px",
+                                  border: "1px solid var(--color-border)",
+                                  color: "var(--color-text-secondary)",
+                                  transition: "color 200ms",
+                                }}
+                              >
+                                <FileText size={14} strokeWidth={2} />
+                              </Link>
+                            </>
+                          )}
+                          <FilingStatusBadge
+                            status={accountsFiling?.status ?? ("accepted" as FilingStatus)}
+                            filingType="accounts"
+                          />
+                        </div>
                       </div>
 
                       {/* CT600 row */}
@@ -741,7 +782,38 @@ export default function FilingsTab({
                             </p>
                           </div>
                           {ct600Filing ? (
-                            <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              {ct600Filing.submittedAt && (
+                                <>
+                                  <CopyFilingSummary
+                                    companyName={companyName}
+                                    companyNumber={companyNumber}
+                                    filingType="ct600"
+                                    periodStart={period.periodStart}
+                                    periodEnd={period.periodEnd}
+                                    confirmedAt={ct600Filing.confirmedAt}
+                                  />
+                                  <Link
+                                    href={`/company/${companyId}/receipt/${ct600Filing.id}`}
+                                    title="View receipt"
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      width: "28px",
+                                      height: "28px",
+                                      borderRadius: "6px",
+                                      border: "1px solid var(--color-border)",
+                                      color: "var(--color-text-secondary)",
+                                      transition: "color 200ms",
+                                    }}
+                                  >
+                                    <FileText size={14} strokeWidth={2} />
+                                  </Link>
+                                </>
+                              )}
+                              <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                            </div>
                           ) : (
                             <span
                               style={{

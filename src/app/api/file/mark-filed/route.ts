@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  if (filingType !== "ct600") {
+  if (filingType !== "ct600" && filingType !== "accounts") {
     return NextResponse.json(
-      { error: "Only CT600 filings can be marked as filed externally" },
+      { error: "Invalid filing type" },
       { status: 400 },
     );
   }
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
   // Check no existing filing for this period
   const existing = await prisma.filing.findFirst({
-    where: { companyId, filingType: "ct600", periodEnd: periodEndDate },
+    where: { companyId, filingType: filingType as "accounts" | "ct600", periodEnd: periodEndDate },
   });
   if (existing) {
     return NextResponse.json({ error: "A filing already exists for this period" }, { status: 409 });
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   await prisma.filing.create({
     data: {
       companyId,
-      filingType: "ct600",
+      filingType: filingType as "accounts" | "ct600",
       periodStart: periodStartDate,
       periodEnd: periodEndDate,
       status: "accepted",
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     companyId,
     periodEndDate,
     company.registeredForCorpTax,
-    "ct600",
+    filingType as "accounts" | "ct600",
     user.email,
     company.companyName,
     { skipEmail: true },
