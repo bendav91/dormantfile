@@ -1,0 +1,842 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { IBM_Plex_Sans } from "next/font/google";
+import { SiteNav } from "@/components/SiteNav";
+import { SiteFooter } from "@/components/SiteFooter";
+import { MicroTrust } from "@/components/marketing/MicroTrust";
+import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
+import { isFilingLive } from "@/lib/launch-mode";
+import {
+  ArrowRight,
+  Briefcase,
+  CheckCircle,
+  ChevronDown,
+  KeyRound,
+  Monitor,
+  RotateCcw,
+  Shield,
+  Zap,
+} from "lucide-react";
+import { FAQAccordion } from "./FAQAccordion";
+
+const ibmPlexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "Pricing | DormantFile",
+  description:
+    "DormantFile pricing: from £19/year for one dormant company. File annual accounts and nil CT600 returns from one dashboard.",
+  openGraph: {
+    title: "Pricing | DormantFile",
+    description:
+      "DormantFile pricing: from £19/year for one dormant company. Both filings, one dashboard.",
+    type: "website",
+    siteName: "DormantFile",
+  },
+};
+
+const plans = [
+  {
+    name: "Basic",
+    price: "19",
+    period: "per year",
+    perUnit: null,
+    description: "You have one dormant company on the register.",
+    features: [
+      "Annual accounts to Companies House",
+      "Nil CT600 return to HMRC",
+      "File any outstanding period",
+      "Email deadline reminders",
+      "Direct submission via official APIs",
+    ],
+    cta: "Get started",
+    highlighted: false,
+  },
+  {
+    name: "Multiple",
+    price: "39",
+    period: "per year",
+    perUnit: "£3.90 per company",
+    description:
+      "Side projects, holding structures, or a few companies on the register.",
+    features: [
+      "Accounts + CT600 for up to 10 companies",
+      "One dashboard \u2014 all companies at a glance",
+      "File any outstanding period per company",
+      "Email deadline reminders for every company",
+      "Direct submission via official APIs",
+    ],
+    cta: "Get started",
+    highlighted: true,
+  },
+  {
+    name: "Agent",
+    price: "49",
+    period: "per year",
+    perUnit: "49p per company",
+    description:
+      "For accountants and formation agents filing on behalf of clients.",
+    features: [
+      "Accounts + CT600 for up to 100 companies",
+      "File as agent on behalf of your clients",
+      "One dashboard \u2014 all clients at a glance",
+      "File any outstanding period per company",
+      "Email deadline reminders for every company",
+    ],
+    cta: "Get started",
+    highlighted: false,
+  },
+];
+
+const faqItems = [
+  {
+    question: "Can I try before I commit?",
+    answer:
+      "You have a 14-day cooling-off period after subscribing. If you cancel within those 14 days and haven\u2019t submitted a filing, we issue a full refund.",
+  },
+  {
+    question: "Can I cancel anytime?",
+    answer:
+      "Yes. Cancel via the billing portal in your account settings. Your subscription stays active until the end of your current billing period.",
+  },
+  {
+    question: "Can I upgrade or downgrade?",
+    answer:
+      "Yes. Upgrades take effect immediately. Downgrades take effect at the end of your current billing period. Both are handled from your account settings.",
+  },
+  {
+    question: "What payment methods do you accept?",
+    answer:
+      "We accept all major credit and debit cards via Stripe. We don\u2019t currently accept bank transfers or direct debits.",
+  },
+  {
+    question: "Do you offer refunds?",
+    answer:
+      "During the first 14 days you can cancel for a full refund, provided no filing has been submitted. After that, we don\u2019t refund partial billing periods \u2014 but your access continues until the period ends.",
+  },
+];
+
+export default function PricingPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+
+  return (
+    <div
+      className={ibmPlexSans.className}
+      style={{
+        backgroundColor: "var(--color-bg-page)",
+        color: "var(--color-text-primary)",
+      }}
+    >
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: baseUrl },
+          { name: "Pricing" },
+        ]}
+      />
+
+      <SiteNav variant="marketing" />
+
+      <main id="main-content">
+        {/* ── Hero ── */}
+        <section className="pt-16 sm:pt-24 pb-16 sm:pb-20 px-6">
+          <div className="max-w-[960px] mx-auto text-center">
+            <nav aria-label="Breadcrumb" className="mb-8">
+              <ol
+                className="flex items-center justify-center gap-2 text-sm"
+                style={{ listStyle: "none", padding: 0, margin: 0 }}
+              >
+                <li>
+                  <Link
+                    href="/"
+                    className="hover:underline focus-ring rounded"
+                    style={{
+                      color: "var(--color-text-secondary)",
+                      textDecoration: "none",
+                    }}
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span
+                    aria-hidden="true"
+                    style={{ color: "var(--color-text-muted)" }}
+                  >
+                    ›
+                  </span>
+                  <span style={{ color: "var(--color-text-body)" }}>
+                    Pricing
+                  </span>
+                </li>
+              </ol>
+            </nav>
+
+            <h1
+              className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-5"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              Both filings.{" "}
+              <span style={{ color: "var(--color-primary)" }}>
+                From £19 a year.
+              </span>
+            </h1>
+            <p
+              className="text-lg leading-relaxed max-w-xl mx-auto mb-6"
+              style={{ color: "var(--color-text-body)" }}
+            >
+              Every plan includes annual accounts and CT600. No add-ons, no
+              hidden fees. Plans are based on how many companies you manage, not
+              how many filings you make.
+            </p>
+
+            <a
+              href="#plans"
+              className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200"
+              style={{ color: "var(--color-primary)" }}
+            >
+              See plans <ChevronDown size={16} />
+            </a>
+          </div>
+        </section>
+
+        {/* ── Pricing Cards ── */}
+        <section
+          id="plans"
+          className="py-16 sm:py-20 px-6"
+          style={{
+            backgroundColor: "var(--color-bg-card)",
+            borderTop: "1px solid var(--color-border)",
+            borderBottom: "1px solid var(--color-border)",
+          }}
+        >
+          <div className="max-w-[960px] mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {plans.map((plan) => (
+                <div
+                  key={plan.name}
+                  className="rounded-xl p-5 sm:p-7 flex flex-col"
+                  style={{
+                    border: plan.highlighted
+                      ? "2px solid var(--color-primary)"
+                      : "1px solid var(--color-border)",
+                    backgroundColor: "var(--color-bg-page)",
+                    position: "relative",
+                  }}
+                >
+                  {plan.highlighted && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: "-12px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        backgroundColor: "var(--color-primary)",
+                        color: "var(--color-bg-card)",
+                        padding: "3px 14px",
+                        borderRadius: "9999px",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Most popular
+                    </span>
+                  )}
+                  <p
+                    className="font-semibold text-sm mb-1"
+                    style={{ color: "var(--color-primary)" }}
+                  >
+                    {plan.name}
+                  </p>
+                  <div className="mb-1">
+                    <span
+                      className="text-4xl font-bold"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      £{plan.price}
+                    </span>
+                    <span
+                      className="text-sm ml-1"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      {plan.period}
+                    </span>
+                  </div>
+                  {plan.perUnit && (
+                    <p
+                      className="text-xs font-medium mb-4"
+                      style={{ color: "var(--color-primary)" }}
+                    >
+                      {plan.perUnit}
+                    </p>
+                  )}
+                  <p
+                    className="text-sm leading-relaxed mb-6"
+                    style={{
+                      color: "var(--color-text-secondary)",
+                      marginTop: plan.perUnit ? 0 : "0.5rem",
+                    }}
+                  >
+                    {plan.description}
+                  </p>
+                  <ul className="space-y-2.5 mb-7 flex-1">
+                    {plan.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="flex items-start gap-2.5"
+                      >
+                        <CheckCircle
+                          size={16}
+                          style={{
+                            color: "var(--color-primary)",
+                            flexShrink: 0,
+                            marginTop: 2,
+                          }}
+                        />
+                        <span
+                          className="text-sm"
+                          style={{ color: "var(--color-text-body)" }}
+                        >
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/register"
+                    className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
+                    style={{
+                      backgroundColor: plan.highlighted
+                        ? "var(--color-cta)"
+                        : "var(--color-primary)",
+                      color: "var(--color-bg-card)",
+                      padding: "12px 24px",
+                    }}
+                  >
+                    {plan.cta}
+                  </Link>
+                  <div className="mt-3 text-center">
+                    <MicroTrust
+                      icon={RotateCcw}
+                      text="14-day refund guarantee"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p
+              className="text-xs text-center mt-6"
+              style={{ color: "var(--color-text-muted)" }}
+            >
+              All plans include credentials-never-stored security. Your HMRC
+              Gateway login is used once and immediately discarded.
+            </p>
+          </div>
+        </section>
+
+        {/* ── How we compare ── */}
+        <section className="py-16 sm:py-20 px-6">
+          <div className="max-w-[960px] mx-auto">
+            <h2
+              className="text-2xl font-bold text-center mb-3"
+              style={{
+                color: "var(--color-text-primary)",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              How we compare
+            </h2>
+            <p
+              className="text-sm text-center mb-10"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              Your options for filing a dormant company&apos;s returns.
+            </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              {/* DormantFile — highlighted */}
+              <div
+                className="rounded-xl p-6"
+                style={{ backgroundColor: "var(--color-primary)" }}
+              >
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Zap
+                    size={18}
+                    style={{
+                      color: "rgba(255,255,255,0.7)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <p className="text-sm font-semibold text-white">
+                    DormantFile
+                  </p>
+                </div>
+                <p
+                  className="text-2xl font-bold text-white mb-1"
+                >
+                  From £19
+                  <span
+                    className="text-sm font-medium ml-1"
+                    style={{ color: "rgba(255,255,255,0.7)" }}
+                  >
+                    /yr
+                  </span>
+                </p>
+                <p
+                  className="text-xs mb-4"
+                  style={{ color: "rgba(255,255,255,0.7)" }}
+                >
+                  Under 2 minutes
+                </p>
+                <ul className="space-y-2.5">
+                  {[
+                    "Both filings in under 2 minutes",
+                    "Purpose-built for dormant companies",
+                    "Direct to government APIs",
+                    "Catch up on missed years",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-2.5 text-sm"
+                      style={{ color: "rgba(255,255,255,0.9)" }}
+                    >
+                      <CheckCircle
+                        size={16}
+                        className="mt-0.5 flex-shrink-0"
+                        style={{ color: "rgba(255,255,255,0.7)" }}
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Accountant */}
+              <div
+                className="rounded-xl p-6"
+                style={{
+                  border: "1px solid var(--color-border)",
+                  backgroundColor: "var(--color-bg-card)",
+                }}
+              >
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Briefcase
+                    size={18}
+                    style={{
+                      color: "var(--color-text-muted)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <p
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    Accountant
+                  </p>
+                </div>
+                <p
+                  className="text-2xl font-bold mb-1"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  £80–150+
+                  <span
+                    className="text-sm font-medium ml-1"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    /co
+                  </span>
+                </p>
+                <p
+                  className="text-xs mb-4"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  Varies
+                </p>
+                <ul className="space-y-2.5">
+                  {[
+                    "Professional advice included",
+                    "Overkill for nil returns",
+                    "Wait days for them to file",
+                    "Paying for expertise you don\u2019t need",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-2.5 text-sm"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <span
+                        className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{
+                          backgroundColor: "var(--color-text-muted)",
+                        }}
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Accounting software */}
+              <div
+                className="rounded-xl p-6"
+                style={{
+                  border: "1px solid var(--color-border)",
+                  backgroundColor: "var(--color-bg-card)",
+                }}
+              >
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Monitor
+                    size={18}
+                    style={{
+                      color: "var(--color-text-muted)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <p
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    Accounting software
+                  </p>
+                </div>
+                <p
+                  className="text-2xl font-bold mb-1"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  £100+
+                  <span
+                    className="text-sm font-medium ml-1"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    /yr
+                  </span>
+                </p>
+                <p
+                  className="text-xs mb-4"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  30+ minutes
+                </p>
+                <ul className="space-y-2.5">
+                  {[
+                    "Built for trading companies",
+                    "Hours to set up and learn",
+                    "Features you\u2019ll never touch",
+                    "Not designed for dormant",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-2.5 text-sm"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <span
+                        className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{
+                          backgroundColor: "var(--color-text-muted)",
+                        }}
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* DIY */}
+              <div
+                className="rounded-xl p-6"
+                style={{
+                  border: "1px solid var(--color-border)",
+                  backgroundColor: "var(--color-bg-card)",
+                }}
+              >
+                <div className="flex items-center gap-2.5 mb-4">
+                  <Shield
+                    size={18}
+                    style={{
+                      color: "var(--color-text-muted)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <p
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    DIY (manual filing)
+                  </p>
+                </div>
+                <p
+                  className="text-2xl font-bold mb-1"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  Free
+                  <span
+                    className="text-sm font-medium ml-1"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    (accounts)
+                  </span>
+                </p>
+                <p
+                  className="text-xs mb-4"
+                  style={{ color: "var(--color-text-muted)" }}
+                >
+                  1–2 hours
+                </p>
+                <ul className="space-y-2.5">
+                  {[
+                    "Accounts only — no CT600",
+                    "CATO closed on 31 March 2026",
+                    "Error-prone without guidance",
+                    "No deadline reminders",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-2.5 text-sm"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      <span
+                        className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{
+                          backgroundColor: "var(--color-text-muted)",
+                        }}
+                      />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── What's included ── */}
+        <section
+          className="py-16 sm:py-20 px-6"
+          style={{
+            backgroundColor: "var(--color-bg-card)",
+            borderTop: "1px solid var(--color-border)",
+            borderBottom: "1px solid var(--color-border)",
+          }}
+        >
+          <div className="max-w-[960px] mx-auto">
+            <h2
+              className="text-2xl font-bold text-center mb-3"
+              style={{
+                color: "var(--color-text-primary)",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Every plan includes
+            </h2>
+            <p
+              className="text-sm text-center mb-10"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              No add-ons. No tiers for individual features. Everything below
+              comes with every plan.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                {
+                  title: "Annual accounts",
+                  description:
+                    "Dormant accounts filed directly to Companies House via their software filing API.",
+                },
+                {
+                  title: "Nil CT600 returns",
+                  description:
+                    "Corporation Tax returns filed directly to HMRC via GovTalk.",
+                },
+                {
+                  title: "Deadline reminders",
+                  description:
+                    "Email reminders at 90, 30, 14, 7, 3, and 1 day before each deadline.",
+                },
+                {
+                  title: "Outstanding periods",
+                  description:
+                    "File any missed period, not just the current one. Catch up in a single sitting.",
+                },
+                {
+                  title: "Filing history",
+                  description:
+                    "Every submission is recorded in your dashboard with confirmation details.",
+                },
+                {
+                  title: "Credentials never stored",
+                  description:
+                    "Your HMRC Gateway login is used once at submission and immediately discarded.",
+                },
+              ].map((feature) => (
+                <div
+                  key={feature.title}
+                  className="flex items-start gap-3 p-4 rounded-lg"
+                  style={{
+                    backgroundColor: "var(--color-bg-page)",
+                    border: "1px solid var(--color-border)",
+                  }}
+                >
+                  <CheckCircle
+                    size={18}
+                    className="mt-0.5 flex-shrink-0"
+                    style={{ color: "var(--color-primary)" }}
+                  />
+                  <div>
+                    <h3
+                      className="text-sm font-semibold mb-0.5"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      {feature.title}
+                    </h3>
+                    <p
+                      className="text-sm leading-relaxed"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── FAQ ── */}
+        <section className="py-16 sm:py-20 px-6">
+          <div className="max-w-[960px] mx-auto">
+            <h2
+              className="text-2xl font-bold text-center mb-3"
+              style={{
+                color: "var(--color-text-primary)",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Billing questions
+            </h2>
+            <p
+              className="text-sm text-center mb-10"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              Everything you need to know about plans, billing, and refunds.{" "}
+              <Link
+                href="/faq"
+                className="font-medium transition-colors duration-200"
+                style={{ color: "var(--color-primary)" }}
+              >
+                See all FAQs &rarr;
+              </Link>
+            </p>
+
+            <div className="max-w-3xl mx-auto">
+              <FAQAccordion items={faqItems} />
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA ── */}
+        <section
+          className="py-20 sm:py-24 px-6"
+          style={{
+            backgroundColor: "var(--color-primary-bg)",
+            borderTop: "1px solid var(--color-primary-border)",
+            borderBottom: "1px solid var(--color-primary-border)",
+          }}
+        >
+          <div className="max-w-[960px] mx-auto">
+            {/* Value stat blocks */}
+            <div className="grid grid-cols-3 gap-3 sm:gap-5 max-w-sm sm:max-w-md mx-auto mb-12">
+              {[
+                { value: "£19", unit: "/yr", label: "From" },
+                { value: "2", unit: " min", label: "Under" },
+                { value: "2", unit: "", label: "Filings" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="text-center rounded-xl py-4 px-2"
+                  style={{
+                    backgroundColor: "var(--color-bg-card)",
+                    border: "1px solid var(--color-border)",
+                  }}
+                >
+                  <p
+                    className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest mb-1.5"
+                    style={{ color: "var(--color-text-muted)" }}
+                  >
+                    {stat.label}
+                  </p>
+                  <p
+                    className="text-2xl sm:text-3xl font-bold leading-none"
+                    style={{ color: "var(--color-primary)" }}
+                  >
+                    {stat.value}
+                    {stat.unit && (
+                      <span
+                        className="text-base sm:text-lg font-medium"
+                        style={{ color: "var(--color-text-secondary)" }}
+                      >
+                        {stat.unit}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <h2
+              className="text-3xl sm:text-4xl font-bold text-center leading-tight mb-5"
+              style={{
+                color: "var(--color-text-primary)",
+                letterSpacing: "-0.025em",
+              }}
+            >
+              Get your dormant filings sorted.
+            </h2>
+            <p
+              className="text-base sm:text-lg text-center leading-relaxed mb-10 max-w-lg mx-auto"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              Set up your company in minutes. When it&apos;s time to file, both
+              returns go directly to Companies House and HMRC. From £19 a year.
+            </p>
+
+            <div className="text-center mb-8">
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2.5 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
+                style={{
+                  backgroundColor: "var(--color-cta)",
+                  color: "var(--color-bg-card)",
+                  padding: "16px 36px",
+                }}
+              >
+                {isFilingLive() ? "Start filing today" : "Get started"}{" "}
+                <ArrowRight size={18} />
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+              {[
+                { icon: Shield, text: "Official government APIs" },
+                { icon: KeyRound, text: "Credentials never stored" },
+                { icon: RotateCcw, text: "14-day refund guarantee" },
+              ].map((item) => (
+                <MicroTrust
+                  key={item.text}
+                  icon={item.icon}
+                  text={item.text}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter variant="marketing" />
+    </div>
+  );
+}
