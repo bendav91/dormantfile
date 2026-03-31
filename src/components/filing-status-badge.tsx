@@ -1,4 +1,5 @@
 import { FilingStatus } from "@prisma/client";
+import { cn } from "@/lib/cn";
 
 interface FilingStatusBadgeProps {
   status: FilingStatus;
@@ -7,42 +8,35 @@ interface FilingStatusBadgeProps {
 
 const statusConfig: Record<
   FilingStatus,
-  { label: string; backgroundColor: string; color: string }
+  { label: string; className: string }
 > = {
   outstanding: {
     label: "Outstanding",
-    backgroundColor: "var(--color-neutral-bg)",
-    color: "var(--color-neutral-text)",
+    className: "bg-neutral-bg text-neutral-text",
   },
   pending: {
     label: "Pending",
-    backgroundColor: "var(--color-neutral-bg)",
-    color: "var(--color-neutral-text)",
+    className: "bg-neutral-bg text-neutral-text",
   },
   submitted: {
     label: "Submitted",
-    backgroundColor: "var(--color-submitted-bg)",
-    color: "var(--color-submitted-text)",
+    className: "bg-submitted-bg text-submitted-text",
   },
   polling_timeout: {
     label: "Awaiting HMRC",
-    backgroundColor: "var(--color-warning-bg)",
-    color: "var(--color-warning-deep)",
+    className: "bg-warning-bg text-warning-deep",
   },
   accepted: {
     label: "Accepted",
-    backgroundColor: "var(--color-success-bg)",
-    color: "var(--color-success)",
+    className: "bg-success-bg text-success",
   },
   rejected: {
     label: "Rejected",
-    backgroundColor: "var(--color-danger-bg)",
-    color: "var(--color-danger-deep)",
+    className: "bg-danger-bg text-danger-deep",
   },
   failed: {
     label: "Failed",
-    backgroundColor: "var(--color-danger-bg)",
-    color: "var(--color-danger-deep)",
+    className: "bg-danger-bg text-danger-deep",
   },
 };
 
@@ -53,15 +47,7 @@ export default function FilingStatusBadge({ status, filingType }: FilingStatusBa
 
   return (
     <span
-      style={{
-        display: "inline-block",
-        padding: "2px 8px",
-        borderRadius: "9999px",
-        fontSize: "12px",
-        fontWeight: 600,
-        backgroundColor: config.backgroundColor,
-        color: config.color,
-      }}
+      className={cn("inline-block px-2 py-0.5 rounded-full text-xs font-semibold", config.className)}
     >
       {label}
     </span>

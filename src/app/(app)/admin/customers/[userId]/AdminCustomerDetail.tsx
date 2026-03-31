@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { StarRating } from "@/components/marketing/StarRating";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface Filing {
   id: string;
@@ -90,7 +91,7 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
   return (
     <div>
       {/* Companies */}
-      <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>
+      <h3 className="text-sm font-semibold mb-3 text-foreground">
         Companies ({companies.length})
       </h3>
       <div className="space-y-2 mb-8">
@@ -99,37 +100,34 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
           return (
             <div
               key={company.id}
-              className="rounded-xl overflow-hidden"
-              style={{
-                backgroundColor: "var(--color-bg-card)",
-                border: "1px solid var(--color-border)",
-                opacity: company.isDeleted ? 0.5 : 1,
-              }}
+              className={cn(
+                "rounded-xl overflow-hidden bg-card border border-border",
+                company.isDeleted && "opacity-50"
+              )}
             >
               <button
                 onClick={() => toggleCompany(company.id)}
-                className="w-full flex items-center gap-3 px-4 py-3 cursor-pointer text-left"
-                style={{ background: "none", border: "none" }}
+                className="w-full flex items-center gap-3 px-4 py-3 cursor-pointer text-left bg-transparent border-0"
               >
                 {isOpen ? (
-                  <ChevronDown size={14} style={{ color: "var(--color-text-muted)" }} />
+                  <ChevronDown size={14} className="text-muted" />
                 ) : (
-                  <ChevronRight size={14} style={{ color: "var(--color-text-muted)" }} />
+                  <ChevronRight size={14} className="text-muted" />
                 )}
-                <span className="text-sm font-medium flex-1" style={{ color: "var(--color-text-primary)" }}>
+                <span className="text-sm font-medium flex-1 text-foreground">
                   {company.companyName}
                   {company.isDeleted && " (deleted)"}
                 </span>
-                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                <span className="text-xs text-muted">
                   {company.crn}
                 </span>
-                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                <span className="text-xs text-muted">
                   {company.filings.length} filings
                 </span>
               </button>
 
               {isOpen && company.filings.length > 0 && (
-                <div style={{ borderTop: "1px solid var(--color-border)" }}>
+                <div className="border-t border-border">
                   {company.filings.map((filing) => {
                     const deadline = filing.filingType === "accounts" ? filing.accountsDeadline : filing.ct600Deadline;
                     const isOverdue = deadline && new Date(deadline) < new Date() && filing.status === "outstanding";
@@ -139,21 +137,20 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
                     return (
                       <div
                         key={filing.id}
-                        className="flex items-center gap-3 px-4 py-2.5 text-xs"
-                        style={{ borderBottom: "1px solid var(--color-border)" }}
+                        className="flex items-center gap-3 px-4 py-2.5 text-xs border-b border-border"
                       >
                         <StatusBadge status={filing.filingType} label={filing.filingType === "ct600" ? "CT600" : "Accounts"} />
-                        <span style={{ color: "var(--color-text-body)" }}>
+                        <span className="text-body">
                           {fmt(filing.periodStart)} — {fmt(filing.periodEnd)}
                         </span>
                         <StatusBadge status={filing.status} />
                         {deadline && (
-                          <span style={{ color: isOverdue ? "var(--color-danger)" : "var(--color-text-muted)" }}>
+                          <span className={isOverdue ? "text-danger" : "text-muted"}>
                             Due {fmt(deadline)}
                           </span>
                         )}
                         {filing.submittedAt && (
-                          <span style={{ color: "var(--color-text-muted)" }}>
+                          <span className="text-muted">
                             Submitted {fmt(filing.submittedAt)}
                           </span>
                         )}
@@ -162,8 +159,7 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
                             <button
                               onClick={() => handleFilingAction(filing.id, "retry")}
                               disabled={loading === filing.id}
-                              className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50"
-                              style={{ color: "var(--color-primary)", border: "1px solid var(--color-primary-border)", backgroundColor: "var(--color-primary-bg)" }}
+                              className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50 text-primary border border-primary-border bg-primary-bg"
                             >
                               Retry
                             </button>
@@ -172,8 +168,7 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
                             <button
                               onClick={() => handleFilingAction(filing.id, "reset")}
                               disabled={loading === filing.id}
-                              className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50"
-                              style={{ color: "var(--color-text-secondary)", border: "1px solid var(--color-border)", backgroundColor: "transparent" }}
+                              className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50 text-secondary border border-border bg-transparent"
                             >
                               Reset
                             </button>
@@ -192,27 +187,23 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
       {/* Review */}
       {review && (
         <>
-          <h3 className="text-sm font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>
+          <h3 className="text-sm font-semibold mb-3 text-foreground">
             Review
           </h3>
-          <div
-            className="p-4 rounded-xl mb-8"
-            style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-          >
+          <div className="p-4 rounded-xl mb-8 bg-card border border-border">
             <div className="flex items-center gap-2 mb-2">
               <StarRating rating={review.rating} size={14} />
               <StatusBadge status={review.hiddenAt ? "hidden" : review.approved ? "published" : "pending"} />
             </div>
             {review.text && (
-              <p className="text-sm mb-2" style={{ color: "var(--color-text-body)" }}>{review.text}</p>
+              <p className="text-sm mb-2 text-body">{review.text}</p>
             )}
             <div className="flex gap-2 mt-3">
               {!review.approved && !review.hiddenAt && (
                 <button
                   onClick={() => handleReviewAction(review.id, "approve")}
                   disabled={loading === review.id}
-                  className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50"
-                  style={{ backgroundColor: "rgba(21, 128, 61, 0.08)", color: "var(--color-success)", border: "1px solid rgba(21, 128, 61, 0.2)" }}
+                  className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 bg-success-bg text-success border border-success-border"
                 >
                   Approve
                 </button>
@@ -221,8 +212,7 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
                 <button
                   onClick={() => handleReviewAction(review.id, "hide")}
                   disabled={loading === review.id}
-                  className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50"
-                  style={{ backgroundColor: "rgba(220, 38, 38, 0.08)", color: "var(--color-danger)", border: "1px solid rgba(220, 38, 38, 0.2)" }}
+                  className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 bg-danger-bg text-danger border border-danger-border"
                 >
                   Hide
                 </button>
@@ -230,8 +220,7 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
                 <button
                   onClick={() => handleReviewAction(review.id, "unhide")}
                   disabled={loading === review.id}
-                  className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50"
-                  style={{ color: "var(--color-text-secondary)", border: "1px solid var(--color-border)", backgroundColor: "transparent" }}
+                  className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 text-secondary border border-border bg-transparent"
                 >
                   Unhide
                 </button>

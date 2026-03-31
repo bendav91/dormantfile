@@ -49,7 +49,7 @@ export default async function AdminFilingsPage({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-6" style={{ color: "var(--color-text-primary)" }}>
+      <h2 className="text-lg font-semibold mb-6 text-foreground">
         Filings
       </h2>
 

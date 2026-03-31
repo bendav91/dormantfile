@@ -62,13 +62,10 @@ export default async function AnswerPage({ params }: Props) {
         items={[{ label: "Answers", href: "/answers" }, { label: answer.frontmatter.title }]}
       />
       <article>
-        <h1
-          className="text-3xl sm:text-4xl font-bold leading-tight mb-3"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-3xl sm:text-4xl font-bold leading-tight mb-3 text-foreground">
           {answer.frontmatter.title}
         </h1>
-        <p className="text-sm mb-8" style={{ color: "var(--color-text-muted)" }}>
+        <p className="text-sm mb-8 text-muted">
           By DormantFile &middot; Updated{" "}
           {new Date(answer.frontmatter.updatedAt).toLocaleDateString("en-GB", {
             day: "numeric",

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Building2, Plus, AlertTriangle, ChevronRight, CheckCircle2, Download } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/cn";
 import SubscriptionBanner from "@/components/subscription-banner";
 import CompanySearch from "@/components/company-search";
 import SortDropdown, { type SortType } from "@/components/sort-dropdown";
@@ -78,91 +79,29 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
   if (allCompanyCount === 0) {
     return (
-      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+      <div className="max-w-[960px] mx-auto">
         <SubscriptionBanner status={user.subscriptionStatus} />
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            marginBottom: "32px",
-          }}
-        >
+        <div className="flex items-start justify-between mb-8">
           <div>
-            <h1
-              style={{
-                fontSize: "28px",
-                fontWeight: 700,
-                color: "var(--color-text-primary)",
-                margin: "0 0 6px 0",
-                letterSpacing: "-0.02em",
-              }}
-            >
+            <h1 className="text-[28px] font-bold text-foreground mb-1.5 tracking-[-0.02em]">
               Dashboard
             </h1>
           </div>
         </div>
-        <div
-          style={{
-            textAlign: "center",
-            padding: "64px 24px",
-            backgroundColor: "var(--color-bg-card)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "12px",
-          }}
-        >
-          <div
-            style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "12px",
-              backgroundColor: "var(--color-primary-bg)",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: "16px",
-            }}
-          >
+        <div className="text-center px-6 py-16 bg-card border border-border rounded-xl">
+          <div className="w-12 h-12 rounded-xl bg-primary-bg inline-flex items-center justify-center mb-4">
             <Building2 size={24} color="var(--color-primary)" strokeWidth={2} />
           </div>
-          <h2
-            style={{
-              fontSize: "18px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: "0 0 8px 0",
-            }}
-          >
+          <h2 className="text-lg font-bold text-foreground mb-2">
             No companies yet
           </h2>
-          <p
-            style={{
-              fontSize: "15px",
-              color: "var(--color-text-secondary)",
-              margin: "0 0 24px 0",
-              maxWidth: "400px",
-              marginLeft: "auto",
-              marginRight: "auto",
-              lineHeight: "1.5",
-            }}
-          >
+          <p className="text-[15px] text-secondary mb-6 max-w-[400px] mx-auto leading-normal">
             Add your first company to get started with filing. You can explore the dashboard in the
             meantime.
           </p>
           <Link
             href="/onboarding"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              backgroundColor: "var(--color-primary)",
-              color: "var(--color-bg-card)",
-              padding: "10px 24px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "14px",
-              textDecoration: "none",
-            }}
+            className="inline-flex items-center gap-1.5 bg-primary text-card py-2.5 px-6 rounded-lg font-semibold text-sm no-underline"
           >
             <Plus size={16} strokeWidth={2.5} />
             Add your first company
@@ -280,32 +219,14 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const companyLimit = getCompanyLimit(user.subscriptionTier);
 
   return (
-    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+    <div className="max-w-[960px] mx-auto">
       <SubscriptionBanner status={user.subscriptionStatus} />
 
       {showReviewPrompt && <ReviewPrompt />}
 
       {!isFilingLive() && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "14px 20px",
-            backgroundColor: "var(--color-primary-bg)",
-            border: "1px solid var(--color-primary-border)",
-            borderRadius: "12px",
-            marginBottom: "24px",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "14px",
-              color: "var(--color-primary-text)",
-              margin: 0,
-              fontWeight: 500,
-            }}
-          >
+        <div className="flex items-center gap-2.5 py-3.5 px-5 bg-primary-bg border border-primary-border rounded-xl mb-6">
+          <p className="text-sm text-primary-text font-medium">
             Filing isn&apos;t available just yet. Add your companies and explore the dashboard
             &mdash; we&apos;ll notify you when you can choose a plan and start filing.
           </p>
@@ -313,41 +234,16 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       )}
 
       {canFile && companyLimit > 0 && allCompanyCount > companyLimit && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "10px",
-            padding: "14px 20px",
-            backgroundColor: "var(--color-warning-bg)",
-            border: "1px solid var(--color-warning-border)",
-            borderRadius: "12px",
-            marginBottom: "24px",
-          }}
-        >
-          <span
-            style={{
-              color: "var(--color-warning)",
-              flexShrink: 0,
-              marginTop: "1px",
-              display: "flex",
-            }}
-          >
+        <div className="flex items-start gap-2.5 py-3.5 px-5 bg-warning-bg border border-warning-border rounded-xl mb-6">
+          <span className="text-warning shrink-0 mt-px flex">
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p
-            style={{
-              fontSize: "14px",
-              color: "var(--color-warning-text)",
-              margin: 0,
-              fontWeight: 500,
-            }}
-          >
+          <p className="text-sm text-warning-text font-medium">
             You have {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"} but your{" "}
             {TIER_LABELS[user.subscriptionTier]} plan supports {companyLimit}. You can file for up
             to {companyLimit} {companyLimit === 1 ? "company" : "companies"} this billing period.
             Remove companies or upgrade your plan from{" "}
-            <a href="/choose-plan" style={{ color: "var(--color-warning-link)", fontWeight: 600 }}>
+            <a href="/choose-plan" className="text-warning-link font-semibold">
               Change plan
             </a>
             .
@@ -356,52 +252,25 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       )}
 
       {/* Page heading */}
-      <div
-        className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-        style={{ marginBottom: "32px" }}
-      >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-8">
         <div>
-          <h1
-            style={{
-              fontSize: "28px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: "0 0 6px 0",
-              letterSpacing: "-0.02em",
-            }}
-          >
+          <h1 className="text-[28px] font-bold text-foreground mb-1.5 tracking-[-0.02em]">
             Dashboard
           </h1>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "2px" }}>
-            <p style={{ fontSize: "15px", color: "var(--color-text-secondary)", margin: 0 }}>
+          <div className="flex items-center gap-2.5 mt-0.5">
+            <p className="text-[15px] text-secondary">
               {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"}
               {companyLimit > 0 && ` / ${companyLimit}`}
             </p>
             <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "5px",
-                padding: "3px 10px",
-                borderRadius: "9999px",
-                fontSize: "12px",
-                fontWeight: 600,
-                backgroundColor:
-                  user.subscriptionTier === "none"
-                    ? "var(--color-danger-bg)"
-                    : user.subscriptionStatus === "active" ||
-                        user.subscriptionStatus === "cancelling"
-                      ? "var(--color-primary-bg)"
-                      : "var(--color-bg-inset)",
-                color:
-                  user.subscriptionTier === "none"
-                    ? "var(--color-danger)"
-                    : user.subscriptionStatus === "active" ||
-                        user.subscriptionStatus === "cancelling"
-                      ? "var(--color-primary)"
-                      : "var(--color-text-secondary)",
-                border: `1px solid ${user.subscriptionTier === "none" ? "var(--color-danger-border)" : user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling" ? "var(--color-primary-border)" : "var(--color-border)"}`,
-              }}
+              className={cn(
+                "inline-flex items-center gap-[5px] px-2.5 py-[3px] rounded-full text-xs font-semibold border",
+                user.subscriptionTier === "none"
+                  ? "bg-danger-bg text-danger border-danger-border"
+                  : user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling"
+                    ? "bg-primary-bg text-primary border-primary-border"
+                    : "bg-inset text-secondary border-border",
+              )}
             >
               {user.subscriptionTier === "none"
                 ? "No plan"
@@ -409,24 +278,12 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             </span>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+        <div className="flex items-center gap-2.5 shrink-0">
           {canFile && (
             <a
               href="/api/export/companies-csv"
               download
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                fontWeight: 600,
-                fontSize: "14px",
-                textDecoration: "none",
-                color: "var(--color-text-secondary)",
-                border: "1px solid var(--color-border)",
-                transition: "opacity 200ms",
-              }}
+              className="inline-flex items-center gap-1.5 py-2.5 px-5 rounded-lg font-semibold text-sm no-underline text-secondary border border-border transition-all duration-200"
             >
               <Download size={16} strokeWidth={2} />
               Export CSV
@@ -435,20 +292,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           {showAddCompany && (
             <Link
               href="/onboarding"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                backgroundColor: "var(--color-primary)",
-                color: "var(--color-bg-card)",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                fontWeight: 600,
-                fontSize: "14px",
-                textDecoration: "none",
-                transition: "opacity 200ms, background-color 200ms",
-                flexShrink: 0,
-              }}
+              className="inline-flex items-center gap-1.5 bg-primary text-card py-2.5 px-5 rounded-lg font-semibold text-sm no-underline transition-all duration-200 shrink-0"
             >
               <Plus size={16} strokeWidth={2.5} />
               <span className="add-company-label">Add company</span>
@@ -461,16 +305,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       {(allCompanyCount > 1 || search || filter) && (
         <>
           {/* Segmented filter control */}
-          <div
-            className="flex w-full sm:inline-flex sm:w-auto overflow-x-auto scrollbar-none"
-            style={{
-              backgroundColor: "var(--color-bg-inset)",
-              borderRadius: "8px",
-              padding: "3px",
-              marginBottom: "10px",
-              WebkitOverflowScrolling: "touch",
-            }}
-          >
+          <div className="flex w-full sm:inline-flex sm:w-auto overflow-x-auto scrollbar-none bg-inset rounded-lg p-[3px] mb-2.5 [-webkit-overflow-scrolling:touch]">
+
             {[
               {
                 key: "" as FilterType,
@@ -514,42 +350,21 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   href={href}
                   role="tab"
                   aria-selected={isActive}
-                  className="focus-ring segmented-tab flex-1 sm:flex-none"
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    textAlign: "center",
-                    fontWeight: isActive ? 600 : 500,
-                    textDecoration: "none",
-                    whiteSpace: "nowrap",
-                    transition: "background-color 150ms, box-shadow 150ms",
-                    backgroundColor: isActive ? "var(--color-bg-card)" : "transparent",
-                    color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-                    boxShadow: isActive ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
-                  }}
+                  className={cn(
+                    "focus-ring segmented-tab flex-1 sm:flex-none py-1.5 px-2.5 rounded-md text-xs text-center no-underline whitespace-nowrap transition-all duration-150",
+                    isActive
+                      ? "font-semibold bg-card text-foreground shadow-sm"
+                      : "font-medium bg-transparent text-secondary",
+                  )}
                 >
                   <span className="segmented-tab-label-full">{f.label}</span>
                   <span className="segmented-tab-label-short">{f.mobileLabel}</span>{" "}
                   {showUrgentBadge ? (
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        backgroundColor: "var(--color-danger-bg)",
-                        color: "var(--color-danger)",
-                        padding: "1px 6px",
-                        borderRadius: "9999px",
-                        fontSize: "10px",
-                        fontWeight: 600,
-                        minWidth: "18px",
-                      }}
-                    >
+                    <span className="inline-flex items-center justify-center bg-danger-bg text-danger px-1.5 py-px rounded-full text-[10px] font-semibold min-w-[18px]">
                       {f.count}
                     </span>
                   ) : (
-                    <span style={{ color: "var(--color-text-muted)", fontWeight: 500 }}>
+                    <span className="text-muted font-medium">
                       {f.count}
                     </span>
                   )}
@@ -559,10 +374,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           </div>
 
           {/* Search + sort row */}
-          <div
-            className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2.5"
-            style={{ marginBottom: "16px" }}
-          >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2.5 mb-4">
+
             <CompanySearch />
             <SortDropdown currentSort={sort} />
           </div>
@@ -571,21 +384,15 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
       {/* No results */}
       {totalCompanies === 0 && (search || filter) && (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "48px 24px",
-            color: "var(--color-text-secondary)",
-          }}
-        >
-          <p style={{ fontSize: "15px", margin: "0 0 4px 0", fontWeight: 500 }}>
+        <div className="text-center px-6 py-12 text-secondary">
+          <p className="text-[15px] mb-1 font-medium">
             {search ? (
               <>No companies matching &ldquo;{search}&rdquo;</>
             ) : (
               "No companies match this filter"
             )}
           </p>
-          <p style={{ fontSize: "13px", margin: 0 }}>
+          <p className="text-[13px]">
             {search
               ? "Try a different name or registration number."
               : "Try a different filter or check back later."}
@@ -620,50 +427,21 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             <article key={company.id}>
               <Link
                 href={`/company/${company.id}`}
-                className="focus-ring hoverable-card"
-                style={{
-                  display: "block",
-                  backgroundColor: "var(--color-bg-card)",
-                  borderRadius: "10px",
-                  padding: "18px",
-                  border: "1px solid var(--color-border)",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
-                  textDecoration: "none",
-                  color: "inherit",
-                  transition: "background-color 200ms, border-color 200ms",
-                  touchAction: "manipulation",
-                }}
+                className="focus-ring hoverable-card block bg-card rounded-[10px] p-[18px] border border-border shadow-active no-underline text-inherit transition-colors duration-200 touch-manipulation"
               >
                 {/* Header — icon + name + CRN */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    marginBottom: "12px",
-                  }}
-                >
+                <div className="flex items-center gap-2.5 mb-3">
                   <div
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "8px",
-                      backgroundColor:
-                        outstandingCount === 0
-                          ? "var(--color-success-bg)"
-                          : "var(--color-primary-bg)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
+                    className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                      outstandingCount === 0 ? "bg-success-bg" : "bg-primary-bg",
+                    )}
                   >
                     <span
-                      style={{
-                        color:
-                          outstandingCount === 0 ? "var(--color-success)" : "var(--color-primary)",
-                        display: "flex",
-                      }}
+                      className={cn(
+                        "flex",
+                        outstandingCount === 0 ? "text-success" : "text-primary",
+                      )}
                       aria-hidden="true"
                     >
                       {outstandingCount === 0 ? (
@@ -673,29 +451,11 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                       )}
                     </span>
                   </div>
-                  <div style={{ minWidth: 0 }}>
-                    <h2
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 700,
-                        color: "var(--color-text-primary)",
-                        margin: 0,
-                        letterSpacing: "-0.01em",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
+                  <div className="min-w-0">
+                    <h2 className="text-sm font-bold text-foreground tracking-[-0.01em] whitespace-nowrap overflow-hidden text-ellipsis">
                       {company.companyName}
                     </h2>
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--color-text-muted)",
-                        margin: 0,
-                        marginTop: "1px",
-                      }}
-                    >
+                    <p className="text-xs text-muted mt-px">
                       {company.companyRegistrationNumber}
                     </p>
                   </div>
@@ -703,49 +463,26 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
                 {/* Deadline summary */}
                 {outstandingCount > 0 ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "4px",
-                      marginBottom: "12px",
-                    }}
-                  >
+                  <div className="flex flex-col gap-1 mb-3">
                     <p
-                      style={{
-                        fontSize: "12px",
-                        margin: 0,
-                        fontWeight: 600,
-                        color:
-                          accountsDaysLeft <= 0
-                            ? "var(--color-danger)"
-                            : accountsDaysLeft <= 30
-                              ? "var(--color-due-soon)"
-                              : "var(--color-text-secondary)",
-                      }}
+                      className={cn(
+                        "text-xs font-semibold",
+                        accountsDaysLeft <= 0
+                          ? "text-danger"
+                          : accountsDaysLeft <= 30
+                            ? "text-due-soon"
+                            : "text-secondary",
+                      )}
                     >
                       {accountsText}
                     </p>
                   </div>
                 ) : (
-                  <div style={{ marginBottom: "12px" }}>
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: 600,
-                        color: "var(--color-success)",
-                        margin: 0,
-                      }}
-                    >
+                  <div className="mb-3">
+                    <p className="text-xs font-semibold text-success">
                       All caught up
                     </p>
-                    <p
-                      style={{
-                        fontSize: "11px",
-                        color: "var(--color-text-secondary)",
-                        margin: "2px 0 0 0",
-                      }}
-                    >
+                    <p className="text-[11px] text-secondary mt-0.5">
                       Next period due {formatDate(accountsDeadline)}
                     </p>
                   </div>
@@ -754,26 +491,15 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                 {/* Outstanding badge */}
                 {outstandingCount > 0 && (
                   <div
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "2px",
-                      padding: "2px 6px 2px 8px",
-                      borderRadius: "9999px",
-                      fontSize: "10px",
-                      fontWeight: 600,
-                      fontVariantNumeric: "tabular-nums",
-                      backgroundColor:
-                        outstandingCount >= 4
-                          ? "var(--color-danger-bg)"
-                          : "var(--color-warning-bg)",
-                      color:
-                        outstandingCount >= 4 ? "var(--color-danger)" : "var(--color-warning-text)",
-                      border: `1px solid ${outstandingCount >= 4 ? "var(--color-danger-border)" : "var(--color-warning-border)"}`,
-                    }}
+                    className={cn(
+                      "inline-flex items-center gap-0.5 py-0.5 pl-2 pr-1.5 rounded-full text-[10px] font-semibold tabular-nums border",
+                      outstandingCount >= 4
+                        ? "bg-danger-bg text-danger border-danger-border"
+                        : "bg-warning-bg text-warning-text border-warning-border",
+                    )}
                   >
                     {outstandingCount} {outstandingCount === 1 ? "period" : "periods"}
-                    <span style={{ display: "flex" }} aria-hidden="true">
+                    <span className="flex" aria-hidden="true">
                       <ChevronRight size={10} strokeWidth={2.5} />
                     </span>
                   </div>
@@ -786,48 +512,22 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            marginTop: "32px",
-          }}
-        >
+        <div className="flex items-center justify-center gap-2 mt-8">
           {currentPage > 1 && (
             <Link
               href={`/dashboard?page=${currentPage - 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${filter ? `&filter=${filter}` : ""}${sort !== "most-overdue" ? `&sort=${sort}` : ""}`}
-              style={{
-                padding: "8px 16px",
-                borderRadius: "8px",
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--color-primary)",
-                border: "1px solid var(--color-primary-border)",
-                textDecoration: "none",
-                transition: "opacity 200ms, background-color 200ms",
-              }}
+              className="py-2 px-4 rounded-lg text-sm font-semibold text-primary border border-primary-border no-underline transition-all duration-200"
             >
               Previous
             </Link>
           )}
-          <span style={{ fontSize: "14px", color: "var(--color-text-secondary)" }}>
+          <span className="text-sm text-secondary">
             Page {currentPage} of {totalPages}
           </span>
           {currentPage < totalPages && (
             <Link
               href={`/dashboard?page=${currentPage + 1}${search ? `&q=${encodeURIComponent(search)}` : ""}${filter ? `&filter=${filter}` : ""}${sort !== "most-overdue" ? `&sort=${sort}` : ""}`}
-              style={{
-                padding: "8px 16px",
-                borderRadius: "8px",
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--color-primary)",
-                border: "1px solid var(--color-primary-border)",
-                textDecoration: "none",
-                transition: "opacity 200ms, background-color 200ms",
-              }}
+              className="py-2 px-4 rounded-lg text-sm font-semibold text-primary border border-primary-border no-underline transition-all duration-200"
             >
               Next
             </Link>
@@ -835,7 +535,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         </div>
       )}
 
-      <div style={{ marginTop: "32px" }}>
+      <div className="mt-8">
         <CalendarFeedSection initialToken={user.calendarFeedToken} />
       </div>
     </div>

@@ -4,31 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { validateUTR } from "@/lib/utils";
 import { Loader2, Building2, Hash, FileDigit, Calendar, CheckCircle2, AlertTriangle } from "lucide-react";
 import { isFilingLive } from "@/lib/launch-mode";
+import { cn } from "@/lib/cn";
 
 interface FormErrors {
   companyRegistrationNumber?: string;
   uniqueTaxReference?: string;
   general?: string;
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "12px 16px",
-  borderWidth: "1px",
-  borderStyle: "solid",
-  borderColor: "var(--color-text-muted)",
-  borderRadius: "8px",
-  fontSize: "16px",
-  color: "var(--color-text-primary)",
-  backgroundColor: "var(--color-bg-card)",
-  transition: "border-color 200ms, box-shadow 200ms",
-  boxSizing: "border-box",
-};
-
-const inputFocusStyle: React.CSSProperties = {
-  borderColor: "var(--color-primary)",
-  boxShadow: "0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent)",
-};
 
 function FormField({
   id,
@@ -46,28 +28,21 @@ function FormField({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <div className="flex flex-col gap-1.5">
       <label
         htmlFor={id}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          fontSize: "14px",
-          fontWeight: 600,
-          color: "var(--color-text-primary)",
-        }}
+        className="flex items-center gap-1.5 text-sm font-semibold text-foreground"
       >
-        <span style={{ color: "var(--color-primary)" }}>
+        <span className="text-primary">
           <Icon size={15} color="currentColor" strokeWidth={2} />
         </span>
         {label}
       </label>
       {children}
       {error ? (
-        <p style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{error}</p>
+        <p className="text-[13px] text-danger m-0">{error}</p>
       ) : (
-        <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>{helpText}</p>
+        <p className="text-[13px] text-body m-0">{helpText}</p>
       )}
     </div>
   );
@@ -94,8 +69,6 @@ function FocusableInput({
   autoComplete?: string;
   spellCheck?: boolean;
 }) {
-  const [focused, setFocused] = useState(false);
-
   return (
     <input
       id={id}
@@ -107,14 +80,11 @@ function FocusableInput({
       maxLength={maxLength}
       autoComplete={autoComplete}
       spellCheck={spellCheck}
-      className="focus-ring-input"
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      style={{
-        ...inputStyle,
-        ...(focused ? inputFocusStyle : {}),
-        ...(hasError ? { borderColor: "var(--color-danger)" } : {}),
-      }}
+      className={cn(
+        "focus-ring-input w-full py-3 px-4 border border-muted rounded-lg text-base text-foreground bg-card transition-colors duration-200 box-border",
+        "focus:border-primary focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-primary)_12%,transparent)]",
+        hasError && "border-danger"
+      )}
     />
   );
 }
@@ -278,17 +248,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <div
-        className="p-5 sm:p-8"
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderRadius: "12px",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "28px",
-        }}
-      >
+      <div className="p-5 sm:p-8 bg-card rounded-xl shadow-md flex flex-col gap-7">
         <FormField
           id="companyRegistrationNumber"
           label="Companies House Registration Number"
@@ -307,55 +267,55 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
             spellCheck={false}
           />
           {lookupStatus === "loading" && (
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
-              <span style={{ color: "var(--color-text-body)" }}>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-body">
                 <Loader2
                   size={13}
                   color="currentColor"
                   strokeWidth={2}
-                  style={{ animation: "spin 1s linear infinite" }}
+                  className="animate-spin"
                 />
               </span>
-              <span style={{ fontSize: "13px", color: "var(--color-text-body)" }}>
+              <span className="text-[13px] text-body">
                 {"Looking up company\u2026"}
               </span>
             </div>
           )}
           {lookupStatus === "found" && (
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
-              <span style={{ color: "var(--color-success)" }}>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-success">
                 <CheckCircle2 size={13} color="currentColor" strokeWidth={2} />
               </span>
-              <span style={{ fontSize: "13px", color: "var(--color-success)" }}>
+              <span className="text-[13px] text-success">
                 Found: {companyName}
               </span>
             </div>
           )}
           {lookupStatus === "dissolved" && (
-            <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>
+            <div className="mt-0.5">
+              <span className="text-[13px] text-danger">
                 {companyName} has been dissolved and cannot be added. DormantFile is for active
                 dormant companies only.
               </span>
             </div>
           )}
           {lookupStatus === "not_found" && (
-            <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>
+            <div className="mt-0.5">
+              <span className="text-[13px] text-danger">
                 No company found with that number.
               </span>
             </div>
           )}
           {lookupStatus === "error" && (
-            <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>
+            <div className="mt-0.5">
+              <span className="text-[13px] text-danger">
                 Lookup failed - please try again or check the number.
               </span>
             </div>
           )}
           {lookupStatus === "unavailable" && (
-            <div style={{ marginTop: "2px" }}>
-              <span style={{ fontSize: "13px", color: "var(--color-due-soon)" }}>
+            <div className="mt-0.5">
+              <span className="text-[13px] text-due-soon">
                 Companies House lookup is currently unavailable. Please try again later.
               </span>
             </div>
@@ -363,60 +323,30 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         </FormField>
 
         {lookupStatus === "found" && companyName && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--color-text-primary)",
-              }}
-            >
-              <span style={{ color: "var(--color-primary)" }}>
+          <div className="flex flex-col gap-1.5">
+            <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <span className="text-primary">
                 <Building2 size={15} color="currentColor" strokeWidth={2} />
               </span>
               Company Name
             </label>
-            <div
-              style={{
-                padding: "12px 16px",
-                backgroundColor: "var(--color-bg-page)",
-                borderWidth: "1px",
-                borderStyle: "solid",
-                borderColor: "var(--color-border)",
-                borderRadius: "8px",
-                fontSize: "16px",
-                color: "var(--color-text-primary)",
-                fontWeight: 500,
-              }}
-            >
+            <div className="py-3 px-4 bg-page border border-border rounded-lg text-base text-foreground font-medium">
               {companyName}
             </div>
-            <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
+            <p className="text-[13px] text-body m-0">
               Verified from Companies House. This cannot be edited.
             </p>
           </div>
         )}
 
         {deletedWarning && lookupStatus === "found" && (
-          <div style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "10px",
-            padding: "14px 16px",
-            backgroundColor: "var(--color-warning-bg)",
-            border: "1px solid var(--color-warning-border)",
-            borderRadius: "8px",
-            marginTop: "8px",
-          }}>
-            <AlertTriangle size={18} style={{ color: "var(--color-warning)", flexShrink: 0, marginTop: "1px" }} />
+          <div className="flex items-start gap-2.5 py-3.5 px-4 bg-warning-bg border border-warning-border rounded-lg mt-2">
+            <AlertTriangle size={18} className="text-warning shrink-0 mt-px" />
             <div>
-              <p style={{ fontSize: "14px", color: "var(--color-warning-text)", margin: 0, fontWeight: 600 }}>
+              <p className="text-sm text-warning-text m-0 font-semibold">
                 Previously removed company
               </p>
-              <p style={{ fontSize: "13px", color: "var(--color-warning-text)", margin: "4px 0 0 0" }}>
+              <p className="text-[13px] text-warning-text mt-1 mb-0 mx-0">
                 You removed {deletedWarning.companyName} on {new Date(deletedWarning.deletedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.
                 Adding it again will restore your previous filing history.
               </p>
@@ -425,38 +355,17 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         )}
 
         {lookupStatus === "found" && periodStartOn && periodEndOn && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--color-text-primary)",
-              }}
-            >
-              <span style={{ color: "var(--color-primary)" }}>
+          <div className="flex flex-col gap-1.5">
+            <label className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+              <span className="text-primary">
                 <Calendar size={15} color="currentColor" strokeWidth={2} />
               </span>
               Accounting Period
             </label>
-            <div
-              style={{
-                padding: "12px 16px",
-                backgroundColor: "var(--color-bg-page)",
-                borderWidth: "1px",
-                borderStyle: "solid",
-                borderColor: "var(--color-border)",
-                borderRadius: "8px",
-                fontSize: "16px",
-                color: "var(--color-text-primary)",
-                fontWeight: 500,
-              }}
-            >
+            <div className="py-3 px-4 bg-page border border-border rounded-lg text-base text-foreground font-medium">
               {formatDisplayDate(periodStartOn)} &ndash; {formatDisplayDate(periodEndOn)}
             </div>
-            <p style={{ fontSize: "13px", color: "var(--color-text-body)", margin: 0 }}>
+            <p className="text-[13px] text-body m-0">
               Next filing period from Companies House. This cannot be edited.
             </p>
           </div>
@@ -481,18 +390,8 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
 
         {lookupStatus === "found" && (
           <>
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "var(--color-text-primary)",
-                  cursor: "pointer",
-                }}
-              >
+            <div className="flex flex-col gap-1.5">
+              <label className="flex items-center gap-2.5 text-sm font-semibold text-foreground cursor-pointer">
                 <input
                   type="checkbox"
                   checked={registeredForCorpTax}
@@ -500,18 +399,11 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
                     setRegisteredForCorpTax(e.target.checked);
                     if (!e.target.checked) setUniqueTaxReference("");
                   }}
-                  style={{ width: "18px", height: "18px", accentColor: "var(--color-primary)" }}
+                  className="w-[18px] h-[18px] accent-primary"
                 />
                 Is this company registered for Corporation Tax?
               </label>
-              <p
-                style={{
-                  fontSize: "13px",
-                  color: "var(--color-text-body)",
-                  margin: 0,
-                  paddingLeft: "28px",
-                }}
-              >
+              <p className="text-[13px] text-body m-0 pl-7">
                 If your dormant company is still registered for Corporation Tax, you can provide
                 your company&apos;s UTR from HMRC.
               </p>
@@ -543,14 +435,7 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         {errors.general && (
           <div
             role="alert"
-            style={{
-              padding: "12px 16px",
-              backgroundColor: "var(--color-danger-bg)",
-              border: "1px solid var(--color-danger-border)",
-              borderRadius: "8px",
-              fontSize: "14px",
-              color: "var(--color-danger)",
-            }}
+            className="py-3 px-4 bg-danger-bg border border-danger-border rounded-lg text-sm text-danger"
           >
             {errors.general}
           </div>
@@ -559,48 +444,18 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         <button
           type="submit"
           disabled={loading}
-          className="focus-ring"
-          style={{
-            backgroundColor: loading ? "var(--color-bg-disabled)" : "var(--color-cta)",
-            color: "var(--color-bg-card)",
-            padding: "12px 24px",
-            borderRadius: "8px",
-            fontWeight: 600,
-            fontSize: "16px",
-            border: "none",
-            cursor: loading ? "not-allowed" : "pointer",
-            transition: "opacity 200ms, transform 200ms",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            width: "100%",
-          }}
-          onMouseEnter={(e) => {
-            if (!loading) {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-          }}
+          className={cn(
+            "focus-ring py-3 px-6 rounded-lg font-semibold text-base border-0 transition-all duration-200 flex items-center justify-center gap-2 w-full text-card hover:opacity-90 hover:-translate-y-px",
+            loading ? "bg-disabled cursor-not-allowed" : "bg-cta cursor-pointer"
+          )}
         >
           {loading && (
-            <Loader2 size={18} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
+            <Loader2 size={18} strokeWidth={2} className="animate-spin" />
           )}
           {loading ? "Processing\u2026" : isFirstCompany ? "Continue to Payment" : "Add Company"}
         </button>
 
-        <p
-          style={{
-            fontSize: "13px",
-            color: "var(--color-text-muted)",
-            textAlign: "center",
-            margin: 0,
-          }}
-        >
+        <p className="text-[13px] text-muted text-center m-0">
           Your information is encrypted and securely stored. We never share your data with third
           parties.
         </p>

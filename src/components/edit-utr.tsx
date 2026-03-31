@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil, Check, X } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 export default function EditUTR({
   companyId,
@@ -62,18 +63,7 @@ export default function EditUTR({
         onClick={() => setEditing(true)}
         title="Edit UTR"
         aria-label="Edit UTR"
-        className="focus-ring"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "4px",
-          background: "none",
-          border: "none",
-          padding: 0,
-          cursor: "pointer",
-          fontSize: "13px",
-          color: "var(--color-text-muted)",
-        }}
+        className="focus-ring inline-flex items-center gap-1 bg-none border-0 p-0 cursor-pointer text-[13px] text-muted"
       >
         UTR: {currentUTR}
         <Pencil size={11} strokeWidth={2} />
@@ -82,8 +72,8 @@ export default function EditUTR({
   }
 
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-      <span style={{ fontSize: "13px", color: "var(--color-text-muted)" }}>UTR:</span>
+    <span className="inline-flex items-center gap-1">
+      <span className="text-[13px] text-muted">UTR:</span>
       <input
         type="text"
         maxLength={10}
@@ -102,34 +92,20 @@ export default function EditUTR({
         autoFocus
         autoComplete="off"
         spellCheck={false}
-        className="focus-ring-input"
-        style={{
-          width: "90px",
-          padding: "2px 6px",
-          fontSize: "13px",
-          color: "var(--color-text-primary)",
-          borderWidth: "1px",
-          borderStyle: "solid",
-          borderColor: error ? "var(--color-danger)" : "var(--color-text-muted)",
-          borderRadius: "4px",
-          boxSizing: "border-box",
-        }}
+        className={cn(
+          "focus-ring-input w-[90px] px-1.5 py-0.5 text-[13px] text-foreground border border-solid rounded-[4px] box-border",
+          error ? "border-danger" : "border-muted"
+        )}
       />
       <button
         onClick={handleSave}
         disabled={saving}
         title="Save"
         aria-label="Save"
-        className="focus-ring"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          background: "none",
-          border: "none",
-          padding: "2px",
-          cursor: saving ? "not-allowed" : "pointer",
-          color: "var(--color-success)",
-        }}
+        className={cn(
+          "focus-ring inline-flex items-center bg-none border-0 p-0.5 text-success",
+          saving ? "cursor-not-allowed" : "cursor-pointer"
+        )}
       >
         <Check size={14} strokeWidth={2.5} />
       </button>
@@ -142,20 +118,11 @@ export default function EditUTR({
         disabled={saving}
         title="Cancel"
         aria-label="Cancel"
-        className="focus-ring"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          background: "none",
-          border: "none",
-          padding: "2px",
-          cursor: "pointer",
-          color: "var(--color-text-muted)",
-        }}
+        className="focus-ring inline-flex items-center bg-none border-0 p-0.5 cursor-pointer text-muted"
       >
         <X size={14} strokeWidth={2.5} />
       </button>
-      {error && <span style={{ fontSize: "12px", color: "var(--color-danger)" }}>{error}</span>}
+      {error && <span className="text-xs text-danger">{error}</span>}
     </span>
   );
 }

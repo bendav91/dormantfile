@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, ExternalLink } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface Message {
   id: string;
@@ -33,67 +34,52 @@ export function AdminMessageList({ messages }: { messages: Message[] }) {
   }
 
   return (
-    <div
-      className="rounded-xl overflow-hidden"
-      style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-    >
+    <div className="rounded-xl overflow-hidden bg-card border border-border">
       {messages.map((msg, i) => {
         const isOpen = expanded.has(msg.id);
         return (
           <div
             key={msg.id}
-            style={{ borderBottom: i < messages.length - 1 ? "1px solid var(--color-border)" : "none" }}
+            className={cn(i < messages.length - 1 && "border-b border-border")}
           >
             <button
               onClick={() => toggleMessage(msg)}
-              className="w-full flex items-center gap-3 px-4 py-3 cursor-pointer text-left transition-colors duration-150"
-              style={{ background: "none", border: "none" }}
+              className="w-full flex items-center gap-3 px-4 py-3 cursor-pointer text-left transition-colors duration-150 bg-transparent border-0"
             >
               {!msg.readAt ? (
-                <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: "var(--color-primary)" }}
-                />
+                <span className="w-2 h-2 rounded-full shrink-0 bg-primary" />
               ) : (
-                <span className="w-2 flex-shrink-0" />
+                <span className="w-2 shrink-0" />
               )}
-              <Mail size={14} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
+              <Mail size={14} className="text-muted shrink-0" />
               <div className="flex-1 min-w-0">
                 <span
-                  className="text-sm font-medium"
-                  style={{ color: msg.readAt ? "var(--color-text-secondary)" : "var(--color-text-primary)" }}
+                  className={cn("text-sm font-medium", msg.readAt ? "text-secondary" : "text-foreground")}
                 >
                   {msg.name}
                 </span>
-                <span className="text-xs ml-2" style={{ color: "var(--color-text-muted)" }}>
+                <span className="text-xs ml-2 text-muted">
                   {msg.email}
                 </span>
               </div>
               {!isOpen && (
-                <span
-                  className="text-xs truncate hidden sm:block"
-                  style={{ color: "var(--color-text-muted)", maxWidth: "200px" }}
-                >
+                <span className="text-xs truncate hidden sm:block text-muted max-w-[200px]">
                   {msg.message.length > 100 ? `${msg.message.slice(0, 100)}\u2026` : msg.message}
                 </span>
               )}
-              <span className="text-xs flex-shrink-0" style={{ color: "var(--color-text-muted)" }}>
+              <span className="text-xs shrink-0 text-muted">
                 {formatRelative(msg.createdAt)}
               </span>
             </button>
 
             {isOpen && (
               <div className="px-4 pb-4 pl-12">
-                <p
-                  className="text-sm leading-relaxed whitespace-pre-wrap mb-3"
-                  style={{ color: "var(--color-text-body)" }}
-                >
+                <p className="text-sm leading-relaxed whitespace-pre-wrap mb-3 text-body">
                   {msg.message}
                 </p>
                 <a
                   href={`mailto:${msg.email}?subject=Re: Your message to DormantFile`}
-                  className="inline-flex items-center gap-1 text-xs font-medium"
-                  style={{ color: "var(--color-primary)", textDecoration: "none" }}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-primary no-underline"
                 >
                   Reply <ExternalLink size={12} />
                 </a>

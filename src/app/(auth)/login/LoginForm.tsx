@@ -37,10 +37,10 @@ export default function LoginForm() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
+      <h1 className="text-2xl font-bold mb-1 text-foreground">
         Sign in
       </h1>
-      <h2 className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
+      <h2 className="text-sm mb-8 text-secondary">
         Welcome back to DormantFile
       </h2>
 
@@ -71,8 +71,7 @@ export default function LoginForm() {
           <div className="mt-1.5 text-right">
             <Link
               href="/forgot-password"
-              className="text-xs font-medium hover:underline focus-ring rounded"
-              style={{ color: "var(--color-primary)" }}
+              className="text-xs font-medium hover:underline focus-ring rounded text-primary"
             >
               Forgot your password?
             </Link>
@@ -86,12 +85,11 @@ export default function LoginForm() {
         </AuthButton>
       </form>
 
-      <p className="mt-8 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
+      <p className="mt-8 text-center text-sm text-secondary">
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
-          className="font-semibold hover:underline focus-ring rounded"
-          style={{ color: "var(--color-primary)" }}
+          className="font-semibold hover:underline focus-ring rounded text-primary"
         >
           Create one
         </Link>

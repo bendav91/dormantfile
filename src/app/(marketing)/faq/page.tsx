@@ -53,19 +53,11 @@ export default async function FAQPage() {
       />
       <Breadcrumbs items={breadcrumbs} />
       <article>
-        <h1
-          style={{
-            fontSize: "36px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 12px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+        <h1 className="text-[36px] font-bold text-foreground mb-3 tracking-[-0.02em]">
           {title}
         </h1>
         {updatedAt && (
-          <p className="text-sm mb-8" style={{ color: "var(--color-text-muted)" }}>
+          <p className="text-sm mb-8 text-muted">
             Last reviewed{" "}
             {new Date(updatedAt).toLocaleDateString("en-GB", {
               day: "numeric",

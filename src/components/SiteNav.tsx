@@ -8,6 +8,7 @@ import type { LucideIcon } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import SignOutButton from "@/components/sign-out-button";
+import { cn } from "@/lib/cn";
 
 // --- Types ---
 
@@ -129,21 +130,19 @@ function DesktopDropdown({ group, pathname }: { group: NavGroup; pathname: strin
         }}
         aria-expanded={open}
         aria-haspopup="true"
-        className="text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 cursor-pointer flex items-center gap-1 hoverable-subtle"
-        style={{
-          color: hasActiveChild ? "var(--color-primary)" : "var(--color-text-secondary)",
-          backgroundColor: hasActiveChild || open ? "var(--color-primary-bg)" : "transparent",
-          border: "none",
-        }}
+        className={cn(
+          "text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 cursor-pointer flex items-center gap-1 border-0 hoverable-subtle",
+          hasActiveChild ? "text-primary bg-primary-bg" : "text-secondary bg-transparent",
+          open && "bg-primary-bg",
+        )}
       >
         {group.label}
         <ChevronDown
           size={13}
-          style={{
-            transform: open ? "rotate(180deg)" : "none",
-            transition: "transform 200ms",
-            opacity: 0.5,
-          }}
+          className={cn(
+            "opacity-50 transition-transform duration-200",
+            open && "rotate-180",
+          )}
         />
       </button>
       {open && (
@@ -152,18 +151,7 @@ function DesktopDropdown({ group, pathname }: { group: NavGroup; pathname: strin
           onKeyDown={(e) => {
             if (e.key === "Escape") close();
           }}
-          className="rounded-xl"
-          style={{
-            position: "absolute",
-            top: "calc(100% + 8px)",
-            right: 0,
-            backgroundColor: "var(--color-bg-card)",
-            border: "1px solid var(--color-border)",
-            boxShadow: "0 8px 30px -4px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04)",
-            width: "280px",
-            padding: "6px",
-            zIndex: 51,
-          }}
+          className="rounded-xl absolute top-[calc(100%+8px)] right-0 bg-card border border-border shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08),0_2px_6px_-2px_rgba(0,0,0,0.04)] w-[280px] p-1.5 z-[51]"
         >
           {group.children.map((item) => {
             const Icon = item.icon;
@@ -174,48 +162,30 @@ function DesktopDropdown({ group, pathname }: { group: NavGroup; pathname: strin
                 href={item.href}
                 role="menuitem"
                 onClick={() => setOpen(false)}
-                className="flex items-start gap-3 rounded-lg transition-all duration-150 hoverable-subtle"
-                style={{
-                  padding: "10px 12px",
-                  color: "var(--color-text-body)",
-                  textDecoration: "none",
-                  backgroundColor: active ? "var(--color-primary-bg)" : "transparent",
-                }}
+                className={cn(
+                  "flex items-start gap-3 rounded-lg transition-all duration-150 px-3 py-2.5 text-body no-underline hoverable-subtle",
+                  active ? "bg-primary-bg" : "bg-transparent",
+                )}
               >
                 {Icon && (
-                  <div
-                    className="flex items-center justify-center flex-shrink-0"
-                    style={{
-                      width: "32px",
-                      height: "32px",
-                      borderRadius: "8px",
-                      backgroundColor: "var(--color-bg-inset)",
-                      marginTop: "1px",
-                    }}
-                  >
+                  <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-inset mt-px">
                     <Icon
                       size={16}
-                      style={{
-                        color: active ? "var(--color-primary)" : "var(--color-text-muted)",
-                      }}
+                      className={cn(active ? "text-primary" : "text-muted")}
                     />
                   </div>
                 )}
                 <div>
                   <p
-                    className="text-sm font-medium"
-                    style={{
-                      color: active ? "var(--color-primary)" : "var(--color-text-primary)",
-                      margin: 0,
-                    }}
+                    className={cn(
+                      "text-sm font-medium m-0",
+                      active ? "text-primary" : "text-foreground",
+                    )}
                   >
                     {item.label}
                   </p>
                   {item.description && (
-                    <p
-                      className="text-xs mt-0.5"
-                      style={{ color: "var(--color-text-muted)", margin: 0 }}
-                    >
+                    <p className="text-xs mt-0.5 text-muted m-0">
                       {item.description}
                     </p>
                   )}
@@ -299,30 +269,19 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
 
   return (
     <>
-      <nav
-        className="px-6"
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 50,
-          backgroundColor: "color-mix(in srgb, var(--color-bg-card) 80%, transparent)",
-          backdropFilter: "saturate(180%) blur(12px)",
-          WebkitBackdropFilter: "saturate(180%) blur(12px)",
-          borderBottom: "1px solid var(--color-border)",
-        }}
-      >
+      <nav className="px-6 sticky top-0 z-50 bg-[color-mix(in_srgb,var(--color-bg-card)_80%,transparent)] backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-border">
         {/* Top bar */}
         <div className="max-w-[960px] mx-auto h-16 flex items-center justify-between">
           {/* Left: logo + links */}
-          <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+          <div className="flex items-center gap-6">
             <Link
               href={config.logoHref}
               aria-label="DormantFile home"
-              style={{ display: "flex", alignItems: "center" }}
+              className="flex items-center"
             >
               <Logo height={22} />
             </Link>
-            <div className="hidden lg:flex" style={{ alignItems: "center", gap: "4px" }}>
+            <div className="hidden lg:flex items-center gap-1">
               {config.links.map((item) =>
                 isNavGroup(item) ? (
                   <DesktopDropdown key={item.label} group={item} pathname={pathname} />
@@ -330,16 +289,12 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 hoverable-subtle"
-                    style={{
-                      color: isLinkActive(pathname, item.href)
-                        ? "var(--color-primary)"
-                        : "var(--color-text-secondary)",
-                      backgroundColor: isLinkActive(pathname, item.href)
-                        ? "var(--color-primary-bg)"
-                        : "transparent",
-                      textDecoration: "none",
-                    }}
+                    className={cn(
+                      "text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 no-underline hoverable-subtle",
+                      isLinkActive(pathname, item.href)
+                        ? "text-primary bg-primary-bg"
+                        : "text-secondary bg-transparent",
+                    )}
                   >
                     {item.label}
                   </Link>
@@ -354,33 +309,16 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
             onClick={() => setDrawerOpen(!drawerOpen)}
             aria-expanded={drawerOpen}
             aria-label={drawerOpen ? "Close menu" : "Open menu"}
-            className="lg:hidden flex items-center justify-center"
-            style={{
-              color: "var(--color-text-primary)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              width: "44px",
-              height: "44px",
-            }}
+            className="lg:hidden flex items-center justify-center text-foreground bg-transparent border-0 cursor-pointer w-[44px] h-[44px]"
           >
             {drawerOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
 
           {/* Right: desktop actions */}
-          <div className="hidden lg:flex" style={{ alignItems: "center", gap: "12px" }}>
+          <div className="hidden lg:flex items-center gap-3">
             <ThemeToggle />
             {variant === "app" && user && (
-              <span
-                className="text-sm"
-                style={{
-                  color: "var(--color-text-secondary)",
-                  maxWidth: "180px",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <span className="text-sm text-secondary max-w-[180px] overflow-hidden text-ellipsis whitespace-nowrap">
                 {user.email}
               </span>
             )}
@@ -389,14 +327,7 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium transition-all duration-150 hoverable-subtle"
-                style={{
-                  color: "var(--color-text-primary)",
-                  textDecoration: "none",
-                  padding: "8px 16px",
-                  borderRadius: "8px",
-                  border: "1px solid var(--color-border)",
-                }}
+                className="text-sm font-medium transition-all duration-150 text-foreground no-underline py-2 px-4 rounded-lg border border-border hoverable-subtle"
               >
                 {link.label}
               </Link>
@@ -404,15 +335,7 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
             {config.cta && (
               <Link
                 href={config.cta.href}
-                className="text-sm font-semibold inline-flex items-center gap-1.5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 cursor-pointer"
-                style={{
-                  backgroundColor: "var(--color-cta)",
-                  color: "#ffffff",
-                  padding: "8px 18px",
-                  borderRadius: "8px",
-                  textDecoration: "none",
-                  boxShadow: "0 1px 3px rgba(249, 115, 22, 0.25)",
-                }}
+                className="text-sm font-semibold inline-flex items-center gap-1.5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 cursor-pointer bg-cta text-white py-2 px-[18px] rounded-lg no-underline shadow-[0_1px_3px_rgba(249,115,22,0.25)]"
               >
                 {config.cta.label}
                 <ArrowRight size={14} />
@@ -426,14 +349,7 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
       {drawerOpen && (
         <div
           onClick={closeDrawer}
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-            zIndex: 40,
-            backdropFilter: "blur(4px)",
-            WebkitBackdropFilter: "blur(4px)",
-          }}
+          className="fixed inset-0 bg-black/40 z-40 backdrop-blur-[4px]"
           aria-hidden="true"
         />
       )}
@@ -444,61 +360,34 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
         role="dialog"
         aria-modal={drawerOpen}
         aria-label="Navigation menu"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          width: "300px",
-          maxWidth: "85vw",
-          backgroundColor: "var(--color-bg-card)",
-          borderRight: "1px solid var(--color-border)",
-          zIndex: 50,
-          transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
-          transition: "transform 250ms ease-out",
-          display: "flex",
-          flexDirection: "column",
-        }}
+        className={cn(
+          "fixed top-0 left-0 bottom-0 w-[300px] max-w-[85vw] bg-card border-r border-border z-50 flex flex-col transition-transform duration-[250ms] ease-out",
+          drawerOpen ? "translate-x-0" : "-translate-x-full",
+        )}
       >
         {/* Drawer header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "16px 20px",
-            borderBottom: "1px solid var(--color-border)",
-          }}
-        >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <Link
             href={config.logoHref}
             onClick={closeDrawer}
             aria-label="DormantFile home"
-            style={{ display: "flex", alignItems: "center" }}
+            className="flex items-center"
           >
             <Logo height={22} />
           </Link>
           <button
             onClick={closeDrawer}
             aria-label="Close menu"
-            className="flex items-center justify-center"
-            style={{
-              color: "var(--color-text-primary)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              width: "44px",
-              height: "44px",
-            }}
+            className="flex items-center justify-center text-foreground bg-transparent border-0 cursor-pointer w-[44px] h-[44px]"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Drawer nav links */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
+        <div className="flex-1 overflow-y-auto p-3">
           {/* Main links */}
-          <div style={{ marginBottom: "8px" }}>
+          <div className="mb-2">
             {config.links
               .filter((item) => !isNavGroup(item))
               .map((item) => {
@@ -509,16 +398,10 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
                     key={link.href}
                     href={link.href}
                     onClick={closeDrawer}
-                    className="flex items-center rounded-lg transition-colors duration-150"
-                    style={{
-                      padding: "12px 12px",
-                      fontSize: "15px",
-                      fontWeight: 500,
-                      color: active ? "var(--color-primary)" : "var(--color-text-primary)",
-                      backgroundColor: active ? "var(--color-primary-bg)" : "transparent",
-                      textDecoration: "none",
-                      minHeight: "44px",
-                    }}
+                    className={cn(
+                      "flex items-center rounded-lg transition-colors duration-150 py-3 px-3 text-[15px] font-medium no-underline min-h-[44px]",
+                      active ? "text-primary bg-primary-bg" : "text-foreground bg-transparent",
+                    )}
                   >
                     {link.label}
                   </Link>
@@ -529,21 +412,8 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
           {/* Grouped links */}
           {config.links.filter(isNavGroup).map((item) => (
             <div key={item.label}>
-              <div
-                style={{
-                  borderTop: "1px solid var(--color-border)",
-                  paddingTop: "12px",
-                  marginTop: "4px",
-                }}
-              >
-                <p
-                  className="text-xs font-semibold uppercase tracking-wide"
-                  style={{
-                    color: "var(--color-text-muted)",
-                    padding: "4px 12px 8px",
-                    margin: 0,
-                  }}
-                >
+              <div className="border-t border-border pt-3 mt-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted px-3 pt-1 pb-2 m-0">
                   {item.label}
                 </p>
                 {item.children.map((child) => {
@@ -554,50 +424,30 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
                       key={child.href}
                       href={child.href}
                       onClick={closeDrawer}
-                      className="flex items-center gap-3 rounded-lg transition-colors duration-150"
-                      style={{
-                        padding: "10px 12px",
-                        textDecoration: "none",
-                        minHeight: "44px",
-                        backgroundColor: active ? "var(--color-primary-bg)" : "transparent",
-                      }}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg transition-colors duration-150 px-3 py-2.5 no-underline min-h-[44px]",
+                        active ? "bg-primary-bg" : "bg-transparent",
+                      )}
                     >
                       {Icon && (
-                        <div
-                          className="flex items-center justify-center flex-shrink-0"
-                          style={{
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "8px",
-                            backgroundColor: "var(--color-bg-inset)",
-                          }}
-                        >
+                        <div className="flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-inset">
                           <Icon
                             size={16}
-                            style={{
-                              color: active ? "var(--color-primary)" : "var(--color-text-muted)",
-                            }}
+                            className={cn(active ? "text-primary" : "text-muted")}
                           />
                         </div>
                       )}
                       <div>
                         <p
-                          className="text-sm font-medium"
-                          style={{
-                            color: active ? "var(--color-primary)" : "var(--color-text-primary)",
-                            margin: 0,
-                          }}
+                          className={cn(
+                            "text-sm font-medium m-0",
+                            active ? "text-primary" : "text-foreground",
+                          )}
                         >
                           {child.label}
                         </p>
                         {child.description && (
-                          <p
-                            className="text-xs"
-                            style={{
-                              color: "var(--color-text-muted)",
-                              margin: "1px 0 0 0",
-                            }}
-                          >
+                          <p className="text-xs text-muted mt-px m-0">
                             {child.description}
                           </p>
                         )}
@@ -611,27 +461,11 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
         </div>
 
         {/* Drawer footer */}
-        <div
-          style={{
-            borderTop: "1px solid var(--color-border)",
-            padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div className="border-t border-border p-4 flex flex-col gap-2.5">
+          <div className="flex items-center gap-3">
             <ThemeToggle />
             {variant === "app" && user && (
-              <span
-                style={{
-                  fontSize: "13px",
-                  color: "var(--color-text-secondary)",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <span className="text-[13px] text-secondary overflow-hidden text-ellipsis whitespace-nowrap">
                 {user.email}
               </span>
             )}
@@ -644,14 +478,7 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
               key={link.href}
               href={link.href}
               onClick={closeDrawer}
-              className="text-sm font-medium text-center"
-              style={{
-                color: "var(--color-text-primary)",
-                textDecoration: "none",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                border: "1px solid var(--color-border)",
-              }}
+              className="text-sm font-medium text-center text-foreground no-underline py-2.5 px-5 rounded-lg border border-border"
             >
               {link.label}
             </Link>
@@ -661,15 +488,7 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
             <Link
               href={config.cta.href}
               onClick={closeDrawer}
-              className="text-sm font-semibold text-center inline-flex items-center justify-center gap-1.5"
-              style={{
-                backgroundColor: "var(--color-cta)",
-                color: "#ffffff",
-                padding: "12px 20px",
-                borderRadius: "8px",
-                textDecoration: "none",
-                boxShadow: "0 1px 3px rgba(249, 115, 22, 0.25)",
-              }}
+              className="text-sm font-semibold text-center inline-flex items-center justify-center gap-1.5 bg-cta text-white py-3 px-5 rounded-lg no-underline shadow-[0_1px_3px_rgba(249,115,22,0.25)]"
             >
               {config.cta.label}
               <ArrowRight size={14} />

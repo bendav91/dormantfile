@@ -52,10 +52,10 @@ export default function RegisterForm() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
+      <h1 className="text-2xl font-bold mb-1 text-foreground">
         Create your account
       </h1>
-      <h2 className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
+      <h2 className="text-sm mb-8 text-secondary">
         Your dormant accounts filed &mdash; no accountant needed
       </h2>
 
@@ -102,31 +102,25 @@ export default function RegisterForm() {
           Create account
         </AuthButton>
 
-        <p
-          className="text-xs leading-relaxed text-center"
-          style={{ color: "var(--color-text-muted)" }}
-        >
+        <p className="text-xs leading-relaxed text-center text-muted">
           By creating an account you agree to our{" "}
           <Link
             href="/terms"
-            className="underline hover:no-underline focus-ring rounded"
-            style={{ color: "var(--color-text-secondary)" }}
+            className="underline hover:no-underline focus-ring rounded text-secondary"
           >
             Terms
           </Link>
           ,{" "}
           <Link
             href="/privacy"
-            className="underline hover:no-underline focus-ring rounded"
-            style={{ color: "var(--color-text-secondary)" }}
+            className="underline hover:no-underline focus-ring rounded text-secondary"
           >
             Privacy Policy
           </Link>{" "}
           and{" "}
           <Link
             href="/acceptable-use"
-            className="underline hover:no-underline focus-ring rounded"
-            style={{ color: "var(--color-text-secondary)" }}
+            className="underline hover:no-underline focus-ring rounded text-secondary"
           >
             Acceptable Use Policy
           </Link>
@@ -134,12 +128,11 @@ export default function RegisterForm() {
         </p>
       </form>
 
-      <p className="mt-8 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
+      <p className="mt-8 text-center text-sm text-secondary">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-semibold hover:underline focus-ring rounded"
-          style={{ color: "var(--color-primary)" }}
+          className="font-semibold hover:underline focus-ring rounded text-primary"
         >
           Sign in
         </Link>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FileDigit, Plus } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 export default function EnableCorpTax({ companyId }: { companyId: string }) {
   const router = useRouter();
@@ -49,36 +50,13 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
 
   if (!expanded) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "8px 10px",
-          backgroundColor: "var(--color-bg-inset)",
-          borderRadius: "6px",
-        }}
-      >
-        <p style={{ fontSize: "12px", color: "var(--color-text-body)", margin: 0 }}>
+      <div className="flex items-center justify-between py-2 px-2.5 bg-inset rounded-md">
+        <p className="text-xs text-body m-0">
           Registered for Corporation Tax?
         </p>
         <button
           onClick={() => setExpanded(true)}
-          className="focus-ring hoverable-pill"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            backgroundColor: "transparent",
-            color: "var(--color-primary)",
-            padding: "6px 12px",
-            borderRadius: "5px",
-            fontWeight: 600,
-            fontSize: "12px",
-            border: "1px solid var(--color-primary-border)",
-            cursor: "pointer",
-            transition: "background-color 200ms, color 200ms",
-          }}
+          className="focus-ring hoverable-pill inline-flex items-center gap-1.5 bg-transparent text-primary py-1.5 px-3 rounded-[5px] font-semibold text-xs border border-primary-border cursor-pointer transition-colors duration-200"
         >
           <Plus size={13} strokeWidth={2.5} />
           Enable CT600
@@ -88,23 +66,14 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
   }
 
   return (
-    <div
-      style={{
-        padding: "10px",
-        backgroundColor: "var(--color-bg-inset)",
-        borderRadius: "6px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-        <span style={{ color: "var(--color-primary)" }}>
+    <div className="p-2.5 bg-inset rounded-md flex flex-col gap-2.5">
+      <div className="flex items-center gap-1.5">
+        <span className="text-primary">
           <FileDigit size={14} color="currentColor" strokeWidth={2} />
         </span>
         <label
           htmlFor={`utr-${companyId}`}
-          style={{ fontSize: "12px", fontWeight: 600, color: "var(--color-text-primary)" }}
+          className="text-xs font-semibold text-foreground"
         >
           Unique Tax Reference (UTR)
         </label>
@@ -125,40 +94,25 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
         autoFocus
         autoComplete="off"
         spellCheck={false}
-        className="focus-ring-input"
-        style={{
-          width: "100%",
-          padding: "10px 14px",
-          color: "var(--color-text-primary)",
-          borderWidth: "1px",
-          borderStyle: "solid",
-          borderColor: error ? "var(--color-danger)" : "var(--color-text-muted)",
-          borderRadius: "6px",
-          fontSize: "14px",
-          boxSizing: "border-box",
-        }}
+        className={cn(
+          "focus-ring-input w-full py-2.5 px-3.5 text-foreground border border-solid rounded-md text-sm box-border",
+          error ? "border-danger" : "border-muted"
+        )}
       />
       {error && (
-        <p style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{error}</p>
+        <p className="text-[13px] text-danger m-0">{error}</p>
       )}
-      <p style={{ fontSize: "12px", color: "var(--color-text-body)", margin: 0 }}>
+      <p className="text-xs text-body m-0">
         Your 10-digit UTR from HMRC. This will add CT600 filing to this company.
       </p>
-      <div style={{ display: "flex", gap: "8px" }}>
+      <div className="flex gap-2">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="focus-ring"
-          style={{
-            backgroundColor: saving ? "var(--color-bg-disabled)" : "var(--color-primary)",
-            color: "var(--color-bg-card)",
-            padding: "6px 12px",
-            borderRadius: "5px",
-            fontWeight: 600,
-            fontSize: "12px",
-            border: "none",
-            cursor: saving ? "not-allowed" : "pointer",
-          }}
+          className={cn(
+            "focus-ring text-card py-1.5 px-3 rounded-[5px] font-semibold text-xs border-0",
+            saving ? "bg-disabled cursor-not-allowed" : "bg-primary cursor-pointer"
+          )}
         >
           {saving ? "Saving\u2026" : "Enable CT600"}
         </button>
@@ -169,17 +123,7 @@ export default function EnableCorpTax({ companyId }: { companyId: string }) {
             setError("");
           }}
           disabled={saving}
-          className="focus-ring"
-          style={{
-            backgroundColor: "transparent",
-            color: "var(--color-text-body)",
-            padding: "6px 12px",
-            borderRadius: "5px",
-            fontWeight: 600,
-            fontSize: "12px",
-            border: "1px solid var(--color-bg-disabled)",
-            cursor: "pointer",
-          }}
+          className="focus-ring bg-transparent text-body py-1.5 px-3 rounded-[5px] font-semibold text-xs border border-disabled cursor-pointer"
         >
           Cancel
         </button>

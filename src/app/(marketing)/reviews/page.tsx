@@ -54,37 +54,24 @@ export default async function ReviewsPage() {
 
       {/* Header */}
       <div className="text-center mb-12">
-        <h1
-          className="text-3xl font-bold tracking-tight mb-3"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-3xl font-bold tracking-tight mb-3 text-foreground">
           Customer reviews
         </h1>
-        <p className="text-base" style={{ color: "var(--color-text-secondary)" }}>
+        <p className="text-base text-secondary">
           Hear from companies who&apos;ve filed with DormantFile.
         </p>
       </div>
 
       {/* Aggregate summary */}
       {stats && total > 0 && (
-        <div
-          className="mb-10 p-8 text-center"
-          style={{
-            backgroundColor: "var(--color-bg-card)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "12px",
-          }}
-        >
+        <div className="mb-10 p-8 text-center bg-card border border-border rounded-xl">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <span
-              className="text-4xl font-bold"
-              style={{ color: "var(--color-text-primary)" }}
-            >
+            <span className="text-4xl font-bold text-foreground">
               {stats.avgRating}
             </span>
             <div>
               <StarRating rating={stats.avgRating} size={22} />
-              <p className="text-sm mt-1" style={{ color: "var(--color-text-secondary)" }}>
+              <p className="text-sm mt-1 text-secondary">
                 from {stats.reviewCount} review{stats.reviewCount !== 1 ? "s" : ""}
               </p>
             </div>
@@ -98,26 +85,20 @@ export default async function ReviewsPage() {
               return (
                 <div key={star} className="flex items-center gap-2 text-sm">
                   <span
-                    className="w-8 text-right font-medium"
-                    style={{ color: "var(--color-text-secondary)" }}
+                    className="w-8 text-right font-medium text-secondary"
                   >
                     {star}★
                   </span>
                   <div
-                    className="flex-1 h-2 rounded-full overflow-hidden"
-                    style={{ backgroundColor: "var(--color-bg-inset)" }}
+                    className="flex-1 h-2 rounded-full overflow-hidden bg-inset"
                   >
                     <div
-                      className="h-full rounded-full transition-all duration-300"
-                      style={{
-                        width: `${pct}%`,
-                        backgroundColor: "var(--color-cta)",
-                      }}
+                      className="h-full rounded-full transition-all duration-300 bg-cta"
+                      style={{ width: `${pct}%` }}
                     />
                   </div>
                   <span
-                    className="w-8 text-left"
-                    style={{ color: "var(--color-text-muted)" }}
+                    className="w-8 text-left text-muted"
                   >
                     {count}
                   </span>
@@ -153,13 +134,10 @@ export default async function ReviewsPage() {
         </div>
       ) : (
         <div className="text-center py-12">
-          <p
-            className="text-base font-medium mb-2"
-            style={{ color: "var(--color-text-primary)" }}
-          >
+          <p className="text-base font-medium mb-2 text-foreground">
             No reviews yet
           </p>
-          <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-sm text-secondary">
             Be the first to review DormantFile. Filed your dormant accounts with us? We&apos;d love
             to hear how it went.
           </p>

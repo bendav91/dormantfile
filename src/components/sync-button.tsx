@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, RefreshCw } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface SyncButtonProps {
   companyId: string;
@@ -14,27 +15,23 @@ type ToastState =
   | { type: "error"; title: string; subtitle: string }
   | null;
 
-const toastStyles: Record<string, { bg: string; border: string; title: string; subtitle: string }> =
-  {
-    success: {
-      bg: "var(--color-success-bg)",
-      border: "var(--color-success-border)",
-      title: "var(--color-success-deep, #166534)",
-      subtitle: "var(--color-success, #16a34a)",
-    },
-    info: {
-      bg: "var(--color-bg-secondary)",
-      border: "var(--color-border)",
-      title: "var(--color-text-primary)",
-      subtitle: "var(--color-text-secondary)",
-    },
-    error: {
-      bg: "var(--color-danger-bg)",
-      border: "var(--color-danger-border)",
-      title: "var(--color-danger-deep)",
-      subtitle: "var(--color-danger)",
-    },
-  };
+const toastClassNames: Record<string, { container: string; title: string; subtitle: string }> = {
+  success: {
+    container: "bg-success-bg border-success-border",
+    title: "text-[var(--color-success-deep,#166534)]",
+    subtitle: "text-success",
+  },
+  info: {
+    container: "bg-[var(--color-bg-secondary)] border-border",
+    title: "text-foreground",
+    subtitle: "text-secondary",
+  },
+  error: {
+    container: "bg-danger-bg border-danger-border",
+    title: "text-danger-deep",
+    subtitle: "text-danger",
+  },
+};
 
 export default function SyncButton({ companyId }: SyncButtonProps) {
   const router = useRouter();
@@ -94,37 +91,22 @@ export default function SyncButton({ companyId }: SyncButtonProps) {
     }
   }
 
-  const style = toast ? toastStyles[toast.type] : null;
+  const style = toast ? toastClassNames[toast.type] : null;
 
   return (
     <>
       <button
         onClick={handleSync}
         disabled={loading}
-        className="focus-ring"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-          padding: "8px 14px",
-          fontSize: "13px",
-          fontWeight: 500,
-          color: loading ? "var(--color-text-disabled)" : "var(--color-text-secondary)",
-          backgroundColor: loading ? "var(--color-bg-disabled)" : "var(--color-bg-card)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "8px",
-          cursor: loading ? "not-allowed" : "pointer",
-          transition: "opacity 200ms, background-color 200ms",
-        }}
-        onMouseEnter={(e) => {
-          if (!loading) (e.currentTarget as HTMLButtonElement).style.opacity = "0.8";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-        }}
+        className={cn(
+          "focus-ring inline-flex items-center gap-1.5 py-2 px-3.5 text-[13px] font-medium border border-border rounded-lg transition-all duration-200 hover:opacity-80",
+          loading
+            ? "text-[var(--color-text-disabled)] bg-disabled cursor-not-allowed"
+            : "text-secondary bg-card cursor-pointer"
+        )}
       >
         {loading ? (
-          <Loader2 size={15} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
+          <Loader2 size={15} strokeWidth={2} className="animate-spin" />
         ) : (
           <RefreshCw size={15} strokeWidth={2} />
         )}
@@ -134,21 +116,13 @@ export default function SyncButton({ companyId }: SyncButtonProps) {
       {toast && style && (
         <div
           aria-live="polite"
-          style={{
-            position: "fixed",
-            bottom: "24px",
-            right: "24px",
-            padding: "14px 18px",
-            backgroundColor: style.bg,
-            border: `1px solid ${style.border}`,
-            borderRadius: "10px",
-            zIndex: 1000,
-            maxWidth: "360px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          }}
+          className={cn(
+            "fixed bottom-6 right-6 py-3.5 px-[18px] border rounded-[10px] z-[1000] max-w-[360px] shadow-[0_4px_12px_rgba(0,0,0,0.1)]",
+            style.container
+          )}
         >
-          <div style={{ fontSize: "13px", fontWeight: 600, color: style.title }}>{toast.title}</div>
-          <div style={{ fontSize: "12px", color: style.subtitle, marginTop: "2px" }}>
+          <div className={cn("text-[13px] font-semibold", style.title)}>{toast.title}</div>
+          <div className={cn("text-xs mt-0.5", style.subtitle)}>
             {toast.subtitle}
           </div>
         </div>

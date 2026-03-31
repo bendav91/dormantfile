@@ -17,10 +17,7 @@ function ResetPasswordForm() {
     return (
       <>
         <div className="mb-6 flex justify-center">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: "var(--color-danger-bg)" }}
-          >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-danger-bg">
             <svg
               width="24"
               height="24"
@@ -31,7 +28,7 @@ function ResetPasswordForm() {
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
-              style={{ color: "var(--color-danger)" }}
+              className="text-danger"
             >
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
@@ -39,32 +36,15 @@ function ResetPasswordForm() {
             </svg>
           </div>
         </div>
-        <h1
-          className="text-2xl font-bold mb-2 text-center"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2 text-center text-foreground">
           Invalid link
         </h1>
-        <p className="text-sm mb-8 text-center" style={{ color: "var(--color-text-secondary)" }}>
+        <p className="text-sm mb-8 text-center text-secondary">
           This password reset link is invalid or has expired.
         </p>
         <Link
           href="/forgot-password"
-          className="focus-ring block w-full text-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
-          style={{
-            backgroundColor: "var(--color-primary)",
-            color: "#fff",
-            minHeight: "44px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-primary-hover)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-primary)";
-          }}
+          className="focus-ring block w-full text-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors bg-primary text-white min-h-[44px] flex items-center justify-center hover:bg-primary-hover"
         >
           Request a new link
         </Link>
@@ -104,10 +84,7 @@ function ResetPasswordForm() {
     return (
       <>
         <div className="mb-6 flex justify-center">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: "var(--color-success-bg)" }}
-          >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-success-bg">
             <svg
               width="24"
               height="24"
@@ -118,39 +95,22 @@ function ResetPasswordForm() {
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
-              style={{ color: "var(--color-success)" }}
+              className="text-success"
             >
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
         </div>
-        <h1
-          className="text-2xl font-bold mb-2 text-center"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2 text-center text-foreground">
           Password updated
         </h1>
-        <p className="text-sm mb-8 text-center" style={{ color: "var(--color-text-secondary)" }}>
+        <p className="text-sm mb-8 text-center text-secondary">
           Your password has been reset successfully.
         </p>
         <Link
           href="/login"
-          className="focus-ring block w-full text-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
-          style={{
-            backgroundColor: "var(--color-primary)",
-            color: "#fff",
-            minHeight: "44px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-primary-hover)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-primary)";
-          }}
+          className="focus-ring block w-full text-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors bg-primary text-white min-h-[44px] flex items-center justify-center hover:bg-primary-hover"
         >
           Sign in
         </Link>
@@ -160,10 +120,10 @@ function ResetPasswordForm() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
+      <h1 className="text-2xl font-bold mb-1 text-foreground">
         Set a new password
       </h1>
-      <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
+      <p className="text-sm mb-8 text-secondary">
         Choose a new password for your account
       </p>
 
@@ -196,13 +156,7 @@ export default function ResetPasswordPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-12">
-          <div
-            className="w-6 h-6 border-2 rounded-full animate-spin"
-            style={{
-              borderColor: "var(--color-border)",
-              borderTopColor: "var(--color-primary)",
-            }}
-          />
+          <div className="w-6 h-6 border-2 rounded-full animate-spin border-border border-t-primary" />
         </div>
       }
     >

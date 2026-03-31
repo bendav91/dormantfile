@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowUpDown, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 const SORT_OPTIONS = [
   { key: "most-overdue", label: "Most Overdue" },
@@ -45,48 +46,23 @@ export default function SortDropdown({ currentSort }: { currentSort: SortType })
   }
 
   return (
-    <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
+    <div ref={ref} className="relative shrink-0">
       <button
         onClick={() => setOpen(!open)}
-        className="focus-ring"
+        className="focus-ring flex items-center gap-[5px] bg-card border border-border rounded-lg py-[7px] px-3 text-xs font-medium text-body cursor-pointer transition-colors duration-200"
         aria-haspopup="listbox"
         aria-expanded={open}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "5px",
-          background: "var(--color-bg-card)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "8px",
-          padding: "7px 12px",
-          fontSize: "12px",
-          fontWeight: 500,
-          color: "var(--color-text-body)",
-          cursor: "pointer",
-          transition: "border-color 200ms",
-        }}
       >
-        <ArrowUpDown size={12} strokeWidth={2} style={{ color: "var(--color-text-muted)" }} />
+        <ArrowUpDown size={12} strokeWidth={2} className="text-muted" />
         <span className="sort-dropdown-label">{currentLabel}</span>
-        <ChevronDown size={10} strokeWidth={2.5} style={{ color: "var(--color-text-muted)" }} />
+        <ChevronDown size={10} strokeWidth={2.5} className="text-muted" />
       </button>
 
       {open && (
         <div
           role="listbox"
           aria-label="Sort options"
-          style={{
-            position: "absolute",
-            right: 0,
-            top: "calc(100% + 4px)",
-            background: "var(--color-bg-card)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            padding: "4px",
-            zIndex: 50,
-            minWidth: "160px",
-          }}
+          className="absolute right-0 top-[calc(100%+4px)] bg-card border border-border rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.1)] p-1 z-50 min-w-[160px]"
         >
           {SORT_OPTIONS.map((s) => (
             <button
@@ -94,28 +70,12 @@ export default function SortDropdown({ currentSort }: { currentSort: SortType })
               role="option"
               aria-selected={currentSort === s.key}
               onClick={() => handleSelect(s.key)}
-              style={{
-                display: "block",
-                width: "100%",
-                textAlign: "left",
-                padding: "8px 12px",
-                fontSize: "12px",
-                fontWeight: currentSort === s.key ? 600 : 400,
-                color:
-                  currentSort === s.key ? "var(--color-text-primary)" : "var(--color-text-body)",
-                background: currentSort === s.key ? "var(--color-bg-inset)" : "transparent",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                transition: "background-color 150ms",
-              }}
-              onMouseEnter={(e) => {
-                if (currentSort !== s.key)
-                  e.currentTarget.style.backgroundColor = "var(--color-bg-inset)";
-              }}
-              onMouseLeave={(e) => {
-                if (currentSort !== s.key) e.currentTarget.style.backgroundColor = "transparent";
-              }}
+              className={cn(
+                "block w-full text-left py-2 px-3 text-xs border-0 rounded-md cursor-pointer transition-colors duration-150 hover:bg-inset",
+                currentSort === s.key
+                  ? "font-semibold text-foreground bg-inset"
+                  : "font-normal text-body bg-transparent",
+              )}
             >
               {s.label}
             </button>

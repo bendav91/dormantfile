@@ -1,19 +1,25 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-  /* Core surface and text */
-  --color-bg-page: #f8fafc;
-  --color-bg-card: #ffffff;
-  --color-bg-inset: #f8fafc;
-  --color-bg-disabled: #cbd5e1;
+@theme {
+  /* Surface */
+  --color-page: #f8fafc;
+  --color-card: #ffffff;
+  --color-inset: #f8fafc;
+  --color-disabled: #cbd5e1;
+
+  /* Borders */
   --color-border: #e2e8f0;
   --color-border-subtle: #f1f5f9;
-  --color-text-primary: #1e293b;
-  --color-text-body: #475569;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
-  --color-input-bg: #ffffff;
+
+  /* Foreground (text) */
+  --color-foreground: #1e293b;
+  --color-body: #475569;
+  --color-secondary: #64748b;
+  --color-muted: #94a3b8;
+
+  /* Inputs */
+  --color-input: #ffffff;
   --color-input-border: #94a3b8;
 
   /* Brand */
@@ -46,30 +52,38 @@
   --color-warning-link: #92400e;
   --color-due-soon: #d97706;
 
-  /* Neutral status */
+  /* Neutral / submitted */
   --color-neutral-bg: #f1f5f9;
   --color-neutral-text: #475569;
   --color-submitted-bg: #eff6ff;
   --color-submitted-text: #1d4ed8;
 
-  /* Backwards compat */
-  --background: var(--color-bg-page);
-  --foreground: var(--color-text-primary);
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-active: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .dark {
-  /* Core surface and text */
-  --color-bg-page: #0f172a;
-  --color-bg-card: #1e293b;
-  --color-bg-inset: #334155;
-  --color-bg-disabled: #475569;
+  /* Surface */
+  --color-page: #0f172a;
+  --color-card: #1e293b;
+  --color-inset: #334155;
+  --color-disabled: #475569;
+
+  /* Borders */
   --color-border: #334155;
   --color-border-subtle: #1e293b;
-  --color-text-primary: #f1f5f9;
-  --color-text-body: #cbd5e1;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #8494a7;
-  --color-input-bg: #1e293b;
+
+  /* Foreground (text) */
+  --color-foreground: #f1f5f9;
+  --color-body: #cbd5e1;
+  --color-secondary: #94a3b8;
+  --color-muted: #8494a7;
+
+  /* Inputs */
+  --color-input: #1e293b;
   --color-input-border: #475569;
 
   /* Brand */
@@ -102,7 +116,7 @@
   --color-warning-link: #f59e0b;
   --color-due-soon: #f59e0b;
 
-  /* Neutral status */
+  /* Neutral / submitted */
   --color-neutral-bg: #334155;
   --color-neutral-text: #cbd5e1;
   --color-submitted-bg: #172554;
@@ -110,8 +124,8 @@
 }
 
 body {
-  background: var(--color-bg-page);
-  color: var(--color-text-primary);
+  background: var(--color-page);
+  color: var(--color-foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -141,7 +155,7 @@ body {
 }
 
 .hoverable-subtle:hover {
-  background-color: var(--color-bg-inset) !important;
+  background-color: var(--color-inset) !important;
 }
 .hoverable-subtle:active {
   filter: brightness(0.95);
@@ -149,7 +163,7 @@ body {
 
 .hoverable-card:hover {
   border-color: var(--color-primary-border) !important;
-  background-color: var(--color-bg-inset) !important;
+  background-color: var(--color-inset) !important;
 }
 .hoverable-card:active {
   filter: brightness(0.97);
@@ -163,10 +177,10 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* Segmented filter control */
 .segmented-tab:hover {
-  background-color: color-mix(in srgb, var(--color-bg-card) 50%, transparent);
+  background-color: color-mix(in srgb, var(--color-card) 50%, transparent);
 }
 .segmented-tab[aria-selected="true"]:hover {
-  background-color: var(--color-bg-card);
+  background-color: var(--color-card);
 }
 
 /* Sort dropdown: hide label text on mobile */
@@ -185,14 +199,14 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* Auth component helpers */
 .auth-input::placeholder {
-  color: var(--color-text-muted);
+  color: var(--color-muted);
 }
 
 .auth-step-badge {
-  background-color: var(--color-bg-card);
+  background-color: var(--color-card);
 }
 .dark .auth-step-badge {
-  background-color: var(--color-bg-inset);
+  background-color: var(--color-inset);
 }
 
 /* Reduced motion: disable animations and transitions */

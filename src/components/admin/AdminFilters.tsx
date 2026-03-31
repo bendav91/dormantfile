@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/cn";
 
 interface FilterOption {
   value: string;
@@ -36,12 +37,12 @@ export function AdminFilters({ paramName, options }: AdminFiltersProps) {
           <button
             key={opt.value}
             onClick={() => handleClick(opt.value)}
-            className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer transition-colors duration-150"
-            style={{
-              backgroundColor: isActive ? "var(--color-primary-bg)" : "transparent",
-              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
-              border: `1px solid ${isActive ? "var(--color-primary-border)" : "var(--color-border)"}`,
-            }}
+            className={cn(
+              "text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer transition-colors duration-150 border",
+              isActive
+                ? "bg-primary-bg text-primary border-primary-border"
+                : "bg-transparent text-secondary border-border",
+            )}
           >
             {opt.label}
           </button>

@@ -40,10 +40,7 @@ export default function ForgotPasswordForm() {
     return (
       <>
         <div className="mb-6 flex justify-center">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: "var(--color-success-bg)" }}
-          >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-success-bg">
             <svg
               width="24"
               height="24"
@@ -54,48 +51,28 @@ export default function ForgotPasswordForm() {
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
-              style={{ color: "var(--color-success)" }}
+              className="text-success"
             >
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
           </div>
         </div>
-        <h1
-          className="text-2xl font-bold mb-2 text-center"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2 text-center text-foreground">
           Check your email
         </h1>
-        <h2
-          className="text-sm mb-8 text-center leading-relaxed"
-          style={{ color: "var(--color-text-secondary)" }}
-        >
+        <h2 className="text-sm mb-8 text-center leading-relaxed text-secondary">
           If an account exists for{" "}
-          <strong style={{ color: "var(--color-text-primary)" }}>{email}</strong>, we&apos;ve sent a
+          <strong className="text-foreground">{email}</strong>, we&apos;ve sent a
           password reset link. It expires in 1 hour.
         </h2>
         <Link
           href="/login"
-          className="focus-ring block w-full text-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors"
-          style={{
-            backgroundColor: "var(--color-primary)",
-            color: "#fff",
-            minHeight: "44px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-primary-hover)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "var(--color-primary)";
-          }}
+          className="focus-ring block w-full text-center rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors bg-primary text-white min-h-[44px] flex items-center justify-center hover:bg-primary-hover"
         >
           Back to sign in
         </Link>
-        <p className="mt-4 text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
+        <p className="mt-4 text-center text-xs text-muted">
           Didn&apos;t receive it? Check your spam folder or try again.
         </p>
       </>
@@ -104,10 +81,10 @@ export default function ForgotPasswordForm() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
+      <h1 className="text-2xl font-bold mb-1 text-foreground">
         Reset your password
       </h1>
-      <h2 className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
+      <h2 className="text-sm mb-8 text-secondary">
         Enter your email and we&apos;ll send you a reset link
       </h2>
 
@@ -131,12 +108,11 @@ export default function ForgotPasswordForm() {
         </AuthButton>
       </form>
 
-      <p className="mt-8 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
+      <p className="mt-8 text-center text-sm text-secondary">
         Remember your password?{" "}
         <Link
           href="/login"
-          className="font-semibold hover:underline focus-ring rounded"
-          style={{ color: "var(--color-primary)" }}
+          className="font-semibold hover:underline focus-ring rounded text-primary"
         >
           Sign in
         </Link>

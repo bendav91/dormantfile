@@ -18,19 +18,14 @@ export function AdminPagination({ page, totalPages, baseUrl, searchParams = {} }
 
   return (
     <div className="flex items-center justify-between pt-4">
-      <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+      <p className="text-xs text-muted">
         Page {page} of {totalPages}
       </p>
       <div className="flex gap-2">
         {page > 1 && (
           <Link
             href={buildUrl(page - 1)}
-            className="text-xs font-medium px-3 py-1.5 rounded-md transition-colors duration-150"
-            style={{
-              color: "var(--color-text-secondary)",
-              border: "1px solid var(--color-border)",
-              textDecoration: "none",
-            }}
+            className="text-xs font-medium px-3 py-1.5 rounded-md transition-colors duration-150 text-secondary border border-border no-underline"
           >
             Previous
           </Link>
@@ -38,12 +33,7 @@ export function AdminPagination({ page, totalPages, baseUrl, searchParams = {} }
         {page < totalPages && (
           <Link
             href={buildUrl(page + 1)}
-            className="text-xs font-medium px-3 py-1.5 rounded-md transition-colors duration-150"
-            style={{
-              color: "var(--color-text-secondary)",
-              border: "1px solid var(--color-border)",
-              textDecoration: "none",
-            }}
+            className="text-xs font-medium px-3 py-1.5 rounded-md transition-colors duration-150 text-secondary border border-border no-underline"
           >
             Next
           </Link>

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/cn";
 import { BrowserFrame } from "@/components/marketing/BrowserFrame";
 import { FilingCounter } from "@/components/marketing/FilingCounter";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -96,8 +97,7 @@ async function ReviewsJsonLdSection() {
 export default function LandingPage() {
   return (
     <div
-      className={ibmPlexSans.className}
-      style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)" }}
+      className={`${ibmPlexSans.className} bg-page text-foreground`}
     >
       {/* Navigation */}
       <SiteNav variant="marketing" />
@@ -108,20 +108,14 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
             {/* Copy */}
             <div className="text-center lg:text-left">
-              <h1
-                className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-5"
-                style={{ color: "var(--color-text-primary)" }}
-              >
+              <h1 className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-5 text-foreground">
                 Both dormant filings.
                 <br />
                 Two minutes.
                 <br />
-                <span style={{ color: "var(--color-primary)" }}>£19 a year.</span>
+                <span className="text-primary">£19 a year.</span>
               </h1>
-              <p
-                className="text-lg leading-relaxed mb-8"
-                style={{ color: "var(--color-text-body)" }}
-              >
+              <p className="text-lg leading-relaxed mb-8 text-body">
                 Annual accounts to Companies House and nil CT600 returns to HMRC — filed directly
                 via official APIs. No accounting knowledge needed.
               </p>
@@ -129,24 +123,13 @@ export default function LandingPage() {
               <div className="flex flex-wrap gap-3 mb-8 justify-center lg:justify-start">
                 <Link
                   href="/register"
-                  className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
-                  style={{
-                    backgroundColor: "var(--color-cta)",
-                    color: "var(--color-bg-card)",
-                    padding: "14px 28px",
-                  }}
+                  className="inline-flex items-center gap-2 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer bg-cta text-card px-7 py-3.5"
                 >
                   {isFilingLive() ? "Start filing" : "Set up your account"} <ArrowRight size={18} />
                 </Link>
                 <Link
                   href="/how-it-works"
-                  className="inline-flex items-center gap-2 text-base font-medium rounded-lg transition-colors duration-200 cursor-pointer"
-                  style={{
-                    color: "var(--color-primary)",
-                    padding: "14px 28px",
-                    border: "1px solid var(--color-border)",
-                    backgroundColor: "var(--color-bg-card)",
-                  }}
+                  className="inline-flex items-center gap-2 text-base font-medium rounded-lg transition-colors duration-200 cursor-pointer text-primary px-7 py-3.5 border border-border bg-card"
                 >
                   See how it works
                 </Link>
@@ -162,7 +145,7 @@ export default function LandingPage() {
               </div>
 
               {!isFilingLive() && (
-                <p className="mt-4 text-xs" style={{ color: "var(--color-text-muted)" }}>
+                <p className="mt-4 text-xs text-muted">
                   Filing opens soon — set up now so you&apos;re ready on day one.
                 </p>
               )}
@@ -173,23 +156,14 @@ export default function LandingPage() {
               <BrowserFrame>
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
+                    <p className="text-sm font-semibold text-foreground">
                       ACME HOLDINGS LTD
                     </p>
-                    <p className="text-xs mt-0.5" style={{ color: "var(--color-text-muted)" }}>
+                    <p className="text-xs mt-0.5 text-muted">
                       Company #12345678
                     </p>
                   </div>
-                  <span
-                    className="text-xs font-medium px-2.5 py-1 rounded-full"
-                    style={{
-                      backgroundColor: "var(--color-primary-bg)",
-                      color: "var(--color-primary)",
-                    }}
-                  >
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-primary-bg text-primary">
                     Dormant
                   </span>
                 </div>
@@ -201,36 +175,23 @@ export default function LandingPage() {
                   ].map((filing) => (
                     <div
                       key={filing.label}
-                      className="flex items-center justify-between p-3.5 rounded-lg"
-                      style={{
-                        border: "1px solid var(--color-border)",
-                        backgroundColor: "var(--color-bg-inset)",
-                      }}
+                      className="flex items-center justify-between p-3.5 rounded-lg border border-border bg-inset"
                     >
                       <div className="flex items-center gap-3">
                         <FileCheck
                           size={18}
-                          style={{ color: "var(--color-success)", flexShrink: 0 }}
+                          className="text-success shrink-0"
                         />
                         <div>
-                          <p
-                            className="text-sm font-medium"
-                            style={{ color: "var(--color-text-primary)" }}
-                          >
+                          <p className="text-sm font-medium text-foreground">
                             {filing.label}
                           </p>
-                          <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                          <p className="text-xs text-muted">
                             {filing.org}
                           </p>
                         </div>
                       </div>
-                      <span
-                        className="text-xs font-semibold px-2.5 py-1 rounded-md"
-                        style={{
-                          backgroundColor: "rgba(21, 128, 61, 0.08)",
-                          color: "var(--color-success)",
-                        }}
-                      >
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-success-bg text-success">
                         Filed
                       </span>
                     </div>
@@ -238,70 +199,46 @@ export default function LandingPage() {
                 </div>
 
                 <div className="mt-4 flex items-center gap-2">
-                  <Clock size={14} style={{ color: "var(--color-text-muted)" }} />
-                  <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                  <Clock size={14} className="text-muted" />
+                  <p className="text-xs text-muted">
                     Both filed in 1m 47s
                   </p>
                 </div>
               </BrowserFrame>
 
               {/* Price comparison floating badge */}
-              <div
-                className="absolute -bottom-4 -left-4 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium"
-                style={{
-                  backgroundColor: "var(--color-bg-card)",
-                  border: "1px solid var(--color-border)",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.06)",
-                  color: "var(--color-text-primary)",
-                }}
-              >
-                <span className="line-through" style={{ color: "var(--color-text-muted)" }}>
+              <div className="absolute -bottom-4 -left-4 flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-card border border-border shadow-[0_4px_12px_rgba(0,0,0,0.06)] text-foreground">
+                <span className="line-through text-muted">
                   £100+
                 </span>
-                <span style={{ color: "var(--color-primary)", fontWeight: 700 }}>£19/yr</span>
+                <span className="text-primary font-bold">£19/yr</span>
               </div>
             </div>
           </div>
 
           {/* Dormant-only disclaimer */}
-          <p className="text-center mt-12 text-sm" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-center mt-12 text-sm text-secondary">
             For genuinely dormant companies only — no trading activity, no assets, no income.
           </p>
         </div>
       </section>
 
       {/* How we compare */}
-      <section
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderTop: "1px solid var(--color-border)",
-          borderBottom: "1px solid var(--color-border)",
-        }}
-        className="py-16 px-6"
-      >
+      <section className="py-16 px-6 bg-card border-t border-b border-border">
         <div className="max-w-[960px] mx-auto">
-          <h2
-            className="text-2xl font-bold text-center mb-3"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
-          >
+          <h2 className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]">
             Not another accounting tool
           </h2>
-          <p className="text-sm text-center mb-10" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-sm text-center mb-10 text-secondary">
             Your options for filing a dormant company&apos;s returns.
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Accountant */}
-            <div
-              className="rounded-xl p-6"
-              style={{
-                border: "1px solid var(--color-border)",
-                backgroundColor: "var(--color-bg-page)",
-              }}
-            >
+            <div className="rounded-xl p-6 border border-border bg-page">
               <div className="flex items-center gap-2.5 mb-4">
-                <Briefcase size={18} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
-                <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                <Briefcase size={18} className="text-muted shrink-0" />
+                <p className="text-sm font-semibold text-foreground">
                   Your accountant
                 </p>
               </div>
@@ -314,13 +251,9 @@ export default function LandingPage() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2.5 text-sm"
-                    style={{ color: "var(--color-text-secondary)" }}
+                    className="flex items-start gap-2.5 text-sm text-secondary"
                   >
-                    <span
-                      className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: "var(--color-text-muted)" }}
-                    />
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 bg-muted" />
                     {item}
                   </li>
                 ))}
@@ -328,16 +261,10 @@ export default function LandingPage() {
             </div>
 
             {/* Accounting software */}
-            <div
-              className="rounded-xl p-6"
-              style={{
-                border: "1px solid var(--color-border)",
-                backgroundColor: "var(--color-bg-page)",
-              }}
-            >
+            <div className="rounded-xl p-6 border border-border bg-page">
               <div className="flex items-center gap-2.5 mb-4">
-                <Monitor size={18} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
-                <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                <Monitor size={18} className="text-muted shrink-0" />
+                <p className="text-sm font-semibold text-foreground">
                   Accounting software
                 </p>
               </div>
@@ -350,13 +277,9 @@ export default function LandingPage() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2.5 text-sm"
-                    style={{ color: "var(--color-text-secondary)" }}
+                    className="flex items-start gap-2.5 text-sm text-secondary"
                   >
-                    <span
-                      className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: "var(--color-text-muted)" }}
-                    />
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 bg-muted" />
                     {item}
                   </li>
                 ))}
@@ -364,14 +287,9 @@ export default function LandingPage() {
             </div>
 
             {/* DormantFile — highlighted */}
-            <div
-              className="rounded-xl p-6"
-              style={{
-                backgroundColor: "var(--color-primary)",
-              }}
-            >
+            <div className="rounded-xl p-6 bg-primary">
               <div className="flex items-center gap-2.5 mb-4">
-                <Zap size={18} style={{ color: "rgba(255,255,255,0.7)", flexShrink: 0 }} />
+                <Zap size={18} className="text-white/70 shrink-0" />
                 <p className="text-sm font-semibold text-white">DormantFile</p>
               </div>
               <ul className="space-y-2.5">
@@ -383,13 +301,11 @@ export default function LandingPage() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-2.5 text-sm"
-                    style={{ color: "rgba(255,255,255,0.9)" }}
+                    className="flex items-start gap-2.5 text-sm text-white/90"
                   >
                     <CheckCircle
                       size={16}
-                      className="mt-0.5 flex-shrink-0"
-                      style={{ color: "rgba(255,255,255,0.7)" }}
+                      className="mt-0.5 shrink-0 text-white/70"
                     />
                     {item}
                   </li>
@@ -403,13 +319,10 @@ export default function LandingPage() {
       {/* How It Works */}
       <section className="py-20 px-6">
         <div className="max-w-[960px] mx-auto">
-          <h2
-            className="text-2xl font-bold text-center mb-3"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
-          >
+          <h2 className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]">
             Three steps. Under two minutes.
           </h2>
-          <p className="text-sm text-center mb-12" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-sm text-center mb-12 text-secondary">
             From company number to filed returns — here&apos;s the whole process.
           </p>
 
@@ -440,49 +353,27 @@ export default function LandingPage() {
               <div key={step.heading} className="flex gap-5 sm:gap-7">
                 {/* Timeline node + connector */}
                 <div className="flex flex-col items-center">
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{
-                      backgroundColor: "var(--color-primary-bg)",
-                      border: "2px solid var(--color-primary-border)",
-                    }}
-                  >
-                    <step.icon size={18} style={{ color: "var(--color-primary)" }} />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-primary-bg border-2 border-primary-border">
+                    <step.icon size={18} className="text-primary" />
                   </div>
                   {i < arr.length - 1 && (
-                    <div
-                      className="w-px flex-1 mt-0"
-                      style={{ backgroundColor: "var(--color-border)" }}
-                    />
+                    <div className="w-px flex-1 mt-0 bg-border" />
                   )}
                 </div>
 
                 {/* Content */}
                 <div
-                  style={{ paddingBottom: i < arr.length - 1 ? "2.5rem" : 0 }}
-                  className="pt-1.5 flex-1 min-w-0"
+                  className={`pt-1.5 flex-1 min-w-0 ${i < arr.length - 1 ? "pb-10" : ""}`}
                 >
                   <div className="flex items-center gap-3 mb-1.5">
-                    <h3
-                      className="font-semibold text-base"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
+                    <h3 className="font-semibold text-base text-foreground">
                       {step.heading}
                     </h3>
-                    <span
-                      className="text-xs font-medium px-2.5 py-0.5 rounded-full flex-shrink-0"
-                      style={{
-                        backgroundColor: "var(--color-bg-inset)",
-                        color: "var(--color-text-muted)",
-                      }}
-                    >
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full shrink-0 bg-inset text-muted">
                       {step.time}
                     </span>
                   </div>
-                  <p
-                    className="text-sm leading-relaxed"
-                    style={{ color: "var(--color-text-secondary)" }}
-                  >
+                  <p className="text-sm leading-relaxed text-secondary">
                     {step.description}
                   </p>
                 </div>
@@ -493,8 +384,7 @@ export default function LandingPage() {
           <p className="text-center mt-8">
             <Link
               href="/how-it-works"
-              className="text-sm font-medium transition-colors duration-200"
-              style={{ color: "var(--color-primary)" }}
+              className="text-sm font-medium transition-colors duration-200 text-primary"
             >
               See the full walkthrough &rarr;
             </Link>
@@ -503,22 +393,12 @@ export default function LandingPage() {
       </section>
 
       {/* Behind the scenes */}
-      <section
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderTop: "1px solid var(--color-border)",
-          borderBottom: "1px solid var(--color-border)",
-        }}
-        className="py-20 px-6"
-      >
+      <section className="py-20 px-6 bg-card border-t border-b border-border">
         <div className="max-w-[960px] mx-auto">
-          <h2
-            className="text-2xl font-bold text-center mb-3"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
-          >
+          <h2 className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]">
             More than a filing form
           </h2>
-          <p className="text-sm text-center mb-12" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-sm text-center mb-12 text-secondary">
             Here&apos;s what&apos;s working behind the scenes.
           </p>
 
@@ -544,25 +424,13 @@ export default function LandingPage() {
               },
             ].map((item) => (
               <div key={item.heading} className="text-center">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{
-                    backgroundColor: "var(--color-primary-bg)",
-                    border: "2px solid var(--color-primary-border)",
-                  }}
-                >
-                  <item.icon size={18} style={{ color: "var(--color-primary)" }} />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-4 bg-primary-bg border-2 border-primary-border">
+                  <item.icon size={18} className="text-primary" />
                 </div>
-                <h3
-                  className="text-base font-semibold mb-2"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
+                <h3 className="text-base font-semibold mb-2 text-foreground">
                   {item.heading}
                 </h3>
-                <p
-                  className="text-sm leading-relaxed"
-                  style={{ color: "var(--color-text-secondary)" }}
-                >
+                <p className="text-sm leading-relaxed text-secondary">
                   {item.description}
                 </p>
               </div>
@@ -572,8 +440,7 @@ export default function LandingPage() {
           <p className="text-center mt-8">
             <Link
               href="/features"
-              className="text-sm font-medium transition-colors duration-200"
-              style={{ color: "var(--color-primary)" }}
+              className="text-sm font-medium transition-colors duration-200 text-primary"
             >
               See all features &rarr;
             </Link>
@@ -582,22 +449,12 @@ export default function LandingPage() {
       </section>
 
       {/* Video Explainer */}
-      <section
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderTop: "1px solid var(--color-border)",
-          borderBottom: "1px solid var(--color-border)",
-        }}
-        className="py-20 px-6"
-      >
+      <section className="py-20 px-6 bg-card border-t border-b border-border">
         <div className="max-w-[960px] mx-auto">
-          <h2
-            className="text-2xl font-bold text-center mb-3"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
-          >
+          <h2 className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]">
             See it in action
           </h2>
-          <p className="text-sm text-center mb-10" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-sm text-center mb-10 text-secondary">
             A complete filing walkthrough in under two minutes.
           </p>
           <div className="max-w-3xl mx-auto">
@@ -607,33 +464,20 @@ export default function LandingPage() {
       </section>
 
       {/* Problem Statement */}
-      <section
-        style={{
-          backgroundColor: "var(--color-primary-bg)",
-          borderTop: "1px solid var(--color-primary-border)",
-          borderBottom: "1px solid var(--color-primary-border)",
-        }}
-        className="py-20 px-6"
-      >
+      <section className="py-20 px-6 bg-primary-bg border-t border-b border-primary-border">
         <div className="max-w-[960px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
             {/* The problem */}
             <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-wide mb-3"
-                style={{ color: "var(--color-warning)" }}
-              >
+              <p className="text-xs font-semibold uppercase tracking-wide mb-3 text-warning">
                 31 March 2026
               </p>
-              <h2
-                className="text-2xl font-bold leading-snug mb-4"
-                style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
-              >
+              <h2 className="text-2xl font-bold leading-snug mb-4 text-foreground tracking-[-0.02em]">
                 Your free CT600 tool is gone.
                 <br />
                 Your filing obligations aren&apos;t.
               </h2>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-body)" }}>
+              <p className="text-sm leading-relaxed text-body">
                 HMRC shut down CATO — the only free way to file a Corporation Tax return. If
                 you&apos;re a director of a dormant company, you still need to file every year or
                 face penalties.
@@ -642,26 +486,20 @@ export default function LandingPage() {
 
             {/* What to do about it */}
             <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-wide mb-4"
-                style={{ color: "var(--color-primary)" }}
-              >
+              <p className="text-xs font-semibold uppercase tracking-wide mb-4 text-primary">
                 What you still need to file
               </p>
               <div className="space-y-4 mb-6">
                 <div className="flex items-start gap-3">
                   <FileCheck
                     size={18}
-                    style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "2px" }}
+                    className="text-primary shrink-0 mt-0.5"
                   />
                   <div>
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
+                    <p className="text-sm font-semibold text-foreground">
                       Annual accounts
                     </p>
-                    <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                    <p className="text-xs text-secondary">
                       To Companies House — every year, for every company
                     </p>
                   </div>
@@ -669,35 +507,24 @@ export default function LandingPage() {
                 <div className="flex items-start gap-3">
                   <FileCheck
                     size={18}
-                    style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "2px" }}
+                    className="text-primary shrink-0 mt-0.5"
                   />
                   <div>
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: "var(--color-text-primary)" }}
-                    >
+                    <p className="text-sm font-semibold text-foreground">
                       Nil CT600 return
                     </p>
-                    <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                    <p className="text-xs text-secondary">
                       To HMRC — every year, if registered for Corporation Tax
                     </p>
                   </div>
                 </div>
               </div>
-              <p
-                className="text-sm font-semibold mb-5"
-                style={{ color: "var(--color-text-primary)" }}
-              >
+              <p className="text-sm font-semibold mb-5 text-foreground">
                 DormantFile handles both. From £19/yr.
               </p>
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 text-sm font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
-                style={{
-                  backgroundColor: "var(--color-cta)",
-                  color: "var(--color-bg-card)",
-                  padding: "12px 24px",
-                }}
+                className="inline-flex items-center gap-2 text-sm font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer bg-cta text-card px-6 py-3"
               >
                 {isFilingLive() ? "Start filing" : "Get started"} <ArrowRight size={16} />
               </Link>
@@ -709,16 +536,10 @@ export default function LandingPage() {
       {/* Pricing */}
       <section className="py-20 px-6">
         <div className="max-w-[960px] mx-auto">
-          <h2
-            className="text-2xl font-bold text-center mb-3"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
-          >
+          <h2 className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]">
             Both filings. From £19 a year.
           </h2>
-          <p
-            className="text-sm text-center mb-12 max-w-lg mx-auto"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p className="text-sm text-center mb-12 max-w-lg mx-auto text-secondary">
             Every plan includes annual accounts and CT600. No add-ons, no hidden fees.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

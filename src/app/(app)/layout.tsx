@@ -30,15 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const isAdmin = user?.isAdmin ?? false;
 
   return (
-    <div
-      className={`${ibmPlexSans.variable} min-h-screen`}
-      style={{
-        fontFamily: "var(--font-ibm-plex-sans), sans-serif",
-        backgroundColor: "var(--color-bg-page)",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className={`${ibmPlexSans.variable} min-h-screen font-[family-name:var(--font-ibm-plex-sans),sans-serif] bg-page flex flex-col`}>
       <SiteNav variant="app" user={{ email: session.user.email! }} isAdmin={isAdmin} />
 
       <main id="main-content" className="px-6 py-10 flex-1">

@@ -43,11 +43,7 @@ export function AdminReviewsTable({ reviews }: { reviews: AdminReview[] }) {
       {reviews.map((review) => (
         <div
           key={review.id}
-          className="flex items-start justify-between gap-4 p-4 rounded-xl"
-          style={{
-            backgroundColor: "var(--color-bg-card)",
-            border: "1px solid var(--color-border)",
-          }}
+          className="flex items-start justify-between gap-4 p-4 rounded-xl bg-card border border-border"
         >
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1.5">
@@ -56,22 +52,19 @@ export function AdminReviewsTable({ reviews }: { reviews: AdminReview[] }) {
             </div>
 
             {review.text && (
-              <p
-                className="text-sm mb-2 leading-relaxed"
-                style={{ color: "var(--color-text-body)" }}
-              >
+              <p className="text-sm mb-2 leading-relaxed text-body">
                 {review.text.length > 200
                   ? `${review.text.slice(0, 200)}\u2026`
                   : review.text}
               </p>
             )}
 
-            <div className="flex items-center gap-3 text-xs" style={{ color: "var(--color-text-muted)" }}>
-              <span className="font-medium" style={{ color: "var(--color-text-secondary)" }}>
+            <div className="flex items-center gap-3 text-xs text-muted">
+              <span className="font-medium text-secondary">
                 {review.name}
               </span>
               {review.verified && (
-                <span className="inline-flex items-center gap-1" style={{ color: "var(--color-success)" }}>
+                <span className="inline-flex items-center gap-1 text-success">
                   <CheckCircle size={12} /> Verified
                 </span>
               )}
@@ -79,17 +72,12 @@ export function AdminReviewsTable({ reviews }: { reviews: AdminReview[] }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {!review.approved && !review.hiddenAt && (
               <button
                 onClick={() => handleAction(review.id, "approve")}
                 disabled={loading === review.id}
-                className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 transition-colors duration-150"
-                style={{
-                  backgroundColor: "rgba(21, 128, 61, 0.08)",
-                  color: "var(--color-success)",
-                  border: "1px solid rgba(21, 128, 61, 0.2)",
-                }}
+                className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 transition-colors duration-150 bg-success-bg text-success border border-success-border"
               >
                 Approve
               </button>
@@ -98,12 +86,7 @@ export function AdminReviewsTable({ reviews }: { reviews: AdminReview[] }) {
               <button
                 onClick={() => handleAction(review.id, "hide")}
                 disabled={loading === review.id}
-                className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 transition-colors duration-150"
-                style={{
-                  backgroundColor: "rgba(220, 38, 38, 0.08)",
-                  color: "var(--color-danger)",
-                  border: "1px solid rgba(220, 38, 38, 0.2)",
-                }}
+                className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 transition-colors duration-150 bg-danger-bg text-danger border border-danger-border"
               >
                 Hide
               </button>
@@ -111,12 +94,7 @@ export function AdminReviewsTable({ reviews }: { reviews: AdminReview[] }) {
               <button
                 onClick={() => handleAction(review.id, "unhide")}
                 disabled={loading === review.id}
-                className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 transition-colors duration-150"
-                style={{
-                  color: "var(--color-text-secondary)",
-                  border: "1px solid var(--color-border)",
-                  backgroundColor: "transparent",
-                }}
+                className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 transition-colors duration-150 text-secondary border border-border bg-transparent"
               >
                 Unhide
               </button>

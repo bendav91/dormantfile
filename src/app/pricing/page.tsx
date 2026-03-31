@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { MicroTrust } from "@/components/marketing/MicroTrust";
 import { AggregateRating } from "@/components/marketing/AggregateRating";
 import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
+import { cn } from "@/lib/cn";
 import { isFilingLive } from "@/lib/launch-mode";
 import {
   ArrowRight,
@@ -126,11 +127,7 @@ export default function PricingPage() {
 
   return (
     <div
-      className={ibmPlexSans.className}
-      style={{
-        backgroundColor: "var(--color-bg-page)",
-        color: "var(--color-text-primary)",
-      }}
+      className={cn(ibmPlexSans.className, "bg-page text-foreground")}
     >
       <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "Pricing" }]} />
 
@@ -142,39 +139,32 @@ export default function PricingPage() {
           <div className="max-w-[960px] mx-auto text-center">
             <nav aria-label="Breadcrumb" className="mb-8">
               <ol
-                className="flex items-center justify-center gap-2 text-sm"
-                style={{ listStyle: "none", padding: 0, margin: 0 }}
+                className="flex items-center justify-center gap-2 text-sm list-none p-0 m-0"
               >
                 <li>
                   <Link
                     href="/"
-                    className="hover:underline focus-ring rounded"
-                    style={{
-                      color: "var(--color-text-secondary)",
-                      textDecoration: "none",
-                    }}
+                    className="hover:underline focus-ring rounded text-secondary no-underline"
                   >
                     Home
                   </Link>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span aria-hidden="true" style={{ color: "var(--color-text-muted)" }}>
+                  <span aria-hidden="true" className="text-muted">
                     ›
                   </span>
-                  <span style={{ color: "var(--color-text-body)" }}>Pricing</span>
+                  <span className="text-body">Pricing</span>
                 </li>
               </ol>
             </nav>
 
             <h1
-              className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-5"
-              style={{ color: "var(--color-text-primary)" }}
+              className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-5 text-foreground"
             >
-              Both filings. <span style={{ color: "var(--color-primary)" }}>From £19 a year.</span>
+              Both filings. <span className="text-primary">From £19 a year.</span>
             </h1>
             <p
-              className="text-lg leading-relaxed max-w-xl mx-auto mb-6"
-              style={{ color: "var(--color-text-body)" }}
+              className="text-lg leading-relaxed max-w-xl mx-auto mb-6 text-body"
             >
               Every plan includes annual accounts and CT600. No add-ons, no hidden fees. Plans are
               based on how many companies you manage, not how many filings you make.
@@ -182,8 +172,7 @@ export default function PricingPage() {
 
             <a
               href="#plans"
-              className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200"
-              style={{ color: "var(--color-primary)" }}
+              className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 text-primary"
             >
               See plans <ChevronDown size={16} />
             </a>
@@ -193,12 +182,7 @@ export default function PricingPage() {
         {/* ── Pricing Cards ── */}
         <section
           id="plans"
-          className="py-16 sm:py-20 px-6"
-          style={{
-            backgroundColor: "var(--color-bg-card)",
-            borderTop: "1px solid var(--color-border)",
-            borderBottom: "1px solid var(--color-border)",
-          }}
+          className="py-16 sm:py-20 px-6 bg-card border-y border-border"
         >
           <div className="max-w-[960px] mx-auto">
             <div className="mb-8">
@@ -208,65 +192,45 @@ export default function PricingPage() {
               {plans.map((plan) => (
                 <div
                   key={plan.name}
-                  className="rounded-xl p-5 sm:p-7 flex flex-col"
-                  style={{
-                    border: plan.highlighted
-                      ? "2px solid var(--color-primary)"
-                      : "1px solid var(--color-border)",
-                    backgroundColor: "var(--color-bg-page)",
-                    position: "relative",
-                  }}
+                  className={cn(
+                    "rounded-xl p-5 sm:p-7 flex flex-col bg-page relative",
+                    plan.highlighted
+                      ? "border-2 border-primary"
+                      : "border border-border"
+                  )}
                 >
                   {plan.highlighted && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        top: "-12px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        backgroundColor: "var(--color-primary)",
-                        color: "var(--color-bg-card)",
-                        padding: "3px 14px",
-                        borderRadius: "9999px",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-card px-3.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">
                       Most popular
                     </span>
                   )}
                   <p
-                    className="font-semibold text-sm mb-1"
-                    style={{ color: "var(--color-primary)" }}
+                    className="font-semibold text-sm mb-1 text-primary"
                   >
                     {plan.name}
                   </p>
                   <div className="mb-1">
                     <span
-                      className="text-4xl font-bold"
-                      style={{ color: "var(--color-text-primary)" }}
+                      className="text-4xl font-bold text-foreground"
                     >
                       £{plan.price}
                     </span>
-                    <span className="text-sm ml-1" style={{ color: "var(--color-text-secondary)" }}>
+                    <span className="text-sm ml-1 text-secondary">
                       {plan.period}
                     </span>
                   </div>
                   {plan.perUnit && (
                     <p
-                      className="text-xs font-medium mb-4"
-                      style={{ color: "var(--color-primary)" }}
+                      className="text-xs font-medium mb-4 text-primary"
                     >
                       {plan.perUnit}
                     </p>
                   )}
                   <p
-                    className="text-sm leading-relaxed mb-6"
-                    style={{
-                      color: "var(--color-text-secondary)",
-                      marginTop: plan.perUnit ? 0 : "0.5rem",
-                    }}
+                    className={cn(
+                      "text-sm leading-relaxed mb-6 text-secondary",
+                      !plan.perUnit && "mt-2"
+                    )}
                   >
                     {plan.description}
                   </p>
@@ -275,13 +239,9 @@ export default function PricingPage() {
                       <li key={feature} className="flex items-start gap-2.5">
                         <CheckCircle
                           size={16}
-                          style={{
-                            color: "var(--color-primary)",
-                            flexShrink: 0,
-                            marginTop: 2,
-                          }}
+                          className="text-primary shrink-0 mt-0.5"
                         />
-                        <span className="text-sm" style={{ color: "var(--color-text-body)" }}>
+                        <span className="text-sm text-body">
                           {feature}
                         </span>
                       </li>
@@ -289,14 +249,10 @@ export default function PricingPage() {
                   </ul>
                   <Link
                     href="/register"
-                    className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
-                    style={{
-                      backgroundColor: plan.highlighted
-                        ? "var(--color-cta)"
-                        : "var(--color-primary)",
-                      color: "var(--color-bg-card)",
-                      padding: "12px 24px",
-                    }}
+                    className={cn(
+                      "block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer text-card py-3 px-6",
+                      plan.highlighted ? "bg-cta" : "bg-primary"
+                    )}
                   >
                     {plan.cta}
                   </Link>
@@ -307,7 +263,7 @@ export default function PricingPage() {
               ))}
             </div>
 
-            <p className="text-xs text-center mt-6" style={{ color: "var(--color-text-muted)" }}>
+            <p className="text-xs text-center mt-6 text-muted">
               All plans include credentials-never-stored security. Your HMRC Gateway login is used
               once and immediately discarded.
             </p>
@@ -318,44 +274,33 @@ export default function PricingPage() {
         <section className="py-16 sm:py-20 px-6">
           <div className="max-w-[960px] mx-auto">
             <h2
-              className="text-2xl font-bold text-center mb-3"
-              style={{
-                color: "var(--color-text-primary)",
-                letterSpacing: "-0.02em",
-              }}
+              className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]"
             >
               How we compare
             </h2>
             <p
-              className="text-sm text-center mb-10"
-              style={{ color: "var(--color-text-secondary)" }}
+              className="text-sm text-center mb-10 text-secondary"
             >
               Your options for filing a dormant company&apos;s returns.
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
               {/* DormantFile — highlighted */}
-              <div className="rounded-xl p-6" style={{ backgroundColor: "var(--color-primary)" }}>
+              <div className="rounded-xl p-6 bg-primary">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Zap
                     size={18}
-                    style={{
-                      color: "rgba(255,255,255,0.7)",
-                      flexShrink: 0,
-                    }}
+                    className="text-white/70 shrink-0"
                   />
                   <p className="text-sm font-semibold text-white">DormantFile</p>
                 </div>
                 <p className="text-2xl font-bold text-white mb-1">
                   From £19
-                  <span
-                    className="text-sm font-medium ml-1"
-                    style={{ color: "rgba(255,255,255,0.7)" }}
-                  >
+                  <span className="text-sm font-medium ml-1 text-white/70">
                     /yr
                   </span>
                 </p>
-                <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.7)" }}>
+                <p className="text-xs mb-4 text-white/70">
                   Under 2 minutes
                 </p>
                 <ul className="space-y-2.5">
@@ -367,13 +312,11 @@ export default function PricingPage() {
                   ].map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-2.5 text-sm"
-                      style={{ color: "rgba(255,255,255,0.9)" }}
+                      className="flex items-start gap-2.5 text-sm text-white/90"
                     >
                       <CheckCircle
                         size={16}
-                        className="mt-0.5 flex-shrink-0"
-                        style={{ color: "rgba(255,255,255,0.7)" }}
+                        className="mt-0.5 flex-shrink-0 text-white/70"
                       />
                       {item}
                     </li>
@@ -382,41 +325,23 @@ export default function PricingPage() {
               </div>
 
               {/* Accountant */}
-              <div
-                className="rounded-xl p-6"
-                style={{
-                  border: "1px solid var(--color-border)",
-                  backgroundColor: "var(--color-bg-card)",
-                }}
-              >
+              <div className="rounded-xl p-6 border border-border bg-card">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Briefcase
                     size={18}
-                    style={{
-                      color: "var(--color-text-muted)",
-                      flexShrink: 0,
-                    }}
+                    className="text-muted shrink-0"
                   />
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: "var(--color-text-primary)" }}
-                  >
+                  <p className="text-sm font-semibold text-foreground">
                     Accountant
                   </p>
                 </div>
-                <p
-                  className="text-2xl font-bold mb-1"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
+                <p className="text-2xl font-bold mb-1 text-foreground">
                   £80–150+
-                  <span
-                    className="text-sm font-medium ml-1"
-                    style={{ color: "var(--color-text-secondary)" }}
-                  >
+                  <span className="text-sm font-medium ml-1 text-secondary">
                     /co
                   </span>
                 </p>
-                <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
+                <p className="text-xs mb-4 text-muted">
                   Varies
                 </p>
                 <ul className="space-y-2.5">
@@ -428,15 +353,9 @@ export default function PricingPage() {
                   ].map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-2.5 text-sm"
-                      style={{ color: "var(--color-text-secondary)" }}
+                      className="flex items-start gap-2.5 text-sm text-secondary"
                     >
-                      <span
-                        className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor: "var(--color-text-muted)",
-                        }}
-                      />
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 bg-muted" />
                       {item}
                     </li>
                   ))}
@@ -444,41 +363,23 @@ export default function PricingPage() {
               </div>
 
               {/* Accounting software */}
-              <div
-                className="rounded-xl p-6"
-                style={{
-                  border: "1px solid var(--color-border)",
-                  backgroundColor: "var(--color-bg-card)",
-                }}
-              >
+              <div className="rounded-xl p-6 border border-border bg-card">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Monitor
                     size={18}
-                    style={{
-                      color: "var(--color-text-muted)",
-                      flexShrink: 0,
-                    }}
+                    className="text-muted shrink-0"
                   />
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: "var(--color-text-primary)" }}
-                  >
+                  <p className="text-sm font-semibold text-foreground">
                     Accounting software
                   </p>
                 </div>
-                <p
-                  className="text-2xl font-bold mb-1"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
+                <p className="text-2xl font-bold mb-1 text-foreground">
                   £100+
-                  <span
-                    className="text-sm font-medium ml-1"
-                    style={{ color: "var(--color-text-secondary)" }}
-                  >
+                  <span className="text-sm font-medium ml-1 text-secondary">
                     /yr
                   </span>
                 </p>
-                <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
+                <p className="text-xs mb-4 text-muted">
                   30+ minutes
                 </p>
                 <ul className="space-y-2.5">
@@ -490,15 +391,9 @@ export default function PricingPage() {
                   ].map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-2.5 text-sm"
-                      style={{ color: "var(--color-text-secondary)" }}
+                      className="flex items-start gap-2.5 text-sm text-secondary"
                     >
-                      <span
-                        className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor: "var(--color-text-muted)",
-                        }}
-                      />
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 bg-muted" />
                       {item}
                     </li>
                   ))}
@@ -506,41 +401,23 @@ export default function PricingPage() {
               </div>
 
               {/* DIY */}
-              <div
-                className="rounded-xl p-6"
-                style={{
-                  border: "1px solid var(--color-border)",
-                  backgroundColor: "var(--color-bg-card)",
-                }}
-              >
+              <div className="rounded-xl p-6 border border-border bg-card">
                 <div className="flex items-center gap-2.5 mb-4">
                   <Shield
                     size={18}
-                    style={{
-                      color: "var(--color-text-muted)",
-                      flexShrink: 0,
-                    }}
+                    className="text-muted shrink-0"
                   />
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: "var(--color-text-primary)" }}
-                  >
+                  <p className="text-sm font-semibold text-foreground">
                     DIY (manual filing)
                   </p>
                 </div>
-                <p
-                  className="text-2xl font-bold mb-1"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
+                <p className="text-2xl font-bold mb-1 text-foreground">
                   Free
-                  <span
-                    className="text-sm font-medium ml-1"
-                    style={{ color: "var(--color-text-secondary)" }}
-                  >
+                  <span className="text-sm font-medium ml-1 text-secondary">
                     (accounts)
                   </span>
                 </p>
-                <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
+                <p className="text-xs mb-4 text-muted">
                   1–2 hours
                 </p>
                 <ul className="space-y-2.5">
@@ -552,15 +429,9 @@ export default function PricingPage() {
                   ].map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-2.5 text-sm"
-                      style={{ color: "var(--color-text-secondary)" }}
+                      className="flex items-start gap-2.5 text-sm text-secondary"
                     >
-                      <span
-                        className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor: "var(--color-text-muted)",
-                        }}
-                      />
+                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 bg-muted" />
                       {item}
                     </li>
                   ))}
@@ -572,26 +443,16 @@ export default function PricingPage() {
 
         {/* ── What's included ── */}
         <section
-          className="py-16 sm:py-20 px-6"
-          style={{
-            backgroundColor: "var(--color-bg-card)",
-            borderTop: "1px solid var(--color-border)",
-            borderBottom: "1px solid var(--color-border)",
-          }}
+          className="py-16 sm:py-20 px-6 bg-card border-y border-border"
         >
           <div className="max-w-[960px] mx-auto">
             <h2
-              className="text-2xl font-bold text-center mb-3"
-              style={{
-                color: "var(--color-text-primary)",
-                letterSpacing: "-0.02em",
-              }}
+              className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]"
             >
               Every plan includes
             </h2>
             <p
-              className="text-sm text-center mb-10"
-              style={{ color: "var(--color-text-secondary)" }}
+              className="text-sm text-center mb-10 text-secondary"
             >
               No add-ons. No tiers for individual features. Everything below comes with every plan.
             </p>
@@ -630,27 +491,20 @@ export default function PricingPage() {
               ].map((feature) => (
                 <div
                   key={feature.title}
-                  className="flex items-start gap-3 p-4 rounded-lg"
-                  style={{
-                    backgroundColor: "var(--color-bg-page)",
-                    border: "1px solid var(--color-border)",
-                  }}
+                  className="flex items-start gap-3 p-4 rounded-lg bg-page border border-border"
                 >
                   <CheckCircle
                     size={18}
-                    className="mt-0.5 flex-shrink-0"
-                    style={{ color: "var(--color-primary)" }}
+                    className="mt-0.5 flex-shrink-0 text-primary"
                   />
                   <div>
                     <h3
-                      className="text-sm font-semibold mb-0.5"
-                      style={{ color: "var(--color-text-primary)" }}
+                      className="text-sm font-semibold mb-0.5 text-foreground"
                     >
                       {feature.title}
                     </h3>
                     <p
-                      className="text-sm leading-relaxed"
-                      style={{ color: "var(--color-text-secondary)" }}
+                      className="text-sm leading-relaxed text-secondary"
                     >
                       {feature.description}
                     </p>
@@ -665,23 +519,17 @@ export default function PricingPage() {
         <section className="py-16 sm:py-20 px-6">
           <div className="max-w-[960px] mx-auto">
             <h2
-              className="text-2xl font-bold text-center mb-3"
-              style={{
-                color: "var(--color-text-primary)",
-                letterSpacing: "-0.02em",
-              }}
+              className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]"
             >
               Billing questions
             </h2>
             <p
-              className="text-sm text-center mb-10"
-              style={{ color: "var(--color-text-secondary)" }}
+              className="text-sm text-center mb-10 text-secondary"
             >
               Everything you need to know about plans, billing, and refunds.{" "}
               <Link
                 href="/faq"
-                className="font-medium transition-colors duration-200"
-                style={{ color: "var(--color-primary)" }}
+                className="font-medium transition-colors duration-200 text-primary"
               >
                 See all FAQs &rarr;
               </Link>
@@ -695,12 +543,7 @@ export default function PricingPage() {
 
         {/* ── CTA ── */}
         <section
-          className="py-20 sm:py-24 px-6"
-          style={{
-            backgroundColor: "var(--color-primary-bg)",
-            borderTop: "1px solid var(--color-primary-border)",
-            borderBottom: "1px solid var(--color-primary-border)",
-          }}
+          className="py-20 sm:py-24 px-6 bg-primary-bg border-y border-primary-border"
         >
           <div className="max-w-[960px] mx-auto">
             {/* Value stat blocks */}
@@ -712,27 +555,20 @@ export default function PricingPage() {
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="text-center rounded-xl py-4 px-2"
-                  style={{
-                    backgroundColor: "var(--color-bg-card)",
-                    border: "1px solid var(--color-border)",
-                  }}
+                  className="text-center rounded-xl py-4 px-2 bg-card border border-border"
                 >
                   <p
-                    className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest mb-1.5"
-                    style={{ color: "var(--color-text-muted)" }}
+                    className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest mb-1.5 text-muted"
                   >
                     {stat.label}
                   </p>
                   <p
-                    className="text-2xl sm:text-3xl font-bold leading-none"
-                    style={{ color: "var(--color-primary)" }}
+                    className="text-2xl sm:text-3xl font-bold leading-none text-primary"
                   >
                     {stat.value}
                     {stat.unit && (
                       <span
-                        className="text-base sm:text-lg font-medium"
-                        style={{ color: "var(--color-text-secondary)" }}
+                        className="text-base sm:text-lg font-medium text-secondary"
                       >
                         {stat.unit}
                       </span>
@@ -743,17 +579,12 @@ export default function PricingPage() {
             </div>
 
             <h2
-              className="text-3xl sm:text-4xl font-bold text-center leading-tight mb-5"
-              style={{
-                color: "var(--color-text-primary)",
-                letterSpacing: "-0.025em",
-              }}
+              className="text-3xl sm:text-4xl font-bold text-center leading-tight mb-5 text-foreground tracking-[-0.025em]"
             >
               Get your dormant filings sorted.
             </h2>
             <p
-              className="text-base sm:text-lg text-center leading-relaxed mb-10 max-w-lg mx-auto"
-              style={{ color: "var(--color-text-secondary)" }}
+              className="text-base sm:text-lg text-center leading-relaxed mb-10 max-w-lg mx-auto text-secondary"
             >
               Set up your company in minutes. When it&apos;s time to file, both returns go directly
               to Companies House and HMRC. From £19 a year.
@@ -762,12 +593,7 @@ export default function PricingPage() {
             <div className="text-center mb-8">
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2.5 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
-                style={{
-                  backgroundColor: "var(--color-cta)",
-                  color: "var(--color-bg-card)",
-                  padding: "16px 36px",
-                }}
+                className="inline-flex items-center gap-2.5 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer bg-cta text-card py-4 px-9"
               >
                 {isFilingLive() ? "Start filing today" : "Get started"} <ArrowRight size={18} />
               </Link>

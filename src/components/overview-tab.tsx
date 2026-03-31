@@ -1,4 +1,4 @@
-import React from "react";
+import { cn } from "@/lib/cn";
 
 interface OverviewTabProps {
   companyName: string;
@@ -22,49 +22,13 @@ interface OverviewTabProps {
 }
 
 function formatDate(date: Date | null): string {
-  if (!date) return "—";
+  if (!date) return "\u2014";
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
 function formatStatus(status: string): string {
   return status.replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 }
-
-const sectionHeaderStyle: React.CSSProperties = {
-  fontSize: "11px",
-  fontWeight: 600,
-  textTransform: "uppercase",
-  letterSpacing: "0.04em",
-  color: "var(--color-text-muted)",
-  margin: "0 0 10px 0",
-};
-
-const cardStyle: React.CSSProperties = {
-  backgroundColor: "var(--color-bg-card)",
-  borderRadius: "10px",
-  padding: "16px",
-  border: "1px solid var(--color-border)",
-  marginBottom: "20px",
-};
-
-const rowStyle: React.CSSProperties = {
-  display: "flex",
-  justifyContent: "space-between",
-  padding: "8px 0",
-  borderBottom: "1px solid var(--color-border)",
-  fontSize: "13px",
-};
-
-const labelStyle: React.CSSProperties = {
-  color: "var(--color-text-secondary)",
-  fontWeight: 500,
-};
-
-const valueStyle: React.CSSProperties = {
-  color: "var(--color-text-primary)",
-  fontWeight: 600,
-  textAlign: "right" as const,
-};
 
 export default function OverviewTab({
   companyName,
@@ -91,7 +55,7 @@ export default function OverviewTab({
           });
           return `${day} ${monthName}`;
         })()
-      : "—";
+      : "\u2014";
 
   // Recent accepted filings (most recent first, limit 5)
   const recentFilings = filings
@@ -102,103 +66,109 @@ export default function OverviewTab({
   return (
     <div>
       {/* Company Details */}
-      <p style={sectionHeaderStyle}>Company Details</p>
-      <div style={cardStyle}>
-        <div style={{ ...rowStyle }}>
-          <span style={labelStyle}>Company name</span>
-          <span style={valueStyle}>{companyName}</span>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-muted m-0 mb-2.5">Company Details</p>
+      <div className="bg-card rounded-[10px] p-4 border border-border mb-5">
+        <div className="flex justify-between py-2 border-b border-border text-[13px]">
+          <span className="text-secondary font-medium">Company name</span>
+          <span className="text-foreground font-semibold text-right">
+            {companyName}
+          </span>
         </div>
-        <div style={{ ...rowStyle }}>
-          <span style={labelStyle}>Company number</span>
-          <span style={valueStyle}>{companyNumber}</span>
+        <div className="flex justify-between py-2 border-b border-border text-[13px]">
+          <span className="text-secondary font-medium">Company number</span>
+          <span className="text-foreground font-semibold text-right">
+            {companyNumber}
+          </span>
         </div>
         {companyStatus && (
-          <div style={{ ...rowStyle }}>
-            <span style={labelStyle}>Status</span>
-            <span style={valueStyle}>{formatStatus(companyStatus)}</span>
+          <div className="flex justify-between py-2 border-b border-border text-[13px]">
+            <span className="text-secondary font-medium">Status</span>
+            <span className="text-foreground font-semibold text-right">
+              {formatStatus(companyStatus)}
+            </span>
           </div>
         )}
-        <div style={{ ...rowStyle }}>
-          <span style={labelStyle}>Incorporated</span>
-          <span style={valueStyle}>{formatDate(dateOfCreation)}</span>
+        <div className="flex justify-between py-2 border-b border-border text-[13px]">
+          <span className="text-secondary font-medium">Incorporated</span>
+          <span className="text-foreground font-semibold text-right">
+            {formatDate(dateOfCreation)}
+          </span>
         </div>
         {companyType && (
-          <div style={{ ...rowStyle }}>
-            <span style={labelStyle}>Company type</span>
-            <span style={valueStyle}>{formatStatus(companyType)}</span>
+          <div className="flex justify-between py-2 border-b border-border text-[13px]">
+            <span className="text-secondary font-medium">Company type</span>
+            <span className="text-foreground font-semibold text-right">
+              {formatStatus(companyType)}
+            </span>
           </div>
         )}
         {registeredAddress && (
-          <div style={{ ...rowStyle }}>
-            <span style={labelStyle}>Registered address</span>
-            <span style={{ ...valueStyle, maxWidth: "60%" }}>{registeredAddress}</span>
+          <div className="flex justify-between py-2 border-b border-border text-[13px]">
+            <span className="text-secondary font-medium">Registered address</span>
+            <span className="text-foreground font-semibold text-right max-w-[60%]">
+              {registeredAddress}
+            </span>
           </div>
         )}
         {sicCodes && (
-          <div style={{ ...rowStyle, borderBottom: "none" }}>
-            <span style={labelStyle}>SIC code{sicCodes.includes(",") ? "s" : ""}</span>
-            <span style={valueStyle}>{sicCodes.replace(/,/g, ", ")}</span>
+          <div className="flex justify-between py-2 border-b-0 text-[13px]">
+            <span className="text-secondary font-medium">SIC code{sicCodes.includes(",") ? "s" : ""}</span>
+            <span className="text-foreground font-semibold text-right">
+              {sicCodes.replace(/,/g, ", ")}
+            </span>
           </div>
         )}
       </div>
 
       {/* Accounts Status */}
-      <p style={sectionHeaderStyle}>Accounts Status</p>
-      <div style={cardStyle}>
-        <div style={{ ...rowStyle }}>
-          <span style={labelStyle}>Last accounts</span>
-          <span style={valueStyle}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-muted m-0 mb-2.5">Accounts Status</p>
+      <div className="bg-card rounded-[10px] p-4 border border-border mb-5">
+        <div className="flex justify-between py-2 border-b border-border text-[13px]">
+          <span className="text-secondary font-medium">Last accounts</span>
+          <span className="text-foreground font-semibold text-right">
             {lastAccountsMadeUpTo ? formatDate(lastAccountsMadeUpTo) : "None filed"}
           </span>
         </div>
-        <div style={{ ...rowStyle }}>
-          <span style={labelStyle}>Next accounts due</span>
-          <span style={{ ...valueStyle, display: "flex", alignItems: "center", gap: "8px" }}>
+        <div className="flex justify-between py-2 border-b border-border text-[13px]">
+          <span className="text-secondary font-medium">Next accounts due</span>
+          <span className="text-foreground font-semibold text-right flex items-center gap-2">
             {accountsOverdue && (
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  color: "var(--color-error)",
-                  backgroundColor: "var(--color-error-bg)",
-                  borderRadius: "4px",
-                  padding: "2px 6px",
-                }}
-              >
+              <span className="text-[11px] font-semibold text-danger bg-danger-bg rounded py-0.5 px-1.5">
                 Overdue
               </span>
             )}
             {formatDate(accountsDueOn)}
           </span>
         </div>
-        <div style={{ ...rowStyle, borderBottom: "none" }}>
-          <span style={labelStyle}>Accounting reference date</span>
-          <span style={valueStyle}>{ardFormatted}</span>
+        <div className="flex justify-between py-2 border-b-0 text-[13px]">
+          <span className="text-secondary font-medium">Accounting reference date</span>
+          <span className="text-foreground font-semibold text-right">
+            {ardFormatted}
+          </span>
         </div>
       </div>
 
       {/* Recent Filings */}
       {recentFilings.length > 0 && (
         <>
-          <p style={sectionHeaderStyle}>Recent Filings</p>
-          <div style={cardStyle}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-muted m-0 mb-2.5">Recent Filings</p>
+          <div className="bg-card rounded-[10px] p-4 border border-border mb-5">
             {recentFilings.map((filing, index) => {
               const isLast = index === recentFilings.length - 1;
               return (
                 <div
                   key={`${filing.filingType}-${filing.periodEnd.toISOString()}`}
-                  style={{
-                    ...rowStyle,
-                    borderBottom: isLast ? "none" : "1px solid var(--color-border)",
-                    gap: "12px",
-                  }}
+                  className={cn(
+                    "flex justify-between py-2 text-[13px] gap-3",
+                    !isLast && "border-b border-border"
+                  )}
                 >
-                  <span style={{ ...labelStyle, flex: 1 }}>
+                  <span className="text-secondary font-medium flex-1">
                     {filing.filingType === "accounts" ? "Accounts" : "CT600"}
                   </span>
-                  <span style={{ ...valueStyle, whiteSpace: "nowrap", fontSize: "12px" }}>
+                  <span className="text-foreground font-semibold text-right whitespace-nowrap text-xs">
                     Period: {formatDate(filing.periodEnd)}
-                    {filing.confirmedAt && ` · ${formatDate(filing.confirmedAt)}`}
+                    {filing.confirmedAt && ` \u00b7 ${formatDate(filing.confirmedAt)}`}
                   </span>
                 </div>
               );
@@ -208,17 +178,9 @@ export default function OverviewTab({
             href={`https://find-and-update.company-information.service.gov.uk/company/${companyNumber}/filing-history`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              fontSize: "13px",
-              color: "var(--color-primary)",
-              textDecoration: "none",
-              fontWeight: 500,
-              display: "inline-block",
-              marginTop: "-12px",
-              marginBottom: "20px",
-            }}
+            className="text-[13px] text-primary no-underline font-medium inline-block -mt-3 mb-5"
           >
-            View full history on Companies House →
+            View full history on Companies House &rarr;
           </a>
         </>
       )}

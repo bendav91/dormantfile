@@ -48,35 +48,27 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
   }
 
   return (
-    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-      <nav
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-          fontSize: "14px",
-          marginBottom: "24px",
-        }}
-      >
+    <div className="max-w-[960px] mx-auto">
+      <nav className="flex items-center gap-1.5 text-sm mb-6">
         <Link
           href="/dashboard"
-          style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}
+          className="text-secondary no-underline font-medium"
         >
           Dashboard
         </Link>
-        <span style={{ color: "var(--color-bg-disabled)" }}>
+        <span className="text-disabled">
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>
         <Link
           href={`/company/${companyId}`}
-          style={{ color: "var(--color-text-secondary)", textDecoration: "none", fontWeight: 500 }}
+          className="text-secondary no-underline font-medium"
         >
           {company.companyName}
         </Link>
-        <span style={{ color: "var(--color-bg-disabled)" }}>
+        <span className="text-disabled">
           <ChevronRight size={14} color="currentColor" strokeWidth={2} />
         </span>
-        <span style={{ color: "var(--color-text-primary)", fontWeight: 600 }}>CT600</span>
+        <span className="text-foreground font-semibold">CT600</span>
       </nav>
       <FilingFlow
         companyId={company.id}

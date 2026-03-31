@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface CopyFilingSummaryProps {
   companyName: string;
@@ -53,19 +54,10 @@ export default function CopyFilingSummary({
     <button
       onClick={handleCopy}
       title="Copy filing summary"
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "28px",
-        height: "28px",
-        borderRadius: "6px",
-        border: "1px solid var(--color-border)",
-        backgroundColor: "transparent",
-        cursor: "pointer",
-        color: copied ? "var(--color-success)" : "var(--color-text-secondary)",
-        transition: "color 200ms, border-color 200ms",
-      }}
+      className={cn(
+        "inline-flex items-center justify-center w-7 h-7 rounded-md border border-border bg-transparent cursor-pointer transition-colors duration-200",
+        copied ? "text-success" : "text-secondary"
+      )}
     >
       {copied ? (
         <Check size={14} strokeWidth={2} />

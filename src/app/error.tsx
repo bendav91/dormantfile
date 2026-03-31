@@ -17,73 +17,24 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   return (
-    <div
-      className={ibmPlexSans.className}
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "var(--color-bg-page)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-      }}
-    >
-      <AlertTriangle size={48} color="var(--color-cta)" strokeWidth={1.5} />
-      <h1
-        style={{
-          fontSize: "28px",
-          fontWeight: 700,
-          color: "var(--color-text-primary)",
-          margin: "24px 0 0 0",
-          letterSpacing: "-0.02em",
-        }}
-      >
+    <div className={`${ibmPlexSans.className} min-h-screen bg-page flex flex-col items-center justify-center p-6`}>
+      <AlertTriangle size={48} className="text-cta" strokeWidth={1.5} />
+      <h1 className="text-[28px] font-bold text-foreground mt-6 tracking-[-0.02em]">
         Something went wrong
       </h1>
-      <p
-        style={{
-          fontSize: "16px",
-          color: "var(--color-text-secondary)",
-          margin: "8px 0 0 0",
-          textAlign: "center",
-          maxWidth: "400px",
-        }}
-      >
+      <p className="text-base text-secondary mt-2 text-center max-w-[400px]">
         An unexpected error occurred. Please try again or return to the home page.
       </p>
-      <div style={{ display: "flex", gap: "12px", marginTop: "32px" }}>
+      <div className="flex gap-3 mt-8">
         <button
           onClick={reset}
-          className="focus-ring"
-          style={{
-            backgroundColor: "var(--color-primary)",
-            color: "var(--color-bg-card)",
-            padding: "12px 24px",
-            borderRadius: "8px",
-            fontWeight: 600,
-            fontSize: "14px",
-            border: "none",
-            cursor: "pointer",
-            transition: "background-color 200ms, color 200ms",
-          }}
+          className="focus-ring bg-primary text-card px-6 py-3 rounded-lg font-semibold text-sm border-0 cursor-pointer transition-colors duration-200"
         >
           Try again
         </button>
         <Link
           href="/"
-          className="focus-ring"
-          style={{
-            backgroundColor: "transparent",
-            color: "var(--color-primary)",
-            padding: "12px 24px",
-            borderRadius: "8px",
-            fontWeight: 600,
-            fontSize: "14px",
-            border: "2px solid var(--color-primary)",
-            textDecoration: "none",
-            transition: "background-color 200ms, color 200ms",
-          }}
+          className="focus-ring bg-transparent text-primary px-6 py-3 rounded-lg font-semibold text-sm border-2 border-primary no-underline transition-colors duration-200"
         >
           Go home
         </Link>

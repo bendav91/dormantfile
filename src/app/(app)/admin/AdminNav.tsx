@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, FileText, Mail, Star } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface NavItem {
   href: string;
@@ -36,25 +37,17 @@ export function AdminNav({ unreadCount }: { unreadCount: number }) {
           <Link
             key={item.href}
             href={item.href}
-            className="inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md transition-colors duration-150"
-            style={{
-              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
-              backgroundColor: isActive ? "var(--color-primary-bg)" : "transparent",
-              border: `1px solid ${isActive ? "var(--color-primary-border)" : "var(--color-border)"}`,
-              textDecoration: "none",
-            }}
+            className={cn(
+              "inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md transition-colors duration-150 no-underline border",
+              isActive
+                ? "text-primary bg-primary-bg border-primary-border"
+                : "text-secondary bg-transparent border-border"
+            )}
           >
             <Icon size={14} />
             {item.label}
             {item.showBadge && unreadCount > 0 && (
-              <span
-                className="text-xs font-medium px-1.5 py-0.5 rounded-full leading-none"
-                style={{
-                  backgroundColor: "var(--color-warning)",
-                  color: "#fff",
-                  fontSize: "10px",
-                }}
-              >
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full leading-none bg-warning text-white">
                 {unreadCount}
               </span>
             )}

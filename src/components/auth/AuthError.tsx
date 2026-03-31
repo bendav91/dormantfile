@@ -8,14 +8,7 @@ export function AuthError({ message }: AuthErrorProps) {
   return (
     <div
       role="alert"
-      className="flex items-start gap-2.5 text-sm rounded-lg px-4 py-3"
-      style={{
-        color: "var(--color-danger-text)",
-        backgroundColor: "var(--color-danger-bg)",
-        borderWidth: "1px",
-        borderStyle: "solid",
-        borderColor: "var(--color-danger-border)",
-      }}
+      className="flex items-start gap-2.5 text-sm rounded-lg px-4 py-3 text-danger-text bg-danger-bg border border-danger-border"
     >
       <svg
         width="16"

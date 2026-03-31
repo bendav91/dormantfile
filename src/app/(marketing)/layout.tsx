@@ -10,16 +10,7 @@ const ibmPlexSans = IBM_Plex_Sans({
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className={ibmPlexSans.className}
-      style={{
-        backgroundColor: "var(--color-bg-page)",
-        color: "var(--color-text-primary)",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className={`${ibmPlexSans.className} bg-page text-foreground min-h-screen flex flex-col`}>
       <SiteNav variant="marketing" />
       <main id="main-content" className="px-6 py-10 flex-1">
         <div className="max-w-[960px] mx-auto">{children}</div>

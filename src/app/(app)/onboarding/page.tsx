@@ -37,77 +37,29 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+    <div className="max-w-[960px] mx-auto">
       <Link
         href="/dashboard"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "4px",
-          fontSize: "14px",
-          color: "var(--color-text-secondary)",
-          textDecoration: "none",
-          marginBottom: "20px",
-        }}
+        className="inline-flex items-center gap-1 text-sm text-secondary no-underline mb-5"
       >
         &larr; Back to dashboard
       </Link>
 
-      <div style={{ marginBottom: "32px" }}>
-        <h1
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 12px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+      <div className="mb-8">
+        <h1 className="text-[28px] font-bold text-foreground mb-3 tracking-[-0.02em]">
           {hasCompanies ? "Add another company" : "Add your company"}
         </h1>
-        <p
-          style={{
-            fontSize: "16px",
-            color: "var(--color-text-body)",
-            margin: 0,
-            lineHeight: "1.6",
-          }}
-        >
+        <p className="text-base text-body m-0 leading-relaxed">
           Enter your company details below. We use this information to prepare and file your annual
           accounts and Corporation Tax returns on time, every year.
         </p>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: "10px",
-          padding: "14px 16px",
-          backgroundColor: "var(--color-primary-bg)",
-          border: "1px solid var(--color-primary-border)",
-          borderRadius: "8px",
-          marginBottom: "28px",
-        }}
-      >
-        <span
-          style={{
-            color: "var(--color-primary)",
-            flexShrink: 0,
-            marginTop: "1px",
-            display: "flex",
-          }}
-        >
+      <div className="flex items-start gap-2.5 px-4 py-3.5 bg-primary-bg border border-primary-border rounded-lg mb-7">
+        <span className="text-primary shrink-0 mt-px flex">
           <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
         </span>
-        <p
-          style={{
-            fontSize: "14px",
-            color: "var(--color-primary-text)",
-            margin: 0,
-            lineHeight: "1.5",
-          }}
-        >
+        <p className="text-sm text-primary-text m-0 leading-normal">
           Your data is protected with industry-standard encryption. We only use these details to
           file your accounts and tax returns.
         </p>

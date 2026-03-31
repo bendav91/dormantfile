@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/cn";
 
 interface MarkFiledButtonProps {
   companyId: string;
@@ -33,37 +34,21 @@ export default function MarkFiledButton({ companyId, periodEnd, filingType }: Ma
 
   if (confirming) {
     return (
-      <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+      <span className="inline-flex items-center gap-1.5">
         <button
           onClick={handleConfirm}
           disabled={loading}
-          style={{
-            padding: "6px 12px",
-            borderRadius: "6px",
-            fontSize: "12px",
-            fontWeight: 600,
-            color: "var(--color-bg-card)",
-            backgroundColor: "var(--color-text-secondary)",
-            border: "none",
-            cursor: loading ? "wait" : "pointer",
-            opacity: loading ? 0.6 : 1,
-          }}
+          className={cn(
+            "py-1.5 px-3 rounded-md text-xs font-semibold text-card bg-secondary border-0",
+            loading ? "cursor-wait opacity-60" : "cursor-pointer opacity-100"
+          )}
         >
-          {loading ? "Saving…" : "Yes, mark as filed"}
+          {loading ? "Saving\u2026" : "Yes, mark as filed"}
         </button>
         <button
           onClick={() => setConfirming(false)}
           disabled={loading}
-          style={{
-            padding: "6px 12px",
-            borderRadius: "6px",
-            fontSize: "12px",
-            fontWeight: 500,
-            color: "var(--color-text-secondary)",
-            backgroundColor: "transparent",
-            border: "1px solid var(--color-border)",
-            cursor: "pointer",
-          }}
+          className="py-1.5 px-3 rounded-md text-xs font-medium text-secondary bg-transparent border border-border cursor-pointer"
         >
           Cancel
         </button>
@@ -74,17 +59,7 @@ export default function MarkFiledButton({ companyId, periodEnd, filingType }: Ma
   return (
     <button
       onClick={() => setConfirming(true)}
-      style={{
-        padding: "6px 12px",
-        borderRadius: "6px",
-        fontSize: "12px",
-        fontWeight: 500,
-        color: "var(--color-text-secondary)",
-        backgroundColor: "transparent",
-        border: "1px solid var(--color-border)",
-        cursor: "pointer",
-        transition: "opacity 200ms",
-      }}
+      className="py-1.5 px-3 rounded-md text-xs font-medium text-secondary bg-transparent border border-border cursor-pointer transition-opacity duration-200"
     >
       Filed elsewhere?
     </button>

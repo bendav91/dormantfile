@@ -11,13 +11,7 @@ export default function VerifyEmailChangePage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center py-12">
-          <div
-            className="w-6 h-6 border-2 rounded-full animate-spin"
-            style={{
-              borderColor: "var(--color-border)",
-              borderTopColor: "var(--color-primary)",
-            }}
-          />
+          <div className="w-6 h-6 border-2 rounded-full animate-spin border-border border-t-primary" />
         </div>
       }
     >
@@ -67,23 +61,14 @@ function VerifyEmailChangeContent() {
     return (
       <div className="text-center">
         <div className="mb-6 flex justify-center">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: "var(--color-primary-bg)" }}
-          >
-            <div
-              className="w-5 h-5 border-2 rounded-full animate-spin"
-              style={{
-                borderColor: "var(--color-primary-border)",
-                borderTopColor: "var(--color-primary)",
-              }}
-            />
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-primary-bg">
+            <div className="w-5 h-5 border-2 rounded-full animate-spin border-primary-border border-t-primary" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
+        <h1 className="text-2xl font-bold mb-2 text-foreground">
           Confirming your new email&hellip;
         </h1>
-        <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+        <p className="text-sm text-secondary">
           Just a moment.
         </p>
       </div>
@@ -94,10 +79,7 @@ function VerifyEmailChangeContent() {
     return (
       <div className="text-center">
         <div className="mb-6 flex justify-center">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: "var(--color-danger-bg)" }}
-          >
+          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-danger-bg">
             <svg
               width="24"
               height="24"
@@ -108,7 +90,7 @@ function VerifyEmailChangeContent() {
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
-              style={{ color: "var(--color-danger)" }}
+              className="text-danger"
             >
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
@@ -116,7 +98,7 @@ function VerifyEmailChangeContent() {
             </svg>
           </div>
         </div>
-        <h1 className="text-2xl font-bold mb-3" style={{ color: "var(--color-text-primary)" }}>
+        <h1 className="text-2xl font-bold mb-3 text-foreground">
           Email change failed
         </h1>
         <div className="mb-6">
@@ -124,8 +106,7 @@ function VerifyEmailChangeContent() {
         </div>
         <Link
           href="/settings"
-          className="text-sm font-semibold hover:underline focus-ring rounded px-1"
-          style={{ color: "var(--color-primary)" }}
+          className="text-sm font-semibold hover:underline focus-ring rounded px-1 text-primary"
         >
           Back to settings
         </Link>

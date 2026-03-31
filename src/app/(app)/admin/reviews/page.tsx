@@ -11,15 +11,12 @@ export default async function AdminReviewsPage() {
 
   return (
     <div>
-      <h2
-        className="text-lg font-semibold mb-6"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h2 className="text-lg font-semibold mb-6 text-foreground">
         Reviews
       </h2>
 
       {reviews.length === 0 ? (
-        <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+        <p className="text-sm text-secondary">
           No reviews yet.
         </p>
       ) : (

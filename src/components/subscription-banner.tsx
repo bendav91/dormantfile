@@ -14,57 +14,19 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
   if (status === "active" || status === "cancelling") {
     if (status === "cancelling") {
       return (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "16px",
-            padding: "14px 20px",
-            backgroundColor: "var(--color-warning-bg)",
-            border: "1px solid var(--color-warning-border)",
-            borderRadius: "12px",
-            marginBottom: "24px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ color: "var(--color-warning)", flexShrink: 0 }}>
+        <div className="flex items-center justify-between gap-4 px-5 py-3.5 bg-warning-bg border border-warning-border rounded-xl mb-6">
+          <div className="flex items-center gap-2.5">
+            <span className="text-warning shrink-0">
               <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
             </span>
-            <p
-              style={{
-                fontSize: "14px",
-                color: "var(--color-warning-text)",
-                margin: 0,
-                fontWeight: 500,
-              }}
-            >
+            <p className="text-sm text-warning-text m-0 font-medium">
               Your subscription is set to cancel at the end of your billing period. You can still
               file until then.
             </p>
           </div>
           <button
             onClick={handlePortal}
-            className="focus-ring"
-            style={{
-              backgroundColor: "var(--color-warning)",
-              color: "var(--color-bg-card)",
-              padding: "8px 18px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "14px",
-              border: "none",
-              cursor: "pointer",
-              transition: "opacity 200ms, background-color 200ms",
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-            }}
+            className="focus-ring bg-warning text-card py-2 px-[18px] rounded-lg font-semibold text-sm border-0 cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0 hover:opacity-90"
           >
             Undo cancellation
           </button>
@@ -88,56 +50,18 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
 
   if (status === "none") {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "16px",
-          padding: "14px 20px",
-          backgroundColor: "var(--color-warning-bg)",
-          border: "1px solid var(--color-warning-border)",
-          borderRadius: "12px",
-          marginBottom: "24px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ color: "var(--color-warning)", flexShrink: 0 }}>
+      <div className="flex items-center justify-between gap-4 px-5 py-3.5 bg-warning-bg border border-warning-border rounded-xl mb-6">
+        <div className="flex items-center gap-2.5">
+          <span className="text-warning shrink-0">
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p
-            style={{
-              fontSize: "14px",
-              color: "var(--color-warning-text)",
-              margin: 0,
-              fontWeight: 500,
-            }}
-          >
+          <p className="text-sm text-warning-text m-0 font-medium">
             You haven&apos;t completed your subscription yet. Choose a plan to start filing.
           </p>
         </div>
         <button
           onClick={handleCheckout}
-          className="focus-ring"
-          style={{
-            backgroundColor: "var(--color-cta)",
-            color: "var(--color-bg-card)",
-            padding: "8px 18px",
-            borderRadius: "8px",
-            fontWeight: 600,
-            fontSize: "14px",
-            border: "none",
-            cursor: "pointer",
-            transition: "opacity 200ms, background-color 200ms",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-          }}
+          className="focus-ring bg-cta text-card py-2 px-[18px] rounded-lg font-semibold text-sm border-0 cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0 hover:opacity-90"
         >
           Choose a plan
         </button>
@@ -147,57 +71,19 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
 
   if (status === "past_due") {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "16px",
-          padding: "14px 20px",
-          backgroundColor: "var(--color-danger-bg)",
-          border: "1px solid var(--color-danger-border)",
-          borderRadius: "12px",
-          marginBottom: "24px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ color: "var(--color-danger)", flexShrink: 0 }}>
+      <div className="flex items-center justify-between gap-4 px-5 py-3.5 bg-danger-bg border border-danger-border rounded-xl mb-6">
+        <div className="flex items-center gap-2.5">
+          <span className="text-danger shrink-0">
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p
-            style={{
-              fontSize: "14px",
-              color: "var(--color-danger-text)",
-              margin: 0,
-              fontWeight: 500,
-            }}
-          >
+          <p className="text-sm text-danger-text m-0 font-medium">
             Your payment is past due. Please update your billing details to keep your subscription
             active.
           </p>
         </div>
         <button
           onClick={handlePortal}
-          className="focus-ring"
-          style={{
-            backgroundColor: "var(--color-danger)",
-            color: "var(--color-bg-card)",
-            padding: "8px 18px",
-            borderRadius: "8px",
-            fontWeight: 600,
-            fontSize: "14px",
-            border: "none",
-            cursor: "pointer",
-            transition: "opacity 200ms, background-color 200ms",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-          }}
+          className="focus-ring bg-danger text-card py-2 px-[18px] rounded-lg font-semibold text-sm border-0 cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0 hover:opacity-90"
         >
           Update billing
         </button>
@@ -207,56 +93,18 @@ export default function SubscriptionBanner({ status }: SubscriptionBannerProps) 
 
   if (status === "cancelled") {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "16px",
-          padding: "14px 20px",
-          backgroundColor: "var(--color-bg-page)",
-          border: "1px solid var(--color-bg-disabled)",
-          borderRadius: "12px",
-          marginBottom: "24px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ color: "var(--color-text-secondary)", flexShrink: 0 }}>
+      <div className="flex items-center justify-between gap-4 px-5 py-3.5 bg-page border border-disabled rounded-xl mb-6">
+        <div className="flex items-center gap-2.5">
+          <span className="text-secondary shrink-0">
             <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p
-            style={{
-              fontSize: "14px",
-              color: "var(--color-text-body)",
-              margin: 0,
-              fontWeight: 500,
-            }}
-          >
+          <p className="text-sm text-body m-0 font-medium">
             Your subscription has been cancelled. Resubscribe to continue filing with HMRC.
           </p>
         </div>
         <button
           onClick={handleCheckout}
-          className="focus-ring"
-          style={{
-            backgroundColor: "var(--color-text-body)",
-            color: "var(--color-bg-card)",
-            padding: "8px 18px",
-            borderRadius: "8px",
-            fontWeight: 600,
-            fontSize: "14px",
-            border: "none",
-            cursor: "pointer",
-            transition: "opacity 200ms, background-color 200ms",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-          }}
+          className="focus-ring bg-body text-card py-2 px-[18px] rounded-lg font-semibold text-sm border-0 cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0 hover:opacity-90"
         >
           Resubscribe
         </button>

@@ -8,14 +8,7 @@ export function AuthSuccess({ message }: AuthSuccessProps) {
   return (
     <div
       role="status"
-      className="flex items-start gap-2.5 text-sm rounded-lg px-4 py-3"
-      style={{
-        color: "var(--color-success-text)",
-        backgroundColor: "var(--color-success-bg)",
-        borderWidth: "1px",
-        borderStyle: "solid",
-        borderColor: "var(--color-success-border)",
-      }}
+      className="flex items-start gap-2.5 text-sm rounded-lg px-4 py-3 text-success-text bg-success-bg border border-success-border"
     >
       <svg
         width="16"

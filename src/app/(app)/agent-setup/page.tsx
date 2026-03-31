@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Briefcase, Building2, Loader2 } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 export default function AgentSetupPage() {
   const router = useRouter();
@@ -35,34 +36,18 @@ export default function AgentSetupPage() {
   }
 
   return (
-    <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
-      <h1
-        style={{
-          fontSize: "28px",
-          fontWeight: 700,
-          color: "var(--color-text-primary)",
-          margin: "0 0 8px 0",
-          letterSpacing: "-0.02em",
-        }}
-      >
+    <div className="max-w-[600px] mx-auto text-center">
+      <h1 className="text-[28px] font-bold text-foreground mb-2 tracking-[-0.02em]">
         Welcome to the Agent plan
       </h1>
-      <p style={{ fontSize: "16px", color: "var(--color-text-secondary)", margin: "0 0 32px 0" }}>
+      <p className="text-base text-secondary mb-8">
         Will you be filing on behalf of clients as an accountant or agent?
       </p>
 
       {error && (
         <div
           role="alert"
-          style={{
-            padding: "12px 16px",
-            backgroundColor: "var(--color-danger-bg)",
-            border: "1px solid var(--color-danger-border)",
-            borderRadius: "8px",
-            fontSize: "14px",
-            color: "var(--color-danger)",
-            marginBottom: "24px",
-          }}
+          className="px-4 py-3 bg-danger-bg border border-danger-border rounded-lg text-sm text-danger mb-6"
         >
           {error}
         </div>
@@ -72,78 +57,46 @@ export default function AgentSetupPage() {
         <button
           onClick={() => handleChoice(true)}
           disabled={loading}
-          className="focus-ring"
-          style={{
-            padding: "24px 20px",
-            borderRadius: "12px",
-            border: "1px solid var(--color-border)",
-            backgroundColor: "var(--color-bg-card)",
-            cursor: loading ? "not-allowed" : "pointer",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "12px",
-            transition: "border-color 200ms",
-          }}
-          onMouseEnter={(e) => {
-            if (!loading)
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-primary)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
-          }}
+          className={cn(
+            "focus-ring py-6 px-5 rounded-xl border border-border bg-card flex flex-col items-center gap-3 transition-colors duration-200",
+            loading ? "cursor-not-allowed" : "cursor-pointer hover:border-primary"
+          )}
         >
-          <span style={{ color: "var(--color-primary)", display: "flex" }}>
+          <span className="text-primary flex">
             <Briefcase size={28} color="currentColor" />
           </span>
-          <span style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+          <span className="text-base font-semibold text-foreground">
             Yes, I&apos;m an agent
           </span>
-          <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+          <span className="text-[13px] text-secondary">
             I&apos;ll file CT600 returns on behalf of client companies using my agent Government
             Gateway credentials.
           </span>
-          {loading && <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />}
+          {loading && <Loader2 size={16} className="animate-spin" />}
         </button>
 
         <button
           onClick={() => handleChoice(false)}
           disabled={loading}
-          className="focus-ring"
-          style={{
-            padding: "24px 20px",
-            borderRadius: "12px",
-            border: "1px solid var(--color-border)",
-            backgroundColor: "var(--color-bg-card)",
-            cursor: loading ? "not-allowed" : "pointer",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "12px",
-            transition: "border-color 200ms",
-          }}
-          onMouseEnter={(e) => {
-            if (!loading)
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-primary)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--color-border)";
-          }}
+          className={cn(
+            "focus-ring py-6 px-5 rounded-xl border border-border bg-card flex flex-col items-center gap-3 transition-colors duration-200",
+            loading ? "cursor-not-allowed" : "cursor-pointer hover:border-primary"
+          )}
         >
-          <span style={{ color: "var(--color-primary)", display: "flex" }}>
+          <span className="text-primary flex">
             <Building2 size={28} color="currentColor" />
           </span>
-          <span style={{ fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)" }}>
+          <span className="text-base font-semibold text-foreground">
             No, I just need more companies
           </span>
-          <span style={{ fontSize: "13px", color: "var(--color-text-secondary)" }}>
+          <span className="text-[13px] text-secondary">
             I&apos;ll file as a company director for each of my own companies.
           </span>
-          {loading && <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />}
+          {loading && <Loader2 size={16} className="animate-spin" />}
         </button>
       </div>
 
-      <p style={{ fontSize: "13px", color: "var(--color-text-muted)", marginTop: "24px" }}>
+      <p className="text-[13px] text-muted mt-6">
         You can change this anytime in Settings.
       </p>
     </div>

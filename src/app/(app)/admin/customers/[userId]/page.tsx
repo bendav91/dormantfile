@@ -26,26 +26,22 @@ export default async function AdminCustomerDetailPage({
     <div>
       <Link
         href="/admin/customers"
-        className="text-xs mb-4 inline-block"
-        style={{ color: "var(--color-text-muted)", textDecoration: "none" }}
+        className="text-xs mb-4 inline-block text-muted no-underline"
       >
         &larr; Back to customers
       </Link>
 
       {/* Header */}
-      <div
-        className="p-5 rounded-xl mb-6"
-        style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-      >
+      <div className="p-5 rounded-xl mb-6 bg-card border border-border">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold" style={{ color: "var(--color-text-primary)" }}>
+            <h2 className="text-lg font-semibold text-foreground">
               {user.name}
             </h2>
-            <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+            <p className="text-sm text-muted">
               {user.email}
             </p>
-            <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
+            <p className="text-xs mt-1 text-muted">
               Signed up {new Date(user.createdAt).toLocaleDateString("en-GB")}
               {user.remindersMuted && " · Reminders muted"}
               {user.filingAsAgent && " · Agent filing"}
@@ -61,8 +57,7 @@ export default async function AdminCustomerDetailPage({
                 href={`https://dashboard.stripe.com/customers/${user.stripeCustomerId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs"
-                style={{ color: "var(--color-primary)", textDecoration: "none" }}
+                className="inline-flex items-center gap-1 text-xs text-primary no-underline"
               >
                 Stripe <ExternalLink size={12} />
               </a>

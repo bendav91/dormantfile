@@ -29,20 +29,12 @@ export default async function ChoosePlanPage() {
     user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling";
 
   return (
-    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-      <div style={{ marginBottom: "32px", textAlign: "center" }}>
-        <h1
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+    <div className="max-w-[960px] mx-auto">
+      <div className="mb-8 text-center">
+        <h1 className="text-[28px] font-bold text-foreground mb-2 tracking-[-0.02em]">
           {isUpgrade ? "Change your plan" : "Choose your plan"}
         </h1>
-        <p style={{ fontSize: "16px", color: "var(--color-text-secondary)", margin: 0 }}>
+        <p className="text-base text-secondary m-0">
           {isUpgrade
             ? `You're currently on the ${TIER_LABELS[user.subscriptionTier]} plan. Select a new plan below.`
             : "Select a plan to get started with DormantFile."}

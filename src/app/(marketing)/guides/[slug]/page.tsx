@@ -64,13 +64,10 @@ export default async function GuidePage({ params }: Props) {
         items={[{ label: "Guides", href: "/guides" }, { label: guide.frontmatter.title }]}
       />
       <article>
-        <h1
-          className="text-3xl sm:text-4xl font-bold leading-tight mb-3"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-3xl sm:text-4xl font-bold leading-tight mb-3 text-foreground">
           {guide.frontmatter.title}
         </h1>
-        <p className="text-sm mb-8" style={{ color: "var(--color-text-muted)" }}>
+        <p className="text-sm mb-8 text-muted">
           By DormantFile &middot; Updated{" "}
           {new Date(guide.frontmatter.updatedAt).toLocaleDateString("en-GB", {
             day: "numeric",

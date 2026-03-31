@@ -39,19 +39,12 @@ export default function CompanySearch() {
   }
 
   return (
-    <div style={{ position: "relative", flex: 1 }}>
+    <div className="relative flex-1">
       <Search
         size={16}
         strokeWidth={2}
         aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "14px",
-          top: "50%",
-          transform: "translateY(-50%)",
-          color: "var(--color-text-muted)",
-          pointerEvents: "none",
-        }}
+        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted pointer-events-none"
       />
       <input
         type="search"
@@ -62,49 +55,13 @@ export default function CompanySearch() {
         onChange={(e) => handleChange(e.target.value)}
         placeholder={"Search\u2026"}
         aria-label="Search by company name or number"
-        className="focus-ring-input"
-        style={{
-          width: "100%",
-          padding: "10px 40px 10px 40px",
-          fontSize: "14px",
-          color: "var(--color-text-primary)",
-          backgroundColor: "var(--color-bg-card)",
-          borderWidth: "1px",
-          borderStyle: "solid",
-          borderColor: "var(--color-border)",
-          borderRadius: "8px",
-          boxSizing: "border-box",
-          transition: "border-color 200ms",
-        }}
+        className="focus-ring-input w-full py-2.5 px-10 text-sm text-foreground bg-card border border-border rounded-lg box-border transition-colors duration-200"
       />
       {value && (
         <button
           onClick={handleClear}
           aria-label="Clear search"
-          className="focus-ring"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = "var(--color-text-body)";
-            e.currentTarget.style.backgroundColor = "var(--color-bg-inset)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = "var(--color-text-muted)";
-            e.currentTarget.style.backgroundColor = "transparent";
-          }}
-          style={{
-            position: "absolute",
-            right: "10px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: "4px",
-            borderRadius: "4px",
-            color: "var(--color-text-muted)",
-            display: "flex",
-            alignItems: "center",
-            transition: "color 200ms, background-color 200ms",
-          }}
+          className="focus-ring absolute right-2.5 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer p-1 rounded text-muted flex items-center transition-colors duration-200 hover:text-body hover:bg-inset"
         >
           <X size={16} strokeWidth={2} />
         </button>

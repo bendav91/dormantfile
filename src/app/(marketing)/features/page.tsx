@@ -1,6 +1,7 @@
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
 import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
+import { cn } from "@/lib/cn";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
@@ -254,21 +255,16 @@ function IconBox({
   const isGreen = variant === "trust";
   return (
     <div
-      style={{
-        width: "44px",
-        height: "44px",
-        borderRadius: "12px",
-        backgroundColor: isGreen ? "var(--color-success-bg)" : "var(--color-primary-bg)",
-        border: `1px solid ${isGreen ? "var(--color-success-border)" : "var(--color-primary-border)"}`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-      }}
+      className={cn(
+        "w-[44px] h-[44px] rounded-xl flex items-center justify-center shrink-0 border",
+        isGreen
+          ? "bg-success-bg border-success-border"
+          : "bg-primary-bg border-primary-border"
+      )}
     >
       <Icon
         size={20}
-        style={{ color: isGreen ? "var(--color-success)" : "var(--color-primary)" }}
+        className={isGreen ? "text-success" : "text-primary"}
       />
     </div>
   );
@@ -284,42 +280,14 @@ function SectionHeader({
   description: string;
 }) {
   return (
-    <div style={{ marginBottom: "28px" }}>
-      <span
-        style={{
-          display: "inline-block",
-          fontSize: "12px",
-          fontWeight: 700,
-          letterSpacing: "0.05em",
-          color: "var(--color-primary)",
-          backgroundColor: "var(--color-primary-bg)",
-          padding: "4px 10px",
-          borderRadius: "6px",
-          marginBottom: "12px",
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
+    <div className="mb-7">
+      <span className="inline-block text-xs font-bold tracking-[0.05em] text-primary bg-primary-bg px-2.5 py-1 rounded-md mb-3 tabular-nums">
         {number}
       </span>
-      <h2
-        style={{
-          fontSize: "24px",
-          fontWeight: 700,
-          color: "var(--color-text-primary)",
-          margin: "0 0 8px 0",
-          letterSpacing: "-0.02em",
-        }}
-      >
+      <h2 className="text-2xl font-bold text-foreground mb-2 tracking-[-0.02em]">
         {title}
       </h2>
-      <p
-        style={{
-          fontSize: "15px",
-          lineHeight: 1.6,
-          color: "var(--color-text-secondary)",
-          margin: 0,
-        }}
-      >
+      <p className="text-[15px] leading-relaxed text-secondary m-0">
         {description}
       </p>
     </div>
@@ -337,35 +305,16 @@ function FeatureCard({
 }) {
   return (
     <div
-      className="hoverable-card"
-      style={{
-        padding: "24px",
-        borderRadius: "12px",
-        border: `1px solid ${accent ? "var(--color-primary-border)" : "var(--color-border)"}`,
-        backgroundColor: "var(--color-bg-card)",
-        transition: "border-color 200ms, background-color 200ms",
-        height: "100%",
-      }}
+      className={cn(
+        "hoverable-card p-6 rounded-xl border bg-card transition-[border-color,background-color] duration-200 h-full",
+        accent ? "border-primary-border" : "border-border"
+      )}
     >
       <IconBox icon={item.icon} variant={variant} />
-      <h3
-        style={{
-          fontSize: "15px",
-          fontWeight: 600,
-          color: "var(--color-text-primary)",
-          margin: "14px 0 6px 0",
-        }}
-      >
+      <h3 className="text-[15px] font-semibold text-foreground mt-3.5 mb-1.5">
         {item.heading}
       </h3>
-      <p
-        style={{
-          fontSize: "14px",
-          lineHeight: 1.6,
-          color: "var(--color-text-secondary)",
-          margin: 0,
-        }}
-      >
+      <p className="text-sm leading-relaxed text-secondary m-0">
         {item.description}
       </p>
     </div>
@@ -395,26 +344,11 @@ export default function FeaturesPage() {
 
       <article>
         {/* ── Hero ── */}
-        <h1
-          style={{
-            fontSize: "36px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 12px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+        <h1 className="text-[36px] font-bold text-foreground mb-3 tracking-[-0.02em]">
           Everything DormantFile{" "}
-          <span style={{ color: "var(--color-primary)" }}>does for you</span>
+          <span className="text-primary">does for you</span>
         </h1>
-        <p
-          style={{
-            fontSize: "17px",
-            lineHeight: 1.7,
-            color: "var(--color-text-body)",
-            marginBottom: "24px",
-          }}
-        >
+        <p className="text-[17px] leading-[1.7] text-body mb-6">
           Purpose-built for dormant companies. Here&apos;s what&apos;s under the hood.
         </p>
 
@@ -424,18 +358,7 @@ export default function FeaturesPage() {
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="hoverable-pill"
-              style={{
-                fontSize: "13px",
-                fontWeight: 500,
-                color: "var(--color-text-secondary)",
-                backgroundColor: "var(--color-bg-card)",
-                border: "1px solid var(--color-border)",
-                padding: "6px 14px",
-                borderRadius: "8px",
-                textDecoration: "none",
-                transition: "filter 150ms",
-              }}
+              className="hoverable-pill text-[13px] font-medium text-secondary bg-card border border-border py-1.5 px-3.5 rounded-lg no-underline transition-[filter] duration-150"
             >
               {s.label}
             </a>
@@ -443,9 +366,9 @@ export default function FeaturesPage() {
         </nav>
 
         {/* ── Sections ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "64px" }}>
+        <div className="flex flex-col gap-16">
           {/* ── 01 Smart setup ── */}
-          <section id="smart-setup" style={{ scrollMarginTop: "80px" }}>
+          <section id="smart-setup" className="scroll-mt-20">
             <SectionHeader
               number="01"
               title="Smart setup"
@@ -455,45 +378,16 @@ export default function FeaturesPage() {
               {SETUP_FEATURES.map((item, i) => (
                 <div
                   key={item.heading}
-                  style={{
-                    padding: "24px",
-                    borderRadius: "12px",
-                    border: "1px solid var(--color-border)",
-                    backgroundColor: "var(--color-bg-card)",
-                  }}
+                  className="p-6 rounded-xl border border-border bg-card"
                 >
-                  <div
-                    style={{
-                      fontSize: "44px",
-                      fontWeight: 800,
-                      color: "var(--color-border)",
-                      lineHeight: 1,
-                      marginBottom: "16px",
-                      letterSpacing: "-0.04em",
-                      fontVariantNumeric: "tabular-nums",
-                    }}
-                  >
+                  <div className="text-[44px] font-extrabold text-border leading-none mb-4 tracking-[-0.04em] tabular-nums">
                     {String(i + 1).padStart(2, "0")}
                   </div>
                   <IconBox icon={item.icon} />
-                  <h3
-                    style={{
-                      fontSize: "15px",
-                      fontWeight: 600,
-                      color: "var(--color-text-primary)",
-                      margin: "14px 0 6px 0",
-                    }}
-                  >
+                  <h3 className="text-[15px] font-semibold text-foreground mt-3.5 mb-1.5">
                     {item.heading}
                   </h3>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      lineHeight: 1.6,
-                      color: "var(--color-text-secondary)",
-                      margin: 0,
-                    }}
-                  >
+                  <p className="text-sm leading-relaxed text-secondary m-0">
                     {item.description}
                   </p>
                 </div>
@@ -502,7 +396,7 @@ export default function FeaturesPage() {
           </section>
 
           {/* ── 02 Filing ── */}
-          <section id="filing" style={{ scrollMarginTop: "80px" }}>
+          <section id="filing" className="scroll-mt-20">
             <SectionHeader
               number="02"
               title="Filing"
@@ -523,7 +417,7 @@ export default function FeaturesPage() {
           </section>
 
           {/* ── 03 Monitoring ── */}
-          <section id="monitoring" style={{ scrollMarginTop: "80px" }}>
+          <section id="monitoring" className="scroll-mt-20">
             <SectionHeader
               number="03"
               title="Monitoring"
@@ -531,36 +425,14 @@ export default function FeaturesPage() {
             />
 
             {/* Spotlight: Deadline intelligence */}
-            <div
-              style={{
-                padding: "28px",
-                borderRadius: "14px",
-                border: "1px solid var(--color-primary-border)",
-                backgroundColor: "var(--color-primary-bg)",
-                marginBottom: "16px",
-              }}
-            >
+            <div className="p-7 rounded-[14px] border border-primary-border bg-primary-bg mb-4">
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
                 <IconBox icon={MONITORING_FEATURES[0].icon} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3
-                    style={{
-                      fontSize: "17px",
-                      fontWeight: 700,
-                      color: "var(--color-text-primary)",
-                      margin: "0 0 6px 0",
-                    }}
-                  >
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-[17px] font-bold text-foreground mb-1.5">
                     {MONITORING_FEATURES[0].heading}
                   </h3>
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      lineHeight: 1.6,
-                      color: "var(--color-text-secondary)",
-                      margin: "0 0 16px 0",
-                    }}
-                  >
+                  <p className="text-sm leading-relaxed text-secondary mb-4">
                     {MONITORING_FEATURES[0].description}
                   </p>
 
@@ -569,44 +441,21 @@ export default function FeaturesPage() {
                     {REMINDER_INTERVALS.map((interval, i, arr) => (
                       <div key={interval.label} className="flex items-center">
                         <span
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: 600,
-                            padding: "3px 8px",
-                            borderRadius: "6px",
-                            backgroundColor: interval.urgent
-                              ? "var(--color-danger-bg)"
-                              : "var(--color-bg-card)",
-                            color: interval.urgent
-                              ? "var(--color-danger)"
-                              : "var(--color-primary)",
-                            border: `1px solid ${interval.urgent ? "var(--color-danger-border)" : "var(--color-border)"}`,
-                            whiteSpace: "nowrap",
-                          }}
+                          className={cn(
+                            "text-[11px] font-semibold py-0.5 px-2 rounded-md border whitespace-nowrap",
+                            interval.urgent
+                              ? "bg-danger-bg text-danger border-danger-border"
+                              : "bg-card text-primary border-border"
+                          )}
                         >
                           {interval.label}
                         </span>
                         {i < arr.length - 1 && (
-                          <span
-                            className="hidden sm:inline-block"
-                            style={{
-                              width: "16px",
-                              height: "1px",
-                              backgroundColor: "var(--color-border)",
-                              margin: "0 2px",
-                            }}
-                          />
+                          <span className="hidden sm:inline-block w-4 h-px bg-border mx-0.5" />
                         )}
                       </div>
                     ))}
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        color: "var(--color-danger)",
-                        marginLeft: "4px",
-                      }}
-                    >
+                    <span className="text-[11px] font-bold text-danger ml-1">
                       &rarr; Due
                     </span>
                   </div>
@@ -623,7 +472,7 @@ export default function FeaturesPage() {
           </section>
 
           {/* ── 04 Security & trust ── */}
-          <section id="security" style={{ scrollMarginTop: "80px" }}>
+          <section id="security" className="scroll-mt-20">
             <SectionHeader
               number="04"
               title="Security & trust"
@@ -637,7 +486,7 @@ export default function FeaturesPage() {
           </section>
 
           {/* ── 05 Multi-company & agent filing ── */}
-          <section id="multi-company" style={{ scrollMarginTop: "80px" }}>
+          <section id="multi-company" className="scroll-mt-20">
             <SectionHeader
               number="05"
               title="Multi-company & agent filing"
@@ -652,34 +501,12 @@ export default function FeaturesPage() {
             </div>
 
             {/* Agent plan callout */}
-            <div
-              style={{
-                padding: "24px",
-                borderRadius: "12px",
-                border: "1px solid var(--color-primary-border)",
-                backgroundColor: "var(--color-primary-bg)",
-              }}
-            >
+            <div className="p-6 rounded-xl border border-primary-border bg-primary-bg">
               <div className="flex flex-wrap items-center gap-2 mb-5">
-                <span
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    color: "var(--color-primary)",
-                    backgroundColor: "var(--color-bg-card)",
-                    padding: "4px 10px",
-                    borderRadius: "6px",
-                    border: "1px solid var(--color-primary-border)",
-                  }}
-                >
+                <span className="text-xs font-bold text-primary bg-card px-2.5 py-1 rounded-md border border-primary-border">
                   Agent plan
                 </span>
-                <span
-                  style={{
-                    fontSize: "13px",
-                    color: "var(--color-text-secondary)",
-                  }}
-                >
+                <span className="text-[13px] text-secondary">
                   For accountants and formation agents
                 </span>
               </div>
@@ -687,25 +514,11 @@ export default function FeaturesPage() {
                 {AGENT_FEATURES.map((item) => (
                   <div key={item.heading} className="flex gap-4">
                     <IconBox icon={item.icon} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3
-                        style={{
-                          fontSize: "15px",
-                          fontWeight: 600,
-                          color: "var(--color-text-primary)",
-                          margin: "0 0 4px 0",
-                        }}
-                      >
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-[15px] font-semibold text-foreground mb-1">
                         {item.heading}
                       </h3>
-                      <p
-                        style={{
-                          fontSize: "14px",
-                          lineHeight: 1.6,
-                          color: "var(--color-text-secondary)",
-                          margin: 0,
-                        }}
-                      >
+                      <p className="text-sm leading-relaxed text-secondary m-0">
                         {item.description}
                       </p>
                     </div>

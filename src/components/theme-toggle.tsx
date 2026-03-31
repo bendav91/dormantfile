@@ -33,20 +33,7 @@ export function ThemeToggle() {
       onClick={handleClick}
       aria-label={LABELS[theme ?? "system"]}
       title={LABELS[theme ?? "system"]}
-      className="focus-ring"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "32px",
-        height: "32px",
-        borderRadius: "8px",
-        color: "var(--color-text-secondary)",
-        backgroundColor: "transparent",
-        border: "none",
-        cursor: "pointer",
-        transition: "color 200ms, background-color 200ms",
-      }}
+      className="focus-ring flex items-center justify-center w-8 h-8 rounded-lg text-secondary bg-transparent border-0 cursor-pointer transition-colors duration-200"
     >
       <Icon size={18} strokeWidth={2} />
     </button>

@@ -55,57 +55,32 @@ export default function GuidesIndexPage() {
   return (
     <>
       <Breadcrumbs items={[{ label: "Guides" }]} />
-      <h1
-        className="text-3xl sm:text-4xl font-bold leading-tight mb-3"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h1 className="text-3xl sm:text-4xl font-bold leading-tight mb-3 text-foreground">
         Guides
       </h1>
-      <p className="text-base mb-10" style={{ color: "var(--color-text-secondary)" }}>
+      <p className="text-base mb-10 text-secondary">
         Step-by-step guides covering dormant company accounts, nil CT600 returns, filing deadlines,
         penalties, and costs.
       </p>
 
       {grouped.map((group) => (
-        <section key={group.category} style={{ marginBottom: "2.5rem" }}>
-          <h2 className="text-lg font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>
+        <section key={group.category} className="mb-10">
+          <h2 className="text-lg font-semibold mb-3 text-foreground">
             {group.label}
           </h2>
-          <ul
-            style={{
-              listStyle: "none",
-              padding: 0,
-              margin: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-            }}
-          >
+          <ul className="list-none p-0 m-0 flex flex-col gap-4">
             {group.items.map((item) => (
               <li
                 key={item.slug}
-                style={{
-                  padding: "1rem",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "0.5rem",
-                  backgroundColor: "var(--color-bg-card)",
-                }}
+                className="p-4 border border-border rounded-lg bg-card"
               >
                 <Link
                   href={`/guides/${item.slug}`}
-                  style={{
-                    textDecoration: "none",
-                    color: "var(--color-primary)",
-                    fontWeight: 500,
-                    fontSize: "0.9375rem",
-                  }}
+                  className="no-underline text-primary font-medium text-[0.9375rem]"
                 >
                   {item.frontmatter.title}
                 </Link>
-                <p
-                  className="text-sm mt-1"
-                  style={{ color: "var(--color-text-secondary)", margin: 0 }}
-                >
+                <p className="text-sm mt-1 m-0 text-secondary">
                   {item.frontmatter.description}
                 </p>
               </li>

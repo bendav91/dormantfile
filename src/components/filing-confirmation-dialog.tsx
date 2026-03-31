@@ -12,58 +12,6 @@ interface FilingConfirmationDialogProps {
   onCancel: () => void;
 }
 
-const overlayStyle: React.CSSProperties = {
-  position: "fixed",
-  inset: 0,
-  zIndex: 1000,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-};
-
-const cardStyle: React.CSSProperties = {
-  maxWidth: "520px",
-  width: "calc(100% - 32px)",
-  backgroundColor: "var(--color-bg-card)",
-  borderRadius: "12px",
-  padding: "32px",
-  boxShadow: "0 8px 30px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08)",
-  position: "relative",
-};
-
-const cancelButtonStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "12px 24px",
-  borderRadius: "8px",
-  fontWeight: 600,
-  fontSize: "16px",
-  border: "1px solid var(--color-border)",
-  backgroundColor: "transparent",
-  color: "var(--color-text-secondary)",
-  cursor: "pointer",
-  transition: "opacity 200ms, transform 200ms",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const confirmButtonStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "12px 24px",
-  borderRadius: "8px",
-  fontWeight: 600,
-  fontSize: "16px",
-  border: "none",
-  backgroundColor: "var(--color-cta)",
-  color: "var(--color-bg-card)",
-  cursor: "pointer",
-  transition: "opacity 200ms, transform 200ms",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
 export default function FilingConfirmationDialog({
   filingType,
   companyName,
@@ -96,61 +44,28 @@ export default function FilingConfirmationDialog({
 
   return (
     <div
-      style={overlayStyle}
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50"
       role="dialog"
       aria-modal="true"
       onClick={(e) => {
         if (e.target === e.currentTarget) onCancel();
       }}
     >
-      <div style={cardStyle}>
+      <div className="max-w-[520px] w-[calc(100%-32px)] bg-card rounded-xl p-8 shadow-[0_8px_30px_rgba(0,0,0,0.18),0_2px_8px_rgba(0,0,0,0.08)] relative">
         {/* Icon */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: "20px",
-          }}
-        >
-          <div
-            style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "50%",
-              backgroundColor: "var(--color-warning-bg)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+        <div className="flex justify-center mb-5">
+          <div className="w-12 h-12 rounded-full bg-warning-bg flex items-center justify-center">
             <AlertTriangle size={24} color="var(--color-warning)" strokeWidth={2} />
           </div>
         </div>
 
         {/* Title */}
-        <h2
-          style={{
-            fontSize: "20px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 12px 0",
-            textAlign: "center",
-            letterSpacing: "-0.01em",
-          }}
-        >
+        <h2 className="text-xl font-bold text-foreground mt-0 mb-3 mx-0 text-center tracking-tight">
           Confirm filing submission
         </h2>
 
         {/* Body */}
-        <p
-          style={{
-            fontSize: "15px",
-            color: "var(--color-text-body)",
-            margin: "0 0 28px 0",
-            lineHeight: 1.6,
-            textAlign: "center",
-          }}
-        >
+        <p className="text-[15px] text-body mt-0 mb-7 mx-0 leading-relaxed text-center">
           You are about to submit <strong>{filingLabel}</strong> for{" "}
           <strong>{companyName}</strong> for the period{" "}
           <strong>{periodStart}</strong> to <strong>{periodEnd}</strong> to{" "}
@@ -158,32 +73,16 @@ export default function FilingConfirmationDialog({
         </p>
 
         {/* Buttons */}
-        <div style={{ display: "flex", gap: "12px" }}>
+        <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="focus-ring"
-            style={cancelButtonStyle}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.8";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-            }}
+            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border border-border bg-transparent text-secondary cursor-pointer transition-all duration-200 inline-flex items-center justify-center hover:opacity-80"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="focus-ring"
-            style={confirmButtonStyle}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-            }}
+            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border-0 bg-cta text-card cursor-pointer transition-all duration-200 inline-flex items-center justify-center hover:opacity-90 hover:-translate-y-px"
           >
             Yes, submit filing
           </button>

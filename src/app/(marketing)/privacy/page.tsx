@@ -4,6 +4,7 @@ import { getPageBySlug } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
 import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
+import { cn } from "@/lib/cn";
 
 const SLUG = "privacy";
 
@@ -33,8 +34,6 @@ export default async function PrivacyPolicyPage() {
   const { title, subtitle, showCTA, showUpdatedAt, updatedAt, centeredHeading, breadcrumbs } =
     page.frontmatter;
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  const align = centeredHeading ? ("center" as const) : undefined;
-
   return (
     <>
       <BreadcrumbJsonLd
@@ -49,19 +48,15 @@ export default async function PrivacyPolicyPage() {
       <Breadcrumbs items={breadcrumbs} />
       <article>
         <h1
-          style={{
-            fontSize: "36px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 12px 0",
-            letterSpacing: "-0.02em",
-            textAlign: align,
-          }}
+          className={cn(
+            "text-[36px] font-bold text-foreground mb-3 tracking-[-0.02em]",
+            centeredHeading && "text-center",
+          )}
         >
           {title}
         </h1>
         {showUpdatedAt && updatedAt && (
-          <p style={{ fontSize: "14px", color: "var(--color-text-muted)", margin: "0 0 40px 0" }}>
+          <p className="text-sm text-muted mb-10">
             Last updated:{" "}
             {new Date(updatedAt).toLocaleDateString("en-GB", {
               day: "numeric",
@@ -72,13 +67,10 @@ export default async function PrivacyPolicyPage() {
         )}
         {subtitle && (
           <p
-            style={{
-              fontSize: "17px",
-              lineHeight: 1.7,
-              color: "var(--color-text-body)",
-              marginBottom: "32px",
-              textAlign: align,
-            }}
+            className={cn(
+              "text-[17px] leading-[1.7] text-body mb-8",
+              centeredHeading && "text-center",
+            )}
           >
             {subtitle}
           </p>

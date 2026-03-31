@@ -36,150 +36,82 @@ export default async function ReceiptPage({ params }: PageProps) {
   const authority = filing.filingType === "accounts" ? "Companies House" : "HMRC";
   const filingLabel = filing.filingType === "accounts" ? "Annual Accounts" : "CT600";
 
-  const rowStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    padding: "10px 0",
-    borderBottom: "1px solid var(--color-border)",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    fontSize: "13px",
-    fontWeight: 500,
-    color: "var(--color-text-secondary)",
-  };
-
-  const valueStyle: React.CSSProperties = {
-    fontSize: "14px",
-    fontWeight: 600,
-    color: "var(--color-text-primary)",
-    textAlign: "right",
-  };
+  const rowClass = "flex justify-between items-baseline py-2.5 border-b border-border";
+  const labelClass = "text-[13px] font-medium text-secondary";
+  const valueClass = "text-sm font-semibold text-foreground text-right";
 
   return (
     <div>
       <Link
         href={`/company/${companyId}`}
-        className="no-print"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-          fontSize: "14px",
-          color: "var(--color-text-secondary)",
-          textDecoration: "none",
-          fontWeight: 500,
-          marginBottom: "24px",
-        }}
+        className="no-print inline-flex items-center gap-1.5 text-sm text-secondary no-underline font-medium mb-6"
       >
         <ArrowLeft size={15} strokeWidth={2} />
         Back to company
       </Link>
 
-      <div
-        className="print-receipt"
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderRadius: "12px",
-          padding: "32px",
-          boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
-          maxWidth: "560px",
-        }}
-      >
-        <div style={{ marginBottom: "24px" }}>
-          <p
-            style={{
-              fontSize: "13px",
-              fontWeight: 600,
-              color: "var(--color-success)",
-              margin: "0 0 4px 0",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
+      <div className="print-receipt bg-card rounded-xl p-8 shadow-card max-w-[560px]">
+        <div className="mb-6">
+          <p className="text-[13px] font-semibold text-success mb-1 uppercase tracking-[0.05em]">
             Filing Accepted
           </p>
-          <h1
-            style={{
-              fontSize: "22px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: 0,
-              letterSpacing: "-0.02em",
-            }}
-          >
+          <h1 className="text-[22px] font-bold text-foreground tracking-[-0.02em]">
             {filingLabel} Confirmation
           </h1>
         </div>
 
         <div>
-          <div style={rowStyle}>
-            <span style={labelStyle}>Company</span>
-            <span style={valueStyle}>{filing.company.companyName}</span>
+          <div className={rowClass}>
+            <span className={labelClass}>Company</span>
+            <span className={valueClass}>{filing.company.companyName}</span>
           </div>
-          <div style={rowStyle}>
-            <span style={labelStyle}>Registration number</span>
-            <span style={valueStyle}>{filing.company.companyRegistrationNumber}</span>
+          <div className={rowClass}>
+            <span className={labelClass}>Registration number</span>
+            <span className={valueClass}>{filing.company.companyRegistrationNumber}</span>
           </div>
-          <div style={rowStyle}>
-            <span style={labelStyle}>Filing type</span>
-            <span style={valueStyle}>{filingLabel}</span>
+          <div className={rowClass}>
+            <span className={labelClass}>Filing type</span>
+            <span className={valueClass}>{filingLabel}</span>
           </div>
-          <div style={rowStyle}>
-            <span style={labelStyle}>Accounting period</span>
-            <span style={valueStyle}>
+          <div className={rowClass}>
+            <span className={labelClass}>Accounting period</span>
+            <span className={valueClass}>
               {formatDate(filing.periodStart)} &ndash; {formatDate(filing.periodEnd)}
             </span>
           </div>
-          <div style={rowStyle}>
-            <span style={labelStyle}>Filed with</span>
-            <span style={valueStyle}>{authority}</span>
+          <div className={rowClass}>
+            <span className={labelClass}>Filed with</span>
+            <span className={valueClass}>{authority}</span>
           </div>
-          <div style={rowStyle}>
-            <span style={labelStyle}>Date submitted</span>
-            <span style={valueStyle}>{formatDate(filing.submittedAt)}</span>
+          <div className={rowClass}>
+            <span className={labelClass}>Date submitted</span>
+            <span className={valueClass}>{formatDate(filing.submittedAt)}</span>
           </div>
           {filing.confirmedAt && (
-            <div style={rowStyle}>
-              <span style={labelStyle}>Date confirmed</span>
-              <span style={valueStyle}>{formatDate(filing.confirmedAt)}</span>
+            <div className={rowClass}>
+              <span className={labelClass}>Date confirmed</span>
+              <span className={valueClass}>{formatDate(filing.confirmedAt)}</span>
             </div>
           )}
           {filing.correlationId && (
-            <div style={rowStyle}>
-              <span style={labelStyle}>Submission reference</span>
-              <span style={{ ...valueStyle, fontFamily: "monospace", fontSize: "13px" }}>
+            <div className={rowClass}>
+              <span className={labelClass}>Submission reference</span>
+              <span className={`${valueClass} font-mono text-[13px]`}>
                 {filing.correlationId}
               </span>
             </div>
           )}
           {filing.irmark && (
-            <div style={rowStyle}>
-              <span style={labelStyle}>IRmark</span>
-              <span
-                style={{
-                  ...valueStyle,
-                  fontFamily: "monospace",
-                  fontSize: "11px",
-                  wordBreak: "break-all",
-                  maxWidth: "300px",
-                }}
-              >
+            <div className={rowClass}>
+              <span className={labelClass}>IRmark</span>
+              <span className={`${valueClass} font-mono text-[11px] break-all max-w-[300px]`}>
                 {filing.irmark}
               </span>
             </div>
           )}
         </div>
 
-        <p
-          style={{
-            fontSize: "12px",
-            color: "var(--color-text-secondary)",
-            margin: "20px 0 0 0",
-            lineHeight: 1.5,
-          }}
-        >
+        <p className="text-xs text-secondary mt-5 leading-normal">
           This confirms that your {filingLabel.toLowerCase()} were submitted to {authority} and
           accepted. Keep this for your records.
         </p>

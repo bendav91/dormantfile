@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Copy, Check, Calendar, RefreshCw, X } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface CalendarFeedSectionProps {
   initialToken: string | null;
@@ -56,121 +57,51 @@ export default function CalendarFeedSection({ initialToken }: CalendarFeedSectio
   }
 
   return (
-    <div
-      style={{
-        backgroundColor: "var(--color-bg-card)",
-        borderRadius: "12px",
-        padding: "28px",
-        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-        marginBottom: "24px",
-      }}
-    >
-      <h2
-        style={{
-          fontSize: "17px",
-          fontWeight: 700,
-          color: "var(--color-text-primary)",
-          margin: "0 0 8px 0",
-          letterSpacing: "-0.01em",
-        }}
-      >
+    <div className="bg-card rounded-xl p-7 shadow-md mb-6">
+      <h2 className="text-[17px] font-bold text-foreground m-0 mb-2 tracking-[-0.01em]">
         Calendar feed
       </h2>
-      <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
+      <p className="text-sm text-body m-0 mb-5">
         Subscribe to your filing deadlines in Google Calendar, Outlook, or any calendar app.
       </p>
 
       {token ? (
         <div>
-          <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "12px" }}>
+          <div className="flex gap-2 items-center mb-3">
             <input
               type="text"
               readOnly
               value={getFeedUrl()}
-              style={{
-                flex: 1,
-                fontFamily: "monospace",
-                fontSize: "12px",
-                padding: "10px 12px",
-                borderRadius: "8px",
-                border: "1px solid var(--color-border)",
-                backgroundColor: "var(--color-bg-page)",
-                color: "var(--color-text-primary)",
-                outline: "none",
-                minWidth: 0,
-              }}
+              className="flex-1 font-mono text-xs px-3 py-2.5 rounded-lg border border-border bg-page text-foreground outline-none min-w-0"
             />
             <button
               onClick={handleCopy}
-              className="focus-ring"
+              className="focus-ring inline-flex items-center gap-1.5 bg-primary text-card px-4 py-2.5 rounded-lg font-semibold text-[13px] border-0 cursor-pointer transition-all duration-200 shrink-0 hover:opacity-90 hover:-translate-y-px"
               title="Copy URL"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                backgroundColor: "var(--color-primary)",
-                color: "var(--color-bg-card)",
-                padding: "10px 16px",
-                borderRadius: "8px",
-                fontWeight: 600,
-                fontSize: "13px",
-                border: "none",
-                cursor: "pointer",
-                transition: "opacity 200ms, transform 200ms",
-                flexShrink: 0,
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-              }}
             >
               {copied ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={2} />}
               {copied ? "Copied" : "Copy URL"}
             </button>
           </div>
-          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <div className="flex gap-4 items-center">
             {confirmRegen ? (
-              <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "13px", color: "var(--color-text-body)" }}>
+              <span className="flex items-center gap-2">
+                <span className="text-[13px] text-body">
                   This will break existing subscriptions. Continue?
                 </span>
                 <button
                   onClick={handleGenerate}
                   disabled={loading}
-                  className="focus-ring"
-                  style={{
-                    backgroundColor: "transparent",
-                    color: "var(--color-primary)",
-                    padding: "4px 12px",
-                    borderRadius: "6px",
-                    fontWeight: 600,
-                    fontSize: "13px",
-                    border: "1px solid var(--color-primary)",
-                    cursor: loading ? "not-allowed" : "pointer",
-                    opacity: loading ? 0.6 : 1,
-                    transition: "opacity 200ms",
-                  }}
+                  className={cn(
+                    "focus-ring bg-transparent text-primary px-3 py-1 rounded-md font-semibold text-[13px] border border-primary transition-opacity duration-200",
+                    loading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"
+                  )}
                 >
                   {loading ? "Regenerating\u2026" : "Yes"}
                 </button>
                 <button
                   onClick={() => setConfirmRegen(false)}
-                  className="focus-ring"
-                  style={{
-                    backgroundColor: "transparent",
-                    color: "var(--color-text-body)",
-                    padding: "4px 12px",
-                    borderRadius: "6px",
-                    fontWeight: 600,
-                    fontSize: "13px",
-                    border: "1px solid var(--color-bg-disabled)",
-                    cursor: "pointer",
-                    transition: "opacity 200ms",
-                  }}
+                  className="focus-ring bg-transparent text-body px-3 py-1 rounded-md font-semibold text-[13px] border border-disabled cursor-pointer transition-opacity duration-200"
                 >
                   No
                 </button>
@@ -178,27 +109,7 @@ export default function CalendarFeedSection({ initialToken }: CalendarFeedSectio
             ) : (
               <button
                 onClick={() => setConfirmRegen(true)}
-                className="focus-ring"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  backgroundColor: "transparent",
-                  color: "var(--color-text-secondary)",
-                  padding: 0,
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  transition: "color 200ms",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.color = "var(--color-text-primary)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.color =
-                    "var(--color-text-secondary)";
-                }}
+                className="focus-ring inline-flex items-center gap-[5px] bg-transparent text-secondary p-0 border-0 cursor-pointer text-[13px] font-medium transition-colors duration-200 hover:text-foreground"
               >
                 <RefreshCw size={13} strokeWidth={2} />
                 Regenerate
@@ -207,27 +118,10 @@ export default function CalendarFeedSection({ initialToken }: CalendarFeedSectio
             <button
               onClick={handleRevoke}
               disabled={loading}
-              className="focus-ring"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "5px",
-                backgroundColor: "transparent",
-                color: "var(--color-danger)",
-                padding: 0,
-                border: "none",
-                cursor: loading ? "not-allowed" : "pointer",
-                fontSize: "13px",
-                fontWeight: 500,
-                opacity: loading ? 0.6 : 1,
-                transition: "color 200ms, opacity 200ms",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.opacity = "0.7";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.opacity = loading ? "0.6" : "1";
-              }}
+              className={cn(
+                "focus-ring inline-flex items-center gap-[5px] bg-transparent text-danger p-0 border-0 text-[13px] font-medium transition-all duration-200 hover:opacity-70",
+                loading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"
+              )}
             >
               <X size={13} strokeWidth={2} />
               Revoke
@@ -238,32 +132,10 @@ export default function CalendarFeedSection({ initialToken }: CalendarFeedSectio
         <button
           onClick={handleGenerate}
           disabled={loading}
-          className="focus-ring"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            backgroundColor: "var(--color-primary)",
-            color: "var(--color-bg-card)",
-            padding: "10px 20px",
-            borderRadius: "8px",
-            fontWeight: 600,
-            fontSize: "14px",
-            border: "none",
-            cursor: loading ? "not-allowed" : "pointer",
-            opacity: loading ? 0.6 : 1,
-            transition: "opacity 200ms, transform 200ms, background-color 200ms",
-          }}
-          onMouseEnter={(e) => {
-            if (!loading) {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = loading ? "0.6" : "1";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-          }}
+          className={cn(
+            "focus-ring inline-flex items-center gap-2 bg-primary text-card px-5 py-2.5 rounded-lg font-semibold text-sm border-0 transition-all duration-200 hover:opacity-90 hover:-translate-y-px",
+            loading ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"
+          )}
         >
           <Calendar size={16} strokeWidth={2} />
           {loading ? "Generating\u2026" : "Generate feed URL"}

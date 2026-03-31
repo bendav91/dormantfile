@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { cn } from "@/lib/cn";
 
 interface Filing {
   id: string;
@@ -84,7 +85,7 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
 
   if (filings.length === 0) {
     return (
-      <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+      <p className="text-sm text-muted">
         No filings match the current filters.
       </p>
     );
@@ -94,29 +95,22 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
     <div>
       {hasSelectable && selected.size > 0 && (
         <div className="flex items-center gap-3 mb-3">
-          <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+          <span className="text-xs text-muted">
             {selected.size} selected
           </span>
           <button
             onClick={handleBulkRetry}
             disabled={loading === "bulk"}
-            className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50"
-            style={{ color: "var(--color-primary)", border: "1px solid var(--color-primary-border)", backgroundColor: "var(--color-primary-bg)" }}
+            className="text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 text-primary border border-primary-border bg-primary-bg"
           >
             Retry selected
           </button>
         </div>
       )}
 
-      <div
-        className="rounded-xl overflow-hidden"
-        style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-      >
+      <div className="rounded-xl overflow-hidden bg-card border border-border">
         {/* Header row */}
-        <div
-          className="flex items-center gap-3 px-4 py-2 text-xs font-medium"
-          style={{ color: "var(--color-text-muted)", borderBottom: "1px solid var(--color-border)" }}
-        >
+        <div className="flex items-center gap-3 px-4 py-2 text-xs font-medium text-muted border-b border-border">
           {hasSelectable && (
             <input
               type="checkbox"
@@ -126,12 +120,12 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
             />
           )}
           <span className="flex-1">Company</span>
-          <span style={{ width: "80px" }}>Type</span>
-          <span style={{ width: "180px" }}>Period</span>
-          <span style={{ width: "90px" }}>Status</span>
-          <span style={{ width: "90px" }}>Deadline</span>
-          <span style={{ width: "90px" }}>Submitted</span>
-          <span style={{ width: "100px" }}></span>
+          <span className="w-[80px]">Type</span>
+          <span className="w-[180px]">Period</span>
+          <span className="w-[90px]">Status</span>
+          <span className="w-[90px]">Deadline</span>
+          <span className="w-[90px]">Submitted</span>
+          <span className="w-[100px]"></span>
         </div>
 
         {filings.map((filing, i) => {
@@ -144,8 +138,10 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
           return (
             <div
               key={filing.id}
-              className="flex items-center gap-3 px-4 py-2.5 text-xs"
-              style={{ borderBottom: i < filings.length - 1 ? "1px solid var(--color-border)" : "none" }}
+              className={cn(
+                "flex items-center gap-3 px-4 py-2.5 text-xs",
+                i < filings.length - 1 && "border-b border-border"
+              )}
             >
               {hasSelectable && (
                 <input
@@ -159,35 +155,33 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
               <div className="flex-1 min-w-0">
                 <Link
                   href={`/admin/customers/${filing.userId}`}
-                  className="font-medium truncate block"
-                  style={{ color: "var(--color-primary)", textDecoration: "none" }}
+                  className="font-medium truncate block text-primary no-underline"
                 >
                   {filing.companyName}
                 </Link>
-                <span style={{ color: "var(--color-text-muted)" }}>{filing.crn} · {filing.userEmail}</span>
+                <span className="text-muted">{filing.crn} · {filing.userEmail}</span>
               </div>
-              <span style={{ width: "80px" }}>
+              <span className="w-[80px]">
                 <StatusBadge status={filing.filingType} label={filing.filingType === "ct600" ? "CT600" : "Accounts"} />
               </span>
-              <span style={{ width: "180px", color: "var(--color-text-body)" }}>
+              <span className="w-[180px] text-body">
                 {fmt(filing.periodStart)} — {fmt(filing.periodEnd)}
               </span>
-              <span style={{ width: "90px" }}>
+              <span className="w-[90px]">
                 <StatusBadge status={filing.status} />
               </span>
-              <span style={{ width: "90px", color: isOverdue ? "var(--color-danger)" : "var(--color-text-muted)" }}>
+              <span className={cn("w-[90px]", isOverdue ? "text-danger" : "text-muted")}>
                 {deadline ? fmt(deadline) : "—"}
               </span>
-              <span style={{ width: "90px", color: "var(--color-text-muted)" }}>
+              <span className="w-[90px] text-muted">
                 {filing.submittedAt ? fmt(filing.submittedAt) : "—"}
               </span>
-              <div className="flex gap-1" style={{ width: "100px" }}>
+              <div className="flex gap-1 w-[100px]">
                 {canRetry && (
                   <button
                     onClick={() => handleAction(filing.id, "retry")}
                     disabled={loading === filing.id}
-                    className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50"
-                    style={{ color: "var(--color-primary)", border: "1px solid var(--color-primary-border)", backgroundColor: "var(--color-primary-bg)" }}
+                    className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50 text-primary border border-primary-border bg-primary-bg"
                   >
                     Retry
                   </button>
@@ -196,8 +190,7 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
                   <button
                     onClick={() => handleAction(filing.id, "reset")}
                     disabled={loading === filing.id}
-                    className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50"
-                    style={{ color: "var(--color-text-secondary)", border: "1px solid var(--color-border)", backgroundColor: "transparent" }}
+                    className="text-xs font-medium px-2 py-1 rounded cursor-pointer disabled:opacity-50 text-secondary border border-border bg-transparent"
                   >
                     Reset
                   </button>

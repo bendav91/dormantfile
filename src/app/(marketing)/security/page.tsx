@@ -47,26 +47,11 @@ export default async function SecurityPage() {
       />
       <Breadcrumbs items={breadcrumbs} />
       <article>
-        <h1
-          style={{
-            fontSize: "36px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 12px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+        <h1 className="text-[36px] font-bold text-foreground mb-3 tracking-[-0.02em]">
           {title}
         </h1>
         {subtitle && (
-          <p
-            style={{
-              fontSize: "17px",
-              lineHeight: 1.7,
-              color: "var(--color-text-body)",
-              marginBottom: "32px",
-            }}
-          >
+          <p className="text-[17px] leading-[1.7] text-body mb-8">
             {subtitle}
           </p>
         )}

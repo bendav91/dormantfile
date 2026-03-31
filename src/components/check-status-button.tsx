@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, RefreshCw } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface CheckStatusButtonProps {
   filingId: string;
@@ -13,6 +14,18 @@ type ResultState =
   | { type: "rejected"; message: string }
   | { type: "processing"; message: string }
   | null;
+
+const resultClassNames: Record<string, { container: string }> = {
+  accepted: {
+    container: "bg-success-bg border-success-border text-success",
+  },
+  rejected: {
+    container: "bg-danger-bg border-danger-border text-danger-deep",
+  },
+  processing: {
+    container: "bg-warning-bg border-warning-border text-warning-deep",
+  },
+};
 
 export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) {
   const router = useRouter();
@@ -65,54 +78,18 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
     }
   }
 
-  const resultColors: Record<string, { bg: string; text: string; border: string }> = {
-    accepted: {
-      bg: "var(--color-success-bg)",
-      text: "var(--color-success)",
-      border: "var(--color-success-border)",
-    },
-    rejected: {
-      bg: "var(--color-danger-bg)",
-      text: "var(--color-danger-deep)",
-      border: "var(--color-danger-border)",
-    },
-    processing: {
-      bg: "var(--color-warning-bg)",
-      text: "var(--color-warning-deep)",
-      border: "var(--color-warning-border)",
-    },
-  };
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+    <div className="flex flex-col gap-3">
       <button
         onClick={handleCheckStatus}
         disabled={loading}
-        className="focus-ring"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "8px",
-          backgroundColor: loading ? "var(--color-bg-disabled)" : "var(--color-primary)",
-          color: "var(--color-bg-card)",
-          padding: "10px 20px",
-          borderRadius: "8px",
-          fontWeight: 600,
-          fontSize: "14px",
-          border: "none",
-          cursor: loading ? "not-allowed" : "pointer",
-          transition: "opacity 200ms, background-color 200ms",
-          alignSelf: "flex-start",
-        }}
-        onMouseEnter={(e) => {
-          if (!loading) (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-        }}
+        className={cn(
+          "focus-ring inline-flex items-center gap-2 text-card py-2.5 px-5 rounded-lg font-semibold text-sm border-0 transition-all duration-200 self-start hover:opacity-90",
+          loading ? "bg-disabled cursor-not-allowed" : "bg-primary cursor-pointer"
+        )}
       >
         {loading ? (
-          <Loader2 size={16} strokeWidth={2} style={{ animation: "spin 1s linear infinite" }} />
+          <Loader2 size={16} strokeWidth={2} className="animate-spin" />
         ) : (
           <RefreshCw size={16} strokeWidth={2} />
         )}
@@ -122,15 +99,10 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
       {result && (
         <div
           aria-live="polite"
-          style={{
-            padding: "10px 14px",
-            backgroundColor: resultColors[result.type].bg,
-            border: `1px solid ${resultColors[result.type].border}`,
-            borderRadius: "8px",
-            fontSize: "14px",
-            color: resultColors[result.type].text,
-            fontWeight: 500,
-          }}
+          className={cn(
+            "py-2.5 px-3.5 border rounded-lg text-sm font-medium",
+            resultClassNames[result.type].container
+          )}
         >
           {result.message}
         </div>

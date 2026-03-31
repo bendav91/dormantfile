@@ -32,46 +32,22 @@ export default async function SettingsPage({
   }
 
   return (
-    <div style={{ maxWidth: "960px", margin: "0 auto" }}>
-      <div style={{ marginBottom: "32px" }}>
-        <h1
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 6px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+    <div className="max-w-[960px] mx-auto">
+      <div className="mb-8">
+        <h1 className="text-[28px] font-bold text-foreground mb-1.5 tracking-[-0.02em]">
           Account settings
         </h1>
-        <p style={{ fontSize: "15px", color: "var(--color-text-secondary)", margin: 0 }}>
+        <p className="text-[15px] text-secondary">
           Manage your subscription and account
         </p>
       </div>
 
       {/* Account info */}
-      <div
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderRadius: "12px",
-          padding: "28px",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          marginBottom: "24px",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "17px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 20px 0",
-            letterSpacing: "-0.01em",
-          }}
-        >
+      <div className="bg-card rounded-xl p-7 shadow-md mb-6">
+        <h2 className="text-[17px] font-bold text-foreground mb-5 tracking-[-0.01em]">
           Profile
         </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div className="flex flex-col gap-4">
           <ProfileForm
             name={user.name}
             email={user.email}
@@ -82,26 +58,10 @@ export default async function SettingsPage({
             }
           />
           <div>
-            <p
-              style={{
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "var(--color-text-muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                margin: "0 0 4px 0",
-              }}
-            >
+            <p className="text-xs font-semibold text-muted uppercase tracking-[0.05em] mb-1">
               Subscription
             </p>
-            <p
-              style={{
-                fontSize: "15px",
-                color: "var(--color-text-primary)",
-                margin: 0,
-                fontWeight: 500,
-              }}
-            >
+            <p className="text-[15px] text-foreground font-medium">
               {user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling"
                 ? `Active - ${TIER_LABELS[user.subscriptionTier]} plan`
                 : user.subscriptionStatus === "past_due"

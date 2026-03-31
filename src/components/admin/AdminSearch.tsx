@@ -36,20 +36,14 @@ export function AdminSearch({ placeholder = "Search..." }: AdminSearchProps) {
     <div className="relative">
       <Search
         size={14}
-        className="absolute left-3 top-1/2 -translate-y-1/2"
-        style={{ color: "var(--color-text-muted)" }}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
       />
       <input
         type="text"
         placeholder={placeholder}
         defaultValue={searchParams.get("q") || ""}
         onChange={handleChange}
-        className="text-sm w-full pl-9 pr-3 py-2 rounded-lg outline-none"
-        style={{
-          backgroundColor: "var(--color-bg-inset)",
-          border: "1px solid var(--color-border)",
-          color: "var(--color-text-primary)",
-        }}
+        className="text-sm w-full pl-9 pr-3 py-2 rounded-lg outline-none bg-inset border border-border text-foreground"
       />
     </div>
   );

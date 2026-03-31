@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type InputHTMLAttributes } from "react";
+import { cn } from "@/lib/cn";
 
 interface AuthInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -21,8 +22,7 @@ export function AuthInput({ label, helperText, error, id, type, ...props }: Auth
     <div>
       <label
         htmlFor={id}
-        className="block text-sm font-medium mb-1.5"
-        style={{ color: "var(--color-text-body)" }}
+        className="block text-sm font-medium mb-1.5 text-body"
       >
         {label}
       </label>
@@ -32,23 +32,18 @@ export function AuthInput({ label, helperText, error, id, type, ...props }: Auth
           type={inputType}
           aria-describedby={describedBy}
           aria-invalid={error ? "true" : undefined}
-          className="auth-input w-full rounded-lg px-4 py-2.5 text-sm focus-ring-input transition-colors"
-          style={{
-            color: "var(--color-text-primary)",
-            backgroundColor: "var(--color-input-bg)",
-            borderWidth: "1px",
-            borderStyle: "solid",
-            borderColor: error ? "var(--color-danger)" : "var(--color-input-border)",
-            paddingRight: isPassword ? "2.75rem" : undefined,
-          }}
+          className={cn(
+            "auth-input w-full rounded-lg px-4 py-2.5 text-sm focus-ring-input transition-colors text-foreground bg-input border border-solid",
+            error ? "border-danger" : "border-input-border",
+            isPassword && "pr-11",
+          )}
           {...props}
         />
         {isPassword && (
           <button
             type="button"
             onClick={() => setShowPassword((s) => !s)}
-            className="absolute right-0 top-0 h-full px-3 flex items-center focus-ring rounded-r-lg"
-            style={{ color: "var(--color-text-muted)" }}
+            className="absolute right-0 top-0 h-full px-3 flex items-center focus-ring rounded-r-lg text-muted"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? (
@@ -89,8 +84,7 @@ export function AuthInput({ label, helperText, error, id, type, ...props }: Auth
       {helperText && !error && (
         <p
           id={helperId}
-          className="text-xs mt-1.5"
-          style={{ color: "var(--color-text-secondary)" }}
+          className="text-xs mt-1.5 text-secondary"
         >
           {helperText}
         </p>
@@ -99,8 +93,7 @@ export function AuthInput({ label, helperText, error, id, type, ...props }: Auth
         <p
           id={errorId}
           role="alert"
-          className="text-xs mt-1.5 font-medium"
-          style={{ color: "var(--color-danger-text)" }}
+          className="text-xs mt-1.5 font-medium text-danger-text"
         >
           {error}
         </p>

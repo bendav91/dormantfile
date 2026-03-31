@@ -5,6 +5,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CreditCard, Trash2, AlertTriangle, Building2, ArrowUpCircle } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface SettingsActionsProps {
   hasSubscription: boolean;
@@ -129,56 +130,18 @@ export default function SettingsActions({
     <>
       {/* Billing section */}
       {hasStripeCustomer && (
-        <div
-          style={{
-            backgroundColor: "var(--color-bg-card)",
-            borderRadius: "12px",
-            padding: "28px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            marginBottom: "24px",
-          }}
-        >
-          <h2
-            style={{
-              fontSize: "17px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: "0 0 8px 0",
-              letterSpacing: "-0.01em",
-            }}
-          >
+        <div className="bg-card rounded-xl p-7 shadow-md mb-6">
+          <h2 className="text-[17px] font-bold text-foreground m-0 mb-2 tracking-[-0.01em]">
             Billing
           </h2>
-          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
+          <p className="text-sm text-body m-0 mb-5">
             {hasSubscription
               ? "View invoices, update your payment method, or cancel your subscription."
               : "View your past invoices or resubscribe."}
           </p>
           <button
             onClick={handleManageBilling}
-            className="focus-ring"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              backgroundColor: "var(--color-primary)",
-              color: "var(--color-bg-card)",
-              padding: "10px 20px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "14px",
-              border: "none",
-              cursor: "pointer",
-              transition: "opacity 200ms, transform 200ms, background-color 200ms",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-            }}
+            className="focus-ring inline-flex items-center gap-2 bg-primary text-card px-5 py-2.5 rounded-lg font-semibold text-sm border-0 cursor-pointer transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
           >
             <CreditCard size={16} strokeWidth={2} />
             Manage billing
@@ -186,22 +149,7 @@ export default function SettingsActions({
           {hasSubscription && (
             <Link
               href="/choose-plan"
-              className="focus-ring"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                backgroundColor: "transparent",
-                color: "var(--color-primary)",
-                padding: "10px 20px",
-                borderRadius: "8px",
-                fontWeight: 600,
-                fontSize: "14px",
-                border: "2px solid var(--color-primary)",
-                textDecoration: "none",
-                transition: "opacity 200ms, transform 200ms, background-color 200ms",
-                marginLeft: "10px",
-              }}
+              className="focus-ring inline-flex items-center gap-2 bg-transparent text-primary px-5 py-2.5 rounded-lg font-semibold text-sm border-2 border-primary no-underline transition-all duration-200 ml-2.5"
             >
               <ArrowUpCircle size={16} strokeWidth={2} />
               Change plan
@@ -212,27 +160,11 @@ export default function SettingsActions({
 
       {/* Filing mode section */}
       {isAgentTier && (
-        <div
-          style={{
-            backgroundColor: "var(--color-bg-card)",
-            borderRadius: "12px",
-            padding: "28px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            marginBottom: "24px",
-          }}
-        >
-          <h2
-            style={{
-              fontSize: "17px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: "0 0 8px 0",
-              letterSpacing: "-0.01em",
-            }}
-          >
+        <div className="bg-card rounded-xl p-7 shadow-md mb-6">
+          <h2 className="text-[17px] font-bold text-foreground m-0 mb-2 tracking-[-0.01em]">
             Filing mode
           </h2>
-          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
+          <p className="text-sm text-body m-0 mb-5">
             {agentMode
               ? "You\u2019re filing as an agent on behalf of client companies. CT600 submissions will use your agent Government Gateway credentials."
               : "You\u2019re filing as a company director. CT600 submissions will use each company\u2019s own Government Gateway credentials."}
@@ -240,22 +172,10 @@ export default function SettingsActions({
           <button
             onClick={handleToggleAgentMode}
             disabled={savingAgentMode}
-            className="focus-ring"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              backgroundColor: "transparent",
-              color: "var(--color-primary)",
-              padding: "10px 20px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "14px",
-              border: "2px solid var(--color-primary)",
-              cursor: savingAgentMode ? "not-allowed" : "pointer",
-              opacity: savingAgentMode ? 0.6 : 1,
-              transition: "opacity 200ms, transform 200ms, background-color 200ms",
-            }}
+            className={cn(
+              "focus-ring inline-flex items-center gap-2 bg-transparent text-primary px-5 py-2.5 rounded-lg font-semibold text-sm border-2 border-primary transition-all duration-200",
+              savingAgentMode ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"
+            )}
           >
             {savingAgentMode
               ? "Saving\u2026"
@@ -267,101 +187,41 @@ export default function SettingsActions({
       )}
 
       {/* Notifications section */}
-      <div
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderRadius: "12px",
-          padding: "28px",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          marginBottom: "24px",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "17px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.01em",
-          }}
-        >
+      <div className="bg-card rounded-xl p-7 shadow-md mb-6">
+        <h2 className="text-[17px] font-bold text-foreground m-0 mb-2 tracking-[-0.01em]">
           Notifications
         </h2>
-        <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
+        <p className="text-sm text-body m-0 mb-5">
           Control which emails you receive from DormantFile.
         </p>
         {showMutedSuccess && (
-          <div
-            style={{
-              backgroundColor: "var(--color-bg-success, #f0fdf4)",
-              border: "1px solid var(--color-border-success, #bbf7d0)",
-              borderRadius: "8px",
-              padding: "12px 16px",
-              marginBottom: "16px",
-              fontSize: "14px",
-              color: "var(--color-text-success, #166534)",
-            }}
-          >
+          <div className="bg-success-bg border border-success-border rounded-lg px-4 py-3 mb-4 text-sm text-success-text">
             Reminder emails have been muted.
           </div>
         )}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "12px 0",
-          }}
-        >
+        <div className="flex items-center justify-between py-3">
           <div>
-            <p
-              style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "var(--color-text-primary)",
-                margin: "0 0 2px 0",
-              }}
-            >
+            <p className="text-sm font-semibold text-foreground m-0 mb-0.5">
               Reminder emails
             </p>
-            <p
-              style={{
-                fontSize: "13px",
-                color: "var(--color-text-muted)",
-                margin: 0,
-              }}
-            >
+            <p className="text-[13px] text-muted m-0">
               Receive email reminders when filing deadlines are approaching
             </p>
           </div>
           <button
             onClick={handleToggleMuted}
             disabled={savingMuted}
-            className="focus-ring"
-            style={{
-              position: "relative",
-              width: "44px",
-              height: "24px",
-              borderRadius: "12px",
-              border: "none",
-              cursor: savingMuted ? "wait" : "pointer",
-              backgroundColor: muted ? "var(--color-border, #d1d5db)" : "var(--color-primary)",
-              transition: "background-color 200ms",
-              flexShrink: 0,
-            }}
+            className={cn(
+              "focus-ring relative w-[44px] h-[24px] rounded-xl border-0 shrink-0 transition-colors duration-200",
+              savingMuted ? "cursor-wait" : "cursor-pointer",
+              muted ? "bg-border" : "bg-primary"
+            )}
           >
             <span
-              style={{
-                position: "absolute",
-                top: "2px",
-                left: muted ? "2px" : "22px",
-                width: "20px",
-                height: "20px",
-                borderRadius: "50%",
-                backgroundColor: "white",
-                transition: "left 200ms",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-              }}
+              className={cn(
+                "absolute top-[2px] w-[20px] h-[20px] rounded-full bg-white transition-[left] duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.2)]",
+                muted ? "left-[2px]" : "left-[22px]"
+              )}
             />
           </button>
         </div>
@@ -369,27 +229,11 @@ export default function SettingsActions({
 
       {/* Companies section */}
       {companies.length > 0 && (
-        <div
-          style={{
-            backgroundColor: "var(--color-bg-card)",
-            borderRadius: "12px",
-            padding: "28px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            marginBottom: "24px",
-          }}
-        >
-          <h2
-            style={{
-              fontSize: "17px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: "0 0 8px 0",
-              letterSpacing: "-0.01em",
-            }}
-          >
+        <div className="bg-card rounded-xl p-7 shadow-md mb-6">
+          <h2 className="text-[17px] font-bold text-foreground m-0 mb-2 tracking-[-0.01em]">
             Companies
           </h2>
-          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
+          <p className="text-sm text-body m-0 mb-5">
             Remove a company to delete its filing history and reminders. Your account and
             subscription remain active.
           </p>
@@ -397,85 +241,44 @@ export default function SettingsActions({
           {removeError && (
             <div
               role="alert"
-              style={{
-                padding: "12px 16px",
-                backgroundColor: "var(--color-danger-bg)",
-                border: "1px solid var(--color-danger-border)",
-                borderRadius: "8px",
-                fontSize: "14px",
-                color: "var(--color-danger)",
-                marginBottom: "16px",
-              }}
+              className="px-4 py-3 bg-danger-bg border border-danger-border rounded-lg text-sm text-danger mb-4"
             >
               {removeError}
             </div>
           )}
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div className="flex flex-col gap-3">
             {companies.map((company) => (
               <div
                 key={company.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "14px 16px",
-                  backgroundColor: "var(--color-bg-page)",
-                  borderRadius: "8px",
-                  border: "1px solid var(--color-border)",
-                }}
+                className="flex items-center justify-between px-4 py-3.5 bg-page rounded-lg border border-border"
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ color: "var(--color-primary)" }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-primary">
                     <Building2 size={16} color="currentColor" strokeWidth={2} />
                   </span>
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      color: "var(--color-text-primary)",
-                    }}
-                  >
+                  <span className="text-sm font-semibold text-foreground">
                     {company.name}
                   </span>
                 </div>
 
                 {confirmRemoveId === company.id ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "13px", color: "var(--color-danger)" }}>Remove?</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] text-danger">Remove?</span>
                     <button
                       onClick={() => handleRemoveCompany(company.id)}
                       disabled={removingCompanyId === company.id}
-                      className="focus-ring"
-                      style={{
-                        backgroundColor: "var(--color-danger)",
-                        color: "var(--color-bg-card)",
-                        padding: "6px 14px",
-                        borderRadius: "6px",
-                        fontWeight: 600,
-                        fontSize: "13px",
-                        border: "none",
-                        cursor: removingCompanyId === company.id ? "not-allowed" : "pointer",
-                        transition: "opacity 200ms, transform 200ms, background-color 200ms",
-                      }}
+                      className={cn(
+                        "focus-ring bg-danger text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] border-0 transition-all duration-200",
+                        removingCompanyId === company.id ? "cursor-not-allowed" : "cursor-pointer"
+                      )}
                     >
                       {removingCompanyId === company.id ? "\u2026" : "Yes"}
                     </button>
                     <button
                       onClick={() => setConfirmRemoveId(null)}
                       disabled={removingCompanyId === company.id}
-                      className="focus-ring"
-                      style={{
-                        backgroundColor: "transparent",
-                        color: "var(--color-text-body)",
-                        padding: "6px 14px",
-                        borderRadius: "6px",
-                        fontWeight: 600,
-                        fontSize: "13px",
-                        border: "1px solid var(--color-bg-disabled)",
-                        cursor: "pointer",
-                        transition: "opacity 200ms, transform 200ms, background-color 200ms",
-                      }}
+                      className="focus-ring bg-transparent text-body px-3.5 py-1.5 rounded-md font-semibold text-[13px] border border-disabled cursor-pointer transition-all duration-200"
                     >
                       No
                     </button>
@@ -483,25 +286,7 @@ export default function SettingsActions({
                 ) : (
                   <button
                     onClick={() => setConfirmRemoveId(company.id)}
-                    className="focus-ring"
-                    style={{
-                      backgroundColor: "transparent",
-                      color: "var(--color-danger)",
-                      padding: "4px 12px",
-                      borderRadius: "6px",
-                      fontWeight: 600,
-                      fontSize: "13px",
-                      border: "1px solid var(--color-danger-border)",
-                      cursor: "pointer",
-                      transition: "opacity 200ms, transform 200ms, background-color 200ms",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                        "var(--color-danger-bg)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
-                    }}
+                    className="focus-ring bg-transparent text-danger py-1 px-3 rounded-md font-semibold text-[13px] border border-danger-border cursor-pointer transition-all duration-200 hover:bg-danger-bg"
                   >
                     Remove
                   </button>
@@ -513,27 +298,11 @@ export default function SettingsActions({
       )}
 
       {/* Danger zone */}
-      <div
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderRadius: "12px",
-          padding: "28px",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          border: "1px solid var(--color-danger-border)",
-        }}
-      >
-        <h2
-          style={{
-            fontSize: "17px",
-            fontWeight: 700,
-            color: "var(--color-danger)",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.01em",
-          }}
-        >
+      <div className="bg-card rounded-xl p-7 shadow-md border border-danger-border">
+        <h2 className="text-[17px] font-bold text-danger m-0 mb-2 tracking-[-0.01em]">
           Danger zone
         </h2>
-        <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 20px 0" }}>
+        <p className="text-sm text-body m-0 mb-5">
           Permanently delete your account, all company data, and filing history.
           {hasSubscription && " Your subscription will be cancelled immediately."} This action
           cannot be undone.
@@ -542,15 +311,7 @@ export default function SettingsActions({
         {error && (
           <div
             role="alert"
-            style={{
-              padding: "12px 16px",
-              backgroundColor: "var(--color-danger-bg)",
-              border: "1px solid var(--color-danger-border)",
-              borderRadius: "8px",
-              fontSize: "14px",
-              color: "var(--color-danger)",
-              marginBottom: "16px",
-            }}
+            className="px-4 py-3 bg-danger-bg border border-danger-border rounded-lg text-sm text-danger mb-4"
           >
             {error}
           </div>
@@ -559,60 +320,18 @@ export default function SettingsActions({
         {!showConfirm ? (
           <button
             onClick={() => setShowConfirm(true)}
-            className="focus-ring"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              backgroundColor: "transparent",
-              color: "var(--color-danger)",
-              padding: "10px 20px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "14px",
-              border: "2px solid var(--color-danger)",
-              cursor: "pointer",
-              transition: "opacity 200ms, transform 200ms, background-color 200ms",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-                "var(--color-danger-bg)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
-            }}
+            className="focus-ring inline-flex items-center gap-2 bg-transparent text-danger px-5 py-2.5 rounded-lg font-semibold text-sm border-2 border-danger cursor-pointer transition-all duration-200 hover:bg-danger-bg"
           >
             <Trash2 size={16} strokeWidth={2} />
             Delete my account
           </button>
         ) : (
-          <div
-            style={{
-              padding: "20px",
-              backgroundColor: "var(--color-danger-bg)",
-              border: "1px solid var(--color-danger-border)",
-              borderRadius: "8px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: "10px",
-                marginBottom: "16px",
-              }}
-            >
-              <span style={{ color: "var(--color-danger)", flexShrink: 0, marginTop: "1px" }}>
+          <div className="p-5 bg-danger-bg border border-danger-border rounded-lg">
+            <div className="flex items-start gap-2.5 mb-4">
+              <span className="text-danger shrink-0 mt-px">
                 <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
               </span>
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "var(--color-danger-text)",
-                  margin: 0,
-                  lineHeight: "1.5",
-                }}
-              >
+              <p className="text-sm text-danger-text m-0 leading-relaxed">
                 Are you sure? This will permanently delete your account,
                 {companies.length > 0
                   ? ` ${companies.length} ${companies.length === 1 ? "company" : "companies"},`
@@ -621,40 +340,21 @@ export default function SettingsActions({
                 out.
               </p>
             </div>
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div className="flex gap-2.5">
               <button
                 onClick={handleDeleteAccount}
                 disabled={deleting}
-                className="focus-ring"
-                style={{
-                  backgroundColor: deleting ? "var(--color-bg-disabled)" : "var(--color-danger)",
-                  color: "var(--color-bg-card)",
-                  padding: "10px 20px",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  border: "none",
-                  cursor: deleting ? "not-allowed" : "pointer",
-                  transition: "opacity 200ms, transform 200ms, background-color 200ms",
-                }}
+                className={cn(
+                  "focus-ring text-card px-5 py-2.5 rounded-lg font-semibold text-sm border-0 transition-all duration-200",
+                  deleting ? "bg-disabled cursor-not-allowed" : "bg-danger cursor-pointer"
+                )}
               >
                 {deleting ? "Deleting\u2026" : "Yes, delete everything"}
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
                 disabled={deleting}
-                className="focus-ring"
-                style={{
-                  backgroundColor: "transparent",
-                  color: "var(--color-text-body)",
-                  padding: "10px 20px",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  border: "1px solid var(--color-bg-disabled)",
-                  cursor: "pointer",
-                  transition: "opacity 200ms, transform 200ms, background-color 200ms",
-                }}
+                className="focus-ring bg-transparent text-body px-5 py-2.5 rounded-lg font-semibold text-sm border border-disabled cursor-pointer transition-all duration-200"
               >
                 Cancel
               </button>

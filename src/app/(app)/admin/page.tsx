@@ -10,6 +10,7 @@ import {
   FileText,
   Mail,
 } from "lucide-react";
+import { cn } from "@/lib/cn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -61,10 +62,10 @@ export default async function AdminDashboardPage() {
     },
   ];
 
-  const severityColours = {
-    red: { bg: "var(--color-danger-bg)", text: "var(--color-danger)", border: "rgba(220, 38, 38, 0.2)" },
-    yellow: { bg: "var(--color-warning-bg)", text: "var(--color-warning)", border: "rgba(202, 138, 4, 0.2)" },
-    none: { bg: "var(--color-bg-card)", text: "var(--color-text-muted)", border: "var(--color-border)" },
+  const severityClasses = {
+    red: { card: "bg-danger-bg border-danger-border text-danger", text: "text-danger" },
+    yellow: { card: "bg-warning-bg border-warning-border text-warning", text: "text-warning" },
+    none: { card: "bg-card border-border text-muted", text: "text-muted" },
   };
 
   const activityIcons: Record<string, typeof UserPlus> = {
@@ -76,31 +77,26 @@ export default async function AdminDashboardPage() {
   return (
     <div>
       {/* Attention Cards */}
-      <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>
+      <h2 className="text-lg font-semibold mb-4 text-foreground">
         Needs attention
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-10">
         {attentionCards.map((card) => {
           const Icon = card.icon;
-          const colours = card.count > 0 ? severityColours[card.severity] : severityColours.none;
+          const classes = card.count > 0 ? severityClasses[card.severity] : severityClasses.none;
           return (
             <Link
               key={card.label}
               href={card.href}
-              className="p-4 rounded-xl transition-colors duration-150"
-              style={{
-                backgroundColor: colours.bg,
-                border: `1px solid ${colours.border}`,
-                textDecoration: "none",
-              }}
+              className={cn("p-4 rounded-xl transition-colors duration-150 no-underline border", classes.card)}
             >
               <div className="flex items-center gap-2 mb-2">
-                <Icon size={14} style={{ color: colours.text }} />
-                <span className="text-xs font-medium" style={{ color: colours.text }}>
+                <Icon size={14} className={classes.text} />
+                <span className={cn("text-xs font-medium", classes.text)}>
                   {card.label}
                 </span>
               </div>
-              <p className="text-2xl font-bold" style={{ color: colours.text }}>
+              <p className={cn("text-2xl font-bold", classes.text)}>
                 {card.count}
               </p>
             </Link>
@@ -109,89 +105,73 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Health Stats */}
-      <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>
+      <h2 className="text-lg font-semibold mb-4 text-foreground">
         Overview
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
-        <div
-          className="p-4 rounded-xl"
-          style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-        >
-          <p className="text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>
+        <div className="p-4 rounded-xl bg-card border border-border">
+          <p className="text-xs font-medium mb-1 text-muted">
             Active subscribers
           </p>
-          <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+          <p className="text-2xl font-bold text-foreground">
             {health.totalSubscribers}
           </p>
-          <p className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
+          <p className="text-xs mt-1 text-muted">
             {health.tiers.basic} basic, {health.tiers.multi} multi, {health.tiers.agent} agent
           </p>
         </div>
-        <div
-          className="p-4 rounded-xl"
-          style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-        >
-          <p className="text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>
+        <div className="p-4 rounded-xl bg-card border border-border">
+          <p className="text-xs font-medium mb-1 text-muted">
             Total companies
           </p>
-          <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+          <p className="text-2xl font-bold text-foreground">
             {health.totalCompanies}
           </p>
         </div>
-        <div
-          className="p-4 rounded-xl"
-          style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-        >
-          <p className="text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>
+        <div className="p-4 rounded-xl bg-card border border-border">
+          <p className="text-xs font-medium mb-1 text-muted">
             Filed this month
           </p>
-          <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+          <p className="text-2xl font-bold text-foreground">
             {health.filingsThisMonth}
           </p>
         </div>
-        <div
-          className="p-4 rounded-xl"
-          style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-        >
-          <p className="text-xs font-medium mb-1" style={{ color: "var(--color-text-muted)" }}>
+        <div className="p-4 rounded-xl bg-card border border-border">
+          <p className="text-xs font-medium mb-1 text-muted">
             MRR
           </p>
-          <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+          <p className="text-2xl font-bold text-foreground">
             &pound;{health.mrr}
           </p>
         </div>
       </div>
 
       {/* Recent Activity */}
-      <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--color-text-primary)" }}>
+      <h2 className="text-lg font-semibold mb-4 text-foreground">
         Recent activity
       </h2>
       {activity.length === 0 ? (
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+        <p className="text-sm text-muted">
           No recent activity.
         </p>
       ) : (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-        >
+        <div className="rounded-xl overflow-hidden bg-card border border-border">
           {activity.map((item, i) => {
             const Icon = activityIcons[item.type] || FileText;
             return (
               <Link
                 key={`${item.type}-${i}`}
                 href={item.link}
-                className="flex items-center gap-3 px-4 py-3 transition-colors duration-150 hoverable-subtle"
-                style={{
-                  borderBottom: i < activity.length - 1 ? "1px solid var(--color-border)" : "none",
-                  textDecoration: "none",
-                }}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 transition-colors duration-150 hoverable-subtle no-underline",
+                  i < activity.length - 1 && "border-b border-border"
+                )}
               >
-                <Icon size={14} style={{ color: "var(--color-text-muted)" }} />
-                <span className="text-sm flex-1" style={{ color: "var(--color-text-body)" }}>
+                <Icon size={14} className="text-muted" />
+                <span className="text-sm flex-1 text-body">
                   {item.description}
                 </span>
-                <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+                <span className="text-xs text-muted">
                   {formatRelative(item.timestamp)}
                 </span>
               </Link>

@@ -11,12 +11,12 @@ export default async function AdminMessagesPage() {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-6" style={{ color: "var(--color-text-primary)" }}>
+      <h2 className="text-lg font-semibold mb-6 text-foreground">
         Messages
       </h2>
 
       {messages.length === 0 ? (
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+        <p className="text-sm text-muted">
           No messages yet.
         </p>
       ) : (

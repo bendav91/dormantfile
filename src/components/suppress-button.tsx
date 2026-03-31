@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { EyeOff, Eye } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface SuppressButtonProps {
   companyId: string;
@@ -47,21 +48,10 @@ export default function SuppressButton({
       onClick={handleClick}
       disabled={loading}
       title={isSuppressed ? "Restore this period" : "Suppress this period"}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "5px",
-        padding: "5px 10px",
-        borderRadius: "6px",
-        fontSize: "12px",
-        fontWeight: 500,
-        border: "1px solid var(--color-border)",
-        backgroundColor: "var(--color-bg-inset)",
-        color: "var(--color-text-secondary)",
-        cursor: loading ? "wait" : "pointer",
-        opacity: loading ? 0.6 : 1,
-        transition: "opacity 200ms",
-      }}
+      className={cn(
+        "inline-flex items-center gap-[5px] py-[5px] px-2.5 rounded-md text-xs font-medium border border-border bg-inset text-secondary transition-opacity duration-200",
+        loading ? "cursor-wait opacity-60" : "cursor-pointer opacity-100"
+      )}
     >
       {isSuppressed ? (
         <>

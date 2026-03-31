@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
+import { cn } from "@/lib/cn";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { buildPeriodViews } from "@/lib/filing-queries";
 import FilingsTab from "@/components/filings-tab";
@@ -50,68 +51,26 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       {/* Back link */}
       <Link
         href="/dashboard"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-          fontSize: "14px",
-          color: "var(--color-text-secondary)",
-          textDecoration: "none",
-          fontWeight: 500,
-          marginBottom: "24px",
-        }}
+        className="inline-flex items-center gap-1.5 text-sm text-secondary no-underline font-medium mb-6"
       >
         <ArrowLeft size={15} strokeWidth={2} />
         Back to dashboard
       </Link>
 
       {/* Company header */}
-      <div style={{ marginBottom: "24px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: "8px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div
-              style={{
-                width: "42px",
-                height: "42px",
-                borderRadius: "10px",
-                backgroundColor: "var(--color-primary-bg)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <span style={{ color: "var(--color-primary)" }}>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-[42px] h-[42px] rounded-[10px] bg-primary-bg flex items-center justify-center shrink-0">
+              <span className="text-primary">
                 <Building2 size={20} color="currentColor" strokeWidth={2} />
               </span>
             </div>
             <div>
-              <h1
-                style={{
-                  fontSize: "26px",
-                  fontWeight: 700,
-                  color: "var(--color-text-primary)",
-                  margin: 0,
-                  letterSpacing: "-0.02em",
-                }}
-              >
+              <h1 className="text-[26px] font-bold text-foreground tracking-[-0.02em]">
                 {company.companyName}
               </h1>
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "var(--color-text-secondary)",
-                  margin: 0,
-                  marginTop: "2px",
-                }}
-              >
+              <p className="text-sm text-secondary mt-0.5">
                 {company.companyRegistrationNumber}
                 {incompletePeriods.length > 0 && (
                   <>
@@ -128,14 +87,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       </div>
 
       {/* Tab bar */}
-      <div
-        style={{
-          display: "flex",
-          gap: "0",
-          borderBottom: "1px solid var(--color-border)",
-          marginBottom: "24px",
-        }}
-      >
+      <div className="flex border-b border-border mb-6">
         {[
           { key: "filings", label: "Filings", href: `/company/${companyId}` },
           { key: "overview", label: "Overview", href: `/company/${companyId}?tab=overview` },
@@ -145,16 +97,12 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           <Link
             key={key}
             href={href}
-            style={{
-              padding: "10px 20px",
-              fontSize: "14px",
-              fontWeight: 600,
-              color: tab === key ? "var(--color-primary)" : "var(--color-text-secondary)",
-              textDecoration: "none",
-              borderBottom:
-                tab === key ? "2px solid var(--color-primary)" : "2px solid transparent",
-              transition: "color 200ms, border-color 200ms",
-            }}
+            className={cn(
+              "py-2.5 px-5 text-sm font-semibold no-underline border-b-2 transition-colors duration-200",
+              tab === key
+                ? "text-primary border-primary"
+                : "text-secondary border-transparent",
+            )}
           >
             {label}
           </Link>

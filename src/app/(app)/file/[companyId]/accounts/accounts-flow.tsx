@@ -4,49 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, ShieldCheck, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
-
-// ─── Shared style constants ───────────────────────────────────────────────────
-
-const primaryButtonStyle: React.CSSProperties = {
-  backgroundColor: "var(--color-cta)",
-  color: "var(--color-bg-card)",
-  padding: "12px 24px",
-  borderRadius: "8px",
-  fontWeight: 600,
-  fontSize: "16px",
-  border: "none",
-  cursor: "pointer",
-  transition: "opacity 200ms, transform 200ms",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  width: "100%",
-};
-
-const secondaryButtonStyle: React.CSSProperties = {
-  backgroundColor: "var(--color-primary)",
-  color: "var(--color-bg-card)",
-  padding: "12px 24px",
-  borderRadius: "8px",
-  fontWeight: 600,
-  fontSize: "16px",
-  border: "none",
-  cursor: "pointer",
-  transition: "opacity 200ms, transform 200ms",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "8px",
-  width: "100%",
-};
-
-const cardStyle: React.CSSProperties = {
-  backgroundColor: "var(--color-bg-card)",
-  borderRadius: "12px",
-  padding: "32px",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05)",
-};
+import { cn } from "@/lib/cn";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -74,21 +32,10 @@ interface Props {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p
-        style={{
-          fontSize: "12px",
-          fontWeight: 600,
-          color: "var(--color-text-muted)",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          margin: "0 0 4px 0",
-        }}
-      >
+      <p className="text-xs font-semibold text-muted uppercase tracking-[0.05em] mb-1">
         {label}
       </p>
-      <p
-        style={{ fontSize: "15px", color: "var(--color-text-primary)", margin: 0, fontWeight: 500 }}
-      >
+      <p className="text-[15px] text-foreground m-0 font-medium">
         {value}
       </p>
     </div>
@@ -114,93 +61,41 @@ function StepConfirm({
 }) {
   return (
     <div>
-      <div style={{ marginBottom: "28px" }}>
-        <h1
-          style={{
-            fontSize: "26px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+      <div className="mb-7">
+        <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
           File annual accounts
         </h1>
-        <p
-          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
-        >
+        <p className="text-[15px] text-body m-0 leading-relaxed">
           Review your company details before submitting dormant company accounts to Companies House.
         </p>
       </div>
 
-      <div style={cardStyle}>
+      <div className="bg-card rounded-xl p-8 shadow-card">
         {/* Company header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            marginBottom: "24px",
-            paddingBottom: "20px",
-            borderBottom: "1px solid var(--color-border-subtle)",
-          }}
-        >
-          <div
-            style={{
-              width: "42px",
-              height: "42px",
-              borderRadius: "10px",
-              backgroundColor: "var(--color-primary-bg)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ color: "var(--color-primary)" }}>
+        <div className="flex items-center gap-3 mb-6 pb-5 border-b border-border-subtle">
+          <div className="w-[42px] h-[42px] rounded-[10px] bg-primary-bg flex items-center justify-center shrink-0">
+            <span className="text-primary">
               <Building2 size={20} color="currentColor" strokeWidth={2} />
             </span>
           </div>
           <div>
-            <h2
-              style={{
-                fontSize: "17px",
-                fontWeight: 700,
-                color: "var(--color-text-primary)",
-                margin: 0,
-                letterSpacing: "-0.01em",
-              }}
-            >
+            <h2 className="text-[17px] font-bold text-foreground m-0 tracking-[-0.01em]">
               {companyName}
             </h2>
-            <p
-              style={{
-                fontSize: "13px",
-                color: "var(--color-text-muted)",
-                margin: 0,
-                marginTop: "2px",
-              }}
-            >
+            <p className="text-[13px] text-muted m-0 mt-0.5">
               Annual accounts
             </p>
           </div>
         </div>
 
         {/* Details grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "20px",
-            marginBottom: "24px",
-          }}
-        >
+        <div className="grid grid-cols-2 gap-5 mb-6">
           <DetailRow label="Company number" value={companyRegistrationNumber} />
           <DetailRow
             label="Filing type"
             value={
               shareCapitalPence > 0
-                ? `Dormant accounts (£${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital)`
+                ? `Dormant accounts (\u00A3${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital)`
                 : "Dormant accounts (nil balance sheet)"
             }
           />
@@ -209,47 +104,20 @@ function StepConfirm({
         </div>
 
         {/* Info card */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "10px",
-            padding: "14px 16px",
-            backgroundColor: "var(--color-primary-bg)",
-            border: "1px solid var(--color-primary-border)",
-            borderRadius: "8px",
-            marginBottom: "28px",
-          }}
-        >
-          <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px" }}>
+        <div className="flex items-start gap-2.5 px-4 py-3.5 bg-primary-bg border border-primary-border rounded-lg mb-7">
+          <span className="text-primary shrink-0 mt-px">
             <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p
-            style={{
-              fontSize: "14px",
-              color: "var(--color-primary-text)",
-              margin: 0,
-              lineHeight: 1.5,
-            }}
-          >
+          <p className="text-sm text-primary-text m-0 leading-normal">
             {shareCapitalPence > 0
-              ? `This will submit dormant company accounts to Companies House with a balance sheet showing £${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital and no other assets, liabilities, or activity.`
+              ? `This will submit dormant company accounts to Companies House with a balance sheet showing \u00A3${(shareCapitalPence / 100).toFixed(shareCapitalPence % 100 === 0 ? 0 : 2)} share capital and no other assets, liabilities, or activity.`
               : "This will submit dormant company accounts to Companies House confirming the company had nil assets, liabilities, and shareholder funds during this period."}
           </p>
         </div>
 
         <button
           onClick={onContinue}
-          className="focus-ring"
-          style={primaryButtonStyle}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-          }}
+          className="focus-ring bg-cta text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
         >
           Continue
         </button>
@@ -278,36 +146,20 @@ function StepAuthenticate({ onSubmit }: { onSubmit: (authCode: string) => void }
 
   return (
     <div>
-      <div style={{ marginBottom: "28px" }}>
-        <h1
-          style={{
-            fontSize: "26px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+      <div className="mb-7">
+        <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
           Companies House authentication
         </h1>
-        <p
-          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
-        >
+        <p className="text-[15px] text-body m-0 leading-relaxed">
           Enter your company authentication code to authorise this filing.
         </p>
       </div>
 
-      <div style={cardStyle}>
-        <div style={{ marginBottom: "24px" }}>
+      <div className="bg-card rounded-xl p-8 shadow-card">
+        <div className="mb-6">
           <label
             htmlFor="ch-auth-code"
-            style={{
-              display: "block",
-              fontSize: "13px",
-              fontWeight: 600,
-              color: "var(--color-text-body)",
-              marginBottom: "8px",
-            }}
+            className="block text-[13px] font-semibold text-body mb-2"
           >
             Company authentication code
           </label>
@@ -326,62 +178,25 @@ function StepAuthenticate({ onSubmit }: { onSubmit: (authCode: string) => void }
             placeholder="e.g. A1B2C3"
             autoComplete="off"
             spellCheck={false}
-            className="focus-ring-input"
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              fontSize: "16px",
-              fontFamily: "monospace",
-              letterSpacing: "0.15em",
-              color: "var(--color-text-primary)",
-              borderWidth: "2px",
-              borderStyle: "solid",
-              borderColor: error ? "var(--color-danger)" : "var(--color-text-muted)",
-              borderRadius: "8px",
-              transition: "border-color 200ms",
-              boxSizing: "border-box",
-            }}
-            onFocus={(e) => {
-              if (!error) e.currentTarget.style.borderColor = "var(--color-primary)";
-            }}
-            onBlur={(e) => {
-              if (!error) e.currentTarget.style.borderColor = "var(--color-border)";
-            }}
+            className={cn(
+              "focus-ring-input w-full py-3 px-3.5 text-base font-mono tracking-[0.15em] text-foreground border-2 rounded-lg transition-colors duration-200 box-border",
+              "focus:border-primary",
+              error ? "border-danger" : "border-muted"
+            )}
           />
           {error && (
-            <p
-              role="alert"
-              style={{ fontSize: "13px", color: "var(--color-danger)", margin: "8px 0 0 0" }}
-            >
+            <p role="alert" className="text-[13px] text-danger mt-2 mb-0">
               {error}
             </p>
           )}
         </div>
 
         {/* Info card */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "10px",
-            padding: "14px 16px",
-            backgroundColor: "var(--color-primary-bg)",
-            border: "1px solid var(--color-primary-border)",
-            borderRadius: "8px",
-            marginBottom: "28px",
-          }}
-        >
-          <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: "1px" }}>
+        <div className="flex items-start gap-2.5 px-4 py-3.5 bg-primary-bg border border-primary-border rounded-lg mb-7">
+          <span className="text-primary shrink-0 mt-px">
             <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p
-            style={{
-              fontSize: "14px",
-              color: "var(--color-primary-text)",
-              margin: 0,
-              lineHeight: 1.5,
-            }}
-          >
+          <p className="text-sm text-primary-text m-0 leading-normal">
             This is the 6-character code Companies House posted to your company&apos;s registered
             office. It authorises filings on behalf of your company.
           </p>
@@ -389,16 +204,7 @@ function StepAuthenticate({ onSubmit }: { onSubmit: (authCode: string) => void }
 
         <button
           onClick={handleSubmit}
-          className="focus-ring"
-          style={primaryButtonStyle}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-          }}
+          className="focus-ring bg-cta text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
         >
           <ShieldCheck size={17} strokeWidth={2} />
           Submit to Companies House
@@ -411,85 +217,31 @@ function StepAuthenticate({ onSubmit }: { onSubmit: (authCode: string) => void }
 function StepSubmitting() {
   return (
     <div>
-      <div style={{ marginBottom: "28px" }}>
-        <h1
-          style={{
-            fontSize: "26px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+      <div className="mb-7">
+        <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
           Submitting to Companies House
         </h1>
-        <p
-          style={{ fontSize: "15px", color: "var(--color-text-body)", margin: 0, lineHeight: 1.6 }}
-        >
+        <p className="text-[15px] text-body m-0 leading-relaxed">
           Please wait while we securely submit your accounts.
         </p>
       </div>
 
-      <div style={cardStyle}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            padding: "20px 0 12px",
-            gap: "24px",
-          }}
-        >
+      <div className="bg-card rounded-xl p-8 shadow-card">
+        <div className="flex flex-col items-center text-center pt-5 pb-3 gap-6">
           {/* Spinner */}
-          <div
-            style={{
-              width: "64px",
-              height: "64px",
-              borderRadius: "50%",
-              border: "4px solid var(--color-border)",
-              borderTopColor: "var(--color-primary)",
-              animation: "spin 0.9s linear infinite",
-            }}
-          />
+          <div className="w-16 h-16 rounded-full border-4 border-border border-t-primary animate-spin" />
 
           <div>
-            <p
-              style={{
-                fontSize: "18px",
-                fontWeight: 700,
-                color: "var(--color-text-primary)",
-                margin: "0 0 8px 0",
-                letterSpacing: "-0.01em",
-              }}
-            >
+            <p className="text-lg font-bold text-foreground mb-2 tracking-[-0.01em]">
               {"Submitting to Companies House\u2026"}
             </p>
-            <p
-              style={{
-                fontSize: "14px",
-                color: "var(--color-text-body)",
-                margin: 0,
-                lineHeight: 1.6,
-                maxWidth: "340px",
-              }}
-            >
+            <p className="text-sm text-body m-0 leading-relaxed max-w-[340px]">
               This may take up to two minutes. Please do not close this page.
             </p>
           </div>
 
           {/* Progress steps */}
-          <div
-            style={{
-              width: "100%",
-              borderTop: "1px solid var(--color-border-subtle)",
-              paddingTop: "24px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-              textAlign: "left",
-            }}
-          >
+          <div className="w-full border-t border-border-subtle pt-6 flex flex-col gap-3 text-left">
             {[
               "Building iXBRL accounts document",
               "Submitting to Companies House",
@@ -497,26 +249,13 @@ function StepSubmitting() {
             ].map((step, index) => (
               <div
                 key={index}
+                className="flex items-center gap-2.5 text-sm text-body"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  fontSize: "14px",
-                  color: "var(--color-text-body)",
                   animation: `accounts-fade-in 400ms ease both`,
                   animationDelay: `${index * 300}ms`,
                 }}
               >
-                <div
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    backgroundColor: "var(--color-primary)",
-                    flexShrink: 0,
-                    opacity: 0.6,
-                  }}
-                />
+                <div className="w-2 h-2 rounded-full bg-primary shrink-0 opacity-60" />
                 {step}
               </div>
             ))}
@@ -546,57 +285,21 @@ function StepResult({
   if (result.type === "accepted") {
     return (
       <div>
-        <div style={{ marginBottom: "28px" }}>
-          <h1
-            style={{
-              fontSize: "26px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: "0 0 8px 0",
-              letterSpacing: "-0.02em",
-            }}
-          >
+        <div className="mb-7">
+          <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
             Filing complete
           </h1>
         </div>
-        <div style={cardStyle}>
-          <div
-            style={{
-              padding: "24px",
-              backgroundColor: "var(--color-success-bg)",
-              border: "1px solid var(--color-success-border)",
-              borderRadius: "10px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              gap: "16px",
-              marginBottom: "24px",
-            }}
-          >
-            <span style={{ color: "var(--color-success)" }}>
+        <div className="bg-card rounded-xl p-8 shadow-card">
+          <div className="p-6 bg-success-bg border border-success-border rounded-[10px] flex flex-col items-center text-center gap-4 mb-6">
+            <span className="text-success">
               <CheckCircle2 size={48} color="currentColor" strokeWidth={1.5} />
             </span>
             <div>
-              <h2
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "var(--color-success-text)",
-                  margin: "0 0 8px 0",
-                  letterSpacing: "-0.01em",
-                }}
-              >
+              <h2 className="text-xl font-bold text-success-text mb-2 tracking-[-0.01em]">
                 Filing Accepted
               </h2>
-              <p
-                style={{
-                  fontSize: "15px",
-                  color: "var(--color-success-text)",
-                  margin: 0,
-                  lineHeight: 1.6,
-                }}
-              >
+              <p className="text-[15px] text-success-text m-0 leading-relaxed">
                 Companies House has accepted your dormant company accounts. A confirmation has been
                 sent to your email address, and your next accounting period has been set up
                 automatically.
@@ -605,16 +308,7 @@ function StepResult({
           </div>
           <button
             onClick={onDashboard}
-            className="focus-ring"
-            style={secondaryButtonStyle}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-            }}
+            className="focus-ring bg-primary text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
           >
             Return to dashboard
           </button>
@@ -626,75 +320,28 @@ function StepResult({
   if (result.type === "rejected") {
     return (
       <div>
-        <div style={{ marginBottom: "28px" }}>
-          <h1
-            style={{
-              fontSize: "26px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: "0 0 8px 0",
-              letterSpacing: "-0.02em",
-            }}
-          >
+        <div className="mb-7">
+          <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
             Filing rejected
           </h1>
         </div>
-        <div style={cardStyle}>
-          <div
-            style={{
-              padding: "24px",
-              backgroundColor: "var(--color-danger-bg)",
-              border: "1px solid var(--color-danger-border)",
-              borderRadius: "10px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              gap: "16px",
-              marginBottom: "24px",
-            }}
-          >
-            <span style={{ color: "var(--color-danger-deep)" }}>
+        <div className="bg-card rounded-xl p-8 shadow-card">
+          <div className="p-6 bg-danger-bg border border-danger-border rounded-[10px] flex flex-col items-center text-center gap-4 mb-6">
+            <span className="text-danger-deep">
               <XCircle size={48} color="currentColor" strokeWidth={1.5} />
             </span>
             <div>
-              <h2
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "var(--color-danger-text)",
-                  margin: "0 0 8px 0",
-                  letterSpacing: "-0.01em",
-                }}
-              >
+              <h2 className="text-xl font-bold text-danger-text mb-2 tracking-[-0.01em]">
                 Filing Rejected
               </h2>
-              <p
-                style={{
-                  fontSize: "14px",
-                  color: "var(--color-danger-text)",
-                  margin: 0,
-                  lineHeight: 1.6,
-                  fontFamily: "monospace",
-                  wordBreak: "break-word",
-                }}
-              >
+              <p className="text-sm text-danger-text m-0 leading-relaxed font-mono break-words">
                 {result.message}
               </p>
             </div>
           </div>
           <button
             onClick={onTryAgain}
-            className="focus-ring"
-            style={primaryButtonStyle}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-            }}
+            className="focus-ring bg-cta text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
           >
             Try again
           </button>
@@ -706,57 +353,21 @@ function StepResult({
   if (result.type === "timeout") {
     return (
       <div>
-        <div style={{ marginBottom: "28px" }}>
-          <h1
-            style={{
-              fontSize: "26px",
-              fontWeight: 700,
-              color: "var(--color-text-primary)",
-              margin: "0 0 8px 0",
-              letterSpacing: "-0.02em",
-            }}
-          >
+        <div className="mb-7">
+          <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
             Still processing
           </h1>
         </div>
-        <div style={cardStyle}>
-          <div
-            style={{
-              padding: "24px",
-              backgroundColor: "var(--color-warning-bg)",
-              border: "1px solid var(--color-warning-border)",
-              borderRadius: "10px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              gap: "16px",
-              marginBottom: "24px",
-            }}
-          >
-            <span style={{ color: "var(--color-warning-deep)" }}>
+        <div className="bg-card rounded-xl p-8 shadow-card">
+          <div className="p-6 bg-warning-bg border border-warning-border rounded-[10px] flex flex-col items-center text-center gap-4 mb-6">
+            <span className="text-warning-deep">
               <AlertTriangle size={48} color="currentColor" strokeWidth={1.5} />
             </span>
             <div>
-              <h2
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: "var(--color-warning-text)",
-                  margin: "0 0 8px 0",
-                  letterSpacing: "-0.01em",
-                }}
-              >
+              <h2 className="text-xl font-bold text-warning-text mb-2 tracking-[-0.01em]">
                 Companies House is still processing
               </h2>
-              <p
-                style={{
-                  fontSize: "15px",
-                  color: "var(--color-warning-deep)",
-                  margin: 0,
-                  lineHeight: 1.6,
-                }}
-              >
+              <p className="text-[15px] text-warning-deep m-0 leading-relaxed">
                 Your accounts have been submitted but Companies House has not yet confirmed the
                 outcome. You can check the status from your dashboard - it may take a few more
                 minutes.
@@ -765,16 +376,7 @@ function StepResult({
           </div>
           <button
             onClick={onDashboard}
-            className="focus-ring"
-            style={secondaryButtonStyle}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-              (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-            }}
+            className="focus-ring bg-primary text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
           >
             Return to dashboard
           </button>
@@ -786,73 +388,28 @@ function StepResult({
   // failed
   return (
     <div>
-      <div style={{ marginBottom: "28px" }}>
-        <h1
-          style={{
-            fontSize: "26px",
-            fontWeight: 700,
-            color: "var(--color-text-primary)",
-            margin: "0 0 8px 0",
-            letterSpacing: "-0.02em",
-          }}
-        >
+      <div className="mb-7">
+        <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
           Submission failed
         </h1>
       </div>
-      <div style={cardStyle}>
-        <div
-          style={{
-            padding: "24px",
-            backgroundColor: "var(--color-danger-bg)",
-            border: "1px solid var(--color-danger-border)",
-            borderRadius: "10px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            gap: "16px",
-            marginBottom: "24px",
-          }}
-        >
-          <span style={{ color: "var(--color-danger-deep)" }}>
+      <div className="bg-card rounded-xl p-8 shadow-card">
+        <div className="p-6 bg-danger-bg border border-danger-border rounded-[10px] flex flex-col items-center text-center gap-4 mb-6">
+          <span className="text-danger-deep">
             <XCircle size={48} color="currentColor" strokeWidth={1.5} />
           </span>
           <div>
-            <h2
-              style={{
-                fontSize: "20px",
-                fontWeight: 700,
-                color: "var(--color-danger-text)",
-                margin: "0 0 8px 0",
-                letterSpacing: "-0.01em",
-              }}
-            >
+            <h2 className="text-xl font-bold text-danger-text mb-2 tracking-[-0.01em]">
               Submission Failed
             </h2>
-            <p
-              style={{
-                fontSize: "15px",
-                color: "var(--color-danger-text)",
-                margin: 0,
-                lineHeight: 1.6,
-              }}
-            >
+            <p className="text-[15px] text-danger-text m-0 leading-relaxed">
               {result.message || "An unexpected error occurred. Please try again."}
             </p>
           </div>
         </div>
         <button
           onClick={onTryAgain}
-          className="focus-ring"
-          style={primaryButtonStyle}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-          }}
+          className="focus-ring bg-cta text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
         >
           Try again
         </button>

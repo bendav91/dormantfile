@@ -30,19 +30,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div>
       <div className="flex items-center gap-2 mb-8">
-        <h1
-          className="text-xl font-bold"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-xl font-bold text-foreground">
           Admin
         </h1>
-        <span
-          className="text-xs font-medium px-2 py-0.5 rounded-full"
-          style={{
-            backgroundColor: "var(--color-primary-bg)",
-            color: "var(--color-primary)",
-          }}
-        >
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-bg text-primary">
           Admin
         </span>
       </div>

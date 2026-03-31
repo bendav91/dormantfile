@@ -25,49 +25,27 @@ export default function AnswersIndexPage() {
   return (
     <>
       <Breadcrumbs items={[{ label: "Answers" }]} />
-      <h1
-        className="text-3xl sm:text-4xl font-bold leading-tight mb-3"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h1 className="text-3xl sm:text-4xl font-bold leading-tight mb-3 text-foreground">
         Quick Answers
       </h1>
-      <p className="text-base mb-10" style={{ color: "var(--color-text-secondary)" }}>
+      <p className="text-base mb-10 text-secondary">
         Plain-English explanations of the terms and concepts you&apos;ll encounter when filing for a
         dormant UK company.
       </p>
 
-      <ul
-        style={{
-          listStyle: "none",
-          padding: 0,
-          margin: 0,
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-        }}
-      >
+      <ul className="list-none p-0 m-0 flex flex-col gap-4">
         {answers.map((item) => (
           <li
             key={item.slug}
-            style={{
-              padding: "1rem",
-              border: "1px solid var(--color-border)",
-              borderRadius: "0.5rem",
-              backgroundColor: "var(--color-bg-card)",
-            }}
+            className="p-4 border border-border rounded-lg bg-card"
           >
             <Link
               href={`/answers/${item.slug}`}
-              style={{
-                textDecoration: "none",
-                color: "var(--color-primary)",
-                fontWeight: 500,
-                fontSize: "0.9375rem",
-              }}
+              className="no-underline text-primary font-medium text-[0.9375rem]"
             >
               {item.frontmatter.title}
             </Link>
-            <p className="text-sm mt-1" style={{ color: "var(--color-text-secondary)", margin: 0 }}>
+            <p className="text-sm mt-1 m-0 text-secondary">
               {item.frontmatter.description}
             </p>
           </li>

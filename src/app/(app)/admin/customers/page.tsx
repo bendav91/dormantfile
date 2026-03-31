@@ -4,6 +4,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { AdminPagination } from "@/components/admin/AdminPagination";
 import { AdminSearch } from "@/components/admin/AdminSearch";
 import { AdminFilters } from "@/components/admin/AdminFilters";
+import { cn } from "@/lib/cn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -32,7 +33,7 @@ export default async function AdminCustomersPage({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-6" style={{ color: "var(--color-text-primary)" }}>
+      <h2 className="text-lg font-semibold mb-6 text-foreground">
         Customers
       </h2>
 
@@ -44,44 +45,40 @@ export default async function AdminCustomersPage({
       </div>
 
       {result.users.length === 0 ? (
-        <p className="text-sm" style={{ color: "var(--color-text-muted)" }}>
+        <p className="text-sm text-muted">
           No customers found.
         </p>
       ) : (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{ backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }}
-        >
+        <div className="rounded-xl overflow-hidden bg-card border border-border">
           {result.users.map((user, i) => (
             <Link
               key={user.id}
               href={`/admin/customers/${user.id}`}
-              className="flex items-center gap-4 px-4 py-3 transition-colors duration-150 hoverable-subtle"
-              style={{
-                borderBottom: i < result.users.length - 1 ? "1px solid var(--color-border)" : "none",
-                textDecoration: "none",
-              }}
+              className={cn(
+                "flex items-center gap-4 px-4 py-3 transition-colors duration-150 hoverable-subtle no-underline",
+                i < result.users.length - 1 && "border-b border-border"
+              )}
             >
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate" style={{ color: "var(--color-text-primary)" }}>
+                <p className="text-sm font-medium truncate text-foreground">
                   {user.name}
                 </p>
-                <p className="text-xs truncate" style={{ color: "var(--color-text-muted)" }}>
+                <p className="text-xs truncate text-muted">
                   {user.email}
                 </p>
               </div>
               <StatusBadge status={user.subscriptionStatus} label={`${user.subscriptionTier !== "none" ? user.subscriptionTier + " — " : ""}${user.subscriptionStatus}`} />
-              <div className="text-right hidden sm:block" style={{ minWidth: "80px" }}>
-                <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+              <div className="text-right hidden sm:block min-w-[80px]">
+                <p className="text-xs text-muted">
                   {user.companyCount} {user.companyCount === 1 ? "company" : "companies"}
                 </p>
                 {user.outstandingFilings > 0 && (
-                  <p className="text-xs" style={{ color: "var(--color-warning)" }}>
+                  <p className="text-xs text-warning">
                     {user.outstandingFilings} outstanding
                   </p>
                 )}
               </div>
-              <span className="text-xs hidden sm:block" style={{ color: "var(--color-text-muted)", minWidth: "60px", textAlign: "right" }}>
+              <span className="text-xs hidden sm:block text-muted min-w-[60px] text-right">
                 {formatRelative(user.createdAt)}
               </span>
             </Link>

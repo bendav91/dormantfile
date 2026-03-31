@@ -29,14 +29,7 @@ export default function ActivityTab({ events }: ActivityTabProps) {
 
   if (events.length === 0) {
     return (
-      <p
-        style={{
-          fontSize: "14px",
-          color: "var(--color-text-secondary)",
-          textAlign: "center",
-          padding: "40px 0",
-        }}
-      >
+      <p className="text-sm text-secondary text-center py-10">
         No activity yet
       </p>
     );
@@ -47,77 +40,33 @@ export default function ActivityTab({ events }: ActivityTabProps) {
 
   return (
     <div>
-      <div
-        style={{
-          borderLeft: "2px solid var(--color-border)",
-          paddingLeft: "24px",
-          marginLeft: "8px",
-        }}
-      >
+      <div className="border-l-2 border-border pl-6 ml-2">
         {visible.map((event) => (
           <div
             key={event.id}
-            style={{
-              position: "relative",
-              paddingBottom: "24px",
-            }}
+            className="relative pb-6"
           >
             {/* Dot */}
             <div
+              className="absolute -left-[31px] top-[2px] w-3 h-3 rounded-full border-2 border-page"
               style={{
-                position: "absolute",
-                left: "-31px",
-                top: "2px",
-                width: "12px",
-                height: "12px",
-                borderRadius: "50%",
                 backgroundColor: DOT_COLORS[event.type] ?? "var(--color-text-muted)",
-                border: "2px solid var(--color-bg)",
               }}
             />
 
             {/* Content */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                gap: "16px",
-              }}
-            >
+            <div className="flex justify-between items-start gap-4">
               <div>
-                <div
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    color: "var(--color-text-primary)",
-                    lineHeight: "16px",
-                  }}
-                >
+                <div className="text-[13px] font-semibold text-foreground leading-4">
                   {event.title}
                 </div>
                 {event.detail && (
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "var(--color-text-secondary)",
-                      marginTop: "2px",
-                      lineHeight: "16px",
-                    }}
-                  >
+                  <div className="text-xs text-secondary mt-0.5 leading-4">
                     {event.detail}
                   </div>
                 )}
               </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: "var(--color-text-muted)",
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                  lineHeight: "16px",
-                }}
-              >
+              <div className="text-xs text-muted whitespace-nowrap shrink-0 leading-4">
                 {event.date}
               </div>
             </div>
@@ -126,18 +75,10 @@ export default function ActivityTab({ events }: ActivityTabProps) {
       </div>
 
       {hasMore && !showAll && (
-        <div style={{ textAlign: "center", paddingTop: "8px" }}>
+        <div className="text-center pt-2">
           <button
             onClick={() => setShowAll(true)}
-            style={{
-              fontSize: "13px",
-              fontWeight: 600,
-              color: "var(--color-primary)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: "8px 16px",
-            }}
+            className="text-[13px] font-semibold text-primary bg-transparent border-0 cursor-pointer px-4 py-2"
           >
             Show all ({events.length})
           </button>

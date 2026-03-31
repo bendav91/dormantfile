@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/cn";
 
 interface ProfileFormProps {
   name: string;
@@ -57,32 +58,10 @@ export default function ProfileForm({
     }
   }
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "var(--color-text-muted)",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    margin: "0 0 4px 0",
-  };
-
-  const inputStyle: React.CSSProperties = {
-    fontSize: "15px",
-    color: "var(--color-text-primary)",
-    fontWeight: 500,
-    padding: "8px 12px",
-    borderRadius: "8px",
-    border: "1px solid var(--color-border)",
-    backgroundColor: "var(--color-bg-page)",
-    width: "100%",
-    maxWidth: "360px",
-    outline: "none",
-  };
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+    <div className="flex flex-col gap-4">
       <div>
-        <p style={labelStyle}>Name</p>
+        <p className="text-xs font-semibold text-muted uppercase tracking-[0.05em] m-0 mb-1">Name</p>
         <input
           type="text"
           value={name}
@@ -90,11 +69,11 @@ export default function ProfileForm({
             setName(e.target.value);
             setSaved(false);
           }}
-          style={inputStyle}
+          className="text-[15px] text-foreground font-medium px-3 py-2 rounded-lg border border-border bg-page w-full max-w-[360px] outline-none"
         />
       </div>
       <div>
-        <p style={labelStyle}>Email</p>
+        <p className="text-xs font-semibold text-muted uppercase tracking-[0.05em] m-0 mb-1">Email</p>
         <input
           type="email"
           value={email}
@@ -102,17 +81,17 @@ export default function ProfileForm({
             setEmail(e.target.value);
             setSaved(false);
           }}
-          style={inputStyle}
+          className="text-[15px] text-foreground font-medium px-3 py-2 rounded-lg border border-border bg-page w-full max-w-[360px] outline-none"
         />
         {pendingEmail && (
-          <p style={{ fontSize: "13px", color: "var(--color-primary)", margin: "4px 0 0 0" }}>
+          <p className="text-[13px] text-primary m-0 mt-1">
             Verification email sent to {pendingEmail}. Check your inbox.
           </p>
         )}
       </div>
 
       {error && (
-        <p style={{ fontSize: "13px", color: "var(--color-danger)", margin: 0 }}>{error}</p>
+        <p className="text-[13px] text-danger m-0">{error}</p>
       )}
 
       {hasChanges && (
@@ -120,19 +99,10 @@ export default function ProfileForm({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="focus-ring"
-            style={{
-              backgroundColor: "var(--color-primary)",
-              color: "var(--color-bg-card)",
-              padding: "8px 18px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "14px",
-              border: "none",
-              cursor: saving ? "not-allowed" : "pointer",
-              opacity: saving ? 0.6 : 1,
-              transition: "opacity 200ms",
-            }}
+            className={cn(
+              "focus-ring bg-primary text-card px-[18px] py-2 rounded-lg font-semibold text-sm border-0 transition-opacity duration-200",
+              saving ? "cursor-not-allowed opacity-60" : "cursor-pointer opacity-100"
+            )}
           >
             {saving ? "Saving\u2026" : "Save changes"}
           </button>
@@ -140,7 +110,7 @@ export default function ProfileForm({
       )}
 
       {saved && !hasChanges && (
-        <p style={{ fontSize: "13px", color: "var(--color-success)", margin: 0 }}>Changes saved.</p>
+        <p className="text-[13px] text-success m-0">Changes saved.</p>
       )}
     </div>
   );

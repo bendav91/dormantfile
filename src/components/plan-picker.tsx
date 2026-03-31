@@ -4,6 +4,7 @@ import { SubscriptionTier } from "@prisma/client";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { cn } from "@/lib/cn";
 
 interface PlanPickerProps {
   currentTier: SubscriptionTier;
@@ -121,16 +122,7 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
       {error && (
         <div
           role="alert"
-          style={{
-            padding: "12px 16px",
-            backgroundColor: "var(--color-danger-bg)",
-            border: "1px solid var(--color-danger-border)",
-            borderRadius: "8px",
-            fontSize: "14px",
-            color: "var(--color-danger)",
-            marginBottom: "24px",
-            textAlign: "center",
-          }}
+          className="py-3 px-4 bg-danger-bg border border-danger-border rounded-lg text-sm text-danger text-center mb-6"
         >
           {error}
         </div>
@@ -139,16 +131,7 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
       {downgradeSuccess && (
         <div
           role="status"
-          style={{
-            padding: "12px 16px",
-            backgroundColor: "var(--color-success-bg)",
-            border: "1px solid var(--color-success-border)",
-            borderRadius: "8px",
-            fontSize: "14px",
-            color: "var(--color-success-text)",
-            marginBottom: "24px",
-            textAlign: "center",
-          }}
+          className="py-3 px-4 bg-success-bg border border-success-border rounded-lg text-sm text-success-text text-center mb-6"
         >
           {downgradeSuccess}
         </div>
@@ -166,80 +149,41 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
           return (
             <div
               key={plan.tier}
-              className="p-5 sm:p-7"
-              style={{
-                backgroundColor: "var(--color-bg-card)",
-                borderRadius: "12px",
-                border: plan.popular
-                  ? "2px solid var(--color-primary)"
-                  : "1px solid var(--color-border)",
-                display: "flex",
-                flexDirection: "column",
-                position: "relative",
-              }}
+              className={cn(
+                "p-5 sm:p-7 bg-card rounded-xl flex flex-col relative",
+                plan.popular
+                  ? "border-2 border-primary"
+                  : "border border-border",
+              )}
             >
               {plan.popular && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-12px",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    backgroundColor: "var(--color-primary)",
-                    color: "var(--color-bg-card)",
-                    padding: "3px 14px",
-                    borderRadius: "9999px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-card px-3.5 py-[3px] rounded-full text-xs font-semibold whitespace-nowrap">
                   Most popular
                 </span>
               )}
 
-              <p
-                style={{
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "var(--color-primary)",
-                  margin: "0 0 4px 0",
-                }}
-              >
+              <p className="text-sm font-semibold text-primary m-0 mb-1">
                 {plan.name}
               </p>
-              <div style={{ marginBottom: "4px" }}>
-                <span
-                  style={{ fontSize: "36px", fontWeight: 700, color: "var(--color-text-primary)" }}
-                >
+              <div className="mb-1">
+                <span className="text-4xl font-bold text-foreground">
                   £{plan.price}
                 </span>
-                <span
-                  style={{ fontSize: "14px", color: "var(--color-text-body)", marginLeft: "4px" }}
-                >
+                <span className="text-sm text-body ml-1">
                   /year
                 </span>
               </div>
-              <p
-                style={{ fontSize: "14px", color: "var(--color-text-body)", margin: "0 0 24px 0" }}
-              >
+              <p className="text-sm text-body m-0 mb-6">
                 {plan.description}
               </p>
 
-              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px 0", flex: 1 }}>
+              <ul className="list-none p-0 m-0 mb-6 flex-1">
                 {plan.features.map((feature) => (
                   <li
                     key={feature}
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: "8px",
-                      marginBottom: "10px",
-                      fontSize: "14px",
-                      color: "var(--color-text-body)",
-                    }}
+                    className="flex items-start gap-2 mb-2.5 text-sm text-body"
                   >
-                    <span style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: 2 }}>
+                    <span className="text-primary shrink-0 mt-0.5">
                       <CheckCircle size={16} color="currentColor" strokeWidth={2} />
                     </span>
                     {feature}
@@ -248,59 +192,28 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
               </ul>
 
               {isCurrent ? (
-                <div
-                  style={{
-                    padding: "10px 20px",
-                    borderRadius: "8px",
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    textAlign: "center",
-                    backgroundColor: "var(--color-neutral-bg)",
-                    color: "var(--color-text-secondary)",
-                  }}
-                >
+                <div className="py-2.5 px-5 rounded-lg font-semibold text-sm text-center bg-neutral-bg text-secondary">
                   Current plan
                 </div>
               ) : (
                 <button
                   onClick={() => handleSelect(plan.tier)}
                   disabled={isDisabled}
-                  className="focus-ring"
-                  style={{
-                    padding: "10px 20px",
-                    borderRadius: "8px",
-                    fontWeight: 600,
-                    fontSize: "14px",
-                    border: "none",
-                    cursor: isDisabled ? "not-allowed" : "pointer",
-                    transition: "opacity 200ms, transform 200ms",
-                    backgroundColor: isDowngrade
-                      ? "var(--color-text-secondary)"
+                  className={cn(
+                    "focus-ring py-2.5 px-5 rounded-lg font-semibold text-sm border-0 transition-all duration-200 text-card flex items-center justify-center gap-2 hover:opacity-90 hover:-translate-y-px",
+                    isDisabled ? "cursor-not-allowed" : "cursor-pointer",
+                    isDowngrade
+                      ? "bg-secondary"
                       : plan.popular
-                        ? "var(--color-cta)"
-                        : "var(--color-primary)",
-                    color: "var(--color-bg-card)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "8px",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isDisabled) {
-                      (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-                      (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-                  }}
+                        ? "bg-cta"
+                        : "bg-primary",
+                  )}
                 >
                   {loading === plan.tier && (
                     <Loader2
                       size={16}
                       strokeWidth={2}
-                      style={{ animation: "spin 1s linear infinite" }}
+                      className="animate-spin"
                     />
                   )}
                   {isDowngrade ? "Downgrade" : isUpgrade ? "Upgrade" : "Select"}
@@ -312,28 +225,13 @@ export default function PlanPicker({ currentTier, isUpgrade, disabled }: PlanPic
       </div>
 
       {disabled && (
-        <p
-          style={{
-            fontSize: "14px",
-            color: "var(--color-text-secondary)",
-            textAlign: "center",
-            marginTop: "20px",
-            fontWeight: 500,
-          }}
-        >
+        <p className="text-sm text-secondary text-center mt-5 font-medium">
           Plans will be available when filing goes live.
         </p>
       )}
 
       {isUpgrade && (
-        <p
-          style={{
-            fontSize: "13px",
-            color: "var(--color-text-muted)",
-            textAlign: "center",
-            marginTop: "20px",
-          }}
-        >
+        <p className="text-[13px] text-muted text-center mt-5">
           Upgrades take effect immediately. Downgrades take effect at the end of your billing
           period.
         </p>
