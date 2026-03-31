@@ -80,10 +80,7 @@ function VerifyEmailChangeContent() {
             />
           </div>
         </div>
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
           Confirming your new email&hellip;
         </h1>
         <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
@@ -119,10 +116,7 @@ function VerifyEmailChangeContent() {
             </svg>
           </div>
         </div>
-        <h1
-          className="text-2xl font-bold mb-3"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-3" style={{ color: "var(--color-text-primary)" }}>
           Email change failed
         </h1>
         <div className="mb-6">

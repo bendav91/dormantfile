@@ -30,10 +30,10 @@ Replace both with a single `<SiteNav>` component that uses a `variant` prop to s
 
 ### Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `variant` | `"marketing" \| "app"` | Yes | Selects which nav config to use |
-| `user` | `{ email: string }` | Only for `"app"` | User info for the auth area |
+| Prop      | Type                   | Required         | Description                     |
+| --------- | ---------------------- | ---------------- | ------------------------------- |
+| `variant` | `"marketing" \| "app"` | Yes              | Selects which nav config to use |
+| `user`    | `{ email: string }`    | Only for `"app"` | User info for the auth area     |
 
 ### Internal Config
 

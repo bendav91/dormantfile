@@ -14,19 +14,20 @@
 
 ## File Structure
 
-| File | Action | Responsibility |
-|------|--------|----------------|
-| `src/components/SiteNav.tsx` | Create | Unified nav component — config, desktop bar, mobile drawer, all behaviours |
-| `src/__tests__/components/SiteNav.test.tsx` | Create | Component tests for both variants, drawer interactions, accessibility |
-| `src/app/(marketing)/layout.tsx` | Modify | Swap `MarketingNav` import for `SiteNav variant="marketing"` |
-| `src/app/(app)/layout.tsx` | Modify | Remove inline nav, add `SiteNav variant="app"` with user prop |
-| `src/components/marketing/MarketingNav.tsx` | Delete | Fully replaced |
+| File                                        | Action | Responsibility                                                             |
+| ------------------------------------------- | ------ | -------------------------------------------------------------------------- |
+| `src/components/SiteNav.tsx`                | Create | Unified nav component — config, desktop bar, mobile drawer, all behaviours |
+| `src/__tests__/components/SiteNav.test.tsx` | Create | Component tests for both variants, drawer interactions, accessibility      |
+| `src/app/(marketing)/layout.tsx`            | Modify | Swap `MarketingNav` import for `SiteNav variant="marketing"`               |
+| `src/app/(app)/layout.tsx`                  | Modify | Remove inline nav, add `SiteNav variant="app"` with user prop              |
+| `src/components/marketing/MarketingNav.tsx` | Delete | Fully replaced                                                             |
 
 ---
 
 ## Task 1: SiteNav — Config types and static data
 
 **Files:**
+
 - Create: `src/components/SiteNav.tsx`
 
 - [ ] **Step 1: Create `SiteNav.tsx` with types and config objects**
@@ -109,6 +110,7 @@ git commit -m "feat(nav): add SiteNav config types and static data"
 ## Task 2: SiteNav — Desktop bar
 
 **Files:**
+
 - Modify: `src/components/SiteNav.tsx`
 
 - [ ] **Step 1: Add the desktop Resources dropdown sub-component**
@@ -251,7 +253,7 @@ export function SiteNav({ variant, user }: SiteNavProps) {
                 >
                   {item.label}
                 </Link>
-              )
+              ),
             )}
           </div>
         </div>
@@ -320,6 +322,7 @@ git commit -m "feat(nav): add SiteNav desktop bar with dropdown"
 ## Task 3: SiteNav — Mobile drawer
 
 **Files:**
+
 - Modify: `src/components/SiteNav.tsx`
 
 - [ ] **Step 1: Add state and effects for the drawer**
@@ -363,7 +366,7 @@ useEffect(() => {
     }
     if (e.key === "Tab" && drawerRef.current) {
       const focusable = drawerRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
       if (focusable.length === 0) return;
       const first = focusable[0];
@@ -393,7 +396,9 @@ const closeDrawer = useCallback(() => {
 Inside the top-bar `<div>`, after the logo/links `<div>` and before the desktop right side `<div>`, add:
 
 ```tsx
-{/* Mobile hamburger */}
+{
+  /* Mobile hamburger */
+}
 <button
   ref={hamburgerRef}
   onClick={() => setDrawerOpen(!drawerOpen)}
@@ -409,7 +414,7 @@ Inside the top-bar `<div>`, after the logo/links `<div>` and before the desktop 
   }}
 >
   {drawerOpen ? <X size={24} /> : <Menu size={24} />}
-</button>
+</button>;
 ```
 
 - [ ] **Step 3: Add the drawer overlay and panel**
@@ -417,22 +422,28 @@ Inside the top-bar `<div>`, after the logo/links `<div>` and before the desktop 
 After the closing `</div>` of the top bar (but still inside `<nav>`), add:
 
 ```tsx
-{/* Mobile drawer overlay */}
-{drawerOpen && (
-  <div
-    onClick={closeDrawer}
-    style={{
-      position: "fixed",
-      inset: 0,
-      backgroundColor: "rgba(0, 0, 0, 0.4)",
-      zIndex: 40,
-      transition: "opacity 250ms ease-out",
-    }}
-    aria-hidden="true"
-  />
-)}
+{
+  /* Mobile drawer overlay */
+}
+{
+  drawerOpen && (
+    <div
+      onClick={closeDrawer}
+      style={{
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        zIndex: 40,
+        transition: "opacity 250ms ease-out",
+      }}
+      aria-hidden="true"
+    />
+  );
+}
 
-{/* Mobile drawer */}
+{
+  /* Mobile drawer */
+}
 <div
   ref={drawerRef}
   role="dialog"
@@ -463,7 +474,11 @@ After the closing `</div>` of the top bar (but still inside `<nav>`), add:
       borderBottom: "1px solid var(--color-border)",
     }}
   >
-    <Link href={config.logoHref} onClick={closeDrawer} style={{ display: "flex", alignItems: "center" }}>
+    <Link
+      href={config.logoHref}
+      onClick={closeDrawer}
+      style={{ display: "flex", alignItems: "center" }}
+    >
       <Logo height={22} />
     </Link>
     <button
@@ -554,7 +569,7 @@ After the closing `</div>` of the top bar (but still inside `<nav>`), add:
         >
           {item.label}
         </Link>
-      )
+      ),
     )}
   </div>
 
@@ -616,7 +631,7 @@ After the closing `</div>` of the top bar (but still inside `<nav>`), add:
       </Link>
     )}
   </div>
-</div>
+</div>;
 ```
 
 - [ ] **Step 4: Commit**
@@ -631,6 +646,7 @@ git commit -m "feat(nav): add mobile slide-out drawer with focus trap and scroll
 ## Task 4: Tests
 
 **Files:**
+
 - Create: `src/__tests__/components/SiteNav.test.tsx`
 
 Note: The vitest config uses `environment: "node"` by default. These component tests need jsdom. Add a `@vitest-environment jsdom` docblock at the top of the test file. This is the first component test in the repo, so we need to import `@testing-library/jest-dom` for DOM matchers like `toBeInTheDocument()`.
@@ -720,30 +736,30 @@ Expected: All marketing variant tests pass.
 Append to the same describe block:
 
 ```tsx
-  describe("app variant", () => {
-    it("renders app nav links", () => {
-      render(<SiteNav variant="app" user={{ email: "ben@example.com" }} />);
-      expect(screen.getByText("Dashboard")).toBeInTheDocument();
-      expect(screen.getByText("Settings")).toBeInTheDocument();
-    });
-
-    it("displays user email", () => {
-      render(<SiteNav variant="app" user={{ email: "ben@example.com" }} />);
-      expect(screen.getByText("ben@example.com")).toBeInTheDocument();
-    });
-
-    it("does not render marketing items", () => {
-      render(<SiteNav variant="app" user={{ email: "ben@example.com" }} />);
-      expect(screen.queryByText("Pricing")).not.toBeInTheDocument();
-      expect(screen.queryByText("Get started")).not.toBeInTheDocument();
-    });
-
-    it("links logo to /dashboard", () => {
-      render(<SiteNav variant="app" user={{ email: "ben@example.com" }} />);
-      const logoLink = screen.getByRole("img", { name: "DormantFile" }).closest("a");
-      expect(logoLink).toHaveAttribute("href", "/dashboard");
-    });
+describe("app variant", () => {
+  it("renders app nav links", () => {
+    render(<SiteNav variant="app" user={{ email: "ben@example.com" }} />);
+    expect(screen.getByText("Dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Settings")).toBeInTheDocument();
   });
+
+  it("displays user email", () => {
+    render(<SiteNav variant="app" user={{ email: "ben@example.com" }} />);
+    expect(screen.getByText("ben@example.com")).toBeInTheDocument();
+  });
+
+  it("does not render marketing items", () => {
+    render(<SiteNav variant="app" user={{ email: "ben@example.com" }} />);
+    expect(screen.queryByText("Pricing")).not.toBeInTheDocument();
+    expect(screen.queryByText("Get started")).not.toBeInTheDocument();
+  });
+
+  it("links logo to /dashboard", () => {
+    render(<SiteNav variant="app" user={{ email: "ben@example.com" }} />);
+    const logoLink = screen.getByRole("img", { name: "DormantFile" }).closest("a");
+    expect(logoLink).toHaveAttribute("href", "/dashboard");
+  });
+});
 ```
 
 - [ ] **Step 4: Add tests for the mobile drawer**
@@ -812,6 +828,7 @@ git commit -m "test(nav): add SiteNav component tests for both variants and draw
 ## Task 5: Wire up layouts and delete old nav
 
 **Files:**
+
 - Modify: `src/app/(marketing)/layout.tsx`
 - Modify: `src/app/(app)/layout.tsx`
 - Delete: `src/components/marketing/MarketingNav.tsx`
@@ -819,12 +836,14 @@ git commit -m "test(nav): add SiteNav component tests for both variants and draw
 - [ ] **Step 1: Update marketing layout**
 
 In `src/app/(marketing)/layout.tsx`:
+
 - Replace `import { MarketingNav } from "@/components/marketing/MarketingNav"` with `import { SiteNav } from "@/components/SiteNav"`
 - Replace `<MarketingNav />` with `<SiteNav variant="marketing" />`
 
 - [ ] **Step 2: Update app layout**
 
 In `src/app/(app)/layout.tsx`:
+
 - Remove the `Settings` import from `lucide-react`
 - Remove the `SignOutButton` import (SiteNav handles it internally)
 - Remove the `ThemeToggle` import (SiteNav handles it internally)
@@ -879,12 +898,14 @@ npm run dev
 - [ ] **Step 2: Check marketing pages**
 
 Open `http://localhost:3000`. Verify:
+
 - Desktop: Logo links to `/`, Pricing and Resources links visible, Resources dropdown opens/closes, Sign in and Get started buttons present, theme toggle works
 - Mobile (resize to <768px): Hamburger appears, desktop links hidden. Tap hamburger — drawer slides in from left with overlay. Links work. Resources accordion expands. Drawer closes on link click, overlay click, Escape key. Body scroll is locked while open.
 
 - [ ] **Step 3: Check app pages**
 
 Log in and open `http://localhost:3000/dashboard`. Verify:
+
 - Desktop: Logo links to `/dashboard`, Dashboard and Settings links visible, user email shown, Sign out button present, theme toggle works
 - Mobile: Same drawer behaviour. Dashboard and Settings in the drawer. Email and Sign out in the drawer footer.
 

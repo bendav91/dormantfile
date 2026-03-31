@@ -5,12 +5,15 @@ import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
 import type { ContentCategory } from "@/lib/content/types";
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+
 export const metadata: Metadata = {
-  title: "Guides | DormantFile",
+  title: "Dormant Company Filing Guides",
   description:
     "Step-by-step guides for dormant company directors: how to file accounts, nil CT600 returns, deadlines, penalties, and costs.",
+  alternates: { canonical: `${BASE_URL}/guides` },
   openGraph: {
-    title: "Guides | DormantFile",
+    title: "Dormant Company Filing Guides | DormantFile",
     description:
       "Step-by-step guides for dormant company directors: filing, deadlines, penalties, and costs.",
     type: "website",

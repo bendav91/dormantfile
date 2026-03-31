@@ -4,12 +4,15 @@ import { getAnswers } from "@/lib/content/mdx";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { ContentCTA } from "@/components/marketing/ContentCTA";
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+
 export const metadata: Metadata = {
-  title: "Answers | DormantFile",
+  title: "Dormant Company Filing Answers",
   description:
     "Plain-English answers to common dormant company questions: CT600, UTR numbers, authentication codes, deadlines, and more.",
+  alternates: { canonical: `${BASE_URL}/answers` },
   openGraph: {
-    title: "Answers | DormantFile",
+    title: "Dormant Company Filing Answers | DormantFile",
     description: "Plain-English answers to common dormant company filing questions.",
     type: "website",
     siteName: "DormantFile",

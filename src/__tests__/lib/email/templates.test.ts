@@ -207,12 +207,18 @@ describe("buildPasswordResetEmail", () => {
 
 describe("buildWelcomeEmail", () => {
   it("returns correct subject", () => {
-    const { subject } = buildWelcomeEmail({ userName: "Ben", dashboardUrl: "https://example.com/dashboard" });
+    const { subject } = buildWelcomeEmail({
+      userName: "Ben",
+      dashboardUrl: "https://example.com/dashboard",
+    });
     expect(subject).toBe("Welcome to DormantFile");
   });
 
   it("html includes greeting and CTA", () => {
-    const { html } = buildWelcomeEmail({ userName: "Ben", dashboardUrl: "https://example.com/dashboard" });
+    const { html } = buildWelcomeEmail({
+      userName: "Ben",
+      dashboardUrl: "https://example.com/dashboard",
+    });
     expect(html).toContain("Ben");
     expect(html).toContain("https://example.com/dashboard");
     expect(html).toContain("Add Your First Company");
@@ -234,12 +240,16 @@ describe("buildPaymentFailedEmail", () => {
 
 describe("buildSubscriptionCancelledEmail", () => {
   it("returns correct subject", () => {
-    const { subject } = buildSubscriptionCancelledEmail({ choosePlanUrl: "https://example.com/choose-plan" });
+    const { subject } = buildSubscriptionCancelledEmail({
+      choosePlanUrl: "https://example.com/choose-plan",
+    });
     expect(subject).toContain("subscription has ended");
   });
 
   it("html explains what is preserved and lost", () => {
-    const { html } = buildSubscriptionCancelledEmail({ choosePlanUrl: "https://example.com/choose-plan" });
+    const { html } = buildSubscriptionCancelledEmail({
+      choosePlanUrl: "https://example.com/choose-plan",
+    });
     expect(html).toContain("preserved");
     expect(html).toContain("Resubscribe");
     expect(html).toContain("https://example.com/choose-plan");

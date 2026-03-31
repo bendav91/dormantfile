@@ -11,8 +11,14 @@ const inter = Inter({
   display: "swap",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+
 export const metadata: Metadata = {
-  title: "DormantFile - Dormant Company Filing Made Simple",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "DormantFile — Dormant Company Filing Made Simple",
+    template: "%s | DormantFile",
+  },
   description:
     "File your dormant company accounts and nil CT600 tax returns online. Direct submission to Companies House and HMRC.",
   other: {

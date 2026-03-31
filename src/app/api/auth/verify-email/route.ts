@@ -59,7 +59,8 @@ export async function POST(req: Request) {
       select: { name: true, email: true },
     });
     if (user) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+      const appUrl =
+        process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
       const { subject, html } = buildWelcomeEmail({
         userName: user.name,
         dashboardUrl: `${appUrl}/dashboard`,

@@ -29,12 +29,15 @@ const ibmPlexSans = IBM_Plex_Sans({
   display: "swap",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+
 export const metadata: Metadata = {
-  title: "How It Works | DormantFile",
+  title: "How Dormant Company Filing Works",
   description:
     "Step-by-step guide to filing dormant company accounts and a nil CT600 return with DormantFile.",
+  alternates: { canonical: `${BASE_URL}/how-it-works` },
   openGraph: {
-    title: "How It Works | DormantFile",
+    title: "How Dormant Company Filing Works | DormantFile",
     description:
       "Step-by-step guide to filing dormant company accounts and a nil CT600 return with DormantFile.",
     type: "website",
@@ -78,12 +81,7 @@ export default function HowItWorksPage() {
       className={ibmPlexSans.className}
       style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)" }}
     >
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "How It Works" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "How It Works" }]} />
       <HowToJsonLd
         name="How to file dormant company accounts and nil CT600 returns"
         description="Step-by-step guide to filing for a dormant UK limited company using DormantFile."
@@ -129,8 +127,8 @@ export default function HowItWorksPage() {
               className="text-lg leading-relaxed max-w-xl mx-auto mb-12"
               style={{ color: "var(--color-text-body)" }}
             >
-              From sign-up to filed — the whole process takes under five minutes.
-              Three phases, two filings, zero accounting knowledge.
+              From sign-up to filed — the whole process takes under five minutes. Three phases, two
+              filings, zero accounting knowledge.
             </p>
 
             {/* Stat badges */}
@@ -192,10 +190,7 @@ export default function HowItWorksPage() {
                   border: "2px solid var(--color-primary-border)",
                 }}
               >
-                <span
-                  className="text-base font-bold"
-                  style={{ color: "var(--color-primary)" }}
-                >
+                <span className="text-base font-bold" style={{ color: "var(--color-primary)" }}>
                   1
                 </span>
               </div>
@@ -291,10 +286,7 @@ export default function HowItWorksPage() {
                       border: "2px solid var(--color-primary-border)",
                     }}
                   >
-                    <span
-                      className="text-base font-bold"
-                      style={{ color: "var(--color-primary)" }}
-                    >
+                    <span className="text-base font-bold" style={{ color: "var(--color-primary)" }}>
                       2
                     </span>
                   </div>
@@ -323,9 +315,9 @@ export default function HowItWorksPage() {
                   className="text-sm leading-relaxed mb-6 ml-14"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
-                  We calculate your filing deadlines automatically — nine months
-                  after your accounting reference date for accounts, twelve months
-                  for CT600. You get email reminders so you never miss a deadline.
+                  We calculate your filing deadlines automatically — nine months after your
+                  accounting reference date for accounts, twelve months for CT600. You get email
+                  reminders so you never miss a deadline.
                 </p>
                 <div className="ml-14">
                   <p
@@ -335,21 +327,19 @@ export default function HowItWorksPage() {
                     Reminders sent at
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {["90 days", "30 days", "14 days", "7 days", "3 days", "1 day"].map(
-                      (d) => (
-                        <span
-                          key={d}
-                          className="text-xs font-medium px-2.5 py-1 rounded-full"
-                          style={{
-                            backgroundColor: "var(--color-bg-inset)",
-                            color: "var(--color-text-secondary)",
-                            border: "1px solid var(--color-border)",
-                          }}
-                        >
-                          {d}
-                        </span>
-                      ),
-                    )}
+                    {["90 days", "30 days", "14 days", "7 days", "3 days", "1 day"].map((d) => (
+                      <span
+                        key={d}
+                        className="text-xs font-medium px-2.5 py-1 rounded-full"
+                        style={{
+                          backgroundColor: "var(--color-bg-inset)",
+                          color: "var(--color-text-secondary)",
+                          border: "1px solid var(--color-border)",
+                        }}
+                      >
+                        {d}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -398,15 +388,9 @@ export default function HowItWorksPage() {
                         ACME HOLDINGS LTD
                       </strong>{" "}
                       are due on{" "}
-                      <strong style={{ color: "var(--color-text-primary)" }}>
-                        28 April 2026
-                      </strong>
-                      .
+                      <strong style={{ color: "var(--color-text-primary)" }}>28 April 2026</strong>.
                     </p>
-                    <p
-                      className="text-xs mt-3"
-                      style={{ color: "var(--color-text-muted)" }}
-                    >
+                    <p className="text-xs mt-3" style={{ color: "var(--color-text-muted)" }}>
                       Log in to your dashboard to file now &rarr;
                     </p>
                   </div>
@@ -462,10 +446,7 @@ export default function HowItWorksPage() {
                   border: "2px solid var(--color-primary-border)",
                 }}
               >
-                <span
-                  className="text-base font-bold"
-                  style={{ color: "var(--color-primary)" }}
-                >
+                <span className="text-base font-bold" style={{ color: "var(--color-primary)" }}>
                   3
                 </span>
               </div>
@@ -494,8 +475,8 @@ export default function HowItWorksPage() {
               className="text-sm leading-relaxed mb-10 ml-14"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              Confirm your details and submit. Both filings go directly to the
-              government via official APIs.
+              Confirm your details and submit. Both filings go directly to the government via
+              official APIs.
             </p>
 
             {/* Timeline */}
@@ -529,10 +510,7 @@ export default function HowItWorksPage() {
                         border: "2px solid var(--color-primary-border)",
                       }}
                     >
-                      <step.icon
-                        size={18}
-                        style={{ color: "var(--color-primary)" }}
-                      />
+                      <step.icon size={18} style={{ color: "var(--color-primary)" }} />
                     </div>
                     {i < arr.length - 1 && (
                       <div
@@ -618,8 +596,8 @@ export default function HowItWorksPage() {
               className="text-sm mb-8 max-w-lg mx-auto"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              We never store your HMRC or Companies House login details.
-              Here&apos;s exactly how it works.
+              We never store your HMRC or Companies House login details. Here&apos;s exactly how it
+              works.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
@@ -630,11 +608,7 @@ export default function HowItWorksPage() {
                   border: "1px solid var(--color-border)",
                 }}
               >
-                <KeyRound
-                  size={18}
-                  className="mb-3"
-                  style={{ color: "var(--color-primary)" }}
-                />
+                <KeyRound size={18} className="mb-3" style={{ color: "var(--color-primary)" }} />
                 <h3
                   className="font-semibold text-sm mb-1.5"
                   style={{ color: "var(--color-text-primary)" }}
@@ -645,8 +619,8 @@ export default function HowItWorksPage() {
                   className="text-sm leading-relaxed"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
-                  Your credentials are used once at submission and immediately
-                  discarded. Never stored, never logged.
+                  Your credentials are used once at submission and immediately discarded. Never
+                  stored, never logged.
                 </p>
               </div>
               <div
@@ -656,11 +630,7 @@ export default function HowItWorksPage() {
                   border: "1px solid var(--color-border)",
                 }}
               >
-                <Shield
-                  size={18}
-                  className="mb-3"
-                  style={{ color: "var(--color-primary)" }}
-                />
+                <Shield size={18} className="mb-3" style={{ color: "var(--color-primary)" }} />
                 <h3
                   className="font-semibold text-sm mb-1.5"
                   style={{ color: "var(--color-text-primary)" }}
@@ -671,8 +641,8 @@ export default function HowItWorksPage() {
                   className="text-sm leading-relaxed"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
-                  Your Companies House auth code is used in-session to sign the
-                  submission. It&apos;s never persisted.
+                  Your Companies House auth code is used in-session to sign the submission.
+                  It&apos;s never persisted.
                 </p>
               </div>
             </div>
@@ -694,10 +664,7 @@ export default function HowItWorksPage() {
                   className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "var(--color-warning-bg)" }}
                 >
-                  <AlertCircle
-                    size={18}
-                    style={{ color: "var(--color-warning)" }}
-                  />
+                  <AlertCircle size={18} style={{ color: "var(--color-warning)" }} />
                 </div>
                 <div>
                   <h3
@@ -710,9 +677,8 @@ export default function HowItWorksPage() {
                     className="text-sm leading-relaxed"
                     style={{ color: "var(--color-text-secondary)" }}
                   >
-                    DormantFile shows all outstanding periods for your company.
-                    File them one at a time, starting from the oldest, and your
-                    company will be brought up to date.
+                    DormantFile shows all outstanding periods for your company. File them one at a
+                    time, starting from the oldest, and your company will be brought up to date.
                   </p>
                 </div>
               </div>
@@ -730,10 +696,7 @@ export default function HowItWorksPage() {
                   className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: "var(--color-primary-bg)" }}
                 >
-                  <FileCheck
-                    size={18}
-                    style={{ color: "var(--color-primary)" }}
-                  />
+                  <FileCheck size={18} style={{ color: "var(--color-primary)" }} />
                 </div>
                 <div>
                   <h3
@@ -746,9 +709,8 @@ export default function HowItWorksPage() {
                     className="text-sm leading-relaxed"
                     style={{ color: "var(--color-text-secondary)" }}
                   >
-                    No problem. Accounts and CT600 are independent filings — you
-                    can file one without the other. Many dormant companies only
-                    need to file annual accounts.{" "}
+                    No problem. Accounts and CT600 are independent filings — you can file one
+                    without the other. Many dormant companies only need to file annual accounts.{" "}
                     <Link
                       href="/guides/do-i-need-ct600-dormant-company"
                       className="font-medium hover:underline focus-ring rounded"
@@ -786,9 +748,8 @@ export default function HowItWorksPage() {
               className="text-base sm:text-lg leading-relaxed mb-10 max-w-lg mx-auto"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              Set up your company in minutes. When it&apos;s time to file, both
-              returns go directly to Companies House and HMRC. From &pound;19 a
-              year.
+              Set up your company in minutes. When it&apos;s time to file, both returns go directly
+              to Companies House and HMRC. From &pound;19 a year.
             </p>
             <div className="mb-8">
               <Link
@@ -800,8 +761,7 @@ export default function HowItWorksPage() {
                   padding: "16px 36px",
                 }}
               >
-                {isFilingLive() ? "Start filing today" : "Get started"}{" "}
-                <ArrowRight size={18} />
+                {isFilingLive() ? "Start filing today" : "Get started"} <ArrowRight size={18} />
               </Link>
             </div>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
@@ -810,11 +770,7 @@ export default function HowItWorksPage() {
                 { icon: KeyRound, text: "Credentials never stored" },
                 { icon: RotateCcw, text: "14-day refund guarantee" },
               ].map((item) => (
-                <MicroTrust
-                  key={item.text}
-                  icon={item.icon}
-                  text={item.text}
-                />
+                <MicroTrust key={item.text} icon={item.icon} text={item.text} />
               ))}
             </div>
           </div>

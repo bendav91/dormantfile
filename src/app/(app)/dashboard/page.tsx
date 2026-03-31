@@ -290,8 +290,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               fontWeight: 500,
             }}
           >
-            Filing isn&apos;t available just yet. Add your companies and explore the dashboard &mdash;
-            we&apos;ll notify you when you can choose a plan and start filing.
+            Filing isn&apos;t available just yet. Add your companies and explore the dashboard
+            &mdash; we&apos;ll notify you when you can choose a plan and start filing.
           </p>
         </div>
       )}
@@ -519,7 +519,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           </div>
 
           {/* Search + sort row */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2.5" style={{ marginBottom: "16px" }}>
+          <div
+            className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2.5"
+            style={{ marginBottom: "16px" }}
+          >
             <CompanySearch />
             <SortDropdown currentSort={sort} />
           </div>

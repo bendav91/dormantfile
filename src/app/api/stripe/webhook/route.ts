@@ -140,7 +140,10 @@ export async function POST(req: NextRequest) {
         });
 
         if (user) {
-          const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+          const appUrl =
+            process.env.NEXT_PUBLIC_APP_URL ||
+            process.env.NEXTAUTH_URL ||
+            "https://dormantfile.co.uk";
 
           try {
             if (status === "past_due") {

@@ -25,12 +25,15 @@ const ibmPlexSans = IBM_Plex_Sans({
   display: "swap",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+
 export const metadata: Metadata = {
-  title: "Pricing | DormantFile",
+  title: "Dormant Company Filing Pricing — From £19/yr",
   description:
     "DormantFile pricing: from £19/year for one dormant company. File annual accounts and nil CT600 returns from one dashboard.",
+  alternates: { canonical: `${BASE_URL}/pricing` },
   openGraph: {
-    title: "Pricing | DormantFile",
+    title: "Dormant Company Filing Pricing — From £19/yr | DormantFile",
     description:
       "DormantFile pricing: from £19/year for one dormant company. Both filings, one dashboard.",
     type: "website",
@@ -60,8 +63,7 @@ const plans = [
     price: "39",
     period: "per year",
     perUnit: "£3.90 per company",
-    description:
-      "Side projects, holding structures, or a few companies on the register.",
+    description: "Side projects, holding structures, or a few companies on the register.",
     features: [
       "Accounts + CT600 for up to 10 companies",
       "One dashboard \u2014 all companies at a glance",
@@ -77,8 +79,7 @@ const plans = [
     price: "49",
     period: "per year",
     perUnit: "49p per company",
-    description:
-      "For accountants and formation agents filing on behalf of clients.",
+    description: "For accountants and formation agents filing on behalf of clients.",
     features: [
       "Accounts + CT600 for up to 100 companies",
       "File as agent on behalf of your clients",
@@ -130,12 +131,7 @@ export default function PricingPage() {
         color: "var(--color-text-primary)",
       }}
     >
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "Pricing" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "Pricing" }]} />
 
       <SiteNav variant="marketing" />
 
@@ -161,15 +157,10 @@ export default function PricingPage() {
                   </Link>
                 </li>
                 <li className="flex items-center gap-2">
-                  <span
-                    aria-hidden="true"
-                    style={{ color: "var(--color-text-muted)" }}
-                  >
+                  <span aria-hidden="true" style={{ color: "var(--color-text-muted)" }}>
                     ›
                   </span>
-                  <span style={{ color: "var(--color-text-body)" }}>
-                    Pricing
-                  </span>
+                  <span style={{ color: "var(--color-text-body)" }}>Pricing</span>
                 </li>
               </ol>
             </nav>
@@ -178,18 +169,14 @@ export default function PricingPage() {
               className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold leading-[1.15] tracking-tight mb-5"
               style={{ color: "var(--color-text-primary)" }}
             >
-              Both filings.{" "}
-              <span style={{ color: "var(--color-primary)" }}>
-                From £19 a year.
-              </span>
+              Both filings. <span style={{ color: "var(--color-primary)" }}>From £19 a year.</span>
             </h1>
             <p
               className="text-lg leading-relaxed max-w-xl mx-auto mb-6"
               style={{ color: "var(--color-text-body)" }}
             >
-              Every plan includes annual accounts and CT600. No add-ons, no
-              hidden fees. Plans are based on how many companies you manage, not
-              how many filings you make.
+              Every plan includes annual accounts and CT600. No add-ons, no hidden fees. Plans are
+              based on how many companies you manage, not how many filings you make.
             </p>
 
             <a
@@ -258,10 +245,7 @@ export default function PricingPage() {
                     >
                       £{plan.price}
                     </span>
-                    <span
-                      className="text-sm ml-1"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
+                    <span className="text-sm ml-1" style={{ color: "var(--color-text-secondary)" }}>
                       {plan.period}
                     </span>
                   </div>
@@ -284,10 +268,7 @@ export default function PricingPage() {
                   </p>
                   <ul className="space-y-2.5 mb-7 flex-1">
                     {plan.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-start gap-2.5"
-                      >
+                      <li key={feature} className="flex items-start gap-2.5">
                         <CheckCircle
                           size={16}
                           style={{
@@ -296,10 +277,7 @@ export default function PricingPage() {
                             marginTop: 2,
                           }}
                         />
-                        <span
-                          className="text-sm"
-                          style={{ color: "var(--color-text-body)" }}
-                        >
+                        <span className="text-sm" style={{ color: "var(--color-text-body)" }}>
                           {feature}
                         </span>
                       </li>
@@ -319,21 +297,15 @@ export default function PricingPage() {
                     {plan.cta}
                   </Link>
                   <div className="mt-3 text-center">
-                    <MicroTrust
-                      icon={RotateCcw}
-                      text="14-day refund guarantee"
-                    />
+                    <MicroTrust icon={RotateCcw} text="14-day refund guarantee" />
                   </div>
                 </div>
               ))}
             </div>
 
-            <p
-              className="text-xs text-center mt-6"
-              style={{ color: "var(--color-text-muted)" }}
-            >
-              All plans include credentials-never-stored security. Your HMRC
-              Gateway login is used once and immediately discarded.
+            <p className="text-xs text-center mt-6" style={{ color: "var(--color-text-muted)" }}>
+              All plans include credentials-never-stored security. Your HMRC Gateway login is used
+              once and immediately discarded.
             </p>
           </div>
         </section>
@@ -359,10 +331,7 @@ export default function PricingPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
               {/* DormantFile — highlighted */}
-              <div
-                className="rounded-xl p-6"
-                style={{ backgroundColor: "var(--color-primary)" }}
-              >
+              <div className="rounded-xl p-6" style={{ backgroundColor: "var(--color-primary)" }}>
                 <div className="flex items-center gap-2.5 mb-4">
                   <Zap
                     size={18}
@@ -371,13 +340,9 @@ export default function PricingPage() {
                       flexShrink: 0,
                     }}
                   />
-                  <p className="text-sm font-semibold text-white">
-                    DormantFile
-                  </p>
+                  <p className="text-sm font-semibold text-white">DormantFile</p>
                 </div>
-                <p
-                  className="text-2xl font-bold text-white mb-1"
-                >
+                <p className="text-2xl font-bold text-white mb-1">
                   From £19
                   <span
                     className="text-sm font-medium ml-1"
@@ -386,10 +351,7 @@ export default function PricingPage() {
                     /yr
                   </span>
                 </p>
-                <p
-                  className="text-xs mb-4"
-                  style={{ color: "rgba(255,255,255,0.7)" }}
-                >
+                <p className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.7)" }}>
                   Under 2 minutes
                 </p>
                 <ul className="space-y-2.5">
@@ -450,10 +412,7 @@ export default function PricingPage() {
                     /co
                   </span>
                 </p>
-                <p
-                  className="text-xs mb-4"
-                  style={{ color: "var(--color-text-muted)" }}
-                >
+                <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
                   Varies
                 </p>
                 <ul className="space-y-2.5">
@@ -515,10 +474,7 @@ export default function PricingPage() {
                     /yr
                   </span>
                 </p>
-                <p
-                  className="text-xs mb-4"
-                  style={{ color: "var(--color-text-muted)" }}
-                >
+                <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
                   30+ minutes
                 </p>
                 <ul className="space-y-2.5">
@@ -580,10 +536,7 @@ export default function PricingPage() {
                     (accounts)
                   </span>
                 </p>
-                <p
-                  className="text-xs mb-4"
-                  style={{ color: "var(--color-text-muted)" }}
-                >
+                <p className="text-xs mb-4" style={{ color: "var(--color-text-muted)" }}>
                   1–2 hours
                 </p>
                 <ul className="space-y-2.5">
@@ -636,8 +589,7 @@ export default function PricingPage() {
               className="text-sm text-center mb-10"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              No add-ons. No tiers for individual features. Everything below
-              comes with every plan.
+              No add-ons. No tiers for individual features. Everything below comes with every plan.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -649,8 +601,7 @@ export default function PricingPage() {
                 },
                 {
                   title: "Nil CT600 returns",
-                  description:
-                    "Corporation Tax returns filed directly to HMRC via GovTalk.",
+                  description: "Corporation Tax returns filed directly to HMRC via GovTalk.",
                 },
                 {
                   title: "Deadline reminders",
@@ -800,8 +751,8 @@ export default function PricingPage() {
               className="text-base sm:text-lg text-center leading-relaxed mb-10 max-w-lg mx-auto"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              Set up your company in minutes. When it&apos;s time to file, both
-              returns go directly to Companies House and HMRC. From £19 a year.
+              Set up your company in minutes. When it&apos;s time to file, both returns go directly
+              to Companies House and HMRC. From £19 a year.
             </p>
 
             <div className="text-center mb-8">
@@ -814,8 +765,7 @@ export default function PricingPage() {
                   padding: "16px 36px",
                 }}
               >
-                {isFilingLive() ? "Start filing today" : "Get started"}{" "}
-                <ArrowRight size={18} />
+                {isFilingLive() ? "Start filing today" : "Get started"} <ArrowRight size={18} />
               </Link>
             </div>
 
@@ -825,11 +775,7 @@ export default function PricingPage() {
                 { icon: KeyRound, text: "Credentials never stored" },
                 { icon: RotateCcw, text: "14-day refund guarantee" },
               ].map((item) => (
-                <MicroTrust
-                  key={item.text}
-                  icon={item.icon}
-                  text={item.text}
-                />
+                <MicroTrust key={item.text} icon={item.icon} text={item.text} />
               ))}
             </div>
           </div>

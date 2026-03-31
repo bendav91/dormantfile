@@ -37,10 +37,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <h1
-        className="text-2xl font-bold mb-1"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
         Sign in
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -89,10 +86,7 @@ export default function LoginPage() {
         </AuthButton>
       </form>
 
-      <p
-        className="mt-8 text-center text-sm"
-        style={{ color: "var(--color-text-secondary)" }}
-      >
+      <p className="mt-8 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
         Don&apos;t have an account?{" "}
         <Link
           href="/register"

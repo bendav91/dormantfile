@@ -49,7 +49,11 @@ export default async function ChoosePlanPage() {
         </p>
       </div>
 
-      <PlanPicker currentTier={user.subscriptionTier} isUpgrade={isUpgrade} disabled={!isFilingLive()} />
+      <PlanPicker
+        currentTier={user.subscriptionTier}
+        isUpgrade={isUpgrade}
+        disabled={!isFilingLive()}
+      />
     </div>
   );
 }

@@ -109,10 +109,7 @@ function VerifyEmailContent() {
                 />
               </div>
             </div>
-            <h1
-              className="text-2xl font-bold mb-2"
-              style={{ color: "var(--color-text-primary)" }}
-            >
+            <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
               Verifying your email&hellip;
             </h1>
             <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
@@ -146,10 +143,7 @@ function VerifyEmailContent() {
                 </svg>
               </div>
             </div>
-            <h1
-              className="text-2xl font-bold mb-3"
-              style={{ color: "var(--color-text-primary)" }}
-            >
+            <h1 className="text-2xl font-bold mb-3" style={{ color: "var(--color-text-primary)" }}>
               Verification failed
             </h1>
             <div className="mb-6">
@@ -195,32 +189,27 @@ function VerifyEmailContent() {
             </svg>
           </div>
         </div>
-        <h1
-          className="text-2xl font-bold mb-2"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+        <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--color-text-primary)" }}>
           Check your inbox
         </h1>
         <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
           We sent a verification link to
         </p>
         {session?.user?.email && (
-          <p
-            className="mt-1 text-sm font-semibold"
-            style={{ color: "var(--color-text-primary)" }}
-          >
+          <p className="mt-1 text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
             {session.user.email}
           </p>
         )}
-        <p
-          className="mt-3 text-sm"
-          style={{ color: "var(--color-text-muted)" }}
-        >
+        <p className="mt-3 text-sm" style={{ color: "var(--color-text-muted)" }}>
           Click the link in the email to verify your account.
         </p>
       </div>
 
-      {sent && <div className="mb-4"><AuthSuccess message="Verification email sent!" /></div>}
+      {sent && (
+        <div className="mb-4">
+          <AuthSuccess message="Verification email sent!" />
+        </div>
+      )}
 
       <AuthButton
         onClick={handleResend}

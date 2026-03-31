@@ -13,7 +13,8 @@ function sign(data: string): string {
 }
 
 export function generateMuteUrl(userId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
   const exp = (Date.now() + SEVEN_DAYS_MS).toString();
   const sig = sign(`${userId}:mute-reminders:${exp}`);
   return `${baseUrl}/api/account/mute-reminders?uid=${encodeURIComponent(userId)}&exp=${exp}&sig=${sig}`;

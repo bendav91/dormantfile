@@ -1,3 +1,3 @@
 export function isFilingLive(): boolean {
-  return process.env.NEXT_PUBLIC_FILING_LIVE === 'true'
+  return process.env.NEXT_PUBLIC_FILING_LIVE === "true";
 }

@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
   const error = await handleMute(req);
   if (error) return error;
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
   return NextResponse.redirect(`${baseUrl}/settings?reminders=muted`);
 }
 

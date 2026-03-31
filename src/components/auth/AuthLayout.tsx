@@ -12,11 +12,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       className="min-h-screen flex flex-col items-center justify-center px-6 py-12"
       style={{ backgroundColor: "var(--color-bg-page)" }}
     >
-      <Link
-        href="/"
-        className="mb-8 focus-ring rounded"
-        aria-label="DormantFile home"
-      >
+      <Link href="/" className="mb-8 focus-ring rounded" aria-label="DormantFile home">
         <Logo height={28} />
       </Link>
 

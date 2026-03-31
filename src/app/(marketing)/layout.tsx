@@ -21,13 +21,8 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       }}
     >
       <SiteNav variant="marketing" />
-      <main
-        id="main-content"
-        className="px-6 py-10 flex-1"
-      >
-        <div className="max-w-[960px] mx-auto">
-          {children}
-        </div>
+      <main id="main-content" className="px-6 py-10 flex-1">
+        <div className="max-w-[960px] mx-auto">{children}</div>
       </main>
       <SiteFooter variant="marketing" />
     </div>

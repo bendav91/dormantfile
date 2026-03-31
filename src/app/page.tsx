@@ -33,10 +33,13 @@ const ibmPlexSans = IBM_Plex_Sans({
   display: "swap",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
+
 export const metadata: Metadata = {
   title: "DormantFile — Dormant Company Filing Made Simple",
   description:
     "File your dormant company accounts and nil CT600 tax returns online. Direct submission to Companies House and HMRC from one dashboard. From £19/year.",
+  alternates: { canonical: BASE_URL },
   openGraph: {
     title: "DormantFile — Dormant Company Filing Made Simple",
     description:
@@ -268,10 +271,7 @@ export default function LandingPage() {
           >
             Not another accounting tool
           </h2>
-          <p
-            className="text-sm text-center mb-10"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p className="text-sm text-center mb-10" style={{ color: "var(--color-text-secondary)" }}>
             Your options for filing a dormant company&apos;s returns.
           </p>
 
@@ -286,10 +286,7 @@ export default function LandingPage() {
             >
               <div className="flex items-center gap-2.5 mb-4">
                 <Briefcase size={18} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
-                <p
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
+                <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
                   Your accountant
                 </p>
               </div>
@@ -325,10 +322,7 @@ export default function LandingPage() {
             >
               <div className="flex items-center gap-2.5 mb-4">
                 <Monitor size={18} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
-                <p
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--color-text-primary)" }}
-                >
+                <p className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
                   Accounting software
                 </p>
               </div>
@@ -400,10 +394,7 @@ export default function LandingPage() {
           >
             Three steps. Under two minutes.
           </h2>
-          <p
-            className="text-sm text-center mb-12"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p className="text-sm text-center mb-12" style={{ color: "var(--color-text-secondary)" }}>
             From company number to filed returns — here&apos;s the whole process.
           </p>
 
@@ -452,7 +443,10 @@ export default function LandingPage() {
                 </div>
 
                 {/* Content */}
-                <div style={{ paddingBottom: i < arr.length - 1 ? "2.5rem" : 0 }} className="pt-1.5 flex-1 min-w-0">
+                <div
+                  style={{ paddingBottom: i < arr.length - 1 ? "2.5rem" : 0 }}
+                  className="pt-1.5 flex-1 min-w-0"
+                >
                   <div className="flex items-center gap-3 mb-1.5">
                     <h3
                       className="font-semibold text-base"
@@ -520,13 +514,10 @@ export default function LandingPage() {
                 <br />
                 Your filing obligations aren&apos;t.
               </h2>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "var(--color-text-body)" }}
-              >
-                HMRC shut down CATO — the only free way to file a Corporation Tax
-                return. If you&apos;re a director of a dormant company, you still
-                need to file every year or face penalties.
+              <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-body)" }}>
+                HMRC shut down CATO — the only free way to file a Corporation Tax return. If
+                you&apos;re a director of a dormant company, you still need to file every year or
+                face penalties.
               </p>
             </div>
 
@@ -651,8 +642,7 @@ export default function LandingPage() {
                 price: "49",
                 period: "per year",
                 perUnit: "49p per company",
-                description:
-                  "For accountants and formation agents filing on behalf of clients.",
+                description: "For accountants and formation agents filing on behalf of clients.",
                 features: [
                   "Accounts + CT600 for up to 100 companies",
                   "File as agent on behalf of your clients",
@@ -709,10 +699,7 @@ export default function LandingPage() {
                   </span>
                 </div>
                 {plan.perUnit && (
-                  <p
-                    className="text-xs font-medium mb-4"
-                    style={{ color: "var(--color-primary)" }}
-                  >
+                  <p className="text-xs font-medium mb-4" style={{ color: "var(--color-primary)" }}>
                     {plan.perUnit}
                   </p>
                 )}
@@ -742,9 +729,7 @@ export default function LandingPage() {
                   href="/register"
                   className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
                   style={{
-                    backgroundColor: plan.highlighted
-                      ? "var(--color-cta)"
-                      : "var(--color-primary)",
+                    backgroundColor: plan.highlighted ? "var(--color-cta)" : "var(--color-primary)",
                     color: "var(--color-bg-card)",
                     padding: "12px 24px",
                   }}
@@ -789,10 +774,7 @@ export default function LandingPage() {
           >
             You&apos;re probably wondering
           </h2>
-          <p
-            className="text-sm text-center mb-12"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p className="text-sm text-center mb-12" style={{ color: "var(--color-text-secondary)" }}>
             The things we&apos;d want to know before signing up.{" "}
             <Link
               href="/faq"
@@ -802,10 +784,7 @@ export default function LandingPage() {
               See all FAQs &rarr;
             </Link>
           </p>
-          <div
-            className="max-w-3xl mx-auto"
-            style={{ borderTop: "1px solid var(--color-border)" }}
-          >
+          <div className="max-w-3xl mx-auto" style={{ borderTop: "1px solid var(--color-border)" }}>
             {faqItems.map(({ question, answer }, i) => (
               <div
                 key={question}
@@ -869,7 +848,10 @@ export default function LandingPage() {
                 >
                   {stat.label}
                 </p>
-                <p className="text-2xl sm:text-3xl font-bold leading-none" style={{ color: "var(--color-primary)" }}>
+                <p
+                  className="text-2xl sm:text-3xl font-bold leading-none"
+                  style={{ color: "var(--color-primary)" }}
+                >
                   {stat.value}
                   {stat.unit && (
                     <span
@@ -895,8 +877,8 @@ export default function LandingPage() {
             className="text-base sm:text-lg text-center leading-relaxed mb-10 max-w-lg mx-auto"
             style={{ color: "var(--color-text-secondary)" }}
           >
-            Set up your company in minutes. When it&apos;s time to file, both
-            returns go directly to Companies House and HMRC. From £19 a year.
+            Set up your company in minutes. When it&apos;s time to file, both returns go directly to
+            Companies House and HMRC. From £19 a year.
           </p>
 
           {/* CTA */}
@@ -910,8 +892,7 @@ export default function LandingPage() {
                 padding: "16px 36px",
               }}
             >
-              {isFilingLive() ? "Start filing today" : "Get ready to file"}{" "}
-              <ArrowRight size={18} />
+              {isFilingLive() ? "Start filing today" : "Get ready to file"} <ArrowRight size={18} />
             </Link>
           </div>
 

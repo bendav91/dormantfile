@@ -79,7 +79,11 @@ export async function PATCH(req: Request) {
 
       await Promise.all([
         sendEmail({ to: trimmedEmail, subject: changeEmail.subject, html: changeEmail.html }),
-        sendEmail({ to: session.user.email!, subject: notifyEmail.subject, html: notifyEmail.html }),
+        sendEmail({
+          to: session.user.email!,
+          subject: notifyEmail.subject,
+          html: notifyEmail.html,
+        }),
       ]);
     } catch (err) {
       console.error("Failed to send email change emails:", err);

@@ -16,10 +16,7 @@ export function FAQAccordion({ items }: { items: FAQItem[] }) {
       {items.map((item, i) => {
         const isOpen = openIndex === i;
         return (
-          <div
-            key={item.question}
-            style={{ borderBottom: "1px solid var(--color-border)" }}
-          >
+          <div key={item.question} style={{ borderBottom: "1px solid var(--color-border)" }}>
             <button
               type="button"
               onClick={() => setOpenIndex(isOpen ? null : i)}

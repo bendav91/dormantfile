@@ -25,7 +25,8 @@ export async function DELETE() {
   }
 
   // Send deletion confirmation while we still have the email
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
   try {
     const { subject, html } = buildAccountDeletedEmail({
       contactUrl: `${appUrl}/contact`,

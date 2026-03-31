@@ -27,9 +27,7 @@ export function AuthButton({
         borderStyle: "solid",
         borderColor: isPrimary ? "transparent" : "var(--color-border)",
         minHeight: "44px",
-        ...(isPrimary && !disabled && !loading
-          ? {}
-          : {}),
+        ...(isPrimary && !disabled && !loading ? {} : {}),
       }}
       onMouseEnter={(e) => {
         if (!disabled && !loading && isPrimary) {
@@ -53,14 +51,7 @@ export function AuthButton({
           aria-hidden="true"
           style={{ flexShrink: 0 }}
         >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="3"
-            opacity="0.25"
-          />
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity="0.25" />
           <path
             d="M12 2a10 10 0 0 1 10 10"
             stroke="currentColor"

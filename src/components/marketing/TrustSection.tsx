@@ -49,23 +49,15 @@ export function TrustSection({ children }: { children?: React.ReactNode }) {
             </h2>
 
             <div className="space-y-4">
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "var(--color-text-body)" }}
-              >
-                DormantFile exists because the old tools either shut down or were
-                never built for this job. I&apos;m a UK software engineer, and I
-                built it from scratch — not adapted from accounting software, not
-                a side feature in a bigger product.
+              <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-body)" }}>
+                DormantFile exists because the old tools either shut down or were never built for
+                this job. I&apos;m a UK software engineer, and I built it from scratch — not adapted
+                from accounting software, not a side feature in a bigger product.
               </p>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: "var(--color-text-body)" }}
-              >
-                Your filings go through the same official HMRC GovTalk and
-                Companies House Software Filing APIs that Xero and FreeAgent use.
-                Same infrastructure, fraction of the price, and nothing you
-                don&apos;t need.
+              <p className="text-sm leading-relaxed" style={{ color: "var(--color-text-body)" }}>
+                Your filings go through the same official HMRC GovTalk and Companies House Software
+                Filing APIs that Xero and FreeAgent use. Same infrastructure, fraction of the price,
+                and nothing you don&apos;t need.
               </p>
             </div>
           </div>
@@ -79,10 +71,7 @@ export function TrustSection({ children }: { children?: React.ReactNode }) {
               The details that matter
             </p>
 
-            <div
-              className="space-y-0"
-              style={{ borderTop: "1px solid var(--color-border)" }}
-            >
+            <div className="space-y-0" style={{ borderTop: "1px solid var(--color-border)" }}>
               {[
                 {
                   icon: Shield,

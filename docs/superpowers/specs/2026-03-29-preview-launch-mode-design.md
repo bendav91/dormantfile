@@ -13,7 +13,7 @@ A single environment variable `NEXT_PUBLIC_LAUNCH_MODE=preview` gates all previe
 New file: `src/lib/launch-mode.ts`
 
 ```ts
-export const isPreviewMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === 'preview'
+export const isPreviewMode = process.env.NEXT_PUBLIC_LAUNCH_MODE === "preview";
 ```
 
 A build-time constant (Next.js inlines `NEXT_PUBLIC_` values). Works both server-side and client-side.
@@ -38,9 +38,9 @@ Same `<LaunchBanner>` component in the app layout (`src/app/(app)/layout.tsx`), 
 
 In `src/app/page.tsx`, when preview mode is active:
 
-| Location | Current copy | Preview copy |
-|----------|-------------|--------------|
-| Hero CTA | "Start filing" | "Get started" |
+| Location  | Current copy         | Preview copy        |
+| --------- | -------------------- | ------------------- |
+| Hero CTA  | "Start filing"       | "Get started"       |
 | Final CTA | "Start filing today" | "Get started today" |
 
 Pricing section CTAs ("Get started") stay as-is. All links still point to `/register`.
@@ -81,6 +81,7 @@ The daily reminder cron (`/api/cron/reminders`) sends filing deadline emails. In
 2. Redeploy
 
 No code changes required. `isPreviewMode` evaluates to false:
+
 - Banners disappear
 - File buttons reappear
 - Checkout enables
@@ -97,17 +98,17 @@ No special conversion code is needed. The existing infrastructure handles it:
 
 ## Files touched
 
-| File | Change |
-|------|--------|
-| `src/lib/launch-mode.ts` | New — `isPreviewMode()` helper |
-| `src/app/(marketing)/layout.tsx` | Add `<LaunchBanner>` above nav |
-| `src/app/(app)/layout.tsx` | Add `<LaunchBanner>` with app copy |
-| `src/app/page.tsx` | Conditional CTA copy + `<LaunchBanner>` above nav |
-| `src/components/filings-tab.tsx` | Hide file/retry buttons in preview |
-| `src/app/(app)/choose-plan/page.tsx` | Disable checkout, show note |
-| `src/components/launch-banner.tsx` | New — banner component |
-| `src/components/subscription-banner.tsx` | Suppress in preview mode |
-| `src/app/api/cron/reminders/route.ts` | Skip sending in preview mode |
+| File                                     | Change                                            |
+| ---------------------------------------- | ------------------------------------------------- |
+| `src/lib/launch-mode.ts`                 | New — `isPreviewMode()` helper                    |
+| `src/app/(marketing)/layout.tsx`         | Add `<LaunchBanner>` above nav                    |
+| `src/app/(app)/layout.tsx`               | Add `<LaunchBanner>` with app copy                |
+| `src/app/page.tsx`                       | Conditional CTA copy + `<LaunchBanner>` above nav |
+| `src/components/filings-tab.tsx`         | Hide file/retry buttons in preview                |
+| `src/app/(app)/choose-plan/page.tsx`     | Disable checkout, show note                       |
+| `src/components/launch-banner.tsx`       | New — banner component                            |
+| `src/components/subscription-banner.tsx` | Suppress in preview mode                          |
+| `src/app/api/cron/reminders/route.ts`    | Skip sending in preview mode                      |
 
 ## Out of scope
 

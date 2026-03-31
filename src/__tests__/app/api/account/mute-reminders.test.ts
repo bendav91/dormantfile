@@ -44,7 +44,9 @@ describe("mute-reminders route", () => {
   it("rejects missing parameters with 400", async () => {
     const { GET } = await import("@/app/api/account/mute-reminders/route");
     const { NextRequest } = await import("next/server");
-    const nextReq = new NextRequest(new Request("https://example.com/api/account/mute-reminders", { method: "GET" }));
+    const nextReq = new NextRequest(
+      new Request("https://example.com/api/account/mute-reminders", { method: "GET" }),
+    );
 
     const response = await GET(nextReq);
     expect(response.status).toBe(400);

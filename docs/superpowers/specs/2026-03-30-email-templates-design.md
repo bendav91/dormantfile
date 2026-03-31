@@ -28,7 +28,7 @@ function emailShell(options: {
   preheader?: string;
   includeUnsubscribe?: boolean;
   unsubscribeUrl?: string;
-}): string
+}): string;
 ```
 
 ### Structure
@@ -45,24 +45,25 @@ function emailShell(options: {
 
 ### Dark mode colour map
 
-| Element | Light | Dark |
-|---------|-------|------|
-| Body background | `#f8f9fa` | `#111827` |
-| Card background | `#ffffff` | `#1f2937` |
-| Heading text | `#1a1a1a` | `#f1f5f9` |
-| Body text | `#4b5563` | `#94a3b8` |
-| Secondary text | `#9ca3af` | `#6b7280` |
-| Primary blue | `#2563eb` | `#3b82f6` |
-| Blue links | `#2563eb` | `#60a5fa` |
-| Overdue red | `#dc2626` | `#f87171` |
-| Divider | `#e5e7eb` | `#374151` |
+| Element           | Light     | Dark      |
+| ----------------- | --------- | --------- |
+| Body background   | `#f8f9fa` | `#111827` |
+| Card background   | `#ffffff` | `#1f2937` |
+| Heading text      | `#1a1a1a` | `#f1f5f9` |
+| Body text         | `#4b5563` | `#94a3b8` |
+| Secondary text    | `#9ca3af` | `#6b7280` |
+| Primary blue      | `#2563eb` | `#3b82f6` |
+| Blue links        | `#2563eb` | `#60a5fa` |
+| Overdue red       | `#dc2626` | `#f87171` |
+| Divider           | `#e5e7eb` | `#374151` |
 | Footer background | `#f9fafb` | `#111827` |
 | Button background | `#2563eb` | `#3b82f6` |
-| Button text | `#ffffff` | `#ffffff` |
+| Button text       | `#ffffff` | `#ffffff` |
 
 ### Footer content
 
 All emails:
+
 ```
 Help · Privacy · Terms
 © {year} dormantfile.co.uk
@@ -70,11 +71,13 @@ Help · Privacy · Terms
 ```
 
 Reminder emails additionally:
+
 ```
 Mute reminder emails
 ```
 
 Footer links point to:
+
 - Help: `{baseUrl}/answers`
 - Privacy: `{baseUrl}/privacy`
 - Terms: `{baseUrl}/terms`
@@ -100,27 +103,28 @@ Footer links point to:
 
 ### Existing (refactored to use shell)
 
-| # | Function | Subject | Trigger | Unsubscribe |
-|---|----------|---------|---------|-------------|
-| 1 | `buildVerificationEmail` | Verify your email address | Registration | No |
-| 2 | `buildPasswordResetEmail` | Reset your DormantFile password | Forgot password | No |
-| 3 | `buildEmailChangeEmail` | Confirm your new email address | Profile update → new email | No |
-| 4 | `buildEmailChangeNotificationEmail` | Email change requested on your DormantFile account | Profile update → old email | No |
-| 5 | `buildFilingConfirmationEmail` | {filingLabel} filed successfully: {companyName} | Accounts/CT600 accepted | No |
-| 6 | `buildReminderEmail` | Action required / Filing reminder | Daily cron (08:00) | **Yes** |
+| #   | Function                            | Subject                                            | Trigger                    | Unsubscribe |
+| --- | ----------------------------------- | -------------------------------------------------- | -------------------------- | ----------- |
+| 1   | `buildVerificationEmail`            | Verify your email address                          | Registration               | No          |
+| 2   | `buildPasswordResetEmail`           | Reset your DormantFile password                    | Forgot password            | No          |
+| 3   | `buildEmailChangeEmail`             | Confirm your new email address                     | Profile update → new email | No          |
+| 4   | `buildEmailChangeNotificationEmail` | Email change requested on your DormantFile account | Profile update → old email | No          |
+| 5   | `buildFilingConfirmationEmail`      | {filingLabel} filed successfully: {companyName}    | Accounts/CT600 accepted    | No          |
+| 6   | `buildReminderEmail`                | Action required / Filing reminder                  | Daily cron (08:00)         | **Yes**     |
 
 ### New
 
-| # | Function | Subject | Trigger | Unsubscribe |
-|---|----------|---------|---------|-------------|
-| 7 | `buildWelcomeEmail` | Welcome to DormantFile | After email verification succeeds | No |
-| 8 | `buildPaymentFailedEmail` | Payment failed — action required | Stripe `invoice.payment_failed` webhook | No |
-| 9 | `buildSubscriptionCancelledEmail` | Your DormantFile subscription has ended | Stripe `customer.subscription.deleted` webhook | No |
-| 10 | `buildAccountDeletedEmail` | Your DormantFile account has been deleted | After account delete completes | No |
+| #   | Function                          | Subject                                   | Trigger                                        | Unsubscribe |
+| --- | --------------------------------- | ----------------------------------------- | ---------------------------------------------- | ----------- |
+| 7   | `buildWelcomeEmail`               | Welcome to DormantFile                    | After email verification succeeds              | No          |
+| 8   | `buildPaymentFailedEmail`         | Payment failed — action required          | Stripe `invoice.payment_failed` webhook        | No          |
+| 9   | `buildSubscriptionCancelledEmail` | Your DormantFile subscription has ended   | Stripe `customer.subscription.deleted` webhook | No          |
+| 10  | `buildAccountDeletedEmail`        | Your DormantFile account has been deleted | After account delete completes                 | No          |
 
 ### New email content
 
 **Welcome (7):**
+
 - Greeting with user's name
 - "Your account is verified and ready to use."
 - Brief value statement: file dormant company returns quickly and affordably
@@ -128,12 +132,14 @@ Footer links point to:
 - Secondary note: "Need help? Check our answers" with link to `/answers` (consistent with footer Help link)
 
 **Payment failed (8):**
+
 - "We couldn't process your latest payment."
 - Mention the consequence: filing access will be paused if not resolved
 - CTA button: "Update Payment Method" → `{baseUrl}/settings` (user clicks through to billing portal from settings, since portal session cannot be pre-generated in webhook context without an authenticated session)
 - Note: "If your payment details are up to date, your bank may have declined the charge. Please try again or use a different card."
 
 **Subscription cancelled (9):**
+
 - "Your subscription has ended."
 - What's preserved: filing history, company records
 - What's lost: ability to submit new filings, deadline reminders paused
@@ -141,6 +147,7 @@ Footer links point to:
 - Tone: neutral, not guilt-tripping
 
 **Account deleted (10):**
+
 - "Your account and associated data have been permanently deleted."
 - Confirm what was removed
 - No CTA needed — just confirmation
@@ -196,6 +203,7 @@ In `/api/cron/reminders`, add `remindersMuted: false` to the user query filter.
 ### Settings page
 
 Add a "Notifications" section to the settings page:
+
 - Toggle: "Reminder emails" — on/off
 - Description: "Receive email reminders when filing deadlines are approaching"
 - Hits `PATCH /api/account/update-profile` with `{ remindersMuted: boolean }`
@@ -224,26 +232,26 @@ async function sendEmail({
   text?: string;
   replyTo?: string;
   headers?: Record<string, string>;
-}): Promise<void>
+}): Promise<void>;
 ```
 
 Pass `headers` through to the Resend `emails.send()` call.
 
 ## 5. Integration points
 
-| File | Change |
-|------|--------|
-| `src/lib/email/templates.ts` | Add `emailShell()`, refactor 6 existing templates, add 4 new `build*Email()` functions |
-| `src/lib/email/client.ts` | Add `headers` param to `sendEmail()` |
-| `src/app/api/stripe/webhook/route.ts` | Refactor relevant `updateMany` calls to `findFirst` + `update` to retrieve user email. Send payment failed email on `invoice.payment_failed`. Send cancelled email on `customer.subscription.deleted` — but skip if user has been deleted (check user exists before sending). |
-| `src/app/api/auth/verify-email/route.ts` | Send welcome email after successful verification |
-| `src/app/api/account/delete/route.ts` | Send deletion confirmation email **before** deleting user data (accept edge case where email sends but deletion fails). Capture user email before the delete transaction. |
-| `src/app/api/account/mute-reminders/route.ts` | **New route** — handles mute link clicks |
-| `src/app/api/account/update-profile/route.ts` | Accept `remindersMuted` field in PATCH body. Relax validation so `name`/`email` are not required when only updating `remindersMuted`. |
-| `src/app/api/cron/reminders/route.ts` | Filter out users with `remindersMuted: true`, pass `unsubscribeUrl` to template |
-| `src/app/(app)/settings/page.tsx` | Add notifications section with reminder toggle |
-| `prisma/schema.prisma` | Add `remindersMuted Boolean @default(false)` to User model |
-| `src/__tests__/lib/email/templates.test.ts` | Tests for: shell wrapping, dark mode CSS presence, preheader, footer content, unsubscribe link inclusion, all 4 new templates |
+| File                                          | Change                                                                                                                                                                                                                                                                        |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/lib/email/templates.ts`                  | Add `emailShell()`, refactor 6 existing templates, add 4 new `build*Email()` functions                                                                                                                                                                                        |
+| `src/lib/email/client.ts`                     | Add `headers` param to `sendEmail()`                                                                                                                                                                                                                                          |
+| `src/app/api/stripe/webhook/route.ts`         | Refactor relevant `updateMany` calls to `findFirst` + `update` to retrieve user email. Send payment failed email on `invoice.payment_failed`. Send cancelled email on `customer.subscription.deleted` — but skip if user has been deleted (check user exists before sending). |
+| `src/app/api/auth/verify-email/route.ts`      | Send welcome email after successful verification                                                                                                                                                                                                                              |
+| `src/app/api/account/delete/route.ts`         | Send deletion confirmation email **before** deleting user data (accept edge case where email sends but deletion fails). Capture user email before the delete transaction.                                                                                                     |
+| `src/app/api/account/mute-reminders/route.ts` | **New route** — handles mute link clicks                                                                                                                                                                                                                                      |
+| `src/app/api/account/update-profile/route.ts` | Accept `remindersMuted` field in PATCH body. Relax validation so `name`/`email` are not required when only updating `remindersMuted`.                                                                                                                                         |
+| `src/app/api/cron/reminders/route.ts`         | Filter out users with `remindersMuted: true`, pass `unsubscribeUrl` to template                                                                                                                                                                                               |
+| `src/app/(app)/settings/page.tsx`             | Add notifications section with reminder toggle                                                                                                                                                                                                                                |
+| `prisma/schema.prisma`                        | Add `remindersMuted Boolean @default(false)` to User model                                                                                                                                                                                                                    |
+| `src/__tests__/lib/email/templates.test.ts`   | Tests for: shell wrapping, dark mode CSS presence, preheader, footer content, unsubscribe link inclusion, all 4 new templates                                                                                                                                                 |
 
 ## 6. Testing
 

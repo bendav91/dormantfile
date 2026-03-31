@@ -106,10 +106,7 @@ export function SiteFooter({ variant }: SiteFooterProps) {
               </Link>
             ))}
           </div>
-          <p
-            className="text-xs"
-            style={{ color: "var(--color-text-muted)", margin: 0 }}
-          >
+          <p className="text-xs" style={{ color: "var(--color-text-muted)", margin: 0 }}>
             &copy; {new Date().getFullYear()} DormantFile
           </p>
         </div>
@@ -133,6 +130,7 @@ export function SiteFooter({ variant }: SiteFooterProps) {
             <div className="col-span-2 sm:col-span-1">
               <Link
                 href="/"
+                aria-label="DormantFile home"
                 style={{ display: "inline-flex", alignItems: "center" }}
                 className="mb-4 block"
               >
@@ -156,10 +154,7 @@ export function SiteFooter({ variant }: SiteFooterProps) {
               >
                 {group.heading}
               </p>
-              <ul
-                style={{ listStyle: "none", margin: 0, padding: 0 }}
-                className="space-y-2.5"
-              >
+              <ul style={{ listStyle: "none", margin: 0, padding: 0 }} className="space-y-2.5">
                 {group.links.map((link) => (
                   <li key={link.href}>
                     <Link
@@ -184,17 +179,11 @@ export function SiteFooter({ variant }: SiteFooterProps) {
           style={{ borderTop: "1px solid var(--color-border)" }}
           className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3"
         >
-          <p
-            className="text-xs"
-            style={{ color: "var(--color-text-muted)", margin: 0 }}
-          >
-            &copy; {new Date().getFullYear()} DormantFile. Not an accountancy
-            firm &mdash; software tool only.
+          <p className="text-xs" style={{ color: "var(--color-text-muted)", margin: 0 }}>
+            &copy; {new Date().getFullYear()} DormantFile. Not an accountancy firm &mdash; software
+            tool only.
           </p>
-          <p
-            className="text-xs"
-            style={{ color: "var(--color-text-muted)", margin: 0 }}
-          >
+          <p className="text-xs" style={{ color: "var(--color-text-muted)", margin: 0 }}>
             Made in the UK
           </p>
         </div>

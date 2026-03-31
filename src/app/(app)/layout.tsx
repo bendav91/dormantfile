@@ -34,13 +34,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     >
       <SiteNav variant="app" user={{ email: session.user.email! }} />
 
-      <main
-        id="main-content"
-        className="px-6 py-10 flex-1"
-      >
-        <div className="max-w-[960px] mx-auto">
-          {children}
-        </div>
+      <main id="main-content" className="px-6 py-10 flex-1">
+        <div className="max-w-[960px] mx-auto">{children}</div>
       </main>
 
       <SiteFooter variant="app" />

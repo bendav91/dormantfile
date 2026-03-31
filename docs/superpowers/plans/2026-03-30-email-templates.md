@@ -14,28 +14,29 @@
 
 ## File Map
 
-| File | Action | Responsibility |
-|------|--------|---------------|
-| `prisma/schema.prisma` | Modify | Add `remindersMuted` field to User |
-| `src/lib/email/client.ts` | Modify | Add `headers` param to `sendEmail()` |
-| `src/lib/email/templates.ts` | Modify | Add `emailShell()`, refactor 6 templates, add 4 new templates |
-| `src/lib/email/mute-token.ts` | Create | HMAC token generation and verification for mute links |
-| `src/app/api/account/mute-reminders/route.ts` | Create | GET + POST handler for mute link clicks |
-| `src/app/api/account/update-profile/route.ts` | Modify | Accept `remindersMuted` in PATCH body |
-| `src/app/api/stripe/webhook/route.ts` | Modify | Send payment failed + subscription cancelled emails |
-| `src/app/api/auth/verify-email/route.ts` | Modify | Send welcome email after verification |
-| `src/app/api/account/delete/route.ts` | Modify | Send deletion confirmation email |
-| `src/app/api/cron/reminders/route.ts` | Modify | Filter muted users, pass unsubscribe URL, fix fallback domain |
-| `src/app/(app)/settings/page.tsx` | Modify | Pass `remindersMuted` to settings actions |
-| `src/components/settings-actions.tsx` | Modify | Add reminder toggle |
-| `src/__tests__/lib/email/templates.test.ts` | Modify | Tests for shell, all 10 templates |
-| `src/__tests__/lib/email/mute-token.test.ts` | Create | Tests for HMAC token generation/verification |
+| File                                          | Action | Responsibility                                                |
+| --------------------------------------------- | ------ | ------------------------------------------------------------- |
+| `prisma/schema.prisma`                        | Modify | Add `remindersMuted` field to User                            |
+| `src/lib/email/client.ts`                     | Modify | Add `headers` param to `sendEmail()`                          |
+| `src/lib/email/templates.ts`                  | Modify | Add `emailShell()`, refactor 6 templates, add 4 new templates |
+| `src/lib/email/mute-token.ts`                 | Create | HMAC token generation and verification for mute links         |
+| `src/app/api/account/mute-reminders/route.ts` | Create | GET + POST handler for mute link clicks                       |
+| `src/app/api/account/update-profile/route.ts` | Modify | Accept `remindersMuted` in PATCH body                         |
+| `src/app/api/stripe/webhook/route.ts`         | Modify | Send payment failed + subscription cancelled emails           |
+| `src/app/api/auth/verify-email/route.ts`      | Modify | Send welcome email after verification                         |
+| `src/app/api/account/delete/route.ts`         | Modify | Send deletion confirmation email                              |
+| `src/app/api/cron/reminders/route.ts`         | Modify | Filter muted users, pass unsubscribe URL, fix fallback domain |
+| `src/app/(app)/settings/page.tsx`             | Modify | Pass `remindersMuted` to settings actions                     |
+| `src/components/settings-actions.tsx`         | Modify | Add reminder toggle                                           |
+| `src/__tests__/lib/email/templates.test.ts`   | Modify | Tests for shell, all 10 templates                             |
+| `src/__tests__/lib/email/mute-token.test.ts`  | Create | Tests for HMAC token generation/verification                  |
 
 ---
 
 ## Task 1: Database Migration
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 
 - [ ] **Step 1: Add `remindersMuted` field to User model**
@@ -66,6 +67,7 @@ git commit -m "feat: add remindersMuted field to User model"
 ## Task 2: Update `sendEmail` to support headers
 
 **Files:**
+
 - Modify: `src/lib/email/client.ts`
 
 - [ ] **Step 1: Add `headers` parameter to `sendEmail`**
@@ -119,6 +121,7 @@ git commit -m "feat: add headers param to sendEmail for List-Unsubscribe support
 ## Task 3: Build `emailShell()` with tests (TDD)
 
 **Files:**
+
 - Modify: `src/lib/email/templates.ts`
 - Modify: `src/__tests__/lib/email/templates.test.ts`
 
@@ -219,7 +222,12 @@ interface EmailShellOptions {
   unsubscribeUrl?: string;
 }
 
-export function emailShell({ content, preheader, includeUnsubscribe, unsubscribeUrl }: EmailShellOptions): string {
+export function emailShell({
+  content,
+  preheader,
+  includeUnsubscribe,
+  unsubscribeUrl,
+}: EmailShellOptions): string {
   const baseUrl = getBaseUrl();
   const year = new Date().getFullYear();
 
@@ -227,9 +235,10 @@ export function emailShell({ content, preheader, includeUnsubscribe, unsubscribe
     ? `<div style="display:none;font-size:1px;color:#f8f9fa;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</div>`
     : "";
 
-  const unsubscribeHtml = includeUnsubscribe && unsubscribeUrl
-    ? `<br><a href="${unsubscribeUrl}" style="color:#9ca3af;text-decoration:underline;">Mute reminder emails</a>`
-    : "";
+  const unsubscribeHtml =
+    includeUnsubscribe && unsubscribeUrl
+      ? `<br><a href="${unsubscribeUrl}" style="color:#9ca3af;text-decoration:underline;">Mute reminder emails</a>`
+      : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -319,6 +328,7 @@ git commit -m "feat: add emailShell wrapper with dark mode, logo, and legal foot
 ## Task 4: Refactor 6 existing templates to use shell
 
 **Files:**
+
 - Modify: `src/lib/email/templates.ts`
 - Modify: `src/__tests__/lib/email/templates.test.ts`
 
@@ -563,6 +573,7 @@ git commit -m "refactor: migrate all 6 email templates to shared emailShell wrap
 ## Task 5: HMAC mute token utility (TDD)
 
 **Files:**
+
 - Create: `src/lib/email/mute-token.ts`
 - Create: `src/__tests__/lib/email/mute-token.test.ts`
 
@@ -682,7 +693,8 @@ function sign(data: string): string {
 }
 
 export function generateMuteUrl(userId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
   const exp = (Date.now() + SEVEN_DAYS_MS).toString();
   const sig = sign(`${userId}:mute-reminders:${exp}`);
   return `${baseUrl}/api/account/mute-reminders?uid=${encodeURIComponent(userId)}&exp=${exp}&sig=${sig}`;
@@ -730,6 +742,7 @@ git commit -m "feat: add HMAC mute token generation and verification"
 ## Task 6: Add 4 new email templates (TDD)
 
 **Files:**
+
 - Modify: `src/lib/email/templates.ts`
 - Modify: `src/__tests__/lib/email/templates.test.ts`
 
@@ -754,12 +767,18 @@ import {
 
 describe("buildWelcomeEmail", () => {
   it("returns correct subject", () => {
-    const { subject } = buildWelcomeEmail({ userName: "Ben", dashboardUrl: "https://example.com/dashboard" });
+    const { subject } = buildWelcomeEmail({
+      userName: "Ben",
+      dashboardUrl: "https://example.com/dashboard",
+    });
     expect(subject).toBe("Welcome to DormantFile");
   });
 
   it("html includes greeting and CTA", () => {
-    const { html } = buildWelcomeEmail({ userName: "Ben", dashboardUrl: "https://example.com/dashboard" });
+    const { html } = buildWelcomeEmail({
+      userName: "Ben",
+      dashboardUrl: "https://example.com/dashboard",
+    });
     expect(html).toContain("Ben");
     expect(html).toContain("https://example.com/dashboard");
     expect(html).toContain("Add Your First Company");
@@ -781,12 +800,16 @@ describe("buildPaymentFailedEmail", () => {
 
 describe("buildSubscriptionCancelledEmail", () => {
   it("returns correct subject", () => {
-    const { subject } = buildSubscriptionCancelledEmail({ choosePlanUrl: "https://example.com/choose-plan" });
+    const { subject } = buildSubscriptionCancelledEmail({
+      choosePlanUrl: "https://example.com/choose-plan",
+    });
     expect(subject).toContain("subscription has ended");
   });
 
   it("html explains what is preserved and lost", () => {
-    const { html } = buildSubscriptionCancelledEmail({ choosePlanUrl: "https://example.com/choose-plan" });
+    const { html } = buildSubscriptionCancelledEmail({
+      choosePlanUrl: "https://example.com/choose-plan",
+    });
     expect(html).toContain("preserved");
     expect(html).toContain("Resubscribe");
     expect(html).toContain("https://example.com/choose-plan");
@@ -951,6 +974,7 @@ git commit -m "feat: add welcome, payment failed, subscription cancelled, and ac
 ## Task 7: Mute reminders route
 
 **Files:**
+
 - Create: `src/app/api/account/mute-reminders/route.ts`
 
 - [ ] **Step 1: Create the route handler**
@@ -994,7 +1018,8 @@ export async function GET(req: NextRequest) {
   const error = await handleMute(req);
   if (error) return error;
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
   return NextResponse.redirect(`${baseUrl}/settings?reminders=muted`);
 }
 
@@ -1018,6 +1043,7 @@ git commit -m "feat: add mute-reminders route (GET + POST)"
 ## Task 7b: Mute route integration tests
 
 **Files:**
+
 - Create: `src/__tests__/app/api/account/mute-reminders.test.ts`
 
 Note: These tests exercise the token verification and response logic. Since they involve Prisma, they mock `@/lib/db`. The HMAC logic itself is already unit-tested in Task 5.
@@ -1117,6 +1143,7 @@ git commit -m "test: add mute-reminders route integration tests"
 ## Task 8: Wire up reminders cron with mute filter and unsubscribe URL
 
 **Files:**
+
 - Modify: `src/app/api/cron/reminders/route.ts`
 
 - [ ] **Step 1: Add import for `generateMuteUrl`**
@@ -1218,6 +1245,7 @@ git commit -m "feat: filter muted users from reminders, add List-Unsubscribe hea
 ## Task 9: Wire up Stripe webhook emails
 
 **Files:**
+
 - Modify: `src/app/api/stripe/webhook/route.ts`
 
 - [ ] **Step 1: Add email imports**
@@ -1249,7 +1277,8 @@ if (status === "past_due" || status === "cancelled") {
   });
 
   if (user) {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
 
     try {
       if (status === "past_due") {
@@ -1282,6 +1311,7 @@ git commit -m "feat: send payment failed and subscription cancelled emails from 
 ## Task 10: Wire up welcome email after verification
 
 **Files:**
+
 - Modify: `src/app/api/auth/verify-email/route.ts`
 
 - [ ] **Step 1: Add imports**
@@ -1305,7 +1335,8 @@ try {
     select: { name: true, email: true },
   });
   if (user) {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
     const { subject, html } = buildWelcomeEmail({
       userName: user.name,
       dashboardUrl: `${appUrl}/dashboard`,
@@ -1329,6 +1360,7 @@ git commit -m "feat: send welcome email after email verification"
 ## Task 11: Wire up account deletion email
 
 **Files:**
+
 - Modify: `src/app/api/account/delete/route.ts`
 
 - [ ] **Step 1: Add imports**
@@ -1346,7 +1378,8 @@ After the user fetch (line 19) but before the Stripe cancellation (line 26), add
 
 ```typescript
 // Send deletion confirmation while we still have the email
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
+const appUrl =
+  process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "https://dormantfile.co.uk";
 try {
   const { subject, html } = buildAccountDeletedEmail({
     contactUrl: `${appUrl}/contact`,
@@ -1369,6 +1402,7 @@ git commit -m "feat: send account deletion confirmation email"
 ## Task 12: Update profile route to accept `remindersMuted`
 
 **Files:**
+
 - Modify: `src/app/api/account/update-profile/route.ts`
 
 - [ ] **Step 1: Update validation to support partial updates**
@@ -1425,6 +1459,7 @@ git commit -m "feat: accept remindersMuted in profile update route"
 ## Task 13: Add reminder toggle to settings page
 
 **Files:**
+
 - Modify: `src/app/(app)/settings/page.tsx`
 - Modify: `src/components/settings-actions.tsx`
 

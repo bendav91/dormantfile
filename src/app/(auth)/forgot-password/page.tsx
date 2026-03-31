@@ -72,8 +72,8 @@ export default function ForgotPasswordPage() {
           style={{ color: "var(--color-text-secondary)" }}
         >
           If an account exists for{" "}
-          <strong style={{ color: "var(--color-text-primary)" }}>{email}</strong>,
-          we&apos;ve sent a password reset link. It expires in 1 hour.
+          <strong style={{ color: "var(--color-text-primary)" }}>{email}</strong>, we&apos;ve sent a
+          password reset link. It expires in 1 hour.
         </p>
         <Link
           href="/login"
@@ -95,10 +95,7 @@ export default function ForgotPasswordPage() {
         >
           Back to sign in
         </Link>
-        <p
-          className="mt-4 text-center text-xs"
-          style={{ color: "var(--color-text-muted)" }}
-        >
+        <p className="mt-4 text-center text-xs" style={{ color: "var(--color-text-muted)" }}>
           Didn&apos;t receive it? Check your spam folder or try again.
         </p>
       </>
@@ -107,10 +104,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <>
-      <h1
-        className="text-2xl font-bold mb-1"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
         Reset your password
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>
@@ -137,10 +131,7 @@ export default function ForgotPasswordPage() {
         </AuthButton>
       </form>
 
-      <p
-        className="mt-8 text-center text-sm"
-        style={{ color: "var(--color-text-secondary)" }}
-      >
+      <p className="mt-8 text-center text-sm" style={{ color: "var(--color-text-secondary)" }}>
         Remember your password?{" "}
         <Link
           href="/login"

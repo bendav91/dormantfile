@@ -12,9 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!page) return {};
   const { title, metaTitle, description, openGraph } = page.frontmatter;
   const resolvedTitle = metaTitle || `${title} | DormantFile`;
+  const url = `${process.env.NEXT_PUBLIC_APP_URL}/${SLUG}`;
   return {
     title: resolvedTitle,
     description,
+    alternates: { canonical: url },
     openGraph: {
       title: openGraph?.title || resolvedTitle,
       description: openGraph?.description || description,

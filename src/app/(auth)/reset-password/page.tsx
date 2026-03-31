@@ -45,10 +45,7 @@ function ResetPasswordForm() {
         >
           Invalid link
         </h1>
-        <p
-          className="text-sm mb-8 text-center"
-          style={{ color: "var(--color-text-secondary)" }}
-        >
+        <p className="text-sm mb-8 text-center" style={{ color: "var(--color-text-secondary)" }}>
           This password reset link is invalid or has expired.
         </p>
         <Link
@@ -134,10 +131,7 @@ function ResetPasswordForm() {
         >
           Password updated
         </h1>
-        <p
-          className="text-sm mb-8 text-center"
-          style={{ color: "var(--color-text-secondary)" }}
-        >
+        <p className="text-sm mb-8 text-center" style={{ color: "var(--color-text-secondary)" }}>
           Your password has been reset successfully.
         </p>
         <Link
@@ -166,10 +160,7 @@ function ResetPasswordForm() {
 
   return (
     <>
-      <h1
-        className="text-2xl font-bold mb-1"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h1 className="text-2xl font-bold mb-1" style={{ color: "var(--color-text-primary)" }}>
         Set a new password
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--color-text-secondary)" }}>

@@ -3,15 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  ArrowRight,
-  BookOpen,
-  ChevronDown,
-  HelpCircle,
-  Menu,
-  Shield,
-  X,
-} from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, HelpCircle, Menu, Shield, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -97,13 +89,7 @@ const APP_CONFIG: NavConfig = {
 
 // --- Desktop Dropdown ---
 
-function DesktopDropdown({
-  group,
-  pathname,
-}: {
-  group: NavGroup;
-  pathname: string;
-}) {
+function DesktopDropdown({ group, pathname }: { group: NavGroup; pathname: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -123,9 +109,7 @@ function DesktopDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const hasActiveChild = group.children.some((c) =>
-    isLinkActive(pathname, c.href)
-  );
+  const hasActiveChild = group.children.some((c) => isLinkActive(pathname, c.href));
 
   return (
     <div ref={ref} className="relative">
@@ -139,11 +123,8 @@ function DesktopDropdown({
         aria-haspopup="true"
         className="text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 cursor-pointer flex items-center gap-1 hoverable-subtle"
         style={{
-          color: hasActiveChild
-            ? "var(--color-primary)"
-            : "var(--color-text-secondary)",
-          backgroundColor:
-            hasActiveChild || open ? "var(--color-primary-bg)" : "transparent",
+          color: hasActiveChild ? "var(--color-primary)" : "var(--color-text-secondary)",
+          backgroundColor: hasActiveChild || open ? "var(--color-primary-bg)" : "transparent",
           border: "none",
         }}
       >
@@ -170,8 +151,7 @@ function DesktopDropdown({
             right: 0,
             backgroundColor: "var(--color-bg-card)",
             border: "1px solid var(--color-border)",
-            boxShadow:
-              "0 8px 30px -4px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04)",
+            boxShadow: "0 8px 30px -4px rgba(0, 0, 0, 0.08), 0 2px 6px -2px rgba(0, 0, 0, 0.04)",
             width: "280px",
             padding: "6px",
             zIndex: 51,
@@ -191,9 +171,7 @@ function DesktopDropdown({
                   padding: "10px 12px",
                   color: "var(--color-text-body)",
                   textDecoration: "none",
-                  backgroundColor: active
-                    ? "var(--color-primary-bg)"
-                    : "transparent",
+                  backgroundColor: active ? "var(--color-primary-bg)" : "transparent",
                 }}
               >
                 {Icon && (
@@ -210,9 +188,7 @@ function DesktopDropdown({
                     <Icon
                       size={16}
                       style={{
-                        color: active
-                          ? "var(--color-primary)"
-                          : "var(--color-text-muted)",
+                        color: active ? "var(--color-primary)" : "var(--color-text-muted)",
                       }}
                     />
                   </div>
@@ -221,9 +197,7 @@ function DesktopDropdown({
                   <p
                     className="text-sm font-medium"
                     style={{
-                      color: active
-                        ? "var(--color-primary)"
-                        : "var(--color-text-primary)",
+                      color: active ? "var(--color-primary)" : "var(--color-text-primary)",
                       margin: 0,
                     }}
                   >
@@ -288,7 +262,7 @@ export function SiteNav({ variant, user }: SiteNavProps) {
       }
       if (e.key === "Tab" && drawerRef.current) {
         const focusable = drawerRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
         );
         if (focusable.length === 0) return;
         const first = focusable[0];
@@ -314,140 +288,130 @@ export function SiteNav({ variant, user }: SiteNavProps) {
 
   return (
     <>
-    <nav
-      className="px-6"
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        backgroundColor:
-          "color-mix(in srgb, var(--color-bg-card) 80%, transparent)",
-        backdropFilter: "saturate(180%) blur(12px)",
-        WebkitBackdropFilter: "saturate(180%) blur(12px)",
-        borderBottom: "1px solid var(--color-border)",
-      }}
-    >
-      {/* Top bar */}
-      <div className="max-w-[960px] mx-auto h-16 flex items-center justify-between">
-        {/* Left: logo + links */}
-        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
-          <Link
-            href={config.logoHref}
-            style={{ display: "flex", alignItems: "center" }}
+      <nav
+        className="px-6"
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+          backgroundColor: "color-mix(in srgb, var(--color-bg-card) 80%, transparent)",
+          backdropFilter: "saturate(180%) blur(12px)",
+          WebkitBackdropFilter: "saturate(180%) blur(12px)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+      >
+        {/* Top bar */}
+        <div className="max-w-[960px] mx-auto h-16 flex items-center justify-between">
+          {/* Left: logo + links */}
+          <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+            <Link
+              href={config.logoHref}
+              aria-label="DormantFile home"
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <Logo height={22} />
+            </Link>
+            <div className="hidden lg:flex" style={{ alignItems: "center", gap: "4px" }}>
+              {config.links.map((item) =>
+                isNavGroup(item) ? (
+                  <DesktopDropdown key={item.label} group={item} pathname={pathname} />
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 hoverable-subtle"
+                    style={{
+                      color: isLinkActive(pathname, item.href)
+                        ? "var(--color-primary)"
+                        : "var(--color-text-secondary)",
+                      backgroundColor: isLinkActive(pathname, item.href)
+                        ? "var(--color-primary-bg)"
+                        : "transparent",
+                      textDecoration: "none",
+                    }}
+                  >
+                    {item.label}
+                  </Link>
+                ),
+              )}
+            </div>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            ref={hamburgerRef}
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            aria-expanded={drawerOpen}
+            aria-label={drawerOpen ? "Close menu" : "Open menu"}
+            className="lg:hidden flex items-center justify-center"
+            style={{
+              color: "var(--color-text-primary)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              width: "44px",
+              height: "44px",
+            }}
           >
-            <Logo height={22} />
-          </Link>
-          <div
-            className="hidden lg:flex"
-            style={{ alignItems: "center", gap: "4px" }}
-          >
-            {config.links.map((item) =>
-              isNavGroup(item) ? (
-                <DesktopDropdown
-                  key={item.label}
-                  group={item}
-                  pathname={pathname}
-                />
-              ) : (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm font-medium px-3 py-1.5 rounded-md transition-all duration-150 hoverable-subtle"
-                  style={{
-                    color: isLinkActive(pathname, item.href)
-                      ? "var(--color-primary)"
-                      : "var(--color-text-secondary)",
-                    backgroundColor: isLinkActive(pathname, item.href)
-                      ? "var(--color-primary-bg)"
-                      : "transparent",
-                    textDecoration: "none",
-                  }}
-                >
-                  {item.label}
-                </Link>
-              )
+            {drawerOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+
+          {/* Right: desktop actions */}
+          <div className="hidden lg:flex" style={{ alignItems: "center", gap: "12px" }}>
+            <ThemeToggle />
+            {variant === "app" && user && (
+              <span
+                className="text-sm"
+                style={{
+                  color: "var(--color-text-secondary)",
+                  maxWidth: "180px",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {user.email}
+              </span>
+            )}
+            {variant === "app" && <SignOutButton />}
+            {config.authLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium transition-all duration-150 hoverable-subtle"
+                style={{
+                  color: "var(--color-text-primary)",
+                  textDecoration: "none",
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--color-border)",
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {config.cta && (
+              <Link
+                href={config.cta.href}
+                className="text-sm font-semibold inline-flex items-center gap-1.5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 cursor-pointer"
+                style={{
+                  backgroundColor: "var(--color-cta)",
+                  color: "#ffffff",
+                  padding: "8px 18px",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  boxShadow: "0 1px 3px rgba(249, 115, 22, 0.25)",
+                }}
+              >
+                {config.cta.label}
+                <ArrowRight size={14} />
+              </Link>
             )}
           </div>
         </div>
+      </nav>
 
-        {/* Mobile hamburger */}
-        <button
-          ref={hamburgerRef}
-          onClick={() => setDrawerOpen(!drawerOpen)}
-          aria-expanded={drawerOpen}
-          aria-label={drawerOpen ? "Close menu" : "Open menu"}
-          className="lg:hidden flex items-center justify-center"
-          style={{
-            color: "var(--color-text-primary)",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            width: "44px",
-            height: "44px",
-          }}
-        >
-          {drawerOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
-
-        {/* Right: desktop actions */}
-        <div
-          className="hidden lg:flex"
-          style={{ alignItems: "center", gap: "12px" }}
-        >
-          <ThemeToggle />
-          {variant === "app" && user && (
-            <span
-              className="text-sm"
-              style={{
-                color: "var(--color-text-secondary)",
-                maxWidth: "180px",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {user.email}
-            </span>
-          )}
-          {variant === "app" && <SignOutButton />}
-          {config.authLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium transition-all duration-150 hoverable-subtle"
-              style={{
-                color: "var(--color-text-primary)",
-                textDecoration: "none",
-                padding: "8px 16px",
-                borderRadius: "8px",
-                border: "1px solid var(--color-border)",
-              }}
-            >
-              {link.label}
-            </Link>
-          ))}
-          {config.cta && (
-            <Link
-              href={config.cta.href}
-              className="text-sm font-semibold inline-flex items-center gap-1.5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 cursor-pointer"
-              style={{
-                backgroundColor: "var(--color-cta)",
-                color: "#ffffff",
-                padding: "8px 18px",
-                borderRadius: "8px",
-                textDecoration: "none",
-                boxShadow: "0 1px 3px rgba(249, 115, 22, 0.25)",
-              }}
-            >
-              {config.cta.label}
-              <ArrowRight size={14} />
-            </Link>
-          )}
-        </div>
-      </div>
-    </nav>
-
-    {/* Mobile drawer overlay */}
+      {/* Mobile drawer overlay */}
       {drawerOpen && (
         <div
           onClick={closeDrawer}
@@ -498,6 +462,7 @@ export function SiteNav({ variant, user }: SiteNavProps) {
           <Link
             href={config.logoHref}
             onClick={closeDrawer}
+            aria-label="DormantFile home"
             style={{ display: "flex", alignItems: "center" }}
           >
             <Logo height={22} />
@@ -538,12 +503,8 @@ export function SiteNav({ variant, user }: SiteNavProps) {
                       padding: "12px 12px",
                       fontSize: "15px",
                       fontWeight: 500,
-                      color: active
-                        ? "var(--color-primary)"
-                        : "var(--color-text-primary)",
-                      backgroundColor: active
-                        ? "var(--color-primary-bg)"
-                        : "transparent",
+                      color: active ? "var(--color-primary)" : "var(--color-text-primary)",
+                      backgroundColor: active ? "var(--color-primary-bg)" : "transparent",
                       textDecoration: "none",
                       minHeight: "44px",
                     }}
@@ -587,9 +548,7 @@ export function SiteNav({ variant, user }: SiteNavProps) {
                         padding: "10px 12px",
                         textDecoration: "none",
                         minHeight: "44px",
-                        backgroundColor: active
-                          ? "var(--color-primary-bg)"
-                          : "transparent",
+                        backgroundColor: active ? "var(--color-primary-bg)" : "transparent",
                       }}
                     >
                       {Icon && (
@@ -605,9 +564,7 @@ export function SiteNav({ variant, user }: SiteNavProps) {
                           <Icon
                             size={16}
                             style={{
-                              color: active
-                                ? "var(--color-primary)"
-                                : "var(--color-text-muted)",
+                              color: active ? "var(--color-primary)" : "var(--color-text-muted)",
                             }}
                           />
                         </div>
@@ -616,9 +573,7 @@ export function SiteNav({ variant, user }: SiteNavProps) {
                         <p
                           className="text-sm font-medium"
                           style={{
-                            color: active
-                              ? "var(--color-primary)"
-                              : "var(--color-text-primary)",
+                            color: active ? "var(--color-primary)" : "var(--color-text-primary)",
                             margin: 0,
                           }}
                         >
@@ -654,9 +609,7 @@ export function SiteNav({ variant, user }: SiteNavProps) {
             gap: "10px",
           }}
         >
-          <div
-            style={{ display: "flex", alignItems: "center", gap: "12px" }}
-          >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <ThemeToggle />
             {variant === "app" && user && (
               <span
