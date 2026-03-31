@@ -1,3 +1,5 @@
+import { cn } from "@/lib/cn";
+
 interface ComparisonRow {
   method: string;
   cost: string;
@@ -7,27 +9,14 @@ interface ComparisonRow {
 
 export function ComparisonTable({ rows }: { rows: ComparisonRow[] }) {
   return (
-    <div style={{ overflowX: "auto", marginBottom: "2rem" }}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          backgroundColor: "var(--color-bg-card)",
-        }}
-      >
+    <div className="overflow-x-auto mb-8">
+      <table className="w-full border-collapse bg-card">
         <thead>
           <tr>
             {["Method", "Cost", "Time", "Notes"].map((h) => (
               <th
                 key={h}
-                style={{
-                  textAlign: "left",
-                  padding: "0.75rem",
-                  borderBottom: "2px solid var(--color-border)",
-                  fontWeight: 600,
-                  color: "var(--color-text-primary)",
-                  fontSize: "14px",
-                }}
+                className="text-left p-3 border-b-2 border-border font-semibold text-foreground text-sm"
               >
                 {h}
               </th>
@@ -38,44 +27,20 @@ export function ComparisonTable({ rows }: { rows: ComparisonRow[] }) {
           {rows.map((row) => (
             <tr key={row.method}>
               <td
-                style={{
-                  padding: "0.75rem",
-                  borderBottom: "1px solid var(--color-border)",
-                  color: "var(--color-text-primary)",
-                  fontWeight: row.method === "DormantFile" ? 600 : 400,
-                  fontSize: "14px",
-                }}
+                className={cn(
+                  "p-3 border-b border-border text-foreground text-sm",
+                  row.method === "DormantFile" ? "font-semibold" : "font-normal"
+                )}
               >
                 {row.method}
               </td>
-              <td
-                style={{
-                  padding: "0.75rem",
-                  borderBottom: "1px solid var(--color-border)",
-                  color: "var(--color-text-body)",
-                  fontSize: "14px",
-                }}
-              >
+              <td className="p-3 border-b border-border text-body text-sm">
                 {row.cost}
               </td>
-              <td
-                style={{
-                  padding: "0.75rem",
-                  borderBottom: "1px solid var(--color-border)",
-                  color: "var(--color-text-body)",
-                  fontSize: "14px",
-                }}
-              >
+              <td className="p-3 border-b border-border text-body text-sm">
                 {row.time}
               </td>
-              <td
-                style={{
-                  padding: "0.75rem",
-                  borderBottom: "1px solid var(--color-border)",
-                  color: "var(--color-text-body)",
-                  fontSize: "14px",
-                }}
-              >
+              <td className="p-3 border-b border-border text-body text-sm">
                 {row.notes}
               </td>
             </tr>

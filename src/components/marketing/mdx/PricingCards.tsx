@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface Plan {
   name: string;
@@ -16,46 +17,30 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
       {plans.map((plan) => (
         <div
           key={plan.name}
-          className="rounded-xl p-7 flex flex-col"
-          style={{
-            border: plan.highlighted
-              ? "2px solid var(--color-primary)"
-              : "1px solid var(--color-border)",
-            backgroundColor: "var(--color-bg-card)",
-            position: "relative",
-          }}
+          className={cn(
+            "rounded-xl p-7 flex flex-col relative bg-card",
+            plan.highlighted
+              ? "border-2 border-primary"
+              : "border border-border"
+          )}
         >
           {plan.highlighted && (
-            <span
-              style={{
-                position: "absolute",
-                top: "-12px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                backgroundColor: "var(--color-primary)",
-                color: "var(--color-bg-card)",
-                padding: "3px 14px",
-                borderRadius: "9999px",
-                fontSize: "12px",
-                fontWeight: 600,
-                whiteSpace: "nowrap",
-              }}
-            >
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-card px-3.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">
               Most popular
             </span>
           )}
-          <p className="font-semibold text-sm mb-1" style={{ color: "var(--color-primary)" }}>
+          <p className="font-semibold text-sm mb-1 text-primary">
             {plan.name}
           </p>
           <div className="mb-1">
-            <span className="text-4xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <span className="text-4xl font-bold text-foreground">
               &pound;{plan.price}
             </span>
-            <span className="text-sm ml-1" style={{ color: "var(--color-text-secondary)" }}>
+            <span className="text-sm ml-1 text-secondary">
               {plan.period}
             </span>
           </div>
-          <p className="text-sm mb-6" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-sm mb-6 text-secondary">
             {plan.description}
           </p>
           <ul className="space-y-2.5 mb-7 flex-1">
@@ -63,9 +48,9 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
               <li key={feature} className="flex items-start gap-2.5">
                 <CheckCircle
                   size={16}
-                  style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: 2 }}
+                  className="text-primary shrink-0 mt-0.5"
                 />
-                <span className="text-sm" style={{ color: "var(--color-text-body)" }}>
+                <span className="text-sm text-body">
                   {feature}
                 </span>
               </li>
@@ -73,14 +58,10 @@ export function PricingCards({ plans }: { plans: Plan[] }) {
           </ul>
           <Link
             href="/register"
-            className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90"
-            style={{
-              backgroundColor: plan.highlighted ? "var(--color-cta)" : "var(--color-primary)",
-              color: "#ffffff",
-              padding: "12px 24px",
-              borderRadius: "8px",
-              textDecoration: "none",
-            }}
+            className={cn(
+              "block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 text-[#ffffff] py-3 px-6 no-underline",
+              plan.highlighted ? "bg-cta" : "bg-primary"
+            )}
           >
             Get started
           </Link>

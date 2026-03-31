@@ -14,14 +14,7 @@ export function TrustBadges() {
       {badges.map((badge) => (
         <span
           key={badge.text}
-          className="inline-flex items-center gap-1.5 text-xs"
-          style={{
-            backgroundColor: "var(--color-bg-inset)",
-            color: "var(--color-text-muted)",
-            padding: "5px 12px",
-            borderRadius: "999px",
-            border: "1px solid var(--color-border)",
-          }}
+          className="inline-flex items-center gap-1.5 text-xs bg-inset text-muted py-[5px] px-3 rounded-full border border-border"
         >
           <badge.icon size={12} strokeWidth={2} />
           {badge.text}

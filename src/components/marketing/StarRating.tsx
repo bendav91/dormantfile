@@ -1,6 +1,7 @@
 "use client";
 
 import { Star } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface StarRatingProps {
   rating: number;
@@ -22,14 +23,13 @@ export function StarRating({ rating, size = 16, interactive = false, onChange }:
             aria-label={`${value} star${value !== 1 ? "s" : ""}`}
             role="radio"
             aria-checked={value === Math.round(rating)}
-            className="cursor-pointer transition-transform duration-150 hover:scale-110"
-            style={{ background: "none", border: "none", padding: "2px", lineHeight: 0 }}
+            className="cursor-pointer transition-transform duration-150 hover:scale-110 bg-none border-none p-0.5 leading-none"
           >
             <Star
               size={size}
               fill={filled ? "var(--color-cta)" : "none"}
               strokeWidth={1.5}
-              style={{ color: filled ? "var(--color-cta)" : "var(--color-text-muted)" }}
+              className={cn(filled ? "text-cta" : "text-muted")}
             />
           </button>
         ) : (
@@ -38,7 +38,7 @@ export function StarRating({ rating, size = 16, interactive = false, onChange }:
             size={size}
             fill={filled ? "var(--color-cta)" : "none"}
             strokeWidth={1.5}
-            style={{ color: filled ? "var(--color-cta)" : "var(--color-text-muted)" }}
+            className={cn(filled ? "text-cta" : "text-muted")}
             aria-hidden="true"
           />
         );

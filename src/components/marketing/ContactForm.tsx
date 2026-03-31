@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { cn } from "@/lib/cn";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -25,23 +26,14 @@ export function ContactForm() {
 
   if (status === "sent") {
     return (
-      <p style={{ color: "var(--color-success)", fontWeight: 500, fontSize: "15px" }}>
+      <p className="text-success font-medium text-[15px]">
         Thanks for your message. We&apos;ll get back to you soon.
       </p>
     );
   }
 
-  const inputStyle: React.CSSProperties = {
-    padding: "0.75rem",
-    border: "1px solid var(--color-border)",
-    borderRadius: "0.5rem",
-    fontSize: "15px",
-    width: "100%",
-    fontFamily: "inherit",
-  };
-
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <label htmlFor="contact-name" className="sr-only">
         Your name
       </label>
@@ -53,8 +45,7 @@ export function ContactForm() {
         onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
         required
         autoComplete="name"
-        className="focus-ring-input"
-        style={inputStyle}
+        className="focus-ring-input p-3 border border-border rounded-lg text-[15px] w-full font-[inherit]"
       />
       <label htmlFor="contact-email" className="sr-only">
         Your email
@@ -68,8 +59,7 @@ export function ContactForm() {
         required
         autoComplete="email"
         spellCheck={false}
-        className="focus-ring-input"
-        style={inputStyle}
+        className="focus-ring-input p-3 border border-border rounded-lg text-[15px] w-full font-[inherit]"
       />
       <label htmlFor="contact-message" className="sr-only">
         Your message
@@ -81,30 +71,20 @@ export function ContactForm() {
         onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
         required
         rows={5}
-        className="focus-ring-input"
-        style={{ ...inputStyle, resize: "vertical" }}
+        className="focus-ring-input p-3 border border-border rounded-lg text-[15px] w-full font-[inherit] resize-y"
       />
       <button
         type="submit"
         disabled={status === "sending"}
-        className="focus-ring"
-        style={{
-          backgroundColor: "var(--color-primary)",
-          color: "#ffffff",
-          padding: "0.75rem",
-          borderRadius: "0.5rem",
-          border: "none",
-          fontWeight: 600,
-          fontSize: "15px",
-          cursor: status === "sending" ? "not-allowed" : "pointer",
-          opacity: status === "sending" ? 0.7 : 1,
-          fontFamily: "inherit",
-        }}
+        className={cn(
+          "focus-ring bg-primary text-white p-3 rounded-lg border-none font-semibold text-[15px] font-[inherit]",
+          status === "sending" ? "cursor-not-allowed opacity-70" : "cursor-pointer opacity-100"
+        )}
       >
         {status === "sending" ? "Sending\u2026" : "Send message"}
       </button>
       {status === "error" && (
-        <p role="alert" style={{ color: "var(--color-danger)", fontSize: "14px" }}>
+        <p role="alert" className="text-danger text-sm">
           Something went wrong. Please try emailing us directly.
         </p>
       )}

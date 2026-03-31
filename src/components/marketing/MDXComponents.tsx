@@ -12,71 +12,40 @@ import { ProductPreview } from "@/components/marketing/ProductPreview";
 export const mdxComponents = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h1
-      style={{
-        fontSize: "2rem",
-        fontWeight: 700,
-        color: "var(--color-text-primary)",
-        marginTop: "2rem",
-        marginBottom: "1rem",
-        lineHeight: 1.2,
-      }}
+      className="text-[2rem] font-bold text-foreground mt-8 mb-4 leading-[1.2]"
       {...props}
     />
   ),
   h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h2
-      style={{
-        fontSize: "1.5rem",
-        fontWeight: 600,
-        color: "var(--color-text-primary)",
-        marginTop: "2rem",
-        marginBottom: "0.75rem",
-        lineHeight: 1.3,
-      }}
+      className="text-2xl font-semibold text-foreground mt-8 mb-3 leading-[1.3]"
       {...props}
     />
   ),
   h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h3
-      style={{
-        fontSize: "1.25rem",
-        fontWeight: 600,
-        color: "var(--color-text-primary)",
-        marginTop: "1.5rem",
-        marginBottom: "0.5rem",
-        lineHeight: 1.4,
-      }}
+      className="text-xl font-semibold text-foreground mt-6 mb-2 leading-[1.4]"
       {...props}
     />
   ),
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p
-      style={{
-        fontSize: "1rem",
-        lineHeight: 1.7,
-        color: "var(--color-text-body)",
-        marginBottom: "1rem",
-      }}
+      className="text-base leading-[1.7] text-body mb-4"
       {...props}
     />
   ),
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem", listStyleType: "disc" }} {...props} />
+    <ul className="pl-6 mb-4 list-disc" {...props} />
   ),
   ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
     <ol
-      style={{ paddingLeft: "1.5rem", marginBottom: "1rem", listStyleType: "decimal" }}
+      className="pl-6 mb-4 list-decimal"
       {...props}
     />
   ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
     <li
-      style={{
-        fontSize: "1rem",
-        lineHeight: 1.7,
-        color: "var(--color-text-body)",
-        marginBottom: "0.25rem",
-      }}
+      className="text-base leading-[1.7] text-body mb-1"
       {...props}
     />
   ),
@@ -85,7 +54,7 @@ export const mdxComponents = {
       return (
         <Link
           href={href}
-          style={{ color: "var(--color-primary)", textDecoration: "underline" }}
+          className="text-primary underline"
           {...props}
         />
       );
@@ -93,7 +62,7 @@ export const mdxComponents = {
     return (
       <a
         href={href}
-        style={{ color: "var(--color-primary)", textDecoration: "underline" }}
+        className="text-primary underline"
         target="_blank"
         rel="noopener noreferrer"
         {...props}
@@ -101,44 +70,28 @@ export const mdxComponents = {
     );
   },
   strong: (props: React.HTMLAttributes<HTMLElement>) => (
-    <strong style={{ fontWeight: 600, color: "var(--color-text-primary)" }} {...props} />
+    <strong className="font-semibold text-foreground" {...props} />
   ),
   blockquote: (props: React.HTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
-      style={{
-        borderLeft: "3px solid var(--color-primary)",
-        paddingLeft: "1rem",
-        margin: "1.5rem 0",
-        fontStyle: "italic",
-        color: "var(--color-text-secondary)",
-      }}
+      className="border-l-[3px] border-l-primary pl-4 my-6 italic text-secondary"
       {...props}
     />
   ),
   table: (props: React.HTMLAttributes<HTMLTableElement>) => (
-    <div style={{ overflowX: "auto", marginBottom: "1rem" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse" }} {...props} />
+    <div className="overflow-x-auto mb-4">
+      <table className="w-full border-collapse" {...props} />
     </div>
   ),
   th: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
     <th
-      style={{
-        textAlign: "left",
-        padding: "0.75rem",
-        borderBottom: "2px solid var(--color-border)",
-        fontWeight: 600,
-        color: "var(--color-text-primary)",
-      }}
+      className="text-left p-3 border-b-2 border-b-border font-semibold text-foreground"
       {...props}
     />
   ),
   td: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
     <td
-      style={{
-        padding: "0.75rem",
-        borderBottom: "1px solid var(--color-border)",
-        color: "var(--color-text-body)",
-      }}
+      className="p-3 border-b border-b-border text-body"
       {...props}
     />
   ),

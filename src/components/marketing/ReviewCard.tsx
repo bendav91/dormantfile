@@ -31,42 +31,26 @@ function relativeDate(date: Date): string {
 
 export function ReviewCard({ rating, text, name, verified, createdAt }: ReviewCardProps) {
   return (
-    <div
-      style={{
-        backgroundColor: "var(--color-bg-card)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "12px",
-        padding: "1.5rem",
-      }}
-    >
+    <div className="bg-card border border-border rounded-xl p-6">
       <div className="flex items-center justify-between mb-3">
         <StarRating rating={rating} size={16} />
-        <span className="text-xs" style={{ color: "var(--color-text-muted)" }}>
+        <span className="text-xs text-muted">
           {relativeDate(createdAt)}
         </span>
       </div>
 
       {text && (
-        <p
-          className="text-sm leading-relaxed mb-3"
-          style={{ color: "var(--color-text-body)" }}
-        >
+        <p className="text-sm leading-relaxed mb-3 text-body">
           &ldquo;{text}&rdquo;
         </p>
       )}
 
       <div className="flex items-center gap-2">
-        <p
-          className="text-sm font-semibold"
-          style={{ color: "var(--color-text-primary)", margin: 0 }}
-        >
+        <p className="text-sm font-semibold text-foreground m-0">
           {name}
         </p>
         {verified && (
-          <span
-            className="inline-flex items-center gap-1 text-xs"
-            style={{ color: "var(--color-success)" }}
-          >
+          <span className="inline-flex items-center gap-1 text-xs text-success">
             <CheckCircle size={13} strokeWidth={2} />
             Verified customer
           </span>

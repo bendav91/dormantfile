@@ -10,49 +10,21 @@ interface SecurityCard {
 
 export function SecurityCards({ cards }: { cards: SecurityCard[] }) {
   return (
-    <div
-      style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.5rem", marginBottom: "2rem" }}
-    >
+    <div className="grid grid-cols-1 gap-6 mb-8">
       {cards.map((card) => {
         const Icon = iconMap[card.icon];
         return (
           <div
             key={card.title}
-            style={{
-              padding: "1.25rem",
-              border: "1px solid var(--color-border)",
-              borderRadius: "0.5rem",
-              backgroundColor: "var(--color-bg-card)",
-            }}
+            className="p-5 border border-border rounded-lg bg-card"
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.75rem",
-                marginBottom: "0.75rem",
-              }}
-            >
-              {Icon && <Icon size={24} style={{ color: "var(--color-primary)" }} />}
-              <h3
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "var(--color-text-primary)",
-                  margin: 0,
-                }}
-              >
+            <div className="flex items-center gap-3 mb-3">
+              {Icon && <Icon size={24} className="text-primary" />}
+              <h3 className="text-base font-semibold text-foreground m-0">
                 {card.title}
               </h3>
             </div>
-            <p
-              style={{
-                fontSize: "15px",
-                lineHeight: 1.7,
-                color: "var(--color-text-body)",
-                margin: 0,
-              }}
-            >
+            <p className="text-[15px] leading-[1.7] text-body m-0">
               {card.text}
             </p>
           </div>

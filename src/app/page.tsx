@@ -596,59 +596,37 @@ export default function LandingPage() {
             ].map((plan) => (
               <div
                 key={plan.name}
-                className="rounded-xl p-5 sm:p-7 flex flex-col"
-                style={{
-                  border: plan.highlighted
-                    ? "2px solid var(--color-primary)"
-                    : "1px solid var(--color-border)",
-                  backgroundColor: "var(--color-bg-card)",
-                  position: "relative",
-                }}
+                className={cn(
+                  "rounded-xl p-5 sm:p-7 flex flex-col bg-card relative",
+                  plan.highlighted ? "border-2 border-primary" : "border border-border"
+                )}
               >
                 {plan.highlighted && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: "-12px",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      backgroundColor: "var(--color-primary)",
-                      color: "var(--color-bg-card)",
-                      padding: "3px 14px",
-                      borderRadius: "9999px",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-card px-3.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap">
                     Most popular
                   </span>
                 )}
-                <p className="font-semibold text-sm mb-1" style={{ color: "var(--color-primary)" }}>
+                <p className="font-semibold text-sm mb-1 text-primary">
                   {plan.name}
                 </p>
                 <div className="mb-1">
-                  <span
-                    className="text-4xl font-bold"
-                    style={{ color: "var(--color-text-primary)" }}
-                  >
+                  <span className="text-4xl font-bold text-foreground">
                     £{plan.price}
                   </span>
-                  <span className="text-sm ml-1" style={{ color: "var(--color-text-secondary)" }}>
+                  <span className="text-sm ml-1 text-secondary">
                     {plan.period}
                   </span>
                 </div>
                 {plan.perUnit && (
-                  <p className="text-xs font-medium mb-4" style={{ color: "var(--color-primary)" }}>
+                  <p className="text-xs font-medium mb-4 text-primary">
                     {plan.perUnit}
                   </p>
                 )}
                 <p
-                  className="text-sm leading-relaxed mb-6"
-                  style={{
-                    color: "var(--color-text-secondary)",
-                    marginTop: plan.perUnit ? 0 : "0.5rem",
-                  }}
+                  className={cn(
+                    "text-sm leading-relaxed mb-6 text-secondary",
+                    !plan.perUnit && "mt-2"
+                  )}
                 >
                   {plan.description}
                 </p>
@@ -657,9 +635,9 @@ export default function LandingPage() {
                     <li key={feature} className="flex items-start gap-2.5">
                       <CheckCircle
                         size={16}
-                        style={{ color: "var(--color-primary)", flexShrink: 0, marginTop: 2 }}
+                        className="text-primary shrink-0 mt-0.5"
                       />
-                      <span className="text-sm" style={{ color: "var(--color-text-body)" }}>
+                      <span className="text-sm text-body">
                         {feature}
                       </span>
                     </li>
@@ -667,12 +645,10 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href="/register"
-                  className="block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
-                  style={{
-                    backgroundColor: plan.highlighted ? "var(--color-cta)" : "var(--color-primary)",
-                    color: "var(--color-bg-card)",
-                    padding: "12px 24px",
-                  }}
+                  className={cn(
+                    "block w-full text-center font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer text-card px-6 py-3",
+                    plan.highlighted ? "bg-cta" : "bg-primary"
+                  )}
                 >
                   {plan.cta}
                 </Link>
@@ -682,7 +658,7 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-center mt-6" style={{ color: "var(--color-text-muted)" }}>
+          <p className="text-xs text-center mt-6 text-muted">
             Compare to £100+ for most accounting software. All plans include
             credentials-never-stored security.
           </p>
@@ -700,55 +676,35 @@ export default function LandingPage() {
 
       {/* FAQ */}
       <FAQPageJsonLd items={faqItems} />
-      <section
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          borderTop: "1px solid var(--color-border)",
-        }}
-        className="py-20 px-6"
-      >
+      <section className="py-20 px-6 bg-card border-t border-border">
         <div className="max-w-[960px] mx-auto">
-          <h2
-            className="text-2xl font-bold text-center mb-3"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
-          >
+          <h2 className="text-2xl font-bold text-center mb-3 text-foreground tracking-[-0.02em]">
             You&apos;re probably wondering
           </h2>
-          <p className="text-sm text-center mb-12" style={{ color: "var(--color-text-secondary)" }}>
+          <p className="text-sm text-center mb-12 text-secondary">
             The things we&apos;d want to know before signing up.{" "}
             <Link
               href="/faq"
-              className="font-medium transition-colors duration-200"
-              style={{ color: "var(--color-primary)" }}
+              className="font-medium transition-colors duration-200 text-primary"
             >
               See all FAQs &rarr;
             </Link>
           </p>
-          <div className="max-w-3xl mx-auto" style={{ borderTop: "1px solid var(--color-border)" }}>
+          <div className="max-w-3xl mx-auto border-t border-border">
             {faqItems.map(({ question, answer }, i) => (
               <div
                 key={question}
-                className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 lg:gap-10 py-8"
-                style={{ borderBottom: "1px solid var(--color-border)" }}
+                className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 lg:gap-10 py-8 border-b border-border"
               >
                 <div className="flex gap-4">
-                  <span
-                    className="text-2xl font-bold tabular-nums leading-none"
-                    style={{ color: "var(--color-border)", marginTop: "2px" }}
-                  >
+                  <span className="text-2xl font-bold tabular-nums leading-none text-border mt-0.5">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <h3
-                    className="text-base font-semibold leading-snug text-balance"
-                    style={{ color: "var(--color-text-primary)" }}
-                  >
+                  <h3 className="text-base font-semibold leading-snug text-balance text-foreground">
                     {question}
                   </h3>
                 </div>
-                <p
-                  className="text-sm leading-relaxed lg:pt-1 ml-[3.25rem] lg:ml-0"
-                  style={{ color: "var(--color-text-secondary)" }}
-                >
+                <p className="text-sm leading-relaxed lg:pt-1 ml-[3.25rem] lg:ml-0 text-secondary">
                   {answer}
                 </p>
               </div>
@@ -758,14 +714,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section
-        className="py-20 sm:py-24 px-6"
-        style={{
-          backgroundColor: "var(--color-primary-bg)",
-          borderTop: "1px solid var(--color-primary-border)",
-          borderBottom: "1px solid var(--color-primary-border)",
-        }}
-      >
+      <section className="py-20 sm:py-24 px-6 bg-primary-bg border-t border-b border-primary-border">
         <div className="max-w-[960px] mx-auto">
           {/* Value stat blocks */}
           <div className="grid grid-cols-3 gap-3 sm:gap-5 max-w-sm sm:max-w-md mx-auto mb-12">
@@ -776,28 +725,15 @@ export default function LandingPage() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="text-center rounded-xl py-4 px-2"
-                style={{
-                  backgroundColor: "var(--color-bg-card)",
-                  border: "1px solid var(--color-border)",
-                }}
+                className="text-center rounded-xl py-4 px-2 bg-card border border-border"
               >
-                <p
-                  className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest mb-1.5"
-                  style={{ color: "var(--color-text-muted)" }}
-                >
+                <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest mb-1.5 text-muted">
                   {stat.label}
                 </p>
-                <p
-                  className="text-2xl sm:text-3xl font-bold leading-none"
-                  style={{ color: "var(--color-primary)" }}
-                >
+                <p className="text-2xl sm:text-3xl font-bold leading-none text-primary">
                   {stat.value}
                   {stat.unit && (
-                    <span
-                      className="text-base sm:text-lg font-medium"
-                      style={{ color: "var(--color-text-secondary)" }}
-                    >
+                    <span className="text-base sm:text-lg font-medium text-secondary">
                       {stat.unit}
                     </span>
                   )}
@@ -807,16 +743,10 @@ export default function LandingPage() {
           </div>
 
           {/* Headline + sub */}
-          <h2
-            className="text-3xl sm:text-4xl font-bold text-center leading-tight mb-5"
-            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.025em" }}
-          >
+          <h2 className="text-3xl sm:text-4xl font-bold text-center leading-tight mb-5 text-foreground tracking-[-0.025em]">
             Get your dormant filings sorted.
           </h2>
-          <p
-            className="text-base sm:text-lg text-center leading-relaxed mb-10 max-w-lg mx-auto"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
+          <p className="text-base sm:text-lg text-center leading-relaxed mb-10 max-w-lg mx-auto text-secondary">
             Set up your company in minutes. When it&apos;s time to file, both returns go directly to
             Companies House and HMRC. From £19 a year.
           </p>
@@ -825,12 +755,7 @@ export default function LandingPage() {
           <div className="text-center mb-8">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2.5 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer"
-              style={{
-                backgroundColor: "var(--color-cta)",
-                color: "var(--color-bg-card)",
-                padding: "16px 36px",
-              }}
+              className="inline-flex items-center gap-2.5 text-base font-semibold rounded-lg transition-[opacity,transform] duration-200 motion-safe:hover:-translate-y-0.5 hover:opacity-90 cursor-pointer bg-cta text-card px-9 py-4"
             >
               {isFilingLive() ? "Start filing today" : "Get ready to file"} <ArrowRight size={18} />
             </Link>
@@ -845,8 +770,7 @@ export default function LandingPage() {
             ].map((item) => (
               <span
                 key={item.text}
-                className="inline-flex items-center gap-1.5 text-xs"
-                style={{ color: "var(--color-text-muted)" }}
+                className="inline-flex items-center gap-1.5 text-xs text-muted"
               >
                 <item.icon size={12} strokeWidth={2} />
                 {item.text}

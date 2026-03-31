@@ -23,8 +23,7 @@ export async function AggregateRating({ variant }: AggregateRatingProps) {
     return (
       <Link
         href="/reviews"
-        className="flex items-center justify-center gap-2 text-sm transition-opacity duration-150 hover:opacity-80"
-        style={{ color: "var(--color-text-secondary)", textDecoration: "none" }}
+        className="flex items-center justify-center gap-2 text-sm transition-opacity duration-150 hover:opacity-80 text-secondary no-underline"
       >
         {content}
       </Link>
@@ -34,8 +33,7 @@ export async function AggregateRating({ variant }: AggregateRatingProps) {
   return (
     <Link
       href="/reviews"
-      className="inline-flex items-center gap-1.5 transition-opacity duration-150 hover:opacity-80"
-      style={{ fontSize: "12px", color: "var(--color-text-muted)", textDecoration: "none" }}
+      className="inline-flex items-center gap-1.5 transition-opacity duration-150 hover:opacity-80 text-xs text-muted no-underline"
     >
       {content}
     </Link>

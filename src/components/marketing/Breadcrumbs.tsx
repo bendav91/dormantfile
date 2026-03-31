@@ -7,44 +7,24 @@ interface BreadcrumbItem {
 
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
-    <nav aria-label="Breadcrumb" style={{ marginBottom: "1.5rem" }}>
-      <ol
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "0.5rem",
-          listStyle: "none",
-          padding: 0,
-          margin: 0,
-          fontSize: "0.875rem",
-        }}
-      >
+    <nav aria-label="Breadcrumb" className="mb-6">
+      <ol className="flex flex-wrap gap-2 list-none p-0 m-0 text-sm">
         <li>
-          <Link href="/" style={{ color: "var(--color-text-secondary)", textDecoration: "none" }}>
+          <Link href="/" className="text-secondary no-underline">
             Home
           </Link>
         </li>
         {items.map((item, i) => (
-          <li
-            key={i}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <span aria-hidden="true" style={{ color: "var(--color-text-muted)" }}>
+          <li key={i} className="flex items-center gap-2">
+            <span aria-hidden="true" className="text-muted">
               ›
             </span>
             {item.href ? (
-              <Link
-                href={item.href}
-                style={{ color: "var(--color-text-secondary)", textDecoration: "none" }}
-              >
+              <Link href={item.href} className="text-secondary no-underline">
                 {item.label}
               </Link>
             ) : (
-              <span style={{ color: "var(--color-text-body)" }}>{item.label}</span>
+              <span className="text-body">{item.label}</span>
             )}
           </li>
         ))}

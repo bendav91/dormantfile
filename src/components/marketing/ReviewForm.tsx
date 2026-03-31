@@ -67,18 +67,12 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
     return (
       <div
         id="form"
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "12px",
-          padding: "2rem",
-          textAlign: "center",
-        }}
+        className="bg-card border border-border rounded-xl p-8 text-center"
       >
-        <p className="text-base font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>
+        <p className="text-base font-semibold mb-1 text-foreground">
           {isAuthenticated ? "Thank you for your review!" : "Thank you! Your review has been submitted for approval."}
         </p>
-        <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+        <p className="text-sm text-secondary">
           {isAuthenticated
             ? "Your review is now live."
             : "We\u2019ll publish it shortly after a quick review."}
@@ -91,20 +85,12 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
     <form
       id="form"
       onSubmit={handleSubmit}
-      style={{
-        backgroundColor: "var(--color-bg-card)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "12px",
-        padding: "2rem",
-      }}
+      className="bg-card border border-border rounded-xl p-8"
     >
-      <h3
-        className="text-base font-semibold mb-1"
-        style={{ color: "var(--color-text-primary)" }}
-      >
+      <h3 className="text-base font-semibold mb-1 text-foreground">
         {isEditing ? "Edit your review" : "Leave a review"}
       </h3>
-      <p className="text-sm mb-5" style={{ color: "var(--color-text-secondary)" }}>
+      <p className="text-sm mb-5 text-secondary">
         {isAuthenticated
           ? isEditing
             ? "Update your rating or feedback below."
@@ -113,7 +99,7 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
       </p>
 
       <div className="mb-5">
-        <label className="text-sm font-medium mb-2 block" style={{ color: "var(--color-text-primary)" }}>
+        <label className="text-sm font-medium mb-2 block text-foreground">
           Rating
         </label>
         <StarRating rating={rating} size={28} interactive onChange={setRating} />
@@ -123,8 +109,7 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
         <div className="mb-4">
           <label
             htmlFor="review-name"
-            className="text-sm font-medium mb-1.5 block"
-            style={{ color: "var(--color-text-primary)" }}
+            className="text-sm font-medium mb-1.5 block text-foreground"
           >
             Your name
           </label>
@@ -134,14 +119,7 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Jane Smith"
-            className="w-full text-sm rounded-lg transition-colors duration-150"
-            style={{
-              padding: "10px 12px",
-              backgroundColor: "var(--color-bg-inset)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-text-primary)",
-              outline: "none",
-            }}
+            className="w-full text-sm rounded-lg transition-colors duration-150 px-3 py-2.5 bg-inset border border-border text-foreground outline-none"
           />
         </div>
       )}
@@ -149,10 +127,9 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
       <div className="mb-5">
         <label
           htmlFor="review-text"
-          className="text-sm font-medium mb-1.5 block"
-          style={{ color: "var(--color-text-primary)" }}
+          className="text-sm font-medium mb-1.5 block text-foreground"
         >
-          Feedback <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}>(optional)</span>
+          Feedback <span className="text-muted font-normal">(optional)</span>
         </label>
         <textarea
           id="review-text"
@@ -161,19 +138,12 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
           placeholder="What did you think?"
           rows={3}
           maxLength={500}
-          className="w-full text-sm rounded-lg transition-colors duration-150 resize-none"
-          style={{
-            padding: "10px 12px",
-            backgroundColor: "var(--color-bg-inset)",
-            border: "1px solid var(--color-border)",
-            color: "var(--color-text-primary)",
-            outline: "none",
-          }}
+          className="w-full text-sm rounded-lg transition-colors duration-150 resize-none px-3 py-2.5 bg-inset border border-border text-foreground outline-none"
         />
       </div>
 
       {error && (
-        <p className="text-sm mb-4" style={{ color: "var(--color-danger)" }}>
+        <p className="text-sm mb-4 text-danger">
           {error}
         </p>
       )}
@@ -181,13 +151,7 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
       <button
         type="submit"
         disabled={loading || rating === 0}
-        className="text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        style={{
-          backgroundColor: "var(--color-cta)",
-          color: "#ffffff",
-          padding: "10px 24px",
-          border: "none",
-        }}
+        className="text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-cta text-[#ffffff] py-2.5 px-6 border-none"
       >
         {loading
           ? "Submitting\u2026"
@@ -197,7 +161,7 @@ export function ReviewForm({ isAuthenticated, existingReview, userName }: Review
       </button>
 
       {isAuthenticated && userName && (
-        <p className="text-xs mt-3" style={{ color: "var(--color-text-muted)" }}>
+        <p className="text-xs mt-3 text-muted">
           Posting as {userName}
         </p>
       )}

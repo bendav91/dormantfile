@@ -10,35 +10,16 @@ export function RelatedContent({ items, type }: RelatedContentProps) {
   if (items.length === 0) return null;
 
   return (
-    <div
-      style={{
-        marginTop: "2rem",
-        paddingTop: "2rem",
-        borderTop: "1px solid var(--color-border)",
-      }}
-    >
-      <h3 className="text-lg font-semibold mb-3" style={{ color: "var(--color-text-primary)" }}>
+    <div className="mt-8 pt-8 border-t border-border">
+      <h3 className="text-lg font-semibold mb-3 text-foreground">
         Related articles
       </h3>
-      <ul
-        style={{
-          listStyle: "none",
-          padding: 0,
-          margin: 0,
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-        }}
-      >
+      <ul className="list-none p-0 m-0 flex flex-col gap-3">
         {items.map((item) => (
           <li key={item.slug}>
             <Link
               href={`/${type}/${item.slug}`}
-              style={{
-                color: "var(--color-primary)",
-                textDecoration: "none",
-                fontSize: "0.9375rem",
-              }}
+              className="text-primary no-underline text-[0.9375rem]"
             >
               {item.frontmatter.title}
             </Link>

@@ -3,38 +3,23 @@ import Link from "next/link";
 
 export function ReviewCTA() {
   return (
-    <div
-      className="text-center"
-      style={{
-        backgroundColor: "var(--color-bg-card)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "12px",
-        padding: "2rem",
-      }}
-    >
+    <div className="text-center bg-card border border-border rounded-xl p-8">
       <div className="flex items-center justify-center gap-1 mb-2">
-        <Star size={18} style={{ color: "var(--color-cta)" }} fill="var(--color-cta)" />
-        <Star size={18} style={{ color: "var(--color-cta)" }} fill="var(--color-cta)" />
-        <Star size={18} style={{ color: "var(--color-cta)" }} fill="var(--color-cta)" />
-        <Star size={18} style={{ color: "var(--color-cta)" }} fill="var(--color-cta)" />
-        <Star size={18} style={{ color: "var(--color-cta)" }} fill="var(--color-cta)" />
+        <Star size={18} className="text-cta" fill="var(--color-cta)" />
+        <Star size={18} className="text-cta" fill="var(--color-cta)" />
+        <Star size={18} className="text-cta" fill="var(--color-cta)" />
+        <Star size={18} className="text-cta" fill="var(--color-cta)" />
+        <Star size={18} className="text-cta" fill="var(--color-cta)" />
       </div>
-      <p className="text-sm font-semibold mb-1" style={{ color: "var(--color-text-primary)" }}>
+      <p className="text-sm font-semibold mb-1 text-foreground">
         Used DormantFile?
       </p>
-      <p className="text-sm mb-4" style={{ color: "var(--color-text-secondary)" }}>
+      <p className="text-sm mb-4 text-secondary">
         We&apos;d love to hear how it went.
       </p>
       <Link
         href="/reviews#form"
-        className="inline-flex items-center gap-1.5 text-sm font-medium rounded-lg transition-colors duration-150"
-        style={{
-          color: "var(--color-primary)",
-          padding: "8px 16px",
-          border: "1px solid var(--color-border)",
-          backgroundColor: "var(--color-bg-page)",
-          textDecoration: "none",
-        }}
+        className="inline-flex items-center gap-1.5 text-sm font-medium rounded-lg transition-colors duration-150 text-primary px-4 py-2 border border-border bg-page no-underline"
       >
         Leave a review
       </Link>

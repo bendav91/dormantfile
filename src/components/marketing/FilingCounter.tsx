@@ -6,7 +6,7 @@ export function FilingCounter() {
   if (count < THRESHOLD) return null;
 
   return (
-    <p className="text-sm font-medium text-center" style={{ color: "var(--color-text-secondary)" }}>
+    <p className="text-sm font-medium text-center text-secondary">
       Over {count.toLocaleString()} filings submitted
     </p>
   );

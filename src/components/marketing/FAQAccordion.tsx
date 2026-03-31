@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface FAQItemData {
   question: string;
@@ -14,37 +15,21 @@ function FAQItem({ question, answer }: FAQItemData) {
   const triggerId = `${panelId}-trigger`;
 
   return (
-    <div style={{ borderBottom: "1px solid var(--color-border)" }}>
+    <div className="border-b border-border">
       <button
         id={triggerId}
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-controls={panelId}
-        style={{
-          width: "100%",
-          textAlign: "left",
-          padding: "1rem 0",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          fontSize: "15px",
-          fontWeight: 500,
-          color: "var(--color-text-primary)",
-          gap: "1rem",
-        }}
+        className="w-full text-left py-4 bg-none border-none cursor-pointer flex justify-between items-center text-[15px] font-medium text-foreground gap-4"
       >
         <span>{question}</span>
         <ChevronDown
           size={16}
-          style={{
-            transform: open ? "rotate(180deg)" : "none",
-            transition: "transform 0.2s",
-            flexShrink: 0,
-            color: "var(--color-text-muted)",
-          }}
+          className={cn(
+            "shrink-0 text-muted transition-transform duration-200",
+            open && "rotate-180"
+          )}
         />
       </button>
       {open && (
@@ -52,12 +37,7 @@ function FAQItem({ question, answer }: FAQItemData) {
           id={panelId}
           role="region"
           aria-labelledby={triggerId}
-          style={{
-            paddingBottom: "1rem",
-            color: "var(--color-text-body)",
-            lineHeight: 1.7,
-            fontSize: "15px",
-          }}
+          className="pb-4 text-body leading-[1.7] text-[15px]"
         >
           {answer}
         </div>
@@ -75,15 +55,8 @@ export function FAQAccordion({ categories }: { categories: FAQCategory[] }) {
   return (
     <div>
       {categories.map((cat) => (
-        <section key={cat.name} style={{ marginBottom: "2rem" }}>
-          <h2
-            style={{
-              fontSize: "18px",
-              fontWeight: 600,
-              color: "var(--color-text-primary)",
-              margin: "0 0 8px 0",
-            }}
-          >
+        <section key={cat.name} className="mb-8">
+          <h2 className="text-lg font-semibold text-foreground mb-2">
             {cat.name}
           </h2>
           <div>

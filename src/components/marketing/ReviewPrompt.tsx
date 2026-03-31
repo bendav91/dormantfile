@@ -63,16 +63,8 @@ export function ReviewPrompt() {
 
   if (submitted) {
     return (
-      <div
-        style={{
-          backgroundColor: "var(--color-bg-card)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "12px",
-          padding: "1.25rem 1.5rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <p className="text-sm font-medium" style={{ color: "var(--color-success)" }}>
+      <div className="bg-card border border-border rounded-xl px-6 py-5 mb-6">
+        <p className="text-sm font-medium text-success">
           Thank you for your review!
         </p>
       </div>
@@ -82,20 +74,11 @@ export function ReviewPrompt() {
   return (
     <form
       onSubmit={handleSubmit}
-      style={{
-        backgroundColor: "var(--color-bg-card)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "12px",
-        padding: "1.25rem 1.5rem",
-        marginBottom: "1.5rem",
-      }}
+      className="bg-card border border-border rounded-xl px-6 py-5 mb-6"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p
-            className="text-sm font-semibold mb-2"
-            style={{ color: "var(--color-text-primary)" }}
-          >
+          <p className="text-sm font-semibold mb-2 text-foreground">
             How was your experience filing with DormantFile?
           </p>
           <StarRating rating={rating} size={24} interactive onChange={handleRatingSelect} />
@@ -104,15 +87,7 @@ export function ReviewPrompt() {
           type="button"
           onClick={handleDismiss}
           aria-label="Dismiss"
-          className="cursor-pointer"
-          style={{
-            background: "none",
-            border: "none",
-            color: "var(--color-text-muted)",
-            padding: "4px",
-            lineHeight: 0,
-            flexShrink: 0,
-          }}
+          className="cursor-pointer bg-transparent border-none text-muted p-1 leading-none shrink-0"
         >
           <X size={16} />
         </button>
@@ -126,18 +101,11 @@ export function ReviewPrompt() {
             placeholder="Tell us more (optional)"
             rows={2}
             maxLength={500}
-            className="w-full text-sm rounded-lg resize-none mb-3"
-            style={{
-              padding: "10px 12px",
-              backgroundColor: "var(--color-bg-inset)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-text-primary)",
-              outline: "none",
-            }}
+            className="w-full text-sm rounded-lg resize-none mb-3 px-3 py-2.5 bg-inset border border-border text-foreground outline-none"
           />
 
           {error && (
-            <p className="text-sm mb-3" style={{ color: "var(--color-danger)" }}>
+            <p className="text-sm mb-3 text-danger">
               {error}
             </p>
           )}
@@ -146,26 +114,14 @@ export function ReviewPrompt() {
             <button
               type="submit"
               disabled={loading}
-              className="text-sm font-semibold rounded-lg cursor-pointer disabled:opacity-50"
-              style={{
-                backgroundColor: "var(--color-cta)",
-                color: "#ffffff",
-                padding: "8px 20px",
-                border: "none",
-              }}
+              className="text-sm font-semibold rounded-lg cursor-pointer disabled:opacity-50 bg-cta text-[#ffffff] py-2 px-5 border-none"
             >
               {loading ? "Submitting\u2026" : "Submit review"}
             </button>
             <button
               type="button"
               onClick={handleDismiss}
-              className="text-sm cursor-pointer"
-              style={{
-                background: "none",
-                border: "none",
-                color: "var(--color-text-muted)",
-                padding: "8px",
-              }}
+              className="text-sm cursor-pointer bg-transparent border-none text-muted p-2"
             >
               Not now
             </button>

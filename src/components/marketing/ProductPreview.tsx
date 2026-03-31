@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CheckCircle2, Search } from "lucide-react";
 import { BrowserFrame } from "@/components/marketing/BrowserFrame";
+import { cn } from "@/lib/cn";
 
 const tabs = ["Add your company", "File in one click", "Get confirmation"] as const;
 type Tab = (typeof tabs)[number];
@@ -11,104 +12,34 @@ function TabAddCompany() {
   return (
     <div>
       {/* Search input */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: "10px 14px",
-          border: "1px solid var(--color-border)",
-          borderRadius: "8px",
-          backgroundColor: "var(--color-bg-page)",
-          marginBottom: "16px",
-        }}
-      >
-        <Search size={16} style={{ color: "var(--color-text-muted)", flexShrink: 0 }} />
-        <span
-          style={{
-            fontSize: "14px",
-            color: "var(--color-text-muted)",
-          }}
-        >
+      <div className="flex items-center gap-2 px-3.5 py-2.5 border border-border rounded-lg bg-page mb-4">
+        <Search size={16} className="text-muted shrink-0" />
+        <span className="text-sm text-muted">
           Search by company name or number...
         </span>
       </div>
 
       {/* Result card */}
-      <div
-        style={{
-          border: "1px solid var(--color-border)",
-          borderRadius: "8px",
-          padding: "16px",
-          backgroundColor: "var(--color-bg-page)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: "12px",
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ flex: 1, minWidth: "200px" }}>
-            <p
-              style={{
-                fontWeight: 600,
-                fontSize: "15px",
-                color: "var(--color-text-primary)",
-                margin: "0 0 4px 0",
-              }}
-            >
+      <div className="border border-border rounded-lg p-4 bg-page">
+        <div className="flex justify-between items-start gap-3 flex-wrap">
+          <div className="flex-1 min-w-[200px]">
+            <p className="font-semibold text-[15px] text-foreground mb-1">
               EXAMPLE HOLDINGS LTD
             </p>
-            <p
-              style={{
-                fontSize: "13px",
-                color: "var(--color-text-secondary)",
-                margin: "0 0 2px 0",
-              }}
-            >
+            <p className="text-[13px] text-secondary mb-0.5">
               Company number: 12345678
             </p>
-            <p
-              style={{
-                fontSize: "13px",
-                color: "var(--color-text-secondary)",
-                margin: "0 0 8px 0",
-              }}
-            >
+            <p className="text-[13px] text-secondary mb-2">
               10 Example Street, London, EC1A 1BB
             </p>
-            <span
-              style={{
-                display: "inline-block",
-                fontSize: "12px",
-                fontWeight: 500,
-                padding: "2px 8px",
-                borderRadius: "4px",
-                backgroundColor: "color-mix(in srgb, var(--color-success) 15%, transparent)",
-                color: "var(--color-success)",
-              }}
-            >
+            <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-[4px] bg-[color-mix(in_srgb,var(--color-success)_15%,transparent)] text-success">
               Active
             </span>
           </div>
 
           <button
             type="button"
-            style={{
-              padding: "8px 16px",
-              fontSize: "13px",
-              fontWeight: 600,
-              borderRadius: "6px",
-              border: "none",
-              backgroundColor: "var(--color-primary)",
-              color: "#ffffff",
-              cursor: "default",
-              whiteSpace: "nowrap",
-            }}
+            className="px-4 py-2 text-[13px] font-semibold rounded-md border-none bg-primary text-[#ffffff] cursor-default whitespace-nowrap"
           >
             Add company
           </button>
@@ -120,86 +51,38 @@ function TabAddCompany() {
 
 function TabFileInOneClick() {
   return (
-    <div
-      style={{
-        border: "1px solid var(--color-border)",
-        borderRadius: "8px",
-        padding: "20px",
-        backgroundColor: "var(--color-bg-page)",
-      }}
-    >
-      <p
-        style={{
-          fontWeight: 600,
-          fontSize: "15px",
-          color: "var(--color-text-primary)",
-          margin: "0 0 12px 0",
-        }}
-      >
+    <div className="border border-border rounded-lg p-5 bg-page">
+      <p className="font-semibold text-[15px] text-foreground mb-3">
         EXAMPLE HOLDINGS LTD
       </p>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "8px 24px",
-          marginBottom: "16px",
-        }}
-      >
+      <div className="grid grid-cols-2 gap-x-6 gap-y-2 mb-4">
         <div>
-          <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: "0 0 2px 0" }}>
+          <p className="text-xs text-muted mb-0.5">
             Period
           </p>
-          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: 0 }}>
+          <p className="text-sm text-body">
             01 Apr 2025 &ndash; 31 Mar 2026
           </p>
         </div>
         <div>
-          <p style={{ fontSize: "12px", color: "var(--color-text-muted)", margin: "0 0 2px 0" }}>
+          <p className="text-xs text-muted mb-0.5">
             Filing type
           </p>
-          <p style={{ fontSize: "14px", color: "var(--color-text-body)", margin: 0 }}>
+          <p className="text-sm text-body">
             Dormant accounts + CT600
           </p>
         </div>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: "12px",
-        }}
-      >
-        <span
-          style={{
-            display: "inline-block",
-            fontSize: "12px",
-            fontWeight: 500,
-            padding: "2px 8px",
-            borderRadius: "4px",
-            backgroundColor: "var(--color-bg-inset)",
-            color: "var(--color-text-muted)",
-          }}
-        >
+      <div className="flex justify-between items-center gap-3">
+        <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-[4px] bg-inset text-muted">
           Ready to file
         </span>
 
         <button
           type="button"
-          style={{
-            padding: "8px 16px",
-            fontSize: "13px",
-            fontWeight: 600,
-            borderRadius: "6px",
-            border: "none",
-            backgroundColor: "var(--color-cta)",
-            color: "#ffffff",
-            cursor: "default",
-            whiteSpace: "nowrap",
-          }}
+          className="px-4 py-2 text-[13px] font-semibold rounded-md border-none bg-cta text-[#ffffff] cursor-default whitespace-nowrap"
         >
           Submit filings
         </button>
@@ -210,46 +93,31 @@ function TabFileInOneClick() {
 
 function TabGetConfirmation() {
   return (
-    <div style={{ textAlign: "center", padding: "8px 0" }}>
+    <div className="text-center py-2">
       <CheckCircle2
         size={48}
-        style={{ color: "var(--color-success)", margin: "0 auto 12px auto" }}
+        className="text-success mx-auto mb-3"
       />
-      <h4
-        style={{
-          fontSize: "18px",
-          fontWeight: 600,
-          color: "var(--color-text-primary)",
-          margin: "0 0 16px 0",
-        }}
-      >
+      <h4 className="text-lg font-semibold text-foreground mb-4">
         Filed successfully
       </h4>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          alignItems: "center",
-          marginBottom: "16px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <CheckCircle2 size={16} style={{ color: "var(--color-success)", flexShrink: 0 }} />
-          <span style={{ fontSize: "14px", color: "var(--color-text-body)" }}>
+      <div className="flex flex-col gap-2 items-center mb-4">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 size={16} className="text-success shrink-0" />
+          <span className="text-sm text-body">
             Accounts accepted by Companies House
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <CheckCircle2 size={16} style={{ color: "var(--color-success)", flexShrink: 0 }} />
-          <span style={{ fontSize: "14px", color: "var(--color-text-body)" }}>
+        <div className="flex items-center gap-2">
+          <CheckCircle2 size={16} className="text-success shrink-0" />
+          <span className="text-sm text-body">
             CT600 accepted by HMRC
           </span>
         </div>
       </div>
 
-      <p style={{ fontSize: "13px", color: "var(--color-text-muted)", margin: 0 }}>
+      <p className="text-[13px] text-muted">
         29 March 2026, 14:32
       </p>
     </div>
@@ -260,16 +128,9 @@ export function ProductPreview() {
   const [activeTab, setActiveTab] = useState<Tab>("Add your company");
 
   return (
-    <div style={{ maxWidth: "640px", margin: "0 auto" }}>
+    <div className="max-w-[640px] mx-auto">
       {/* Tabs */}
-      <div
-        style={{
-          display: "flex",
-          gap: "0",
-          borderBottom: "1px solid var(--color-border)",
-          marginBottom: "20px",
-        }}
-      >
+      <div className="flex border-b border-border mb-5">
         {tabs.map((tab) => {
           const isActive = tab === activeTab;
           return (
@@ -277,19 +138,12 @@ export function ProductPreview() {
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              style={{
-                flex: 1,
-                padding: "10px 4px",
-                fontSize: "13px",
-                fontWeight: isActive ? 600 : 400,
-                color: isActive ? "var(--color-primary)" : "var(--color-text-muted)",
-                background: "none",
-                border: "none",
-                borderBottom: isActive ? "2px solid var(--color-primary)" : "2px solid transparent",
-                cursor: "pointer",
-                transition: "color 0.15s, border-color 0.15s",
-                marginBottom: "-1px",
-              }}
+              className={cn(
+                "flex-1 py-2.5 px-1 text-[13px] bg-transparent border-none border-b-2 cursor-pointer transition-[color,border-color] duration-150 -mb-px",
+                isActive
+                  ? "font-semibold text-primary border-b-primary"
+                  : "font-normal text-muted border-b-transparent"
+              )}
             >
               {tab}
             </button>

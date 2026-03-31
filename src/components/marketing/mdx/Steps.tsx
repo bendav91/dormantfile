@@ -14,46 +14,19 @@ export function Steps({ children }: { children: React.ReactNode }) {
   const steps = Children.toArray(children).filter(isValidElement);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+    <div className="flex flex-col gap-6">
       {steps.map((child, i) => {
         const { title, children: desc } = child.props as StepProps;
         return (
-          <div key={i} style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-            <div
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "50%",
-                backgroundColor: "var(--color-primary)",
-                color: "var(--color-bg-card)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 700,
-                fontSize: "14px",
-                flexShrink: 0,
-              }}
-            >
+          <div key={i} className="flex gap-4 items-start">
+            <div className="w-9 h-9 rounded-full bg-primary text-card flex items-center justify-center font-bold text-sm shrink-0">
               {i + 1}
             </div>
             <div>
-              <h3
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  color: "var(--color-text-primary)",
-                  margin: "0 0 4px 0",
-                }}
-              >
+              <h3 className="text-base font-semibold text-foreground mb-1 mt-0">
                 {title}
               </h3>
-              <div
-                style={{
-                  fontSize: "15px",
-                  lineHeight: 1.7,
-                  color: "var(--color-text-body)",
-                }}
-              >
+              <div className="text-[15px] leading-[1.7] text-body">
                 {desc}
               </div>
             </div>
