@@ -9,7 +9,7 @@ Affordable dormant company filing for the UK — CT600 (HMRC) and annual account
 - **Auth**: NextAuth v4 (credentials provider, bcrypt)
 - **Payments**: Stripe (subscriptions, checkout, webhooks)
 - **Email**: Resend
-- **Styling**: Tailwind CSS v4, CSS custom properties for theming (light/dark)
+- **Styling**: Tailwind CSS v4 with `@theme` design tokens, `cn()` utility (`clsx` + `tailwind-merge`)
 - **Testing**: Vitest
 - **Hosting**: Vercel (lhr1 region)
 - **Linting**: ESLint (next/core-web-vitals + next/typescript)
