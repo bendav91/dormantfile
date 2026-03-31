@@ -19,8 +19,8 @@ const PLANS = [
     description: "1 dormant company",
     features: [
       "Both filings — accounts and CT600",
-      "File any outstanding period",
-      "Email deadline reminders",
+      "Automatic gap detection from incorporation",
+      "Deadline reminders with penalty warnings",
       "Filing confirmation receipt",
     ],
   },
@@ -33,8 +33,8 @@ const PLANS = [
     features: [
       "Everything in Basic",
       "File for up to 10 dormant companies",
-      "Manage all from one dashboard",
-      "Catch up on missed periods",
+      "Portfolio dashboard with filtering and search",
+      "All companies synced daily with Companies House",
     ],
   },
   {
@@ -45,8 +45,8 @@ const PLANS = [
     features: [
       "Everything in Multiple",
       "File for up to 100 dormant companies",
-      "File as agent on behalf of clients",
-      "Ideal for accountants",
+      "File as agent on behalf of your clients",
+      "Automatic gap detection per company",
     ],
   },
 ];

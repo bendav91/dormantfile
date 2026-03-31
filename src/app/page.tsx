@@ -18,8 +18,10 @@ import {
   CheckCircle,
   Clock,
   FileCheck,
+  History,
   KeyRound,
   Monitor,
+  RefreshCw,
   RotateCcw,
   Search,
   Send,
@@ -500,6 +502,85 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Behind the scenes */}
+      <section
+        style={{
+          backgroundColor: "var(--color-bg-card)",
+          borderTop: "1px solid var(--color-border)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+        className="py-20 px-6"
+      >
+        <div className="max-w-[960px] mx-auto">
+          <h2
+            className="text-2xl font-bold text-center mb-3"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
+          >
+            More than a filing form
+          </h2>
+          <p className="text-sm text-center mb-12" style={{ color: "var(--color-text-secondary)" }}>
+            Here&apos;s what&apos;s working behind the scenes.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: History,
+                heading: "Filing history from day one",
+                description:
+                  "We check Companies House for every unfiled period since your company was incorporated. Nothing slips through.",
+              },
+              {
+                icon: Bell,
+                heading: "Deadline intelligence",
+                description:
+                  "Reminders at 90, 30, 14, 7, 3, and 1 day before each filing is due \u2014 with penalty amounts so you know the stakes.",
+              },
+              {
+                icon: RefreshCw,
+                heading: "Keeps itself current",
+                description:
+                  "Your company data is synced against Companies House daily. Periods filed elsewhere are detected and marked automatically.",
+              },
+            ].map((item) => (
+              <div key={item.heading} className="text-center">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-4"
+                  style={{
+                    backgroundColor: "var(--color-primary-bg)",
+                    border: "2px solid var(--color-primary-border)",
+                  }}
+                >
+                  <item.icon size={18} style={{ color: "var(--color-primary)" }} />
+                </div>
+                <h3
+                  className="text-base font-semibold mb-2"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  {item.heading}
+                </h3>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center mt-8">
+            <Link
+              href="/features"
+              className="text-sm font-medium transition-colors duration-200"
+              style={{ color: "var(--color-primary)" }}
+            >
+              See all features &rarr;
+            </Link>
+          </p>
+        </div>
+      </section>
+
       {/* Video Explainer */}
       <section
         style={{
@@ -651,8 +732,8 @@ export default function LandingPage() {
                 features: [
                   "Annual accounts to Companies House",
                   "Nil CT600 return to HMRC",
-                  "File any outstanding period",
-                  "Email deadline reminders",
+                  "Automatic gap detection from incorporation",
+                  "Deadline reminders with penalty warnings",
                   "Direct submission via official APIs",
                 ],
                 cta: "Get started",
@@ -667,10 +748,10 @@ export default function LandingPage() {
                   "Side projects, holding structures, or a few companies on the register.",
                 features: [
                   "Accounts + CT600 for up to 10 companies",
-                  "One dashboard — all companies at a glance",
-                  "File any outstanding period per company",
-                  "Email deadline reminders for every company",
-                  "Direct submission via official APIs",
+                  "Portfolio dashboard with filtering and search",
+                  "Automatic gap detection per company",
+                  "Deadline reminders with penalty warnings",
+                  "All companies synced daily with Companies House",
                 ],
                 cta: "Get started",
                 highlighted: true,
@@ -684,9 +765,9 @@ export default function LandingPage() {
                 features: [
                   "Accounts + CT600 for up to 100 companies",
                   "File as agent on behalf of your clients",
-                  "One dashboard — all clients at a glance",
-                  "File any outstanding period per company",
-                  "Email deadline reminders for every company",
+                  "Portfolio dashboard with filtering and search",
+                  "Automatic gap detection per company",
+                  "Deadline reminders across all client companies",
                 ],
                 cta: "Get started",
                 highlighted: false,

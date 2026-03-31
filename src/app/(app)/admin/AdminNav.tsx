@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LayoutDashboard, Users, FileText, Mail, Star } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 interface NavItem {
@@ -11,17 +12,20 @@ interface NavItem {
   showBadge?: boolean;
 }
 
-interface AdminNavProps {
-  items: NavItem[];
-  unreadCount: number;
-}
+const navItems: NavItem[] = [
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/filings", label: "Filings", icon: FileText },
+  { href: "/admin/messages", label: "Messages", icon: Mail, showBadge: true },
+  { href: "/admin/reviews", label: "Reviews", icon: Star },
+];
 
-export function AdminNav({ items, unreadCount }: AdminNavProps) {
+export function AdminNav({ unreadCount }: { unreadCount: number }) {
   const pathname = usePathname();
 
   return (
     <div className="flex gap-2 mb-8 flex-wrap">
-      {items.map((item) => {
+      {navItems.map((item) => {
         const Icon = item.icon;
         const isActive =
           item.href === "/admin"

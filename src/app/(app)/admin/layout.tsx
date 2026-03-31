@@ -2,16 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Mail, Star } from "lucide-react";
 import { AdminNav } from "./AdminNav";
-
-const adminNavItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/customers", label: "Customers", icon: Users },
-  { href: "/admin/filings", label: "Filings", icon: FileText },
-  { href: "/admin/messages", label: "Messages", icon: Mail, showBadge: true },
-  { href: "/admin/reviews", label: "Reviews", icon: Star },
-];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -56,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </span>
       </div>
 
-      <AdminNav items={adminNavItems} unreadCount={unreadCount} />
+      <AdminNav unreadCount={unreadCount} />
 
       {children}
     </div>
