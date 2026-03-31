@@ -58,15 +58,24 @@ export default function FilingsTab({
   // Build completed periods from Filing records (not from getOutstandingPeriods,
   // which only generates periods from the oldest unfiled forward)
   const completedPeriodMap = new Map<number, { periodStart: Date; periodEnd: Date }>();
+  const filedElsewherePeriodMap = new Map<number, { periodStart: Date; periodEnd: Date }>();
   for (const f of filings) {
-    if (f.filingType === "accounts" && (f.status === "accepted" || f.status === "filed_elsewhere")) {
+    if (f.filingType === "accounts" && f.status === "accepted") {
       completedPeriodMap.set(f.periodEnd.getTime(), {
+        periodStart: f.periodStart,
+        periodEnd: f.periodEnd,
+      });
+    } else if (f.filingType === "accounts" && f.status === "filed_elsewhere") {
+      filedElsewherePeriodMap.set(f.periodEnd.getTime(), {
         periodStart: f.periodStart,
         periodEnd: f.periodEnd,
       });
     }
   }
   const completedPeriods = [...completedPeriodMap.values()].sort(
+    (a, b) => a.periodEnd.getTime() - b.periodEnd.getTime(),
+  );
+  const filedElsewherePeriods = [...filedElsewherePeriodMap.values()].sort(
     (a, b) => a.periodEnd.getTime() - b.periodEnd.getTime(),
   );
 
@@ -76,7 +85,7 @@ export default function FilingsTab({
     );
   }
 
-  const [activeTab, setActiveTab] = useState<"outstanding" | "suppressed" | "completed">(
+  const [activeTab, setActiveTab] = useState<"outstanding" | "suppressed" | "filed_elsewhere" | "completed">(
     "outstanding",
   );
 
