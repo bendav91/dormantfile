@@ -6,6 +6,7 @@ import { Testimonials } from "@/components/marketing/Testimonials";
 import { TrustBadges } from "@/components/marketing/TrustBadges";
 import { TrustSection } from "@/components/marketing/TrustSection";
 import { SiteNav } from "@/components/SiteNav";
+import { VideoPlayer } from "@/components/marketing/VideoPlayer";
 import { FAQPageJsonLd } from "@/lib/content/json-ld";
 import { isFilingLive } from "@/lib/launch-mode";
 import {
@@ -484,6 +485,31 @@ export default function LandingPage() {
               See the full walkthrough &rarr;
             </Link>
           </p>
+        </div>
+      </section>
+
+      {/* Video Explainer */}
+      <section
+        style={{
+          backgroundColor: "var(--color-bg-card)",
+          borderTop: "1px solid var(--color-border)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+        className="py-20 px-6"
+      >
+        <div className="max-w-[960px] mx-auto">
+          <h2
+            className="text-2xl font-bold text-center mb-3"
+            style={{ color: "var(--color-text-primary)", letterSpacing: "-0.02em" }}
+          >
+            See it in action
+          </h2>
+          <p className="text-sm text-center mb-10" style={{ color: "var(--color-text-secondary)" }}>
+            A complete filing walkthrough in under two minutes.
+          </p>
+          <div className="max-w-3xl mx-auto">
+            <VideoPlayer src="/dormantfile-explainer.mp4" />
+          </div>
         </div>
       </section>
 
