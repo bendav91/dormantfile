@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const existing = await prisma.filing.findFirst({
     where: { companyId, filingType: filingType as "accounts" | "ct600", periodEnd: periodEndDate },
   });
-  if (existing) {
+  if (existing && existing.status !== "outstanding") {
     return NextResponse.json({ error: "A filing already exists for this period" }, { status: 409 });
   }
 
@@ -55,16 +55,23 @@ export async function POST(req: NextRequest) {
   periodStartDate.setUTCFullYear(periodStartDate.getUTCFullYear() - 1);
   periodStartDate.setUTCDate(periodStartDate.getUTCDate() + 1);
 
-  await prisma.filing.create({
-    data: {
-      companyId,
-      filingType: filingType as "accounts" | "ct600",
-      periodStart: periodStartDate,
-      periodEnd: periodEndDate,
-      status: "accepted",
-      confirmedAt: new Date(),
-    },
-  });
+  if (existing) {
+    await prisma.filing.update({
+      where: { id: existing.id },
+      data: { status: "accepted", confirmedAt: new Date() },
+    });
+  } else {
+    await prisma.filing.create({
+      data: {
+        companyId,
+        filingType: filingType as "accounts" | "ct600",
+        periodStart: periodStartDate,
+        periodEnd: periodEndDate,
+        status: "accepted",
+        confirmedAt: new Date(),
+      },
+    });
+  }
 
   await rollForwardPeriod(
     companyId,
