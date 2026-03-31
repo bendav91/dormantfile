@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import SettingsActions from "@/components/settings-actions";
 import ProfileForm from "@/components/profile-form";
-import CalendarFeedSection from "@/components/calendar-feed-section";
+
 import { TIER_LABELS } from "@/lib/subscription";
 
 export default async function SettingsPage({
@@ -124,7 +124,6 @@ export default async function SettingsPage({
         companies={user.companies.map((c) => ({ id: c.id, name: c.companyName }))}
       />
 
-      <CalendarFeedSection initialToken={user.calendarFeedToken} />
     </div>
   );
 }

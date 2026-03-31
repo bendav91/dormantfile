@@ -18,6 +18,7 @@ import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
 import { buildPeriodViews } from "@/lib/filing-queries";
 import { isFilingLive } from "@/lib/launch-mode";
 import { ReviewPrompt } from "@/components/marketing/ReviewPrompt";
+import CalendarFeedSection from "@/components/calendar-feed-section";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -833,6 +834,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           )}
         </div>
       )}
+
+      <div style={{ marginTop: "32px" }}>
+        <CalendarFeedSection initialToken={user.calendarFeedToken} />
+      </div>
     </div>
   );
 }
