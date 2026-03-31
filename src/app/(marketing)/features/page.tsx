@@ -1,16 +1,23 @@
-import type { Metadata } from "next";
+import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
+import { ContentCTA } from "@/components/marketing/ContentCTA";
+import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
   Archive,
   Bell,
   Building2,
+  CalendarCheck,
+  ClipboardCopy,
   Coins,
   CreditCard,
+  Download,
   Eye,
   EyeOff,
-  FileCode,
   FastForward,
+  FileCode,
+  FileText,
+  History,
   KeyRound,
   Layers,
   LayoutDashboard,
@@ -19,11 +26,11 @@ import {
   RotateCcw,
   Search,
   Send,
+  ShieldCheck,
+  SquareCheckBig,
   Users,
 } from "lucide-react";
-import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
-import { ContentCTA } from "@/components/marketing/ContentCTA";
-import { BreadcrumbJsonLd } from "@/lib/content/json-ld";
+import type { Metadata } from "next";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://dormantfile.co.uk";
 
@@ -34,8 +41,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${BASE_URL}/features` },
   openGraph: {
     title: "Features | DormantFile",
-    description:
-      "Purpose-built for dormant companies. See what's under the hood.",
+    description: "Purpose-built for dormant companies. See what's under the hood.",
     type: "website",
     siteName: "DormantFile",
   },
@@ -104,6 +110,18 @@ const FEATURE_GROUPS: FeatureGroup[] = [
         description:
           "File any outstanding period, not just the current one. If you\u2019re years behind, work through them one at a time in a single sitting.",
       },
+      {
+        icon: SquareCheckBig,
+        heading: "Mark as filed elsewhere",
+        description:
+          "Filed accounts or a CT600 through your accountant or another service? Mark the period as done so it stops appearing in your outstanding list and reminders.",
+      },
+      {
+        icon: ShieldCheck,
+        heading: "Submission confirmation",
+        description:
+          "Before every filing, you\u2019ll see a clear summary of exactly what\u2019s being submitted, to which authority, and for which period. Nothing is sent until you confirm.",
+      },
     ],
   },
   {
@@ -133,6 +151,18 @@ const FEATURE_GROUPS: FeatureGroup[] = [
         description:
           "Have a period you\u2019re handling separately? Suppress it so it stops appearing in reminders and your needs-attention list.",
       },
+      {
+        icon: CalendarCheck,
+        heading: "Calendar feed",
+        description:
+          "Subscribe to your filing deadlines in Google Calendar, Outlook, or any calendar app. Deadlines update automatically as you file.",
+      },
+      {
+        icon: History,
+        heading: "Company activity timeline",
+        description:
+          "See a chronological history of every event for each company \u2014 filings submitted, acceptances, rejections, and reminders sent.",
+      },
     ],
   },
   {
@@ -149,6 +179,18 @@ const FEATURE_GROUPS: FeatureGroup[] = [
         heading: "Filing audit trail",
         description:
           "Every response from HMRC and Companies House is stored against your filing record \u2014 correlation IDs, timestamps, and full response payloads. Yours to reference if you ever need proof.",
+      },
+      {
+        icon: FileText,
+        heading: "Printable filing receipts",
+        description:
+          "View and print a confirmation receipt for every accepted filing. Includes your company details, period, submission reference, and IRmark.",
+      },
+      {
+        icon: ClipboardCopy,
+        heading: "Share filing confirmations",
+        description:
+          "Copy a formatted filing summary to your clipboard in one click. Useful for sharing confirmation details with directors or clients.",
       },
       {
         icon: CreditCard,
@@ -180,6 +222,12 @@ const FEATURE_GROUPS: FeatureGroup[] = [
           "One email per day covering every company\u2019s upcoming and overdue deadlines. No email per company \u2014 just one summary.",
       },
       {
+        icon: Download,
+        heading: "CSV export",
+        description:
+          "Download your full company list with filing statuses, deadlines, and period data as a CSV. Open in Excel or Google Sheets for your own records.",
+      },
+      {
         icon: Users,
         heading: "Agent filing mode",
         description:
@@ -202,12 +250,7 @@ export default function FeaturesPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd
-        items={[
-          { name: "Home", url: baseUrl },
-          { name: "Features" },
-        ]}
-      />
+      <BreadcrumbJsonLd items={[{ name: "Home", url: baseUrl }, { name: "Features" }]} />
       <Breadcrumbs items={[{ label: "Features" }]} />
 
       <article>
