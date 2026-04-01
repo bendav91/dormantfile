@@ -90,8 +90,8 @@ describe("buildAccountsXml", () => {
     expect(xml).toContain("<EnvelopeVersion>2.0</EnvelopeVersion>");
   });
 
-  it("uses Class AA for accounts", () => {
-    expect(xml).toContain("<Class>AA</Class>");
+  it("uses Class Accounts for accounts", () => {
+    expect(xml).toContain("<Class>Accounts</Class>");
   });
 
   it("includes Qualifier request", () => {
@@ -140,7 +140,7 @@ describe("buildAccountsXml", () => {
     expect(xml).toContain("<CompanyName>TEST DORMANT LTD</CompanyName>");
     expect(xml).toContain("<CompanyAuthenticationCode>ABC123</CompanyAuthenticationCode>");
     expect(xml).toContain("<PackageReference>0012</PackageReference>");
-    expect(xml).toContain("<FormIdentifier>AA</FormIdentifier>");
+    expect(xml).toContain("<FormIdentifier>Accounts</FormIdentifier>");
   });
 
   it("includes SubmissionNumber exactly 6 chars", () => {
@@ -162,11 +162,12 @@ describe("buildAccountsXml", () => {
     expect(xml).toContain(`<DateSigned>${today}</DateSigned>`);
   });
 
-  it("includes empty Form element", () => {
-    expect(xml).toContain("<Form/>");
+  it("does not include Form element (accounts use Document only)", () => {
+    expect(xml).not.toContain("<Form/>");
+    expect(xml).not.toContain("<Form>");
   });
 
-  it("includes Document with base64 iXBRL", () => {
+  it("includes Document with base64 iXBRL and Date", () => {
     const expectedBase64 = Buffer.from(data.accountsIxbrl).toString("base64");
     expect(xml).toContain(`<Data>${expectedBase64}</Data>`);
     expect(xml).toContain("<Filename>accounts.html</Filename>");

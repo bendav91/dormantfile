@@ -35,8 +35,10 @@ function VerifyEmailContent() {
   const [cooldown, setCooldown] = useState(0);
 
   // Confirmation mode: verify on mount when token is present
+  // AbortController handles React StrictMode double-firing the effect
   useEffect(() => {
     if (!token) return;
+    const controller = new AbortController();
 
     async function verify() {
       setVerifying(true);
@@ -46,7 +48,9 @@ function VerifyEmailContent() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token }),
+          signal: controller.signal,
         });
+        if (controller.signal.aborted) return;
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           setVerifyError(data.error ?? "Verification failed. The link may have expired.");
@@ -54,14 +58,18 @@ function VerifyEmailContent() {
           await update();
           router.push("/dashboard");
         }
-      } catch {
+      } catch (e) {
+        if (controller.signal.aborted) return;
         setVerifyError("Something went wrong. Please try again.");
       } finally {
-        setVerifying(false);
+        if (!controller.signal.aborted) {
+          setVerifying(false);
+        }
       }
     }
 
     verify();
+    return () => controller.abort();
   }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cooldown ticker

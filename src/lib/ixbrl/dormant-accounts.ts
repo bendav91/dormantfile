@@ -45,22 +45,22 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
   const scPence = data.shareCapital ?? 0;
   const sc = Math.round(scPence / 100); // whole pounds
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
+  return `<?xml version="1.0"?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ix="${NS.ix}"
+      xmlns:ixt="${NS.ixt}"
       xmlns:xbrli="${NS.xbrli}"
       xmlns:xbrldi="${NS.xbrldi}"
       xmlns:link="${NS.link}"
       xmlns:xlink="${NS.xlink}"
       xmlns:iso4217="${NS.iso4217}"
-      xmlns:uk-bus="${NS["uk-bus"]}"
-      xmlns:uk-core="${NS["uk-core"]}"
-      xmlns:uk-direp="${NS["uk-direp"]}">
+      xmlns:bus="${NS.bus}"
+      xmlns:core="${NS.core}"
+      xmlns:direp="${NS.direp}">
 <head>
-  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <title>${name} – Annual Accounts</title>
-  <style>
+  <style type="text/css">
     body { font-family: Arial, sans-serif; font-size: 11pt; margin: 40px; color: #333; }
     h1 { font-size: 16pt; }
     h2 { font-size: 13pt; margin-top: 24px; }
@@ -73,19 +73,6 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
 </head>
 <body>
   <ix:header>
-    <ix:hidden>
-      <ix:nonNumeric name="uk-bus:EntityCurrentLegalOrRegisteredName" contextRef="duration">${name}</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:UKCompaniesHouseRegisteredNumber" contextRef="duration">${crn}</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:StartDateForPeriodCoveredByReport" contextRef="duration">${periodStart}</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:EndDateForPeriodCoveredByReport" contextRef="duration">${periodEnd}</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:BalanceSheetDate" contextRef="duration">${periodEnd}</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:EntityDormantTruefalse" contextRef="duration">true</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:AccountsTypeFullOrAbbreviated" contextRef="duration">Abbreviated</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:AccountingStandardsApplied" contextRef="duration">Small Entities (Micro-entity Provisions)</ix:nonNumeric>
-      <ix:nonNumeric name="uk-direp:StatementThatCompanyEntitledToExemptionUnderSection480CompaniesAct2006" contextRef="duration">true</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:DateApprovalAccounts" contextRef="duration">${approvalDate}</ix:nonNumeric>
-      <ix:nonNumeric name="uk-bus:NameDirectorSigningAccounts" contextRef="duration">${director}</ix:nonNumeric>
-    </ix:hidden>
     <ix:references>
       <link:schemaRef xlink:type="simple" xlink:href="${SCHEMA_REFS.frc2023Core}" />
     </ix:references>
@@ -115,11 +102,87 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
           <xbrli:instant>${instantStart}</xbrli:instant>
         </xbrli:period>
       </xbrli:context>
+      <xbrli:context id="duration-micro">
+        <xbrli:entity>
+          <xbrli:identifier scheme="http://www.companieshouse.gov.uk/">${crn}</xbrli:identifier>
+          <xbrli:segment>
+            <xbrldi:explicitMember dimension="bus:AccountingStandardsDimension">bus:Micro-entities</xbrldi:explicitMember>
+          </xbrli:segment>
+        </xbrli:entity>
+        <xbrli:period>
+          <xbrli:startDate>${periodStart}</xbrli:startDate>
+          <xbrli:endDate>${periodEnd}</xbrli:endDate>
+        </xbrli:period>
+      </xbrli:context>
+      <xbrli:context id="duration-unaudited">
+        <xbrli:entity>
+          <xbrli:identifier scheme="http://www.companieshouse.gov.uk/">${crn}</xbrli:identifier>
+          <xbrli:segment>
+            <xbrldi:explicitMember dimension="bus:AccountsStatusDimension">bus:AuditExempt-NoAccountantsReport</xbrldi:explicitMember>
+          </xbrli:segment>
+        </xbrli:entity>
+        <xbrli:period>
+          <xbrli:startDate>${periodStart}</xbrli:startDate>
+          <xbrli:endDate>${periodEnd}</xbrli:endDate>
+        </xbrli:period>
+      </xbrli:context>
+      <xbrli:context id="duration-never-traded">
+        <xbrli:entity>
+          <xbrli:identifier scheme="http://www.companieshouse.gov.uk/">${crn}</xbrli:identifier>
+          <xbrli:segment>
+            <xbrldi:explicitMember dimension="bus:EntityTradingStatusDimension">bus:EntityHasNeverTraded</xbrldi:explicitMember>
+          </xbrli:segment>
+        </xbrli:entity>
+        <xbrli:period>
+          <xbrli:startDate>${periodStart}</xbrli:startDate>
+          <xbrli:endDate>${periodEnd}</xbrli:endDate>
+        </xbrli:period>
+      </xbrli:context>
+      <xbrli:context id="duration-full-accounts">
+        <xbrli:entity>
+          <xbrli:identifier scheme="http://www.companieshouse.gov.uk/">${crn}</xbrli:identifier>
+          <xbrli:segment>
+            <xbrldi:explicitMember dimension="bus:AccountsTypeDimension">bus:FullAccounts</xbrldi:explicitMember>
+          </xbrli:segment>
+        </xbrli:entity>
+        <xbrli:period>
+          <xbrli:startDate>${periodStart}</xbrli:startDate>
+          <xbrli:endDate>${periodEnd}</xbrli:endDate>
+        </xbrli:period>
+      </xbrli:context>
+      <xbrli:context id="duration-small-co">
+        <xbrli:entity>
+          <xbrli:identifier scheme="http://www.companieshouse.gov.uk/">${crn}</xbrli:identifier>
+          <xbrli:segment>
+            <xbrldi:explicitMember dimension="bus:ApplicableLegislationDimension">bus:SmallCompaniesRegimeForAccounts</xbrldi:explicitMember>
+          </xbrli:segment>
+        </xbrli:entity>
+        <xbrli:period>
+          <xbrli:startDate>${periodStart}</xbrli:startDate>
+          <xbrli:endDate>${periodEnd}</xbrli:endDate>
+        </xbrli:period>
+      </xbrli:context>
       <xbrli:unit id="GBP">
         <xbrli:measure>iso4217:GBP</xbrli:measure>
       </xbrli:unit>
     </ix:resources>
   </ix:header>
+
+  <div style="display:none">
+    <ix:nonNumeric name="bus:EntityCurrentLegalOrRegisteredName" contextRef="duration">${name}</ix:nonNumeric>
+    <ix:nonNumeric name="bus:UKCompaniesHouseRegisteredNumber" contextRef="duration">${crn}</ix:nonNumeric>
+    <ix:nonNumeric name="bus:StartDateForPeriodCoveredByReport" contextRef="instant-end">${periodStart}</ix:nonNumeric>
+    <ix:nonNumeric name="bus:EndDateForPeriodCoveredByReport" contextRef="instant-end">${periodEnd}</ix:nonNumeric>
+    <ix:nonNumeric name="bus:BalanceSheetDate" contextRef="instant-end">${periodEnd}</ix:nonNumeric>
+    <ix:nonNumeric name="bus:EntityDormantTruefalse" contextRef="duration">true</ix:nonNumeric>
+    <ix:nonNumeric name="bus:AccountingStandardsApplied" contextRef="duration-micro"></ix:nonNumeric>
+    <ix:nonNumeric name="bus:AccountsStatusAuditedOrUnaudited" contextRef="duration-unaudited"></ix:nonNumeric>
+    <ix:nonNumeric name="bus:EntityTradingStatus" contextRef="duration-never-traded"></ix:nonNumeric>
+    <ix:nonNumeric name="bus:ApplicableLegislation" contextRef="duration-small-co"></ix:nonNumeric>
+    <ix:nonNumeric name="bus:AccountsType" contextRef="duration-full-accounts"></ix:nonNumeric>
+    <ix:nonNumeric name="core:DateAuthorisationFinancialStatementsForIssue" contextRef="instant-end">${approvalDate}</ix:nonNumeric>
+    <ix:nonNumeric name="core:DirectorSigningFinancialStatements" contextRef="duration"></ix:nonNumeric>
+  </div>
 
   <h1>${name}</h1>
   <p>Company Registration Number: ${crn}</p>
@@ -127,7 +190,7 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
 
   <h2>Directors' Report</h2>
   <p>The directors present their report and accounts for the period ended ${periodEnd}.</p>
-  <p><ix:nonNumeric name="uk-direp:StatementThatCompanyHasBeenDormantPeriod" contextRef="duration">The company has been dormant within the meaning of section 1169 of the Companies Act 2006 throughout the period and consequently no revenue account is required.</ix:nonNumeric></p>
+  <p>The company has been dormant within the meaning of section 1169 of the Companies Act 2006 throughout the period and consequently no revenue account is required.</p>
 
   <h2>Balance Sheet as at ${periodEnd}</h2>
   <table>
@@ -140,44 +203,24 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
     </thead>
     <tbody>
       <tr>
-        <td>Called up share capital not paid</td>
-        <td class="amount"><ix:nonFraction name="uk-core:CalledUpShareCapitalNotPaid" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
-        <td class="amount"><ix:nonFraction name="uk-core:CalledUpShareCapitalNotPaid" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
-      </tr>
-      <tr>
-        <td>Total fixed assets</td>
-        <td class="amount"><ix:nonFraction name="uk-core:FixedAssets" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
-        <td class="amount"><ix:nonFraction name="uk-core:FixedAssets" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
-      </tr>
-      <tr>
-        <td>Total current assets</td>
-        <td class="amount"><ix:nonFraction name="uk-core:CurrentAssets" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></td>
-        <td class="amount"><ix:nonFraction name="uk-core:CurrentAssets" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></td>
+        <td>Current assets</td>
+        <td class="amount"><ix:nonFraction name="core:CurrentAssets" contextRef="instant-end" unitRef="GBP" decimals="0">${sc}</ix:nonFraction></td>
+        <td class="amount"><ix:nonFraction name="core:CurrentAssets" contextRef="instant-start" unitRef="GBP" decimals="0">${sc}</ix:nonFraction></td>
       </tr>
       <tr>
         <td>Creditors: amounts falling due within one year</td>
-        <td class="amount"><ix:nonFraction name="uk-core:Creditors-AmountsFallingDueWithinOneYear" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
-        <td class="amount"><ix:nonFraction name="uk-core:Creditors-AmountsFallingDueWithinOneYear" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
+        <td class="amount"><ix:nonFraction name="core:Creditors" contextRef="instant-end" unitRef="GBP" decimals="0">0</ix:nonFraction></td>
+        <td class="amount"><ix:nonFraction name="core:Creditors" contextRef="instant-start" unitRef="GBP" decimals="0">0</ix:nonFraction></td>
       </tr>
       <tr>
         <td><strong>Net current assets</strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:NetCurrentAssetsLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:NetCurrentAssetsLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
-      </tr>
-      <tr>
-        <td><strong>Total assets less current liabilities</strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:TotalAssetsLessCurrentLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:TotalAssetsLessCurrentLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
-      </tr>
-      <tr>
-        <td>Creditors: amounts falling due after more than one year</td>
-        <td class="amount"><ix:nonFraction name="uk-core:Creditors-AmountsFallingDueAfterOneYear" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
-        <td class="amount"><ix:nonFraction name="uk-core:Creditors-AmountsFallingDueAfterOneYear" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
+        <td class="amount"><strong><ix:nonFraction name="core:NetCurrentAssetsLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0">${sc}</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="core:NetCurrentAssetsLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0">${sc}</ix:nonFraction></strong></td>
       </tr>
       <tr>
         <td><strong>Net assets</strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:NetAssetsLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:NetAssetsLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="core:NetAssetsLiabilities" contextRef="instant-end" unitRef="GBP" decimals="0">${sc}</ix:nonFraction></strong></td>
+        <td class="amount"><strong><ix:nonFraction name="core:NetAssetsLiabilities" contextRef="instant-start" unitRef="GBP" decimals="0">${sc}</ix:nonFraction></strong></td>
       </tr>
     </tbody>
   </table>
@@ -186,16 +229,8 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
   <table>
     <tbody>
       <tr>
-        <td>Called up share capital</td>
-        <td class="amount"><ix:nonFraction name="uk-core:CalledUpShareCapital" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></td>
-      </tr>
-      <tr>
-        <td>Profit and loss account</td>
-        <td class="amount"><ix:nonFraction name="uk-core:ProfitLossAccountReserve" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">0</ix:nonFraction></td>
-      </tr>
-      <tr>
-        <td><strong>Shareholders' funds</strong></td>
-        <td class="amount"><strong><ix:nonFraction name="uk-core:ShareholderFunds" contextRef="instant-end" unitRef="GBP" decimals="0" format="ixt:numdotdecimal">${sc}</ix:nonFraction></strong></td>
+        <td><strong>Total equity</strong></td>
+        <td class="amount"><strong><ix:nonFraction name="core:Equity" contextRef="instant-end" unitRef="GBP" decimals="0">${sc}</ix:nonFraction></strong></td>
       </tr>
     </tbody>
   </table>
@@ -205,11 +240,15 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
   </p>
   <p><strong>${director}</strong>, Director</p>
 
-  <p class="note">
-    For the period ended ${periodEnd} the company was entitled to exemption under section 480 of the Companies Act 2006
-    relating to dormant companies. The members have not required the company to obtain an audit of its accounts
-    for the period in question in accordance with section 476.
-  </p>
+  <h2>Statements</h2>
+
+  <p><ix:nonNumeric name="direp:StatementThatCompanyEntitledToExemptionFromAuditUnderSection480CompaniesAct2006RelatingToDormantCompanies" contextRef="duration">For the period ended ${periodEnd} the company was entitled to exemption from audit under section 480 of the Companies Act 2006 relating to dormant companies.</ix:nonNumeric></p>
+
+  <p><ix:nonNumeric name="direp:StatementThatMembersHaveNotRequiredCompanyToObtainAnAudit" contextRef="duration">The members have not required the company to obtain an audit of its accounts for the period in question in accordance with section 476 of the Companies Act 2006.</ix:nonNumeric></p>
+
+  <p><ix:nonNumeric name="direp:StatementThatDirectorsAcknowledgeTheirResponsibilitiesUnderCompaniesAct" contextRef="duration">The directors acknowledge their responsibilities for complying with the requirements of the Companies Act 2006 with respect to accounting records and the preparation of accounts.</ix:nonNumeric></p>
+
+  <p><ix:nonNumeric name="direp:StatementThatAccountsHaveBeenPreparedInAccordanceWithProvisionsSmallCompaniesRegime" contextRef="duration">These accounts have been prepared and delivered in accordance with the provisions applicable to companies subject to the small companies regime and in accordance with the micro-entity provisions.</ix:nonNumeric></p>
 </body>
 </html>`;
 }

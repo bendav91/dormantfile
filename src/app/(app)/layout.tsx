@@ -19,15 +19,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect("/login");
   }
 
-  if (!session.user.emailVerified) {
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { emailVerified: true, isAdmin: true },
+  });
+
+  if (!user?.emailVerified) {
     redirect("/verify-email");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { isAdmin: true },
-  });
-  const isAdmin = user?.isAdmin ?? false;
+  const isAdmin = user.isAdmin;
 
   return (
     <div className={`${ibmPlexSans.variable} min-h-screen font-[family-name:var(--font-ibm-plex-sans),sans-serif] bg-page flex flex-col`}>

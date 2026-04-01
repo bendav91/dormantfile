@@ -3,8 +3,8 @@
  * Uses the FormSubmission body structure per the CH XML Gateway TIS v5.3.
  *
  * Auth: SenderID = MD5(presenterId), Value = MD5(presenterAuth), Method = 'clear'
- * Class: 'AA' for accounts filing
- * FormIdentifier: must match Class = 'AA'
+ * Class: 'Accounts' for accounts filing
+ * FormIdentifier: must match Class = 'Accounts'
  */
 
 import { createHash } from "crypto";
@@ -98,7 +98,7 @@ export function buildAccountsXml(
   <EnvelopeVersion>2.0</EnvelopeVersion>
   <Header>
     <MessageDetails>
-      <Class>AA</Class>
+      <Class>Accounts</Class>
       <Qualifier>request</Qualifier>
       <TransactionID>${escapeXml(data.transactionId)}</TransactionID>${gatewayTestElement}
     </MessageDetails>
@@ -125,13 +125,13 @@ export function buildAccountsXml(
         <CompanyName>${escapeXml(data.companyName)}</CompanyName>
         <CompanyAuthenticationCode>${escapeXml(data.companyAuthCode)}</CompanyAuthenticationCode>
         <PackageReference>${escapeXml(config.packageReference)}</PackageReference>
-        <FormIdentifier>AA</FormIdentifier>
+        <FormIdentifier>Accounts</FormIdentifier>
         <SubmissionNumber>${escapeXml(data.submissionNumber)}</SubmissionNumber>${contactNameElement}
       </FormHeader>
       <DateSigned>${todayStr}</DateSigned>
-      <Form/>
       <Document>
         <Data>${accountsBase64}</Data>
+        <Date>${todayStr}</Date>
         <Filename>accounts.html</Filename>
         <ContentType>application/xml</ContentType>
         <Category>ACCOUNTS</Category>

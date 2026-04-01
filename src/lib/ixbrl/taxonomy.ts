@@ -2,21 +2,26 @@
  * FRC 2023 taxonomy namespace URIs and element names for iXBRL tagging.
  * These are used to tag dormant company accounts for both Companies House
  * and HMRC CT600 submissions.
+ *
+ * Namespace URIs sourced from the FRC 2023 schema:
+ * https://xbrl.frc.org.uk/FRS-102/2023-01-01/FRS-102-2023-01-01.xsd
  */
 
 export const NS = {
   ix: "http://www.xbrl.org/2013/inlineXBRL",
+  ixt: "http://www.xbrl.org/inlineXBRL/transformation/2022-02-16",
   xbrli: "http://www.xbrl.org/2003/instance",
   xbrldi: "http://xbrl.org/2006/xbrldi",
   link: "http://www.xbrl.org/2003/linkbase",
   xlink: "http://www.w3.org/1999/xlink",
   iso4217: "http://www.xbrl.org/2003/iso4217",
 
-  // FRC 2023 taxonomy modules
-  "uk-bus": "http://xbrl.frc.org.uk/fr/2023-01-01/business",
-  "uk-core": "http://xbrl.frc.org.uk/fr/2023-01-01/core",
-  "uk-direp": "http://xbrl.frc.org.uk/fr/2023-01-01/direp",
-  "uk-aurep": "http://xbrl.frc.org.uk/fr/2023-01-01/aurep",
+  // FRC 2023 taxonomy modules — namespace URIs from the schema
+  bus: "http://xbrl.frc.org.uk/cd/2023-01-01/business",
+  core: "http://xbrl.frc.org.uk/fr/2023-01-01/core",
+  accrep: "http://xbrl.frc.org.uk/reports/2023-01-01/accrep",
+  direp: "http://xbrl.frc.org.uk/reports/2023-01-01/direp",
+  aurep: "http://xbrl.frc.org.uk/reports/2023-01-01/aurep",
 
   // HMRC computation taxonomy
   "uk-tax-comp": "http://www.hmrc.gov.uk/schemas/ct/comp/2024-01-01",

@@ -1,16 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { buildAccountsXml, mapCompanyType } from "@/lib/companies-house/xml-builder";
-import type { SubmissionConfig } from "@/lib/companies-house/xml-builder";
 import {
-  submitToCompaniesHouse,
   pollCompaniesHouse,
+  submitToCompaniesHouse,
 } from "@/lib/companies-house/submission-client";
-import { rollForwardPeriod } from "@/lib/roll-forward";
+import type { SubmissionConfig } from "@/lib/companies-house/xml-builder";
+import { buildAccountsXml, mapCompanyType } from "@/lib/companies-house/xml-builder";
+import { prisma } from "@/lib/db";
 import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
+import { rollForwardPeriod } from "@/lib/roll-forward";
 import { FilingStatus } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
 
 // CH typically processes within 24h, so keep inline polling brief
 const POLL_TIMEOUT_MS = 30_000;
@@ -233,10 +233,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (lockResult.count === 0) {
-    return NextResponse.json(
-      { error: "This filing is already being submitted" },
-      { status: 409 },
-    );
+    return NextResponse.json({ error: "This filing is already being submitted" }, { status: 409 });
   }
 
   const filing = { ...outstandingFiling, status: "pending" as const };
