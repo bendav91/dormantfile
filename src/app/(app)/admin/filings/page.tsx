@@ -13,7 +13,6 @@ const STATUS_OPTIONS = [
   { value: "outstanding", label: "Outstanding" },
   { value: "pending", label: "Pending" },
   { value: "submitted", label: "Submitted" },
-  { value: "polling_timeout", label: "Polling timeout" },
   { value: "accepted", label: "Accepted" },
   { value: "rejected", label: "Rejected" },
   { value: "failed", label: "Failed" },

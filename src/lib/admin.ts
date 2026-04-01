@@ -27,7 +27,7 @@ export async function getAttentionCounts() {
       prisma.filing.count({
         where: {
           OR: [
-            { status: "polling_timeout" },
+            { status: "submitted", submittedAt: { lt: new Date(Date.now() - FIVE_MINUTES_MS) } },
             { status: "pending", updatedAt: { lt: fiveMinAgo } },
           ],
         },
@@ -331,7 +331,7 @@ export async function getFilingsList(params: {
   if (status === "stuck") {
     conditions.push({
       OR: [
-        { status: "polling_timeout" },
+        { status: "submitted", submittedAt: { lt: new Date(Date.now() - FIVE_MINUTES_MS) } },
         { status: "pending", updatedAt: { lt: fiveMinAgo } },
       ],
     });

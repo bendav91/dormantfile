@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Filing not found" }, { status: 404 });
   }
 
-  if (filing.status !== "polling_timeout" && filing.status !== "submitted") {
+  if (filing.status !== "submitted") {
     return NextResponse.json({ error: "Filing is not awaiting a response" }, { status: 400 });
   }
 

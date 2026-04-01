@@ -3,7 +3,6 @@ const COLOURS: Record<string, { bg: string; text: string }> = {
   accepted: { bg: "rgba(21, 128, 61, 0.08)", text: "var(--color-success)" },
   rejected: { bg: "rgba(220, 38, 38, 0.08)", text: "var(--color-danger)" },
   failed: { bg: "rgba(220, 38, 38, 0.08)", text: "var(--color-danger)" },
-  polling_timeout: { bg: "rgba(220, 38, 38, 0.08)", text: "var(--color-danger)" },
   stuck: { bg: "rgba(220, 38, 38, 0.08)", text: "var(--color-danger)" },
   pending: { bg: "rgba(202, 138, 4, 0.08)", text: "var(--color-warning)" },
   submitted: { bg: "rgba(202, 138, 4, 0.08)", text: "var(--color-warning)" },
@@ -20,7 +19,6 @@ const COLOURS: Record<string, { bg: string; text: string }> = {
 };
 
 const LABELS: Record<string, string> = {
-  polling_timeout: "Polling timeout",
   past_due: "Past due",
 };
 

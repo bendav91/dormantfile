@@ -22,10 +22,6 @@ const statusConfig: Record<
     label: "Submitted",
     className: "bg-submitted-bg text-submitted-text",
   },
-  polling_timeout: {
-    label: "Awaiting HMRC",
-    className: "bg-warning-bg text-warning-deep",
-  },
   accepted: {
     label: "Accepted",
     className: "bg-success-bg text-success",
@@ -44,10 +40,9 @@ const statusConfig: Record<
   },
 };
 
-export default function FilingStatusBadge({ status, filingType }: FilingStatusBadgeProps) {
+export default function FilingStatusBadge({ status }: FilingStatusBadgeProps) {
   const config = statusConfig[status];
-  const label =
-    status === "polling_timeout" && filingType === "accounts" ? "Awaiting CH" : config.label;
+  const label = config.label;
 
   return (
     <span

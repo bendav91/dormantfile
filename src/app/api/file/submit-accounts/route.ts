@@ -1,20 +1,12 @@
 import { authOptions } from "@/lib/auth";
-import {
-  pollCompaniesHouse,
-  submitToCompaniesHouse,
-} from "@/lib/companies-house/submission-client";
+import { submitToCompaniesHouse } from "@/lib/companies-house/submission-client";
 import type { SubmissionConfig } from "@/lib/companies-house/xml-builder";
 import { buildAccountsXml, mapCompanyType } from "@/lib/companies-house/xml-builder";
 import { prisma } from "@/lib/db";
 import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
-import { rollForwardPeriod } from "@/lib/roll-forward";
 import { FilingStatus } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-
-// CH typically processes within 24h, so keep inline polling brief
-const POLL_TIMEOUT_MS = 30_000;
-const POLL_INTERVAL_MS = 5_000;
 
 function getPresenterCredentials() {
   const presenterId = process.env.COMPANIES_HOUSE_PRESENTER_ID;
@@ -199,7 +191,6 @@ export async function POST(req: NextRequest) {
       submittedAt: null,
       confirmedAt: null,
       submissionNumber: null,
-      transactionId: null,
     },
   });
 
@@ -212,7 +203,7 @@ export async function POST(req: NextRequest) {
       companyId,
       filingType: "accounts",
       status: {
-        in: [FilingStatus.submitted, FilingStatus.polling_timeout, FilingStatus.accepted],
+        in: [FilingStatus.submitted, FilingStatus.accepted],
       },
     },
   });
@@ -259,19 +250,16 @@ export async function POST(req: NextRequest) {
 
   // Generate submission number (6 chars, zero-padded, globally unique per presenter)
   let submissionNumber: string;
-  let transactionId: string;
   try {
-    const result = await prisma.$transaction(async (tx) => {
+    submissionNumber = await prisma.$transaction(async (tx) => {
       const last = await tx.filing.findFirst({
         where: { submissionNumber: { not: null }, filingType: "accounts" },
         orderBy: { submissionNumber: "desc" },
         select: { submissionNumber: true },
       });
       const nextNum = last?.submissionNumber ? parseInt(last.submissionNumber, 10) + 1 : 1;
-      return { submissionNumber: String(nextNum).padStart(6, "0"), transactionId: String(nextNum) };
+      return String(nextNum).padStart(6, "0");
     });
-    submissionNumber = result.submissionNumber;
-    transactionId = result.transactionId;
   } catch (err) {
     await prisma.filing.update({
       where: { id: filing.id },
@@ -310,7 +298,6 @@ export async function POST(req: NextRequest) {
         companyAuthCode,
         accountsIxbrl,
         submissionNumber,
-        transactionId,
       },
       credentials,
       submissionConfig,
@@ -327,15 +314,26 @@ export async function POST(req: NextRequest) {
   }
 
   // Submit to Companies House
-  let submissionId: string;
-  let pollEndpoint: string;
-  let pollIntervalSeconds: number | undefined;
-
   try {
     const submissionResult = await submitToCompaniesHouse(accountsXml, endpoint);
-    submissionId = submissionResult.submissionId;
-    pollEndpoint = submissionResult.pollEndpoint;
-    pollIntervalSeconds = submissionResult.pollInterval;
+
+    await prisma.filing.update({
+      where: { id: filing.id },
+      data: {
+        status: "submitted",
+        correlationId: submissionResult.submissionId,
+        submissionNumber,
+        pollInterval: submissionResult.pollInterval,
+        submittedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      status: "submitted",
+      filingId: filing.id,
+      message:
+        "Filing submitted to Companies House. They typically process filings within 24 hours — we'll email you when it's confirmed.",
+    });
   } catch (err) {
     console.error("[CH submit-accounts] Submission failed:", err instanceof Error ? err.message : err);
     await prisma.filing.update({
@@ -347,86 +345,4 @@ export async function POST(req: NextRequest) {
       { status: 502 },
     );
   }
-
-  await prisma.filing.update({
-    where: { id: filing.id },
-    data: {
-      status: "submitted",
-      correlationId: submissionId,
-      submissionNumber,
-      transactionId,
-      pollInterval: pollIntervalSeconds,
-      submittedAt: new Date(),
-    },
-  });
-
-  // Poll for response
-  const deadline = Date.now() + POLL_TIMEOUT_MS;
-
-  while (Date.now() < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
-
-    let pollResult: Awaited<ReturnType<typeof pollCompaniesHouse>>;
-
-    try {
-      pollResult = await pollCompaniesHouse(submissionId, pollEndpoint, credentials, submissionConfig.isTest);
-    } catch {
-      // Transient poll error — keep trying until timeout
-      continue;
-    }
-
-    if (pollResult.status === "accepted") {
-      await prisma.filing.update({
-        where: { id: filing.id },
-        data: {
-          status: "accepted",
-          confirmedAt: new Date(),
-          responsePayload: pollResult.responsePayload,
-        },
-      });
-
-      await rollForwardPeriod(
-        companyId,
-        effectiveEnd,
-        company.registeredForCorpTax,
-        "accounts",
-        user.email,
-        company.companyName,
-        { startDate: effectiveStart, endDate: effectiveEnd },
-      );
-
-      return NextResponse.json({ status: "accepted", filingId: filing.id });
-    }
-
-    if (pollResult.status === "rejected") {
-      await prisma.filing.update({
-        where: { id: filing.id },
-        data: {
-          status: "rejected",
-          responsePayload: pollResult.responsePayload,
-        },
-      });
-
-      return NextResponse.json({
-        status: "rejected",
-        filingId: filing.id,
-        message: pollResult.message,
-      });
-    }
-
-    // still processing — continue loop
-  }
-
-  // Timed out
-  await prisma.filing.update({
-    where: { id: filing.id },
-    data: { status: "polling_timeout" },
-  });
-
-  return NextResponse.json({
-    status: "polling_timeout",
-    filingId: filing.id,
-    message:
-      "Companies House typically processes filings within 24 hours. We'll email you when it's confirmed.",
-  });
 }

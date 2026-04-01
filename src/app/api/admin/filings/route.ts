@@ -41,8 +41,8 @@ export async function PATCH(req: NextRequest) {
 
   if (action === "retry") {
     // Set back to submitted so the cron picks it up on next run
-    if (filing.status !== "polling_timeout" && filing.status !== "failed") {
-      return NextResponse.json({ error: "Can only retry polling_timeout or failed filings" }, { status: 400 });
+    if (filing.status !== "submitted" && filing.status !== "failed") {
+      return NextResponse.json({ error: "Can only retry submitted or failed filings" }, { status: 400 });
     }
     await prisma.filing.update({
       where: { id },

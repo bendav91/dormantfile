@@ -34,7 +34,6 @@ const data: AccountsSubmissionData = {
   companyAuthCode: "ABC123",
   accountsIxbrl: "<html><body>Dormant accounts iXBRL</body></html>",
   submissionNumber: "000001",
-  transactionId: "1",
   contactName: "Ben Davies",
 };
 
@@ -103,7 +102,7 @@ describe("buildAccountsXml", () => {
   });
 
   it("includes TransactionID", () => {
-    expect(xml).toContain("<TransactionID>1</TransactionID>");
+    expect(xml).toContain("<TransactionID>000001</TransactionID>");
   });
 
   it("hashes SenderID with MD5", () => {

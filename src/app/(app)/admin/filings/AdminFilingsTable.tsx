@@ -28,8 +28,8 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
   const [loading, setLoading] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const pollingTimeoutFilings = filings.filter((f) => f.status === "polling_timeout");
-  const hasSelectable = pollingTimeoutFilings.length > 0;
+  const submittedFilings = filings.filter((f) => f.status === "submitted");
+  const hasSelectable = submittedFilings.length > 0;
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -41,10 +41,10 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
   }
 
   function toggleAll() {
-    if (selected.size === pollingTimeoutFilings.length) {
+    if (selected.size === submittedFilings.length) {
       setSelected(new Set());
     } else {
-      setSelected(new Set(pollingTimeoutFilings.map((f) => f.id)));
+      setSelected(new Set(submittedFilings.map((f) => f.id)));
     }
   }
 
@@ -114,7 +114,7 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
           {hasSelectable && (
             <input
               type="checkbox"
-              checked={selected.size === pollingTimeoutFilings.length && pollingTimeoutFilings.length > 0}
+              checked={selected.size === submittedFilings.length && submittedFilings.length > 0}
               onChange={toggleAll}
               className="cursor-pointer"
             />
@@ -131,9 +131,9 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
         {filings.map((filing, i) => {
           const deadline = filing.filingType === "accounts" ? filing.accountsDeadline : filing.ct600Deadline;
           const isOverdue = deadline && new Date(deadline) < new Date() && filing.status === "outstanding";
-          const canRetry = filing.status === "polling_timeout" || (filing.status === "failed" && filing.correlationId);
+          const canRetry = filing.status === "submitted" || (filing.status === "failed" && filing.correlationId);
           const canReset = filing.status === "rejected" || filing.status === "failed";
-          const isSelectable = filing.status === "polling_timeout";
+          const isSelectable = filing.status === "submitted";
 
           return (
             <div

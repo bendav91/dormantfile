@@ -461,7 +461,7 @@ export default function AccountsFlow({
           type: "rejected",
           message: data.message || "Companies House rejected the filing.",
         });
-      } else if (status === "polling_timeout") {
+      } else if (status === "submitted") {
         setResult({ type: "timeout" });
       } else {
         setResult({

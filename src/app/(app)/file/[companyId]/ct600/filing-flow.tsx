@@ -551,7 +551,7 @@ export default function FilingFlow({
         setResult({ type: "accepted" });
       } else if (status === "rejected") {
         setResult({ type: "rejected", message: data.message || "HMRC rejected the filing." });
-      } else if (status === "polling_timeout") {
+      } else if (status === "submitted") {
         setResult({ type: "timeout" });
       } else {
         setResult({

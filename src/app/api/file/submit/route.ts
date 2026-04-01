@@ -3,15 +3,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { buildGovTalkMessage } from "@/lib/hmrc/xml-builder";
-import { submitToHmrc, pollHmrc } from "@/lib/hmrc/submission-client";
-import { rollForwardPeriod } from "@/lib/roll-forward";
+import { submitToHmrc } from "@/lib/hmrc/submission-client";
 import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
 import { generateDormantTaxComputationsIxbrl } from "@/lib/ixbrl/tax-computations";
 import type { VendorCredentials } from "@/lib/hmrc/types";
 import { FilingStatus } from "@prisma/client";
-
-const POLL_TIMEOUT_MS = 120_000;
-const DEFAULT_POLL_INTERVAL_MS = 5_000;
 
 function getVendorCredentials(): VendorCredentials {
   const vendorId = process.env.HMRC_VENDOR_ID;
@@ -227,7 +223,7 @@ export async function POST(req: NextRequest) {
       companyId,
       filingType: "ct600",
       status: {
-        in: [FilingStatus.submitted, FilingStatus.polling_timeout, FilingStatus.accepted],
+        in: [FilingStatus.submitted, FilingStatus.accepted],
       },
     },
   });
@@ -332,15 +328,25 @@ export async function POST(req: NextRequest) {
   }
 
   // Submit to HMRC
-  let correlationId: string;
-  let pollEndpoint: string;
-  let hmrcPollInterval = DEFAULT_POLL_INTERVAL_MS;
-
   try {
     const submissionResult = await submitToHmrc(govTalkXml, endpoint);
-    correlationId = submissionResult.correlationId;
-    pollEndpoint = submissionResult.endpoint;
-    hmrcPollInterval = submissionResult.pollInterval * 1000;
+
+    await prisma.filing.update({
+      where: { id: filing.id },
+      data: {
+        status: "submitted",
+        correlationId: submissionResult.correlationId,
+        irmark: irmarkValue,
+        pollInterval: submissionResult.pollInterval,
+        submittedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      status: "submitted",
+      filingId: filing.id,
+      message: "Filing submitted to HMRC. We'll email you when it's confirmed.",
+    });
   } catch (err) {
     await prisma.filing.update({
       where: { id: filing.id },
@@ -351,82 +357,4 @@ export async function POST(req: NextRequest) {
       { status: 502 },
     );
   }
-
-  // Credentials no longer referenced after this point
-
-  await prisma.filing.update({
-    where: { id: filing.id },
-    data: {
-      status: "submitted",
-      correlationId: correlationId,
-      irmark: irmarkValue,
-      pollInterval: Math.round(hmrcPollInterval / 1000),
-      submittedAt: new Date(),
-    },
-  });
-
-  // Poll for response using interval from HMRC
-  const deadline = Date.now() + POLL_TIMEOUT_MS;
-
-  while (Date.now() < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, hmrcPollInterval));
-
-    let pollResult: Awaited<ReturnType<typeof pollHmrc>>;
-
-    try {
-      pollResult = await pollHmrc(correlationId, pollEndpoint, vendor);
-    } catch {
-      // Transient poll error — keep trying until timeout
-      continue;
-    }
-
-    if (pollResult.status === "accepted") {
-      await prisma.filing.update({
-        where: { id: filing.id },
-        data: {
-          status: "accepted",
-          confirmedAt: new Date(),
-          responsePayload: pollResult.responsePayload,
-        },
-      });
-
-      await rollForwardPeriod(
-        companyId,
-        effectiveEnd,
-        company.registeredForCorpTax,
-        "ct600",
-        user.email,
-        company.companyName,
-        { startDate: effectiveStart, endDate: effectiveEnd },
-      );
-
-      return NextResponse.json({ status: "accepted", filingId: filing.id });
-    }
-
-    if (pollResult.status === "rejected") {
-      await prisma.filing.update({
-        where: { id: filing.id },
-        data: {
-          status: "rejected",
-          responsePayload: pollResult.responsePayload,
-        },
-      });
-
-      return NextResponse.json({
-        status: "rejected",
-        filingId: filing.id,
-        message: pollResult.message,
-      });
-    }
-
-    // still processing — continue loop
-  }
-
-  // Timed out
-  await prisma.filing.update({
-    where: { id: filing.id },
-    data: { status: "polling_timeout" },
-  });
-
-  return NextResponse.json({ status: "polling_timeout", filingId: filing.id });
 }

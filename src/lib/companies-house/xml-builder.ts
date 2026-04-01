@@ -16,8 +16,7 @@ export interface AccountsSubmissionData {
   periodEnd: Date;
   companyAuthCode: string;
   accountsIxbrl: string;
-  submissionNumber: string; // zero-padded 6 chars
-  transactionId: string; // incremental, unique per presenter
+  submissionNumber: string; // zero-padded 6 chars, also used as TransactionID
   contactName?: string;
 }
 
@@ -100,7 +99,7 @@ export function buildAccountsXml(
     <MessageDetails>
       <Class>Accounts</Class>
       <Qualifier>request</Qualifier>
-      <TransactionID>${escapeXml(data.transactionId)}</TransactionID>${gatewayTestElement}
+      <TransactionID>${escapeXml(data.submissionNumber)}</TransactionID>${gatewayTestElement}
     </MessageDetails>
     <SenderDetails>
       <IDAuthentication>

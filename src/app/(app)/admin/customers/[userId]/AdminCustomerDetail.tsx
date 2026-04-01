@@ -131,7 +131,7 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
                   {company.filings.map((filing) => {
                     const deadline = filing.filingType === "accounts" ? filing.accountsDeadline : filing.ct600Deadline;
                     const isOverdue = deadline && new Date(deadline) < new Date() && filing.status === "outstanding";
-                    const canRetry = filing.status === "polling_timeout" || (filing.status === "failed" && filing.hasCorrelationId);
+                    const canRetry = filing.status === "submitted" || (filing.status === "failed" && filing.hasCorrelationId);
                     const canReset = filing.status === "rejected" || filing.status === "failed";
 
                     return (

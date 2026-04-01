@@ -15,11 +15,11 @@ import { isFilingLive } from "@/lib/launch-mode";
 import { cn } from "@/lib/cn";
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
 
 function formatShortDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
 interface Filing {
@@ -268,7 +268,7 @@ export default function FilingsTab({
                           </span>
                         ) : accountsFiling && accountsFiling.status !== "outstanding" ? (
                           <>
-                            {(accountsFiling.status === "submitted" || accountsFiling.status === "polling_timeout") && (
+                            {accountsFiling.status === "submitted" && (
                               <CheckStatusButton filingId={accountsFiling.id} />
                             )}
                             <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
@@ -366,7 +366,7 @@ export default function FilingsTab({
                           <div className="flex items-center gap-1.5">
                             {ct600Filing.status !== "outstanding" ? (
                               <>
-                                {(ct600Filing.status === "submitted" || ct600Filing.status === "polling_timeout") && (
+                                {ct600Filing.status === "submitted" && (
                                   <CheckStatusButton filingId={ct600Filing.id} />
                                 )}
                                 <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />

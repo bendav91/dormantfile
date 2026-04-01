@@ -38,7 +38,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
 
   const activeCT600Count = company.filings.filter(
     (f) =>
-      f.filingType === "ct600" && ["submitted", "pending", "polling_timeout"].includes(f.status),
+      f.filingType === "ct600" && ["submitted", "pending"].includes(f.status),
   ).length;
 
   const { tab: tabParam } = await searchParams;

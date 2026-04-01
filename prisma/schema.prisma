@@ -25,7 +25,6 @@ enum FilingStatus {
   outstanding
   pending
   submitted
-  polling_timeout
   accepted
   rejected
   failed
@@ -128,7 +127,6 @@ model Filing {
   irmark           String?
   pollInterval     Int?
   submissionNumber String?
-  transactionId    String?
   submittedAt      DateTime?
   confirmedAt      DateTime?
   createdAt        DateTime     @default(now())

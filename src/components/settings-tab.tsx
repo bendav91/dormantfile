@@ -9,7 +9,7 @@ interface SettingsTabProps {
   registeredForCorpTax: boolean;
   uniqueTaxReference: string | null;
   shareCapital: number; // in pence
-  activeCT600Count: number; // count of CT600 filings with status submitted/pending/polling_timeout
+  activeCT600Count: number; // count of CT600 filings with status submitted/pending
   firstPeriodStart: string; // ISO date string — CH accounting period start to use as default
 }
 

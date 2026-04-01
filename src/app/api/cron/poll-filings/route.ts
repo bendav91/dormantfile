@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 
   const filings = await prisma.filing.findMany({
     where: {
-      status: "polling_timeout",
+      status: "submitted",
       correlationId: { not: null },
     },
     include: {
@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
 
         resolved++;
       }
-      // processing/pending: leave as polling_timeout, try again next cron run
+      // processing/pending: leave as submitted, try again next cron run
     } catch {
       // Don't crash the cron -- continue to next filing
     }

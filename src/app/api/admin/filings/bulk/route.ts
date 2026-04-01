@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const result = await prisma.filing.updateMany({
     where: {
       id: { in: ids },
-      status: "polling_timeout",
+      status: "submitted",
     },
     data: { status: "submitted", responsePayload: null },
   });
