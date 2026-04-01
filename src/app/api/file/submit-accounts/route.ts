@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { buildAccountsXml } from "@/lib/companies-house/xml-builder";
+import { buildAccountsXml, mapCompanyType } from "@/lib/companies-house/xml-builder";
+import type { SubmissionConfig } from "@/lib/companies-house/xml-builder";
 import {
   submitToCompaniesHouse,
   pollCompaniesHouse,
@@ -92,9 +93,9 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  if (!companyAuthCode || !/^[A-Za-z0-9]{6}$/.test(companyAuthCode)) {
+  if (!companyAuthCode || !/^[A-Za-z0-9]{6,8}$/.test(companyAuthCode)) {
     return NextResponse.json(
-      { error: "A valid 6-character company authentication code is required" },
+      { error: "A valid 6-8 character company authentication code is required" },
       { status: 400 },
     );
   }
@@ -257,6 +258,37 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Generate submission number (6 chars, zero-padded, globally unique per presenter)
+  let submissionNumber: string;
+  let transactionId: string;
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const last = await tx.filing.findFirst({
+        where: { submissionNumber: { not: null }, filingType: "accounts" },
+        orderBy: { submissionNumber: "desc" },
+        select: { submissionNumber: true },
+      });
+      const nextNum = last?.submissionNumber ? parseInt(last.submissionNumber, 10) + 1 : 1;
+      return { submissionNumber: String(nextNum).padStart(6, "0"), transactionId: String(nextNum) };
+    });
+    submissionNumber = result.submissionNumber;
+    transactionId = result.transactionId;
+  } catch (err) {
+    await prisma.filing.update({
+      where: { id: filing.id },
+      data: { status: "failed" },
+    });
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Failed to generate submission number" },
+      { status: 500 },
+    );
+  }
+
+  const submissionConfig: SubmissionConfig = {
+    packageReference: process.env.CH_PACKAGE_REFERENCE ?? "0012",
+    isTest: process.env.CH_GATEWAY_TEST === "1",
+  };
+
   // Generate iXBRL accounts document
   const accountsIxbrl = generateDormantAccountsIxbrl({
     companyName: company.companyName,
@@ -274,12 +306,15 @@ export async function POST(req: NextRequest) {
       {
         companyName: company.companyName,
         companyRegistrationNumber: company.companyRegistrationNumber,
-        periodStart: effectiveStart,
+        companyType: mapCompanyType(company.companyType),
         periodEnd: effectiveEnd,
         companyAuthCode,
         accountsIxbrl,
+        submissionNumber,
+        transactionId,
       },
       credentials,
+      submissionConfig,
     );
   } catch (err) {
     await prisma.filing.update({
@@ -295,11 +330,13 @@ export async function POST(req: NextRequest) {
   // Submit to Companies House
   let submissionId: string;
   let pollEndpoint: string;
+  let pollIntervalSeconds: number | undefined;
 
   try {
-    const submissionResult = await submitToCompaniesHouse(accountsXml, endpoint, credentials);
+    const submissionResult = await submitToCompaniesHouse(accountsXml, endpoint);
     submissionId = submissionResult.submissionId;
     pollEndpoint = submissionResult.pollEndpoint;
+    pollIntervalSeconds = submissionResult.pollInterval;
   } catch (err) {
     await prisma.filing.update({
       where: { id: filing.id },
@@ -316,6 +353,9 @@ export async function POST(req: NextRequest) {
     data: {
       status: "submitted",
       correlationId: submissionId,
+      submissionNumber,
+      transactionId,
+      pollInterval: pollIntervalSeconds,
       submittedAt: new Date(),
     },
   });

@@ -127,6 +127,8 @@ model Filing {
   responsePayload  String?      @map("hmrcResponsePayload")
   irmark           String?
   pollInterval     Int?
+  submissionNumber String?
+  transactionId    String?
   submittedAt      DateTime?
   confirmedAt      DateTime?
   createdAt        DateTime     @default(now())

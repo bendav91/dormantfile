@@ -8,15 +8,12 @@
 
 import { XMLParser } from "fast-xml-parser";
 import { buildPollXml } from "./xml-builder";
-
-interface PresenterCredentials {
-  presenterId: string;
-  presenterAuth: string;
-}
+import type { PresenterCredentials } from "./xml-builder";
 
 interface SubmissionResult {
   submissionId: string;
   pollEndpoint: string;
+  pollInterval?: number;
 }
 
 interface PollResult {
@@ -33,12 +30,10 @@ const parser = new XMLParser({
 export async function submitToCompaniesHouse(
   xml: string,
   endpoint: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _credentials: PresenterCredentials,
 ): Promise<SubmissionResult> {
   const response = await fetch(endpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/xml" },
+    headers: { "Content-Type": "text/xml" },
     body: xml,
   });
 
@@ -49,15 +44,35 @@ export async function submitToCompaniesHouse(
   const responseXml = await response.text();
   const parsed = parser.parse(responseXml);
 
+  // Check for GovTalk errors (transport/auth/parse failures)
+  const qualifier = parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
+  if (qualifier === "error") {
+    const errors = parsed?.GovTalkMessage?.GovTalkErrors?.Error;
+    const errorText = Array.isArray(errors)
+      ? errors
+          .map((e: { Text?: string }) => e.Text)
+          .filter(Boolean)
+          .join("; ")
+      : (errors?.Text ?? "Unknown error");
+    throw new Error(`Companies House rejected submission: ${errorText}`);
+  }
+
   const correlationId = parsed?.GovTalkMessage?.Header?.MessageDetails?.CorrelationID;
 
   if (!correlationId) {
     throw new Error("No correlation ID found in Companies House response");
   }
 
+  // Extract poll interval if present (in seconds)
+  const responseEndPoint = parsed?.GovTalkMessage?.Header?.MessageDetails?.ResponseEndPoint;
+  const pollInterval = responseEndPoint?.["@_PollInterval"]
+    ? parseInt(responseEndPoint["@_PollInterval"], 10)
+    : undefined;
+
   return {
     submissionId: String(correlationId),
     pollEndpoint: endpoint,
+    pollInterval,
   };
 }
 
@@ -70,7 +85,7 @@ export async function pollCompaniesHouse(
 
   const response = await fetch(pollEndpoint, {
     method: "POST",
-    headers: { "Content-Type": "application/xml" },
+    headers: { "Content-Type": "text/xml" },
     body: pollXml,
   });
 

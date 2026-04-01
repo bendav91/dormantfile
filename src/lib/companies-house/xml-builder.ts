@@ -1,21 +1,34 @@
 /**
  * Builds the GovTalk XML envelope for Companies House annual accounts submission.
- * Wraps an iXBRL accounts document inside the CH XML Gateway format.
+ * Uses the FormSubmission body structure per the CH XML Gateway TIS v5.3.
+ *
+ * Auth: SenderID = MD5(presenterId), Value = MD5(presenterAuth), Method = 'clear'
+ * Class: 'AA' for accounts filing
+ * FormIdentifier: must match Class = 'AA'
  */
 
-interface AccountsSubmissionData {
+import { createHash } from "crypto";
+
+export interface AccountsSubmissionData {
   companyName: string;
   companyRegistrationNumber: string;
-  periodStart: Date;
+  companyType: string; // "EW", "SC", "NI", "LLP", etc.
   periodEnd: Date;
   companyAuthCode: string;
-  /** The full iXBRL HTML document for the accounts */
   accountsIxbrl: string;
+  submissionNumber: string; // zero-padded 6 chars
+  transactionId: string; // incremental, unique per presenter
+  contactName?: string;
 }
 
-interface PresenterCredentials {
+export interface PresenterCredentials {
   presenterId: string;
   presenterAuth: string;
+}
+
+export interface SubmissionConfig {
+  packageReference: string; // "0012" for test
+  isTest: boolean; // controls GatewayTest element inclusion
 }
 
 function escapeXml(str: string): string {
@@ -31,73 +44,70 @@ function formatDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function buildAccountsXml(
-  data: AccountsSubmissionData,
-  credentials: PresenterCredentials,
-): string {
-  const periodEndStr = formatDate(data.periodEnd);
-  const accountsBase64 = Buffer.from(data.accountsIxbrl, "utf-8").toString("base64");
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
-  <EnvelopeVersion>2.0</EnvelopeVersion>
-  <Header>
-    <MessageDetails>
-      <Class>ACCOUNTS</Class>
-      <Qualifier>request</Qualifier>
-      <Function>submit</Function>
-    </MessageDetails>
-    <SenderDetails>
-      <IDAuthentication>
-        <SenderID>${escapeXml(credentials.presenterId)}</SenderID>
-        <Authentication>
-          <Method>CHMD5</Method>
-          <Value>${escapeXml(credentials.presenterAuth)}</Value>
-        </Authentication>
-      </IDAuthentication>
-    </SenderDetails>
-  </Header>
-  <GovTalkDetails>
-    <Keys>
-      <Key Type="CompanyNumber">${escapeXml(data.companyRegistrationNumber)}</Key>
-      <Key Type="CompanyAuthentication">${escapeXml(data.companyAuthCode)}</Key>
-    </Keys>
-  </GovTalkDetails>
-  <Body>
-    <CompanyData xmlns="http://xmlgw.companieshouse.gov.uk">
-      <CompanyNumber>${escapeXml(data.companyRegistrationNumber)}</CompanyNumber>
-      <CompanyName>${escapeXml(data.companyName)}</CompanyName>
-      <AccountsType>DORMANT</AccountsType>
-      <CompanyAuthCode>${escapeXml(data.companyAuthCode)}</CompanyAuthCode>
-      <MadeUpDate>${periodEndStr}</MadeUpDate>
-      <Document>
-        <Data encoding="base64" contentType="application/xhtml+xml">${accountsBase64}</Data>
-      </Document>
-    </CompanyData>
-  </Body>
-</GovTalkMessage>`;
+export function md5(input: string): string {
+  return createHash("md5").update(input).digest("hex");
 }
 
 /**
- * Builds a GovTalk poll request for Companies House.
+ * Maps CH REST API company type to XML Gateway CompanyType code.
+ * See TIS v5.3 Appendix A and section 2.4.
  */
-export function buildPollXml(correlationId: string, credentials: PresenterCredentials): string {
+export function mapCompanyType(restApiType: string | null | undefined): string {
+  switch (restApiType) {
+    case "ltd":
+    case "plc":
+      return "EW";
+    case "scottish-company":
+      return "SC";
+    case "northern-ireland-company":
+      return "NI";
+    case "llp":
+      return "LLP";
+    case "scottish-partnership":
+      return "SO";
+    case "northern-ireland-partnership":
+      return "NC";
+    case "registered-overseas-entity":
+      return "OE";
+    default:
+      return "EW";
+  }
+}
+
+export function buildAccountsXml(
+  data: AccountsSubmissionData,
+  credentials: PresenterCredentials,
+  config: SubmissionConfig,
+): string {
+  const todayStr = formatDate(new Date());
+  const accountsBase64 = Buffer.from(data.accountsIxbrl, "utf-8").toString("base64");
+
+  const senderId = md5(credentials.presenterId);
+  const authValue = md5(credentials.presenterAuth);
+
+  const gatewayTestElement = config.isTest
+    ? `\n      <GatewayTest>1</GatewayTest>`
+    : "";
+
+  const contactNameElement = data.contactName
+    ? `\n        <ContactName>${escapeXml(data.contactName)}</ContactName>`
+    : "";
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
   <EnvelopeVersion>2.0</EnvelopeVersion>
   <Header>
     <MessageDetails>
-      <Class>ACCOUNTS</Class>
-      <Qualifier>poll</Qualifier>
-      <Function>submit</Function>
-      <CorrelationID>${escapeXml(correlationId)}</CorrelationID>
+      <Class>AA</Class>
+      <Qualifier>request</Qualifier>
+      <TransactionID>${escapeXml(data.transactionId)}</TransactionID>${gatewayTestElement}
     </MessageDetails>
     <SenderDetails>
       <IDAuthentication>
-        <SenderID>${escapeXml(credentials.presenterId)}</SenderID>
+        <SenderID>${senderId}</SenderID>
         <Authentication>
-          <Method>CHMD5</Method>
-          <Value>${escapeXml(credentials.presenterAuth)}</Value>
+          <Method>clear</Method>
+          <Value>${authValue}</Value>
         </Authentication>
       </IDAuthentication>
     </SenderDetails>
@@ -105,6 +115,69 @@ export function buildPollXml(correlationId: string, credentials: PresenterCreden
   <GovTalkDetails>
     <Keys/>
   </GovTalkDetails>
-  <Body/>
+  <Body>
+    <FormSubmission xmlns="http://xmlgw.companieshouse.gov.uk/Header"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://xmlgw.companieshouse.gov.uk/Header http://xmlgw.companieshouse.gov.uk/v1-0/schema/forms/FormSubmission-v2-11.xsd">
+      <FormHeader>
+        <CompanyNumber>${escapeXml(data.companyRegistrationNumber)}</CompanyNumber>
+        <CompanyType>${escapeXml(data.companyType)}</CompanyType>
+        <CompanyName>${escapeXml(data.companyName)}</CompanyName>
+        <CompanyAuthenticationCode>${escapeXml(data.companyAuthCode)}</CompanyAuthenticationCode>
+        <PackageReference>${escapeXml(config.packageReference)}</PackageReference>
+        <FormIdentifier>AA</FormIdentifier>
+        <SubmissionNumber>${escapeXml(data.submissionNumber)}</SubmissionNumber>${contactNameElement}
+      </FormHeader>
+      <DateSigned>${todayStr}</DateSigned>
+      <Form/>
+      <Document>
+        <Data>${accountsBase64}</Data>
+        <Filename>accounts.html</Filename>
+        <ContentType>application/xml</ContentType>
+        <Category>ACCOUNTS</Category>
+      </Document>
+    </FormSubmission>
+  </Body>
+</GovTalkMessage>`;
+}
+
+/**
+ * Builds a GovTalk poll request for Companies House.
+ * Uses GetSubmissionStatus with presenter ID + submission number (option 1).
+ */
+export function buildPollXml(
+  correlationId: string,
+  credentials: PresenterCredentials,
+): string {
+  const senderId = md5(credentials.presenterId);
+  const authValue = md5(credentials.presenterAuth);
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
+  <EnvelopeVersion>2.0</EnvelopeVersion>
+  <Header>
+    <MessageDetails>
+      <Class>GetSubmissionStatus</Class>
+      <Qualifier>request</Qualifier>
+    </MessageDetails>
+    <SenderDetails>
+      <IDAuthentication>
+        <SenderID>${senderId}</SenderID>
+        <Authentication>
+          <Method>clear</Method>
+          <Value>${authValue}</Value>
+        </Authentication>
+      </IDAuthentication>
+    </SenderDetails>
+  </Header>
+  <GovTalkDetails>
+    <Keys/>
+  </GovTalkDetails>
+  <Body>
+    <GetSubmissionStatus xmlns="http://xmlgw.companieshouse.gov.uk">
+      <PresenterID>${escapeXml(credentials.presenterId)}</PresenterID>
+      <SubmissionNumber>${escapeXml(correlationId)}</SubmissionNumber>
+    </GetSubmissionStatus>
+  </Body>
 </GovTalkMessage>`;
 }
