@@ -198,6 +198,8 @@ export async function POST(req: NextRequest) {
       irmark: null,
       submittedAt: null,
       confirmedAt: null,
+      submissionNumber: null,
+      transactionId: null,
     },
   });
 
@@ -335,6 +337,7 @@ export async function POST(req: NextRequest) {
     pollEndpoint = submissionResult.pollEndpoint;
     pollIntervalSeconds = submissionResult.pollInterval;
   } catch (err) {
+    console.error("[CH submit-accounts] Submission failed:", err instanceof Error ? err.message : err);
     await prisma.filing.update({
       where: { id: filing.id },
       data: { status: "failed" },
@@ -366,7 +369,7 @@ export async function POST(req: NextRequest) {
     let pollResult: Awaited<ReturnType<typeof pollCompaniesHouse>>;
 
     try {
-      pollResult = await pollCompaniesHouse(submissionId, pollEndpoint, credentials);
+      pollResult = await pollCompaniesHouse(submissionId, pollEndpoint, credentials, submissionConfig.isTest);
     } catch {
       // Transient poll error — keep trying until timeout
       continue;

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Building2, ShieldCheck, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
 import { cn } from "@/lib/cn";
+import { AlertTriangle, Building2, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,12 +32,8 @@ interface Props {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-semibold text-muted uppercase tracking-[0.05em] mb-1">
-        {label}
-      </p>
-      <p className="text-[15px] text-foreground m-0 font-medium">
-        {value}
-      </p>
+      <p className="text-xs font-semibold text-muted uppercase tracking-[0.05em] mb-1">{label}</p>
+      <p className="text-[15px] text-foreground m-0 font-medium">{value}</p>
     </div>
   );
 }
@@ -82,9 +78,7 @@ function StepConfirm({
             <h2 className="text-[17px] font-bold text-foreground m-0 tracking-[-0.01em]">
               {companyName}
             </h2>
-            <p className="text-[13px] text-muted m-0 mt-0.5">
-              Annual accounts
-            </p>
+            <p className="text-[13px] text-muted m-0 mt-0.5">Annual accounts</p>
           </div>
         </div>
 
@@ -157,10 +151,7 @@ function StepAuthenticate({ onSubmit }: { onSubmit: (authCode: string) => void }
 
       <div className="bg-card rounded-xl p-8 shadow-card">
         <div className="mb-6">
-          <label
-            htmlFor="ch-auth-code"
-            className="block text-[13px] font-semibold text-body mb-2"
-          >
+          <label htmlFor="ch-auth-code" className="block text-[13px] font-semibold text-body mb-2">
             Company authentication code
           </label>
           <input
@@ -181,7 +172,7 @@ function StepAuthenticate({ onSubmit }: { onSubmit: (authCode: string) => void }
             className={cn(
               "focus-ring-input w-full py-3 px-3.5 text-base font-mono tracking-[0.15em] text-foreground border-2 rounded-lg transition-colors duration-200 box-border",
               "focus:border-primary",
-              error ? "border-danger" : "border-muted"
+              error ? "border-danger" : "border-muted",
             )}
           />
           {error && (

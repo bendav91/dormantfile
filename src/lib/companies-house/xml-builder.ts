@@ -129,6 +129,7 @@ export function buildAccountsXml(
         <SubmissionNumber>${escapeXml(data.submissionNumber)}</SubmissionNumber>${contactNameElement}
       </FormHeader>
       <DateSigned>${todayStr}</DateSigned>
+      <Form/>
       <Document>
         <Data>${accountsBase64}</Data>
         <Date>${todayStr}</Date>
@@ -148,9 +149,11 @@ export function buildAccountsXml(
 export function buildPollXml(
   correlationId: string,
   credentials: PresenterCredentials,
+  isTest = false,
 ): string {
   const senderId = md5(credentials.presenterId);
   const authValue = md5(credentials.presenterAuth);
+  const gatewayTestElement = isTest ? `\n      <GatewayTest>1</GatewayTest>` : "";
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
@@ -158,7 +161,7 @@ export function buildPollXml(
   <Header>
     <MessageDetails>
       <Class>GetSubmissionStatus</Class>
-      <Qualifier>request</Qualifier>
+      <Qualifier>request</Qualifier>${gatewayTestElement}
     </MessageDetails>
     <SenderDetails>
       <IDAuthentication>

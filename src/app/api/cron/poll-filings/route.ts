@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
         if (!presenterCreds) continue;
         const endpoint = process.env.COMPANIES_HOUSE_FILING_ENDPOINT;
         if (!endpoint) continue;
-        const result = await pollCompaniesHouse(filing.correlationId!, endpoint, presenterCreds);
+        const result = await pollCompaniesHouse(filing.correlationId!, endpoint, presenterCreds, process.env.CH_GATEWAY_TEST === "1");
         pollStatus = result.status;
         pollResponsePayload = result.responsePayload;
       }

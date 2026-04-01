@@ -7,8 +7,8 @@
  */
 
 import { XMLParser } from "fast-xml-parser";
-import { buildPollXml } from "./xml-builder";
 import type { PresenterCredentials } from "./xml-builder";
+import { buildPollXml } from "./xml-builder";
 
 interface SubmissionResult {
   submissionId: string;
@@ -47,19 +47,25 @@ export async function submitToCompaniesHouse(
   // Check for GovTalk errors (transport/auth/parse failures)
   const qualifier = parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
   if (qualifier === "error") {
-    const errors = parsed?.GovTalkMessage?.GovTalkErrors?.Error;
+    const errors =
+      parsed?.GovTalkMessage?.GovTalkDetails?.GovTalkErrors?.Error ??
+      parsed?.GovTalkMessage?.GovTalkErrors?.Error;
     const errorText = Array.isArray(errors)
       ? errors
           .map((e: { Text?: string }) => e.Text)
           .filter(Boolean)
           .join("; ")
       : (errors?.Text ?? "Unknown error");
+    console.error("[CH submission-client] Response XML:", responseXml.slice(0, 2000));
     throw new Error(`Companies House rejected submission: ${errorText}`);
   }
 
-  const correlationId = parsed?.GovTalkMessage?.Header?.MessageDetails?.CorrelationID;
+  const correlationId =
+    parsed?.GovTalkMessage?.Header?.MessageDetails?.CorrelationID ??
+    parsed?.GovTalkMessage?.Header?.MessageDetails?.TransactionID;
 
   if (!correlationId) {
+    console.error("[CH submission-client] No CorrelationID or TransactionID. Response:", responseXml.slice(0, 2000));
     throw new Error("No correlation ID found in Companies House response");
   }
 
@@ -80,8 +86,9 @@ export async function pollCompaniesHouse(
   submissionId: string,
   pollEndpoint: string,
   credentials: PresenterCredentials,
+  isTest = false,
 ): Promise<PollResult> {
-  const pollXml = buildPollXml(submissionId, credentials);
+  const pollXml = buildPollXml(submissionId, credentials, isTest);
 
   const response = await fetch(pollEndpoint, {
     method: "POST",
@@ -99,13 +106,21 @@ export async function pollCompaniesHouse(
   const qualifier = parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
 
   if (qualifier === "error") {
-    const errors = parsed?.GovTalkMessage?.GovTalkErrors?.Error;
+    const errors =
+      parsed?.GovTalkMessage?.GovTalkDetails?.GovTalkErrors?.Error ??
+      parsed?.GovTalkMessage?.GovTalkErrors?.Error;
+    const errorNumber = Array.isArray(errors) ? errors[0]?.Number : errors?.Number;
     const errorText = Array.isArray(errors)
       ? errors
           .map((e: { Text?: string }) => e.Text)
           .filter(Boolean)
           .join("; ")
       : (errors?.Text ?? "Unknown error");
+
+    // Error 8026 = "No Accepted or Rejected Documents Found" — still processing
+    if (String(errorNumber) === "8026") {
+      return { status: "pending" };
+    }
 
     return {
       status: "rejected",

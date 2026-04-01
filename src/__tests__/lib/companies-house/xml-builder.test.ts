@@ -162,9 +162,11 @@ describe("buildAccountsXml", () => {
     expect(xml).toContain(`<DateSigned>${today}</DateSigned>`);
   });
 
-  it("does not include Form element (accounts use Document only)", () => {
-    expect(xml).not.toContain("<Form/>");
-    expect(xml).not.toContain("<Form>");
+  it("includes empty Form element before Document", () => {
+    expect(xml).toContain("<Form/>");
+    const formPos = xml.indexOf("<Form/>");
+    const docPos = xml.indexOf("<Document>");
+    expect(formPos).toBeLessThan(docPos);
   });
 
   it("includes Document with base64 iXBRL and Date", () => {
