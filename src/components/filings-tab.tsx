@@ -58,32 +58,36 @@ export default function FilingsTab({
   const suppressedPeriods = periods.filter((p) => !p.isComplete && p.isSuppressed);
   const hasDisclosurePeriods = incompletedPeriods.some((p) => p.isDisclosureTerritory);
 
-  // Build completed periods from Filing records (not from getOutstandingPeriods,
-  // which only generates periods from the oldest unfiled forward)
-  const completedPeriodMap = new Map<string, { key: string; periodStart: Date; periodEnd: Date }>();
-  const filedElsewherePeriodMap = new Map<string, { key: string; periodStart: Date; periodEnd: Date }>();
+  // Build completed/filed-elsewhere from Filing records
+  const completedAccountsMap = new Map<string, { key: string; periodStart: Date; periodEnd: Date }>();
+  const filedElsewhereAccountsMap = new Map<string, { key: string; periodStart: Date; periodEnd: Date }>();
   for (const f of filings) {
     const key = f.periodId ?? String(f.periodEnd.getTime());
     if (f.filingType === "accounts" && f.status === "accepted") {
-      completedPeriodMap.set(key, {
-        key,
-        periodStart: f.periodStart,
-        periodEnd: f.periodEnd,
-      });
+      completedAccountsMap.set(key, { key, periodStart: f.periodStart, periodEnd: f.periodEnd });
     } else if (f.filingType === "accounts" && f.status === "filed_elsewhere") {
-      filedElsewherePeriodMap.set(key, {
-        key,
-        periodStart: f.periodStart,
-        periodEnd: f.periodEnd,
-      });
+      filedElsewhereAccountsMap.set(key, { key, periodStart: f.periodStart, periodEnd: f.periodEnd });
     }
   }
-  const completedPeriods = [...completedPeriodMap.values()].sort(
+  const completedAccounts = [...completedAccountsMap.values()].sort(
     (a, b) => a.periodEnd.getTime() - b.periodEnd.getTime(),
   );
-  const filedElsewherePeriods = [...filedElsewherePeriodMap.values()].sort(
+  const filedElsewhereAccounts = [...filedElsewhereAccountsMap.values()].sort(
     (a, b) => a.periodEnd.getTime() - b.periodEnd.getTime(),
   );
+
+  // Build CT600-specific completed/filed-elsewhere lists
+  const completedCt600s = filings
+    .filter((f) => f.filingType === "ct600" && f.status === "accepted")
+    .sort((a, b) => (a.endDate ?? a.periodEnd).getTime() - (b.endDate ?? b.periodEnd).getTime());
+  const filedElsewhereCt600s = filings
+    .filter((f) => f.filingType === "ct600" && f.status === "filed_elsewhere")
+    .sort((a, b) => (a.endDate ?? a.periodEnd).getTime() - (b.endDate ?? b.periodEnd).getTime());
+
+  // Outstanding CT600 filings (from incomplete periods)
+  const outstandingCt600s = incompletedPeriods
+    .flatMap((p) => p.ct600Filings)
+    .filter((f) => f.status !== "accepted" && f.status !== "filed_elsewhere");
 
   const [activeTab, setActiveTab] = useState<"outstanding" | "suppressed" | "filed_elsewhere" | "completed">(
     "outstanding",
@@ -131,7 +135,7 @@ export default function FilingsTab({
             Suppressed ({suppressedPeriods.length})
           </button>
         )}
-        {filedElsewherePeriods.length > 0 && (
+        {(filedElsewhereAccounts.length > 0 || filedElsewhereCt600s.length > 0) && (
           <button
             className={cn(
               "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
@@ -141,7 +145,7 @@ export default function FilingsTab({
             )}
             onClick={() => setActiveTab("filed_elsewhere")}
           >
-            Filed elsewhere ({filedElsewherePeriods.length})
+            Filed elsewhere ({filedElsewhereAccounts.length + filedElsewhereCt600s.length})
           </button>
         )}
         <button
@@ -153,92 +157,92 @@ export default function FilingsTab({
           )}
           onClick={() => setActiveTab("completed")}
         >
-          Completed ({completedPeriods.length})
+          Completed ({completedAccounts.length + completedCt600s.length})
         </button>
       </div>
 
-      {/* Outstanding periods */}
+      {/* Outstanding */}
       {activeTab === "outstanding" && (
         <>
-          <div className="flex flex-col gap-3">
-            {incompletedPeriods.map((period, index) => {
-              const accountsFiling = period.accountsFiling;
-              const ct600Filing = period.ct600Filings[0] ?? null;
-              const periodEndISO = period.periodEnd.toISOString().split("T")[0];
-              const isFirst = index === 0;
+          {/* === Accounts section === */}
+          <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider m-0 mb-3">
+            Accounts
+          </h3>
+          {incompletedPeriods.length > 0 ? (
+            <div className="flex flex-col gap-3 mb-8">
+              {incompletedPeriods.map((period, index) => {
+                const accountsFiling = period.accountsFiling;
+                const periodEndISO = period.periodEnd.toISOString().split("T")[0];
+                const isFirst = index === 0;
 
-              return (
-                <div
-                  key={period.periodEnd.toISOString()}
-                  className={cn(
-                    "bg-card rounded-xl p-5 shadow-card",
-                    isFirst
-                      ? "border-2 border-primary-border"
-                      : "border border-border"
-                  )}
-                >
-                  {/* Period header */}
+                return (
                   <div
+                    key={`accounts-${period.periodEnd.toISOString()}`}
                     className={cn(
-                      "flex items-center gap-2",
-                      period.hasEarlierGaps || (isFirst && incompletedPeriods.length > 1)
-                        ? "mb-2"
-                        : "mb-3.5"
+                      "bg-card rounded-xl p-5 shadow-card",
+                      isFirst ? "border-2 border-primary-border" : "border border-border"
                     )}
                   >
-                    <span className="text-secondary flex">
-                      <Calendar size={16} color="currentColor" strokeWidth={2} />
-                    </span>
-                    <h2 className="text-base font-bold text-foreground m-0">
-                      {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
-                    </h2>
-                    {period.isDisclosureTerritory && (
-                      <span className="py-0.5 px-2 rounded-full text-[11px] font-semibold bg-danger-bg text-danger border border-danger-border">
-                        &gt;4 years
+                    {/* Period header */}
+                    <div
+                      className={cn(
+                        "flex items-center gap-2",
+                        period.hasEarlierGaps || (isFirst && incompletedPeriods.length > 1)
+                          ? "mb-2"
+                          : "mb-3.5"
+                      )}
+                    >
+                      <span className="text-secondary flex">
+                        <Calendar size={16} color="currentColor" strokeWidth={2} />
                       </span>
+                      <h2 className="text-base font-bold text-foreground m-0">
+                        {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
+                      </h2>
+                      {period.isDisclosureTerritory && (
+                        <span className="py-0.5 px-2 rounded-full text-[11px] font-semibold bg-danger-bg text-danger border border-danger-border">
+                          &gt;4 years
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Contextual hint */}
+                    {isFirst && incompletedPeriods.length > 1 && !period.hasEarlierGaps && (
+                      <p className="text-xs text-primary font-medium m-0 mb-3 pl-6">
+                        Earliest outstanding period &mdash; we recommend filing this first
+                      </p>
                     )}
-                  </div>
 
-                  {/* Contextual hint */}
-                  {isFirst && incompletedPeriods.length > 1 && !period.hasEarlierGaps && (
-                    <p className="text-xs text-primary font-medium m-0 mb-3 pl-6">
-                      Earliest outstanding period &mdash; we recommend filing this first
-                    </p>
-                  )}
+                    {/* Gap warning */}
+                    {period.hasEarlierGaps && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-warning-bg border border-warning-border rounded-md mb-3.5">
+                        <span className="text-warning shrink-0 flex">
+                          <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
+                        </span>
+                        <p className="text-xs text-warning-text m-0 font-medium">
+                          Earlier periods are still outstanding. Filing out of order may cause issues
+                          with Companies House.
+                        </p>
+                      </div>
+                    )}
 
-                  {/* Gap warning */}
-                  {period.hasEarlierGaps && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-warning-bg border border-warning-border rounded-md mb-3.5">
-                      <span className="text-warning shrink-0 flex">
-                        <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
-                      </span>
-                      <p className="text-xs text-warning-text m-0 font-medium">
-                        Earlier periods are still outstanding. Filing out of order may cause issues
-                        with Companies House.
-                      </p>
-                    </div>
-                  )}
+                    {/* Blocked territory warning */}
+                    {period.isBlockedTerritory && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-danger-bg border border-danger-border rounded-md mb-3.5">
+                        <span className="text-danger shrink-0 flex">
+                          <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
+                        </span>
+                        <p className="text-xs text-danger-text m-0 font-medium">
+                          This period is more than 6 years overdue. We recommend consulting an
+                          accountant or contacting Companies House directly.
+                        </p>
+                      </div>
+                    )}
 
-                  {/* Blocked territory warning */}
-                  {period.isBlockedTerritory && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-danger-bg border border-danger-border rounded-md mb-3.5">
-                      <span className="text-danger shrink-0 flex">
-                        <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
-                      </span>
-                      <p className="text-xs text-danger-text m-0 font-medium">
-                        This period is more than 6 years overdue. We recommend consulting an
-                        accountant or contacting Companies House directly.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Filing rows */}
-                  <div className="flex flex-col gap-1.5">
-                    {/* Accounts */}
+                    {/* Accounts filing row */}
                     <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
                       <div>
                         <p className="text-[13px] font-semibold text-foreground m-0">
-                          Accounts
+                          Annual accounts
                         </p>
                         <p
                           className={cn(
@@ -263,12 +267,8 @@ export default function FilingsTab({
                           </span>
                         ) : accountsFiling && accountsFiling.status !== "outstanding" ? (
                           <>
-                            <FilingStatusBadge
-                              status={accountsFiling.status}
-                              filingType="accounts"
-                            />
-                            {(accountsFiling.status === "failed" ||
-                              accountsFiling.status === "rejected") && (
+                            <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
+                            {(accountsFiling.status === "failed" || accountsFiling.status === "rejected") && (
                               <>
                                 <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="accounts" />
                                 {isFilingLive() && (
@@ -298,351 +298,379 @@ export default function FilingsTab({
                       </div>
                     </div>
 
-                    {/* CT600 */}
-                    {registeredForCorpTax && (
-                      <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
-                        <div>
-                          <p className="text-[13px] font-semibold text-foreground m-0">
-                            CT600
-                            {ct600Filing?.startDate && ct600Filing?.endDate &&
-                              (ct600Filing.startDate.getTime() !== period.periodStart.getTime() ||
-                                ct600Filing.endDate.getTime() !== period.periodEnd.getTime()) && (
-                              <span className="text-xs font-normal text-secondary ml-1.5">
-                                ({formatShortDate(ct600Filing.startDate)} &ndash; {formatShortDate(ct600Filing.endDate)})
-                              </span>
-                            )}
-                          </p>
-                          <p className="text-xs text-secondary m-0">
-                            Due: {formatShortDate(period.ct600Deadline)}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          {ct600Filing && ct600Filing.status !== "outstanding" ? (
-                            <>
-                              <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
-                              {(ct600Filing.status === "failed" ||
-                                ct600Filing.status === "rejected") && (
-                                <>
-                                  <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
-                                  {isFilingLive() && (
-                                    <Link
-                                      href={`/file/${companyId}/ct600?filingId=${ct600Filing.id}`}
-                                      className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
-                                    >
-                                      Retry
-                                    </Link>
-                                  )}
-                                </>
-                              )}
-                            </>
-                          ) : period.isBlockedTerritory ? (
-                            <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
-                          ) : (
-                            <>
-                              <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
-                              {isFilingLive() && ct600Filing && (
-                                <Link
-                                  href={`/file/${companyId}/ct600?filingId=${ct600Filing.id}`}
-                                  className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
-                                >
-                                  File
-                                </Link>
-                              )}
-                            </>
-                          )}
-                        </div>
+                    {/* Suppress button */}
+                    {period.isOverdue && (
+                      <div className="mt-2.5 flex justify-end">
+                        <SuppressButton companyId={companyId} periodEnd={periodEndISO} isSuppressed={false} />
                       </div>
                     )}
                   </div>
-
-                  {/* Suppress button */}
-                  {period.isOverdue && (
-                    <div className="mt-2.5 flex justify-end">
-                      <SuppressButton
-                        companyId={companyId}
-                        periodEnd={periodEndISO}
-                        isSuppressed={false}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Outstanding empty state */}
-          {incompletedPeriods.length === 0 && (
-            <div className="text-center px-6 py-12 bg-card rounded-xl shadow-active">
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center px-6 py-10 bg-card rounded-xl shadow-active mb-8">
               <span className="text-success flex justify-center mb-3">
                 <CheckCircle2 size={32} color="currentColor" strokeWidth={2} />
               </span>
-              <p className="text-base font-semibold text-foreground m-0 mb-1">
-                All caught up
-              </p>
-              <p className="text-sm text-secondary m-0">
-                No outstanding accounting periods for this company.
-              </p>
+              <p className="text-base font-semibold text-foreground m-0 mb-1">All caught up</p>
+              <p className="text-sm text-secondary m-0">No outstanding accounts periods.</p>
             </div>
+          )}
+
+          {/* === Corporation Tax section === */}
+          {registeredForCorpTax && (
+            <>
+              <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider m-0 mb-3">
+                Corporation Tax
+              </h3>
+              {outstandingCt600s.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  {outstandingCt600s.map((ct600Filing, index) => {
+                    const ctapStart = ct600Filing.startDate ?? ct600Filing.periodStart;
+                    const ctapEnd = ct600Filing.endDate ?? ct600Filing.periodEnd;
+                    const ctapEndISO = ctapEnd.toISOString().split("T")[0];
+                    const deadline = ct600Filing.deadline ?? ct600Filing.ct600Deadline;
+                    const isFirst = index === 0;
+
+                    return (
+                      <div
+                        key={`ct600-${ct600Filing.id}`}
+                        className={cn(
+                          "bg-card rounded-xl p-5 shadow-card",
+                          isFirst ? "border-2 border-primary-border" : "border border-border"
+                        )}
+                      >
+                        <div className="flex items-center gap-2 mb-3.5">
+                          <span className="text-secondary flex">
+                            <Calendar size={16} color="currentColor" strokeWidth={2} />
+                          </span>
+                          <h2 className="text-base font-bold text-foreground m-0">
+                            {formatDate(ctapStart)} &ndash; {formatDate(ctapEnd)}
+                          </h2>
+                        </div>
+
+                        <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
+                          <div>
+                            <p className="text-[13px] font-semibold text-foreground m-0">CT600</p>
+                            {deadline && (
+                              <p className="text-xs text-secondary m-0">
+                                Due: {formatShortDate(deadline)}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {ct600Filing.status !== "outstanding" ? (
+                              <>
+                                <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                                {(ct600Filing.status === "failed" || ct600Filing.status === "rejected") && (
+                                  <>
+                                    <MarkFiledButton companyId={companyId} periodEnd={ctapEndISO} filingType="ct600" />
+                                    {isFilingLive() && (
+                                      <Link
+                                        href={`/file/${companyId}/ct600?filingId=${ct600Filing.id}`}
+                                        className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
+                                      >
+                                        Retry
+                                      </Link>
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <MarkFiledButton companyId={companyId} periodEnd={ctapEndISO} filingType="ct600" />
+                                {isFilingLive() && (
+                                  <Link
+                                    href={`/file/${companyId}/ct600?filingId=${ct600Filing.id}`}
+                                    className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
+                                  >
+                                    File
+                                  </Link>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center px-6 py-10 bg-card rounded-xl shadow-active">
+                  <span className="text-success flex justify-center mb-3">
+                    <CheckCircle2 size={32} color="currentColor" strokeWidth={2} />
+                  </span>
+                  <p className="text-base font-semibold text-foreground m-0 mb-1">All caught up</p>
+                  <p className="text-sm text-secondary m-0">No outstanding CT600 returns.</p>
+                </div>
+              )}
+            </>
           )}
         </>
       )}
 
       {/* Suppressed tab */}
       {activeTab === "suppressed" && (
-        <>
-          <div className="flex flex-col gap-3">
-            {suppressedPeriods.map((period) => {
-              const periodEndISO = period.periodEnd.toISOString().split("T")[0];
+        <div className="flex flex-col gap-3">
+          {suppressedPeriods.map((period) => {
+            const periodEndISO = period.periodEnd.toISOString().split("T")[0];
 
-              return (
-                <div
-                  key={period.periodEnd.toISOString()}
-                  className="bg-card rounded-xl p-5 shadow-card border border-border opacity-70"
-                >
-                  {/* Period header */}
-                  <div className="flex items-center justify-between gap-2 mb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-secondary flex">
-                        <EyeOff size={16} color="currentColor" strokeWidth={2} />
-                      </span>
-                      <h2 className="text-base font-bold text-foreground m-0">
-                        {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
-                      </h2>
-                    </div>
-                    <SuppressButton
-                      companyId={companyId}
-                      periodEnd={periodEndISO}
-                      isSuppressed={true}
-                      onRestore={
-                        suppressedPeriods.length === 1
-                          ? () => setActiveTab("outstanding")
-                          : undefined
-                      }
-                    />
-                  </div>
-
-                  <p className="text-xs text-secondary m-0">
-                    Accounts deadline: {formatShortDate(period.accountsDeadline)}
-                    {" \u00b7 "}
-                    This period is suppressed and excluded from warnings and reminders.
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
-
-      {/* Filed elsewhere tab */}
-      {activeTab === "filed_elsewhere" && (
-        <>
-          <div className="flex flex-col gap-3">
-            {[...filedElsewherePeriods].reverse().map((period) => {
-              const accountsFiling = filings.find(
-                (f) => f.filingType === "accounts" && f.status === "filed_elsewhere" &&
-                  (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
-              );
-              const ct600Filing = filings.find(
-                (f) => f.filingType === "ct600" &&
-                  (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
-              );
-
-              return (
-                <div
-                  key={period.periodEnd.toISOString()}
-                  className="bg-card rounded-xl p-5 shadow-card border border-border"
-                >
-                  {/* Period header */}
-                  <div className="flex items-center gap-2 mb-3.5">
+            return (
+              <div
+                key={period.periodEnd.toISOString()}
+                className="bg-card rounded-xl p-5 shadow-card border border-border opacity-70"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <div className="flex items-center gap-2">
                     <span className="text-secondary flex">
-                      <Calendar size={16} color="currentColor" strokeWidth={2} />
+                      <EyeOff size={16} color="currentColor" strokeWidth={2} />
                     </span>
                     <h2 className="text-base font-bold text-foreground m-0">
                       {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
                     </h2>
                   </div>
+                  <SuppressButton
+                    companyId={companyId}
+                    periodEnd={periodEndISO}
+                    isSuppressed={true}
+                    onRestore={
+                      suppressedPeriods.length === 1
+                        ? () => setActiveTab("outstanding")
+                        : undefined
+                    }
+                  />
+                </div>
+                <p className="text-xs text-secondary m-0">
+                  Accounts deadline: {formatShortDate(period.accountsDeadline)}
+                  {" \u00b7 "}
+                  This period is suppressed and excluded from warnings and reminders.
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-                  {/* Filing rows */}
-                  <div className="flex flex-col gap-1.5">
-                    {/* Accounts row */}
-                    <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
-                      <div>
-                        <p className="text-[13px] font-semibold text-foreground m-0">Accounts</p>
-                        <p className="text-xs text-secondary m-0">Filed elsewhere</p>
+      {/* Filed elsewhere tab */}
+      {activeTab === "filed_elsewhere" && (
+        <div className="flex flex-col gap-5">
+          {/* Filed elsewhere — Accounts */}
+          {filedElsewhereAccounts.length > 0 && (
+            <>
+              <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider m-0">
+                Accounts
+              </h3>
+              <div className="flex flex-col gap-3">
+                {[...filedElsewhereAccounts].reverse().map((period) => {
+                  const accountsFiling = filings.find(
+                    (f) => f.filingType === "accounts" && f.status === "filed_elsewhere" &&
+                      (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
+                  );
+
+                  return (
+                    <div key={period.periodEnd.toISOString()} className="bg-card rounded-xl p-5 shadow-card border border-border">
+                      <div className="flex items-center gap-2 mb-3.5">
+                        <span className="text-secondary flex">
+                          <Calendar size={16} color="currentColor" strokeWidth={2} />
+                        </span>
+                        <h2 className="text-base font-bold text-foreground m-0">
+                          {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
+                        </h2>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        {accountsFiling && (
-                          <UndoMarkFiledButton
-                            filingId={accountsFiling.id}
-                            onUndo={filedElsewherePeriods.length === 1 ? () => setActiveTab("outstanding") : undefined}
-                          />
-                        )}
-                        <FilingStatusBadge
-                          status={"filed_elsewhere" as FilingStatus}
-                          filingType="accounts"
-                        />
+                      <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
+                        <div>
+                          <p className="text-[13px] font-semibold text-foreground m-0">Annual accounts</p>
+                          <p className="text-xs text-secondary m-0">Filed elsewhere</p>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {accountsFiling && (
+                            <UndoMarkFiledButton
+                              filingId={accountsFiling.id}
+                              onUndo={filedElsewhereAccounts.length === 1 && filedElsewhereCt600s.length === 0 ? () => setActiveTab("outstanding") : undefined}
+                            />
+                          )}
+                          <FilingStatusBadge status={"filed_elsewhere" as FilingStatus} filingType="accounts" />
+                        </div>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
-                    {/* CT600 row */}
-                    {registeredForCorpTax && (
+          {/* Filed elsewhere — CT600 */}
+          {registeredForCorpTax && filedElsewhereCt600s.length > 0 && (
+            <>
+              <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider m-0">
+                Corporation Tax
+              </h3>
+              <div className="flex flex-col gap-3">
+                {[...filedElsewhereCt600s].reverse().map((ct600) => {
+                  const ctapStart = ct600.startDate ?? ct600.periodStart;
+                  const ctapEnd = ct600.endDate ?? ct600.periodEnd;
+
+                  return (
+                    <div key={ct600.id} className="bg-card rounded-xl p-5 shadow-card border border-border">
+                      <div className="flex items-center gap-2 mb-3.5">
+                        <span className="text-secondary flex">
+                          <Calendar size={16} color="currentColor" strokeWidth={2} />
+                        </span>
+                        <h2 className="text-base font-bold text-foreground m-0">
+                          {formatDate(ctapStart)} &ndash; {formatDate(ctapEnd)}
+                        </h2>
+                      </div>
                       <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
                         <div>
                           <p className="text-[13px] font-semibold text-foreground m-0">CT600</p>
-                          <p className="text-xs text-secondary m-0">
-                            {ct600Filing?.status === "filed_elsewhere"
-                              ? "Filed elsewhere"
-                              : "Not marked"}
-                          </p>
+                          <p className="text-xs text-secondary m-0">Filed elsewhere</p>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          {ct600Filing?.status === "filed_elsewhere" && (
-                            <UndoMarkFiledButton filingId={ct600Filing.id} />
-                          )}
-                          {ct600Filing ? (
-                            <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
-                          ) : (
-                            <span className="py-1 px-2.5 rounded-full text-[11px] font-semibold bg-inset text-secondary border border-border">
-                              N/A
-                            </span>
-                          )}
+                          <UndoMarkFiledButton filingId={ct600.id} />
+                          <FilingStatusBadge status={"filed_elsewhere" as FilingStatus} filingType="ct600" />
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       )}
 
       {/* Completed tab */}
       {activeTab === "completed" && (
         <>
-          {completedPeriods.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {[...completedPeriods].reverse().map((period) => {
-                const accountsFiling = filings.find(
-                  (f) => f.filingType === "accounts" &&
-                    (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
-                );
-                const ct600Filing = filings.find(
-                  (f) => f.filingType === "ct600" &&
-                    (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
-                );
+          {completedAccounts.length > 0 || completedCt600s.length > 0 ? (
+            <div className="flex flex-col gap-5">
+              {/* Completed — Accounts */}
+              {completedAccounts.length > 0 && (
+                <>
+                  <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider m-0">
+                    Accounts
+                  </h3>
+                  <div className="flex flex-col gap-3">
+                    {[...completedAccounts].reverse().map((period) => {
+                      const accountsFiling = filings.find(
+                        (f) => f.filingType === "accounts" && f.status === "accepted" &&
+                          (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
+                      );
 
-                return (
-                  <div
-                    key={period.periodEnd.toISOString()}
-                    className="bg-card rounded-xl p-5 shadow-card border border-border"
-                  >
-                    {/* Period header */}
-                    <div className="flex items-center gap-2 mb-3.5">
-                      <span className="text-success flex">
-                        <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
-                      </span>
-                      <h2 className="text-base font-bold text-foreground m-0">
-                        {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
-                      </h2>
-                    </div>
-
-                    {/* Filing rows */}
-                    <div className="flex flex-col gap-1.5">
-                      {/* Accounts row */}
-                      <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
-                        <div>
-                          <p className="text-[13px] font-semibold text-foreground m-0">
-                            Accounts
-                          </p>
-                          <p className="text-xs text-secondary m-0">
-                            {accountsFiling?.confirmedAt
-                              ? `Accepted ${formatShortDate(accountsFiling.confirmedAt)}`
-                              : "Accepted"}
-                            {accountsFiling?.submittedAt && " \u00b7 Filed via DormantFile"}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          {accountsFiling?.submittedAt ? (
-                            <>
-                              <CopyFilingSummary
-                                companyName={companyName}
-                                companyNumber={companyNumber}
-                                filingType="accounts"
-                                periodStart={period.periodStart}
-                                periodEnd={period.periodEnd}
-                                confirmedAt={accountsFiling.confirmedAt}
-                              />
-                              <Link
-                                href={`/company/${companyId}/receipt/${accountsFiling.id}`}
-                                title="View receipt"
-                                className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-border text-secondary transition-colors duration-200"
-                              >
-                                <FileText size={14} strokeWidth={2} />
-                              </Link>
-                            </>
-                          ) : null}
-                          <FilingStatusBadge
-                            status={accountsFiling?.status ?? ("accepted" as FilingStatus)}
-                            filingType="accounts"
-                          />
-                        </div>
-                      </div>
-
-                      {/* CT600 row */}
-                      {registeredForCorpTax && (
-                        <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
-                          <div>
-                            <p className="text-[13px] font-semibold text-foreground m-0">
-                              CT600
-                            </p>
-                            <p className="text-xs text-secondary m-0">
-                              {ct600Filing ? (
-                                <>
-                                  {ct600Filing.confirmedAt
-                                    ? `Accepted ${formatShortDate(ct600Filing.confirmedAt)}`
-                                    : "Accepted"}
-                                  {ct600Filing.submittedAt && " \u00b7 Filed via DormantFile"}
-                                </>
-                              ) : (
-                                "Not tracked for this period"
-                              )}
-                            </p>
+                      return (
+                        <div key={period.periodEnd.toISOString()} className="bg-card rounded-xl p-5 shadow-card border border-border">
+                          <div className="flex items-center gap-2 mb-3.5">
+                            <span className="text-success flex">
+                              <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
+                            </span>
+                            <h2 className="text-base font-bold text-foreground m-0">
+                              {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
+                            </h2>
                           </div>
-                          {ct600Filing ? (
+                          <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
+                            <div>
+                              <p className="text-[13px] font-semibold text-foreground m-0">Annual accounts</p>
+                              <p className="text-xs text-secondary m-0">
+                                {accountsFiling?.confirmedAt
+                                  ? `Accepted ${formatShortDate(accountsFiling.confirmedAt)}`
+                                  : "Accepted"}
+                                {accountsFiling?.submittedAt && " \u00b7 Filed via DormantFile"}
+                              </p>
+                            </div>
                             <div className="flex items-center gap-1.5">
-                              {ct600Filing.submittedAt ? (
+                              {accountsFiling?.submittedAt && (
                                 <>
                                   <CopyFilingSummary
                                     companyName={companyName}
                                     companyNumber={companyNumber}
-                                    filingType="ct600"
+                                    filingType="accounts"
                                     periodStart={period.periodStart}
                                     periodEnd={period.periodEnd}
-                                    confirmedAt={ct600Filing.confirmedAt}
+                                    confirmedAt={accountsFiling.confirmedAt}
                                   />
                                   <Link
-                                    href={`/company/${companyId}/receipt/${ct600Filing.id}`}
+                                    href={`/company/${companyId}/receipt/${accountsFiling.id}`}
                                     title="View receipt"
                                     className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-border text-secondary transition-colors duration-200"
                                   >
                                     <FileText size={14} strokeWidth={2} />
                                   </Link>
                                 </>
-                              ) : null}
-                              <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                              )}
+                              <FilingStatusBadge
+                                status={accountsFiling?.status ?? ("accepted" as FilingStatus)}
+                                filingType="accounts"
+                              />
                             </div>
-                          ) : (
-                            <span className="py-1 px-2.5 rounded-full text-[11px] font-semibold bg-inset text-secondary border border-border">
-                              N/A
-                            </span>
-                          )}
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </>
+              )}
+
+              {/* Completed — CT600 */}
+              {registeredForCorpTax && completedCt600s.length > 0 && (
+                <>
+                  <h3 className="text-sm font-semibold text-secondary uppercase tracking-wider m-0">
+                    Corporation Tax
+                  </h3>
+                  <div className="flex flex-col gap-3">
+                    {[...completedCt600s].reverse().map((ct600) => {
+                      const ctapStart = ct600.startDate ?? ct600.periodStart;
+                      const ctapEnd = ct600.endDate ?? ct600.periodEnd;
+
+                      return (
+                        <div key={ct600.id} className="bg-card rounded-xl p-5 shadow-card border border-border">
+                          <div className="flex items-center gap-2 mb-3.5">
+                            <span className="text-success flex">
+                              <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
+                            </span>
+                            <h2 className="text-base font-bold text-foreground m-0">
+                              {formatDate(ctapStart)} &ndash; {formatDate(ctapEnd)}
+                            </h2>
+                          </div>
+                          <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
+                            <div>
+                              <p className="text-[13px] font-semibold text-foreground m-0">CT600</p>
+                              <p className="text-xs text-secondary m-0">
+                                {ct600.confirmedAt
+                                  ? `Accepted ${formatShortDate(ct600.confirmedAt)}`
+                                  : "Accepted"}
+                                {ct600.submittedAt && " \u00b7 Filed via DormantFile"}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              {ct600.submittedAt && (
+                                <>
+                                  <CopyFilingSummary
+                                    companyName={companyName}
+                                    companyNumber={companyNumber}
+                                    filingType="ct600"
+                                    periodStart={ctapStart}
+                                    periodEnd={ctapEnd}
+                                    confirmedAt={ct600.confirmedAt}
+                                  />
+                                  <Link
+                                    href={`/company/${companyId}/receipt/${ct600.id}`}
+                                    title="View receipt"
+                                    className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-border text-secondary transition-colors duration-200"
+                                  >
+                                    <FileText size={14} strokeWidth={2} />
+                                  </Link>
+                                </>
+                              )}
+                              <FilingStatusBadge status={ct600.status} filingType="ct600" />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           ) : (
             <div className="text-center px-6 py-12 bg-card rounded-xl shadow-active">
