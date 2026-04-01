@@ -15,18 +15,6 @@ type ResultState =
   | { type: "processing"; message: string }
   | null;
 
-const resultClassNames: Record<string, { container: string }> = {
-  accepted: {
-    container: "bg-success-bg border-success-border text-success",
-  },
-  rejected: {
-    container: "bg-danger-bg border-danger-border text-danger-deep",
-  },
-  processing: {
-    container: "bg-warning-bg border-warning-border text-warning-deep",
-  },
-};
-
 export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -57,18 +45,18 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
       const status: string = data.status;
 
       if (status === "accepted") {
-        setResult({ type: "accepted", message: "Filing accepted by HMRC." });
+        setResult({ type: "accepted", message: "Filing accepted." });
         setTimeout(() => router.refresh(), 1500);
       } else if (status === "rejected") {
         setResult({
           type: "rejected",
-          message: "Filing rejected by HMRC. Please contact support.",
+          message: data.message || "Filing rejected. Please retry or contact support.",
         });
         setTimeout(() => router.refresh(), 1500);
       } else {
         setResult({
           type: "processing",
-          message: "Your filing is still being processed by HMRC. Please check again later.",
+          message: "Still being processed. Please check again later.",
         });
       }
     } catch {
@@ -79,34 +67,38 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <>
+      {result && (
+        <span
+          aria-live="polite"
+          className={cn(
+            "text-xs font-medium",
+            result.type === "accepted" && "text-success",
+            result.type === "rejected" && "text-danger-deep",
+            result.type === "processing" && "text-warning-deep"
+          )}
+        >
+          {result.message}
+        </span>
+      )}
+
       <button
         onClick={handleCheckStatus}
         disabled={loading}
         className={cn(
-          "focus-ring inline-flex items-center gap-2 text-card py-2.5 px-5 rounded-lg font-semibold text-sm border-0 transition-all duration-200 self-start hover:opacity-90",
-          loading ? "bg-disabled cursor-not-allowed" : "bg-primary cursor-pointer"
+          "focus-ring inline-flex items-center gap-1.5 px-3 py-1 rounded-md font-semibold text-xs border transition-all duration-200",
+          loading
+            ? "bg-inset text-secondary border-border cursor-not-allowed"
+            : "bg-card text-foreground border-border cursor-pointer hover:bg-inset"
         )}
       >
         {loading ? (
-          <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+          <Loader2 size={13} strokeWidth={2} className="animate-spin" />
         ) : (
-          <RefreshCw size={16} strokeWidth={2} />
+          <RefreshCw size={13} strokeWidth={2} />
         )}
-        {loading ? "Checking\u2026" : "Check status with HMRC"}
+        {loading ? "Checking\u2026" : "Check status"}
       </button>
-
-      {result && (
-        <div
-          aria-live="polite"
-          className={cn(
-            "py-2.5 px-3.5 border rounded-lg text-sm font-medium",
-            resultClassNames[result.type].container
-          )}
-        >
-          {result.message}
-        </div>
-      )}
-    </div>
+    </>
   );
 }

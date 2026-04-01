@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { ArrowRight, BookOpen, ChevronDown, HelpCircle, Menu, Shield, Star, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Logo } from "@/components/Logo";
@@ -202,6 +203,9 @@ function DesktopDropdown({ group, pathname }: { group: NavGroup; pathname: strin
 // --- SiteNav ---
 
 export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
+  const { data: session } = useSession();
+  const isLoggedIn = variant === "marketing" && !!session?.user;
+
   const baseConfig = variant === "marketing" ? MARKETING_CONFIG : APP_CONFIG;
   const config = isAdmin
     ? { ...baseConfig, links: [...baseConfig.links, { href: "/admin", label: "Admin" }] }
@@ -323,23 +327,35 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
               </span>
             )}
             {variant === "app" && <SignOutButton />}
-            {config.authLinks.map((link) => (
+            {isLoggedIn ? (
               <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium transition-all duration-150 text-foreground no-underline py-2 px-4 rounded-lg border border-border hoverable-subtle"
-              >
-                {link.label}
-              </Link>
-            ))}
-            {config.cta && (
-              <Link
-                href={config.cta.href}
+                href="/dashboard"
                 className="text-sm font-semibold inline-flex items-center gap-1.5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 cursor-pointer bg-cta text-white py-2 px-[18px] rounded-lg no-underline shadow-[0_1px_3px_rgba(249,115,22,0.25)]"
               >
-                {config.cta.label}
+                Dashboard
                 <ArrowRight size={14} />
               </Link>
+            ) : (
+              <>
+                {config.authLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm font-medium transition-all duration-150 text-foreground no-underline py-2 px-4 rounded-lg border border-border hoverable-subtle"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                {config.cta && (
+                  <Link
+                    href={config.cta.href}
+                    className="text-sm font-semibold inline-flex items-center gap-1.5 transition-all duration-200 motion-safe:hover:-translate-y-0.5 cursor-pointer bg-cta text-white py-2 px-[18px] rounded-lg no-underline shadow-[0_1px_3px_rgba(249,115,22,0.25)]"
+                  >
+                    {config.cta.label}
+                    <ArrowRight size={14} />
+                  </Link>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -473,26 +489,39 @@ export function SiteNav({ variant, user, isAdmin }: SiteNavProps) {
 
           {variant === "app" && <SignOutButton />}
 
-          {config.authLinks.map((link) => (
+          {isLoggedIn ? (
             <Link
-              key={link.href}
-              href={link.href}
-              onClick={closeDrawer}
-              className="text-sm font-medium text-center text-foreground no-underline py-2.5 px-5 rounded-lg border border-border"
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          {config.cta && (
-            <Link
-              href={config.cta.href}
+              href="/dashboard"
               onClick={closeDrawer}
               className="text-sm font-semibold text-center inline-flex items-center justify-center gap-1.5 bg-cta text-white py-3 px-5 rounded-lg no-underline shadow-[0_1px_3px_rgba(249,115,22,0.25)]"
             >
-              {config.cta.label}
+              Dashboard
               <ArrowRight size={14} />
             </Link>
+          ) : (
+            <>
+              {config.authLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={closeDrawer}
+                  className="text-sm font-medium text-center text-foreground no-underline py-2.5 px-5 rounded-lg border border-border"
+                >
+                  {link.label}
+                </Link>
+              ))}
+
+              {config.cta && (
+                <Link
+                  href={config.cta.href}
+                  onClick={closeDrawer}
+                  className="text-sm font-semibold text-center inline-flex items-center justify-center gap-1.5 bg-cta text-white py-3 px-5 rounded-lg no-underline shadow-[0_1px_3px_rgba(249,115,22,0.25)]"
+                >
+                  {config.cta.label}
+                  <ArrowRight size={14} />
+                </Link>
+              )}
+            </>
           )}
         </div>
       </div>

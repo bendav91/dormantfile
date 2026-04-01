@@ -67,8 +67,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Filing not found" }, { status: 404 });
   }
 
-  if (filing.status !== "polling_timeout") {
-    return NextResponse.json({ error: "Filing is not in polling_timeout status" }, { status: 400 });
+  if (filing.status !== "polling_timeout" && filing.status !== "submitted") {
+    return NextResponse.json({ error: "Filing is not awaiting a response" }, { status: 400 });
   }
 
   if (!filing.correlationId) {
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
           { status: 500 },
         );
       }
-      const result = await pollCompaniesHouse(filing.correlationId, endpoint, credentials);
+      const result = await pollCompaniesHouse(filing.correlationId, endpoint, credentials, process.env.CH_GATEWAY_TEST === "1");
       pollStatus = result.status;
       pollMessage = result.message;
       pollResponsePayload = result.responsePayload;

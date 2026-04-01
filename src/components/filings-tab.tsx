@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import FilingStatusBadge from "@/components/filing-status-badge";
+import CheckStatusButton from "@/components/check-status-button";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { type PeriodView } from "@/lib/filing-queries";
 import { FilingStatus } from "@prisma/client";
@@ -267,6 +268,9 @@ export default function FilingsTab({
                           </span>
                         ) : accountsFiling && accountsFiling.status !== "outstanding" ? (
                           <>
+                            {(accountsFiling.status === "submitted" || accountsFiling.status === "polling_timeout") && (
+                              <CheckStatusButton filingId={accountsFiling.id} />
+                            )}
                             <FilingStatusBadge status={accountsFiling.status} filingType="accounts" />
                             {(accountsFiling.status === "failed" || accountsFiling.status === "rejected") && (
                               <>
@@ -362,6 +366,9 @@ export default function FilingsTab({
                           <div className="flex items-center gap-1.5">
                             {ct600Filing.status !== "outstanding" ? (
                               <>
+                                {(ct600Filing.status === "submitted" || ct600Filing.status === "polling_timeout") && (
+                                  <CheckStatusButton filingId={ct600Filing.id} />
+                                )}
                                 <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
                                 {(ct600Filing.status === "failed" || ct600Filing.status === "rejected") && (
                                   <>
