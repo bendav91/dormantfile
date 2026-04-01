@@ -10,10 +10,10 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { companyId, periodEnd } = body;
+  const { companyId, periodEnd, periodId } = body;
 
-  if (!companyId || !periodEnd) {
-    return NextResponse.json({ error: "companyId and periodEnd are required" }, { status: 400 });
+  if (!companyId || (!periodEnd && !periodId)) {
+    return NextResponse.json({ error: "companyId and periodEnd (or periodId) are required" }, { status: 400 });
   }
 
   const company = await prisma.company.findFirst({
@@ -23,13 +23,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
-  const periodEndDate = new Date(periodEnd);
+  // Build filter: prefer periodId when available, fall back to periodEnd
+  const periodFilter = periodId
+    ? { periodId: periodId as string }
+    : { periodEnd: new Date(periodEnd) };
 
   // Set suppressedAt on all outstanding filings for this period
   await prisma.filing.updateMany({
     where: {
       companyId,
-      periodEnd: periodEndDate,
+      ...periodFilter,
       status: "outstanding",
     },
     data: { suppressedAt: new Date() },
@@ -47,9 +50,10 @@ export async function DELETE(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const companyId = searchParams.get("companyId");
   const periodEnd = searchParams.get("periodEnd");
+  const periodId = searchParams.get("periodId");
 
-  if (!companyId || !periodEnd) {
-    return NextResponse.json({ error: "companyId and periodEnd are required" }, { status: 400 });
+  if (!companyId || (!periodEnd && !periodId)) {
+    return NextResponse.json({ error: "companyId and periodEnd (or periodId) are required" }, { status: 400 });
   }
 
   const company = await prisma.company.findFirst({
@@ -59,13 +63,16 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
-  const periodEndDate = new Date(periodEnd);
+  // Build filter: prefer periodId when available, fall back to periodEnd
+  const periodFilter = periodId
+    ? { periodId }
+    : { periodEnd: new Date(periodEnd!) };
 
   // Clear suppressedAt on all outstanding filings for this period
   await prisma.filing.updateMany({
     where: {
       companyId,
-      periodEnd: periodEndDate,
+      ...periodFilter,
       status: "outstanding",
     },
     data: { suppressedAt: null },

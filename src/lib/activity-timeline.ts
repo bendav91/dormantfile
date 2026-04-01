@@ -18,6 +18,8 @@ interface FilingInput {
   filingType: "accounts" | "ct600";
   periodStart: Date;
   periodEnd: Date;
+  startDate: Date | null;
+  endDate: Date | null;
   status: string;
   submittedAt: Date | null;
   confirmedAt: Date | null;
@@ -77,7 +79,7 @@ export function buildActivityTimeline(
 
   // Filing events
   for (const filing of filings) {
-    const period = formatPeriod(filing.periodStart, filing.periodEnd);
+    const period = formatPeriod(filing.startDate ?? filing.periodStart, filing.endDate ?? filing.periodEnd);
     const label = filingLabel(filing.filingType);
     const target = filingTarget(filing.filingType);
 

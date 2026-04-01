@@ -62,7 +62,7 @@ export async function GET() {
 
     if (currentPeriod) {
       const accountsStatus = currentPeriod.accountsFiling?.status ?? "outstanding";
-      const ct600Status = currentPeriod.ct600Filing?.status ?? (company.registeredForCorpTax ? "outstanding" : "n/a");
+      const ct600Status = currentPeriod.ct600Filings[0]?.status ?? (company.registeredForCorpTax ? "outstanding" : "n/a");
 
       rows.push([
         escapeCSV(company.companyName),

@@ -101,6 +101,10 @@ export async function GET(req: NextRequest) {
           filing.filingType as "accounts" | "ct600",
           filing.company.user.email,
           filing.company.companyName,
+          {
+            startDate: filing.startDate ?? filing.periodStart,
+            endDate: filing.endDate ?? filing.periodEnd,
+          },
         );
 
         resolved++;

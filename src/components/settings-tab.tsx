@@ -10,6 +10,7 @@ interface SettingsTabProps {
   uniqueTaxReference: string | null;
   shareCapital: number; // in pence
   activeCT600Count: number; // count of CT600 filings with status submitted/pending/polling_timeout
+  firstPeriodStart: string; // ISO date string — CH accounting period start to use as default
 }
 
 export default function SettingsTab({
@@ -19,10 +20,12 @@ export default function SettingsTab({
   uniqueTaxReference,
   shareCapital,
   activeCT600Count,
+  firstPeriodStart,
 }: SettingsTabProps) {
   const router = useRouter();
   const [showEnableForm, setShowEnableForm] = useState(false);
   const [utrInput, setUtrInput] = useState("");
+  const [ctapStartInput, setCtapStartInput] = useState(firstPeriodStart?.split("T")[0] ?? "");
   const [editingUTR, setEditingUTR] = useState(false);
   const [editUTRInput, setEditUTRInput] = useState(uniqueTaxReference ?? "");
   const [editingShareCapital, setEditingShareCapital] = useState(false);
@@ -64,7 +67,7 @@ export default function SettingsTab({
     await handleApiCall(
       "/api/company/update",
       "PATCH",
-      { companyId, registeredForCorpTax: true, uniqueTaxReference: utrInput.trim() },
+      { companyId, registeredForCorpTax: true, uniqueTaxReference: utrInput.trim(), ctapStartDate: ctapStartInput || undefined },
       () => {
         setShowEnableForm(false);
         router.refresh();
@@ -141,7 +144,7 @@ export default function SettingsTab({
         {!registeredForCorpTax && showEnableForm && (
           <div className="flex flex-col items-stretch gap-3 px-4 py-3.5 bg-inset rounded-lg">
             <p className="text-[13px] font-semibold text-foreground m-0">Enable Corporation Tax</p>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2">
               <input
                 type="text"
                 placeholder="Unique Tax Reference (UTR)"
@@ -149,23 +152,34 @@ export default function SettingsTab({
                 onChange={(e) => setUtrInput(e.target.value)}
                 className="flex-1 px-2.5 py-2 text-[13px] border border-border rounded-md bg-card text-foreground"
               />
-              <button
-                onClick={handleEnableCorpTax}
-                disabled={saving}
-                className="bg-transparent border-0 px-3.5 py-2 text-xs font-semibold cursor-pointer rounded text-primary"
-              >
-                {saving ? "Saving\u2026" : "Save"}
-              </button>
-              <button
-                onClick={() => {
-                  setShowEnableForm(false);
-                  setUtrInput("");
-                }}
-                disabled={saving}
-                className="bg-transparent border-0 px-3.5 py-2 text-xs font-semibold cursor-pointer rounded text-secondary"
-              >
-                Cancel
-              </button>
+              <input
+                type="date"
+                value={ctapStartInput}
+                onChange={(e) => setCtapStartInput(e.target.value)}
+                className="flex-1 px-2.5 py-2 text-[13px] border border-border rounded-md bg-card text-foreground"
+              />
+              <p className="text-xs text-secondary m-0">
+                CT accounting period start date. Usually matches your accounts period start. If unsure, check your HMRC Business Tax Account or CT41G letter.
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleEnableCorpTax}
+                  disabled={saving}
+                  className="bg-transparent border-0 px-3.5 py-2 text-xs font-semibold cursor-pointer rounded text-primary"
+                >
+                  {saving ? "Saving\u2026" : "Save"}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowEnableForm(false);
+                    setUtrInput("");
+                  }}
+                  disabled={saving}
+                  className="bg-transparent border-0 px-3.5 py-2 text-xs font-semibold cursor-pointer rounded text-secondary"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}

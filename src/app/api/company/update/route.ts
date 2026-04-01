@@ -11,7 +11,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { companyId, registeredForCorpTax, uniqueTaxReference, shareCapital } = body;
+  const { companyId, registeredForCorpTax, uniqueTaxReference, shareCapital, ctapStartDate: ctapStartDateStr } = body;
 
   if (!companyId) {
     return NextResponse.json({ error: "companyId is required" }, { status: 400 });
@@ -37,7 +37,7 @@ export async function PATCH(req: NextRequest) {
     await prisma.$transaction([
       prisma.company.update({
         where: { id: companyId },
-        data: { registeredForCorpTax: false, uniqueTaxReference: null },
+        data: { registeredForCorpTax: false, uniqueTaxReference: null, ctapStartDate: null },
       }),
       // Delete outstanding ct600 Filings (keep accepted ones)
       prisma.filing.deleteMany({
@@ -71,10 +71,17 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "UTR must be exactly 10 digits" }, { status: 400 });
     }
 
+    // Parse optional ctapStartDate
+    const ctapStartDate = ctapStartDateStr ? new Date(ctapStartDateStr) : null;
+    if (ctapStartDate && isNaN(ctapStartDate.getTime())) {
+      return NextResponse.json({ error: "Invalid ctapStartDate" }, { status: 400 });
+    }
+
     // Create outstanding ct600 Filings for all existing outstanding periods
     const outstandingAccounts = await prisma.filing.findMany({
       where: { companyId, filingType: "accounts", status: "outstanding" },
       select: {
+        periodId: true,
         periodStart: true,
         periodEnd: true,
         accountsDeadline: true,
@@ -83,21 +90,39 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
-    const ct600Filings = outstandingAccounts.map((f) => ({
-      companyId,
-      filingType: "ct600" as const,
-      periodStart: f.periodStart,
-      periodEnd: f.periodEnd,
-      status: "outstanding" as const,
-      accountsDeadline: f.accountsDeadline,
-      ct600Deadline: f.ct600Deadline ?? calculateCT600Deadline(f.periodEnd),
-      suppressedAt: f.suppressedAt,
-    }));
+    const ct600Filings = outstandingAccounts.map((f) => {
+      // For first period, use ctapStartDate if provided; otherwise align with accounts
+      const ctapStart = ctapStartDate && ctapStartDate.getTime() >= f.periodStart.getTime() && ctapStartDate.getTime() <= f.periodEnd.getTime()
+        ? ctapStartDate
+        : f.periodStart;
+      const ctapEnd = f.periodEnd;
+      const ct600Deadline = calculateCT600Deadline(ctapEnd);
+
+      return {
+        companyId,
+        filingType: "ct600" as const,
+        periodStart: ctapStart,
+        periodEnd: ctapEnd,
+        status: "outstanding" as const,
+        accountsDeadline: f.accountsDeadline,
+        ct600Deadline: f.ct600Deadline ?? ct600Deadline,
+        suppressedAt: f.suppressedAt,
+        // New columns (dual-write)
+        periodId: f.periodId,
+        startDate: ctapStart,
+        endDate: ctapEnd,
+        deadline: ct600Deadline,
+      };
+    });
 
     await prisma.$transaction([
       prisma.company.update({
         where: { id: companyId },
-        data: { registeredForCorpTax: true, uniqueTaxReference },
+        data: {
+          registeredForCorpTax: true,
+          uniqueTaxReference,
+          ctapStartDate: ctapStartDate,
+        },
       }),
       prisma.filing.createMany({
         data: ct600Filings,

@@ -15,19 +15,24 @@ export async function rollForwardPeriod(
   filingType: "accounts" | "ct600",
   userEmail: string,
   companyName: string,
-  options?: { skipEmail?: boolean },
+  options?: { skipEmail?: boolean; startDate?: Date; endDate?: Date },
 ): Promise<void> {
   if (options?.skipEmail) return;
 
   try {
-    const filedPeriodStart = new Date(filedPeriodEnd);
-    filedPeriodStart.setUTCFullYear(filedPeriodStart.getUTCFullYear() - 1);
-    filedPeriodStart.setUTCDate(filedPeriodStart.getUTCDate() + 1);
+    // Use explicit startDate/endDate if provided (new model), otherwise derive from periodEnd
+    const periodStart = options?.startDate ?? (() => {
+      const d = new Date(filedPeriodEnd);
+      d.setUTCFullYear(d.getUTCFullYear() - 1);
+      d.setUTCDate(d.getUTCDate() + 1);
+      return d;
+    })();
+    const periodEnd = options?.endDate ?? filedPeriodEnd;
 
     const { subject, html } = buildFilingConfirmationEmail({
       companyName,
-      periodStart: filedPeriodStart,
-      periodEnd: filedPeriodEnd,
+      periodStart,
+      periodEnd,
       filingType,
     });
     await sendEmail({ to: userEmail, subject, html });

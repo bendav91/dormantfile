@@ -11,6 +11,7 @@ import SettingsTab from "@/components/settings-tab";
 import OverviewTab from "@/components/overview-tab";
 import ActivityTab from "@/components/activity-tab";
 import SyncButton from "@/components/sync-button";
+import ArdMismatchBanner from "@/components/ard-mismatch-banner";
 import { buildActivityTimeline } from "@/lib/activity-timeline";
 interface PageProps {
   params: Promise<{ companyId: string }>;
@@ -27,11 +28,12 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
     where: { id: companyId, userId: session.user.id, deletedAt: null },
     include: {
       filings: { orderBy: { createdAt: "desc" } },
+      periods: { orderBy: { periodEnd: "asc" } },
     },
   });
   if (!company) redirect("/dashboard");
 
-  const periods = buildPeriodViews(company.filings);
+  const periods = buildPeriodViews(company.filings, company.periods);
   const incompletePeriods = periods.filter((p) => !p.isComplete && !p.isSuppressed);
 
   const activeCT600Count = company.filings.filter(
@@ -85,6 +87,17 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           <SyncButton companyId={companyId} />
         </div>
       </div>
+
+      {/* ARD change banner */}
+      {company.ardChangeDetected && company.ardMonth != null && company.ardDay != null && company.newArdMonth != null && company.newArdDay != null && (
+        <ArdMismatchBanner
+          companyId={companyId}
+          currentArdMonth={company.ardMonth}
+          currentArdDay={company.ardDay}
+          newArdMonth={company.newArdMonth}
+          newArdDay={company.newArdDay}
+        />
+      )}
 
       {/* Tab bar */}
       <div className="flex border-b border-border mb-6">
@@ -150,6 +163,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           uniqueTaxReference={company.uniqueTaxReference}
           shareCapital={company.shareCapital}
           activeCT600Count={activeCT600Count}
+          firstPeriodStart={company.accountingPeriodStart.toISOString()}
         />
       )}
       {tab === "activity" && <ActivityTabSection companyId={companyId} companyCreatedAt={company.createdAt} filings={company.filings} />}
@@ -169,6 +183,8 @@ async function ActivityTabSection({
     filingType: string;
     periodStart: Date;
     periodEnd: Date;
+    startDate: Date | null;
+    endDate: Date | null;
     status: string;
     submittedAt: Date | null;
     confirmedAt: Date | null;
@@ -185,6 +201,8 @@ async function ActivityTabSection({
     filings.map((f) => ({
       ...f,
       filingType: f.filingType as "accounts" | "ct600",
+      startDate: f.startDate ?? null,
+      endDate: f.endDate ?? null,
     })),
     notifications,
   );

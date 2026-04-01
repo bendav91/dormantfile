@@ -20,12 +20,13 @@ function filing(overrides: Record<string, unknown> = {}) {
 
 function period(overrides: Partial<PeriodView> = {}): PeriodView {
   return {
+    periodId: "period-1",
     periodStart: new Date("2024-04-01"),
     periodEnd: new Date("2025-03-31"),
     accountsDeadline: new Date("2026-01-01"),
     ct600Deadline: new Date("2026-03-31"),
     accountsFiling: null,
-    ct600Filing: null,
+    ct600Filings: [],
     accountsFiled: false,
     ct600Filed: false,
     isComplete: false,

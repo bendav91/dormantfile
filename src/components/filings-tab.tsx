@@ -24,8 +24,11 @@ function formatShortDate(date: Date): string {
 interface Filing {
   id: string;
   filingType: string;
+  periodId: string | null;
   periodStart: Date;
   periodEnd: Date;
+  startDate: Date | null;
+  endDate: Date | null;
   status: FilingStatus;
   createdAt: Date;
   confirmedAt: Date | null;
@@ -57,16 +60,19 @@ export default function FilingsTab({
 
   // Build completed periods from Filing records (not from getOutstandingPeriods,
   // which only generates periods from the oldest unfiled forward)
-  const completedPeriodMap = new Map<number, { periodStart: Date; periodEnd: Date }>();
-  const filedElsewherePeriodMap = new Map<number, { periodStart: Date; periodEnd: Date }>();
+  const completedPeriodMap = new Map<string, { key: string; periodStart: Date; periodEnd: Date }>();
+  const filedElsewherePeriodMap = new Map<string, { key: string; periodStart: Date; periodEnd: Date }>();
   for (const f of filings) {
+    const key = f.periodId ?? String(f.periodEnd.getTime());
     if (f.filingType === "accounts" && f.status === "accepted") {
-      completedPeriodMap.set(f.periodEnd.getTime(), {
+      completedPeriodMap.set(key, {
+        key,
         periodStart: f.periodStart,
         periodEnd: f.periodEnd,
       });
     } else if (f.filingType === "accounts" && f.status === "filed_elsewhere") {
-      filedElsewherePeriodMap.set(f.periodEnd.getTime(), {
+      filedElsewherePeriodMap.set(key, {
+        key,
         periodStart: f.periodStart,
         periodEnd: f.periodEnd,
       });
@@ -78,12 +84,6 @@ export default function FilingsTab({
   const filedElsewherePeriods = [...filedElsewherePeriodMap.values()].sort(
     (a, b) => a.periodEnd.getTime() - b.periodEnd.getTime(),
   );
-
-  function getFilingForPeriod(period: PeriodView, filingType: "accounts" | "ct600") {
-    return filings.find(
-      (f) => f.filingType === filingType && f.periodEnd.getTime() === period.periodEnd.getTime(),
-    );
-  }
 
   const [activeTab, setActiveTab] = useState<"outstanding" | "suppressed" | "filed_elsewhere" | "completed">(
     "outstanding",
@@ -131,6 +131,19 @@ export default function FilingsTab({
             Suppressed ({suppressedPeriods.length})
           </button>
         )}
+        {filedElsewherePeriods.length > 0 && (
+          <button
+            className={cn(
+              "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
+              activeTab === "filed_elsewhere"
+                ? "bg-card text-foreground shadow-active"
+                : "bg-transparent text-secondary"
+            )}
+            onClick={() => setActiveTab("filed_elsewhere")}
+          >
+            Filed elsewhere ({filedElsewherePeriods.length})
+          </button>
+        )}
         <button
           className={cn(
             "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
@@ -149,8 +162,8 @@ export default function FilingsTab({
         <>
           <div className="flex flex-col gap-3">
             {incompletedPeriods.map((period, index) => {
-              const accountsFiling = getFilingForPeriod(period, "accounts");
-              const ct600Filing = getFilingForPeriod(period, "ct600");
+              const accountsFiling = period.accountsFiling;
+              const ct600Filing = period.ct600Filings[0] ?? null;
               const periodEndISO = period.periodEnd.toISOString().split("T")[0];
               const isFirst = index === 0;
 
@@ -260,7 +273,7 @@ export default function FilingsTab({
                                 <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="accounts" />
                                 {isFilingLive() && (
                                   <Link
-                                    href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
+                                    href={`/file/${companyId}/accounts?filingId=${accountsFiling.id}`}
                                     className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
                                   >
                                     Retry
@@ -272,9 +285,9 @@ export default function FilingsTab({
                         ) : (
                           <div className="flex items-center gap-1.5">
                             <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="accounts" />
-                            {isFilingLive() && (
+                            {isFilingLive() && accountsFiling && (
                               <Link
-                                href={`/file/${companyId}/accounts?periodEnd=${periodEndISO}`}
+                                href={`/file/${companyId}/accounts?filingId=${accountsFiling.id}`}
                                 className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
                               >
                                 File
@@ -291,6 +304,13 @@ export default function FilingsTab({
                         <div>
                           <p className="text-[13px] font-semibold text-foreground m-0">
                             CT600
+                            {ct600Filing?.startDate && ct600Filing?.endDate &&
+                              (ct600Filing.startDate.getTime() !== period.periodStart.getTime() ||
+                                ct600Filing.endDate.getTime() !== period.periodEnd.getTime()) && (
+                              <span className="text-xs font-normal text-secondary ml-1.5">
+                                ({formatShortDate(ct600Filing.startDate)} &ndash; {formatShortDate(ct600Filing.endDate)})
+                              </span>
+                            )}
                           </p>
                           <p className="text-xs text-secondary m-0">
                             Due: {formatShortDate(period.ct600Deadline)}
@@ -306,7 +326,7 @@ export default function FilingsTab({
                                   <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
                                   {isFilingLive() && (
                                     <Link
-                                      href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`}
+                                      href={`/file/${companyId}/ct600?filingId=${ct600Filing.id}`}
                                       className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
                                     >
                                       Retry
@@ -320,9 +340,9 @@ export default function FilingsTab({
                           ) : (
                             <>
                               <MarkFiledButton companyId={companyId} periodEnd={periodEndISO} filingType="ct600" />
-                              {isFilingLive() && (
+                              {isFilingLive() && ct600Filing && (
                                 <Link
-                                  href={`/file/${companyId}/ct600?periodEnd=${periodEndISO}`}
+                                  href={`/file/${companyId}/ct600?filingId=${ct600Filing.id}`}
                                   className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
                                 >
                                   File
@@ -413,18 +433,103 @@ export default function FilingsTab({
         </>
       )}
 
+      {/* Filed elsewhere tab */}
+      {activeTab === "filed_elsewhere" && (
+        <>
+          <div className="flex flex-col gap-3">
+            {[...filedElsewherePeriods].reverse().map((period) => {
+              const accountsFiling = filings.find(
+                (f) => f.filingType === "accounts" && f.status === "filed_elsewhere" &&
+                  (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
+              );
+              const ct600Filing = filings.find(
+                (f) => f.filingType === "ct600" &&
+                  (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
+              );
+
+              return (
+                <div
+                  key={period.periodEnd.toISOString()}
+                  className="bg-card rounded-xl p-5 shadow-card border border-border"
+                >
+                  {/* Period header */}
+                  <div className="flex items-center gap-2 mb-3.5">
+                    <span className="text-secondary flex">
+                      <Calendar size={16} color="currentColor" strokeWidth={2} />
+                    </span>
+                    <h2 className="text-base font-bold text-foreground m-0">
+                      {formatDate(period.periodStart)} &ndash; {formatDate(period.periodEnd)}
+                    </h2>
+                  </div>
+
+                  {/* Filing rows */}
+                  <div className="flex flex-col gap-1.5">
+                    {/* Accounts row */}
+                    <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
+                      <div>
+                        <p className="text-[13px] font-semibold text-foreground m-0">Accounts</p>
+                        <p className="text-xs text-secondary m-0">Filed elsewhere</p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {accountsFiling && (
+                          <UndoMarkFiledButton
+                            filingId={accountsFiling.id}
+                            onUndo={filedElsewherePeriods.length === 1 ? () => setActiveTab("outstanding") : undefined}
+                          />
+                        )}
+                        <FilingStatusBadge
+                          status={"filed_elsewhere" as FilingStatus}
+                          filingType="accounts"
+                        />
+                      </div>
+                    </div>
+
+                    {/* CT600 row */}
+                    {registeredForCorpTax && (
+                      <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
+                        <div>
+                          <p className="text-[13px] font-semibold text-foreground m-0">CT600</p>
+                          <p className="text-xs text-secondary m-0">
+                            {ct600Filing?.status === "filed_elsewhere"
+                              ? "Filed elsewhere"
+                              : "Not marked"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {ct600Filing?.status === "filed_elsewhere" && (
+                            <UndoMarkFiledButton filingId={ct600Filing.id} />
+                          )}
+                          {ct600Filing ? (
+                            <FilingStatusBadge status={ct600Filing.status} filingType="ct600" />
+                          ) : (
+                            <span className="py-1 px-2.5 rounded-full text-[11px] font-semibold bg-inset text-secondary border border-border">
+                              N/A
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
       {/* Completed tab */}
       {activeTab === "completed" && (
         <>
           {completedPeriods.length > 0 ? (
             <div className="flex flex-col gap-3">
               {[...completedPeriods].reverse().map((period) => {
-                const periodEndTime = period.periodEnd.getTime();
                 const accountsFiling = filings.find(
-                  (f) => f.filingType === "accounts" && f.periodEnd.getTime() === periodEndTime,
+                  (f) => f.filingType === "accounts" &&
+                    (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
                 );
                 const ct600Filing = filings.find(
-                  (f) => f.filingType === "ct600" && f.periodEnd.getTime() === periodEndTime,
+                  (f) => f.filingType === "ct600" &&
+                    (f.periodId ?? String(f.periodEnd.getTime())) === period.key,
                 );
 
                 return (
@@ -451,18 +556,14 @@ export default function FilingsTab({
                             Accounts
                           </p>
                           <p className="text-xs text-secondary m-0">
-                            {accountsFiling?.status === "filed_elsewhere"
-                              ? "Filed elsewhere"
-                              : accountsFiling?.confirmedAt
-                                ? `Accepted ${formatShortDate(accountsFiling.confirmedAt)}`
-                                : "Accepted"}
+                            {accountsFiling?.confirmedAt
+                              ? `Accepted ${formatShortDate(accountsFiling.confirmedAt)}`
+                              : "Accepted"}
                             {accountsFiling?.submittedAt && " \u00b7 Filed via DormantFile"}
                           </p>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          {accountsFiling?.status === "filed_elsewhere" ? (
-                            <UndoMarkFiledButton filingId={accountsFiling.id} />
-                          ) : accountsFiling?.submittedAt ? (
+                          {accountsFiling?.submittedAt ? (
                             <>
                               <CopyFilingSummary
                                 companyName={companyName}
@@ -498,11 +599,9 @@ export default function FilingsTab({
                             <p className="text-xs text-secondary m-0">
                               {ct600Filing ? (
                                 <>
-                                  {ct600Filing.status === "filed_elsewhere"
-                                    ? "Filed elsewhere"
-                                    : ct600Filing.confirmedAt
-                                      ? `Accepted ${formatShortDate(ct600Filing.confirmedAt)}`
-                                      : "Accepted"}
+                                  {ct600Filing.confirmedAt
+                                    ? `Accepted ${formatShortDate(ct600Filing.confirmedAt)}`
+                                    : "Accepted"}
                                   {ct600Filing.submittedAt && " \u00b7 Filed via DormantFile"}
                                 </>
                               ) : (
@@ -512,9 +611,7 @@ export default function FilingsTab({
                           </div>
                           {ct600Filing ? (
                             <div className="flex items-center gap-1.5">
-                              {ct600Filing.status === "filed_elsewhere" ? (
-                                <UndoMarkFiledButton filingId={ct600Filing.id} />
-                              ) : ct600Filing.submittedAt ? (
+                              {ct600Filing.submittedAt ? (
                                 <>
                                   <CopyFilingSummary
                                     companyName={companyName}

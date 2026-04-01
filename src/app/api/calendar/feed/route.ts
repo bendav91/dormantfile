@@ -59,28 +59,34 @@ export async function GET(req: NextRequest) {
 
   for (const company of companies) {
     for (const filing of company.filings) {
-      if (filing.accountsDeadline) {
+      const filingDeadline = filing.deadline ?? filing.accountsDeadline;
+      const filingEndDate = (filing.endDate ?? filing.periodEnd).toISOString().split("T")[0];
+
+      if (filing.filingType === "accounts" && filingDeadline) {
         lines.push("BEGIN:VEVENT");
         lines.push(`UID:${filing.id}-accounts@dormantfile.co.uk`);
         lines.push(`DTSTAMP:${now}`);
-        lines.push(`DTSTART;VALUE=DATE:${formatDateStamp(filing.accountsDeadline)}`);
+        lines.push(`DTSTART;VALUE=DATE:${formatDateStamp(filingDeadline)}`);
         lines.push(`SUMMARY:${escapeIcalText(`Accounts deadline: ${company.companyName}`)}`);
         lines.push(
-          `DESCRIPTION:${escapeIcalText(`Annual accounts due for ${company.companyName} (${company.companyRegistrationNumber}). Period ending ${filing.periodEnd.toISOString().split("T")[0]}.`)}`,
+          `DESCRIPTION:${escapeIcalText(`Annual accounts due for ${company.companyName} (${company.companyRegistrationNumber}). Period ending ${filingEndDate}.`)}`,
         );
         lines.push("END:VEVENT");
       }
 
-      if (company.registeredForCorpTax && filing.ct600Deadline) {
-        lines.push("BEGIN:VEVENT");
-        lines.push(`UID:${filing.id}-ct600@dormantfile.co.uk`);
-        lines.push(`DTSTAMP:${now}`);
-        lines.push(`DTSTART;VALUE=DATE:${formatDateStamp(filing.ct600Deadline)}`);
-        lines.push(`SUMMARY:${escapeIcalText(`CT600 deadline: ${company.companyName}`)}`);
-        lines.push(
-          `DESCRIPTION:${escapeIcalText(`Corporation Tax return due for ${company.companyName} (${company.companyRegistrationNumber}). Period ending ${filing.periodEnd.toISOString().split("T")[0]}.`)}`,
-        );
-        lines.push("END:VEVENT");
+      if (filing.filingType === "ct600" && filingDeadline) {
+        const ct600Deadline = filing.deadline ?? filing.ct600Deadline;
+        if (ct600Deadline) {
+          lines.push("BEGIN:VEVENT");
+          lines.push(`UID:${filing.id}-ct600@dormantfile.co.uk`);
+          lines.push(`DTSTAMP:${now}`);
+          lines.push(`DTSTART;VALUE=DATE:${formatDateStamp(ct600Deadline)}`);
+          lines.push(`SUMMARY:${escapeIcalText(`CT600 deadline: ${company.companyName}`)}`);
+          lines.push(
+            `DESCRIPTION:${escapeIcalText(`Corporation Tax return due for ${company.companyName} (${company.companyRegistrationNumber}). Period ending ${filingEndDate}.`)}`,
+          );
+          lines.push("END:VEVENT");
+        }
       }
     }
   }

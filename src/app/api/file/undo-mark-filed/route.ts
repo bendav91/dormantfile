@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Filing was not marked as filed elsewhere" }, { status: 400 });
   }
 
+  // Revert to outstanding — keep periodId and new columns intact so the
+  // filing stays linked to its Period, but clear confirmedAt.
   await prisma.filing.update({
     where: { id: filingId },
     data: { status: "outstanding", confirmedAt: null },

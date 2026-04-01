@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { rollForwardPeriod } from "@/lib/roll-forward";
+import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -16,23 +17,95 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { companyId, periodEnd, filingType } = body as {
+  const { companyId, periodEnd, filingType, filingId, ctapStartDate, ctapEndDate } = body as {
     companyId?: string;
     periodEnd?: string;
     filingType?: string;
+    filingId?: string;
+    ctapStartDate?: string;
+    ctapEndDate?: string;
   };
 
-  if (!companyId || !periodEnd || !filingType) {
+  // filingId is preferred lookup path; fall back to companyId + periodEnd + filingType
+  if (!filingId && (!companyId || !periodEnd || !filingType)) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  if (filingType !== "ct600" && filingType !== "accounts") {
+  if (filingType && filingType !== "ct600" && filingType !== "accounts") {
     return NextResponse.json(
       { error: "Invalid filing type" },
       { status: 400 },
     );
   }
 
+  // --- Lookup by filingId ---
+  if (filingId) {
+    const filing = await prisma.filing.findFirst({
+      where: { id: filingId },
+      include: { company: { select: { id: true, userId: true, deletedAt: true, registeredForCorpTax: true, companyName: true } } },
+    });
+
+    if (!filing || filing.company.userId !== session.user.id || filing.company.deletedAt) {
+      return NextResponse.json({ error: "Filing not found" }, { status: 404 });
+    }
+
+    if (filing.status !== "outstanding" && filing.status !== "failed" && filing.status !== "rejected") {
+      return NextResponse.json({ error: "A filing already exists for this period" }, { status: 409 });
+    }
+
+    // Compute new-model columns if not already set
+    const filingStartDate = filing.startDate ?? filing.periodStart;
+    const filingEndDate = filing.endDate ?? filing.periodEnd;
+    const filingDeadline = filing.deadline ?? (
+      filing.filingType === "ct600"
+        ? calculateCT600Deadline(filingEndDate)
+        : calculateAccountsDeadline(filingEndDate)
+    );
+
+    // Ensure parent Period exists
+    const period = await prisma.period.upsert({
+      where: {
+        companyId_periodStart_periodEnd: {
+          companyId: filing.companyId,
+          periodStart: filing.periodStart,
+          periodEnd: filing.periodEnd,
+        },
+      },
+      create: {
+        companyId: filing.companyId,
+        periodStart: filing.periodStart,
+        periodEnd: filing.periodEnd,
+        accountsDeadline: calculateAccountsDeadline(filing.periodEnd),
+      },
+      update: {},
+    });
+
+    await prisma.filing.update({
+      where: { id: filingId },
+      data: {
+        status: "filed_elsewhere",
+        confirmedAt: new Date(),
+        periodId: filing.periodId ?? period.id,
+        startDate: filingStartDate,
+        endDate: filingEndDate,
+        deadline: filingDeadline,
+      },
+    });
+
+    await rollForwardPeriod(
+      filing.companyId,
+      filing.periodEnd,
+      filing.company.registeredForCorpTax,
+      filing.filingType as "accounts" | "ct600",
+      user.email,
+      filing.company.companyName,
+      { skipEmail: true, startDate: filingStartDate, endDate: filingEndDate },
+    );
+
+    return NextResponse.json({ success: true });
+  }
+
+  // --- Legacy lookup by companyId + periodEnd + filingType ---
   const company = await prisma.company.findFirst({
     where: { id: companyId, userId: session.user.id, deletedAt: null },
   });
@@ -40,11 +113,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
-  const periodEndDate = new Date(periodEnd);
+  const periodEndDate = new Date(periodEnd!);
+  const typedFilingType = filingType as "accounts" | "ct600";
 
   // Check no existing filing for this period
   const existing = await prisma.filing.findFirst({
-    where: { companyId, filingType: filingType as "accounts" | "ct600", periodEnd: periodEndDate },
+    where: { companyId, filingType: typedFilingType, periodEnd: periodEndDate },
   });
   if (existing && existing.status !== "outstanding" && existing.status !== "failed" && existing.status !== "rejected") {
     return NextResponse.json({ error: "A filing already exists for this period" }, { status: 409 });
@@ -55,32 +129,72 @@ export async function POST(req: NextRequest) {
   periodStartDate.setUTCFullYear(periodStartDate.getUTCFullYear() - 1);
   periodStartDate.setUTCDate(periodStartDate.getUTCDate() + 1);
 
+  // For CT600: use explicit CTAP dates if provided, otherwise fall back to period dates
+  const filingStartDate = typedFilingType === "ct600" && ctapStartDate
+    ? new Date(ctapStartDate)
+    : periodStartDate;
+  const filingEndDate = typedFilingType === "ct600" && ctapEndDate
+    ? new Date(ctapEndDate)
+    : periodEndDate;
+  const filingDeadline = typedFilingType === "ct600"
+    ? calculateCT600Deadline(filingEndDate)
+    : calculateAccountsDeadline(filingEndDate);
+
+  // Ensure parent Period exists
+  const period = await prisma.period.upsert({
+    where: {
+      companyId_periodStart_periodEnd: {
+        companyId: companyId!,
+        periodStart: periodStartDate,
+        periodEnd: periodEndDate,
+      },
+    },
+    create: {
+      companyId: companyId!,
+      periodStart: periodStartDate,
+      periodEnd: periodEndDate,
+      accountsDeadline: calculateAccountsDeadline(periodEndDate),
+    },
+    update: {},
+  });
+
   if (existing) {
     await prisma.filing.update({
       where: { id: existing.id },
-      data: { status: "filed_elsewhere", confirmedAt: new Date() },
+      data: {
+        status: "filed_elsewhere",
+        confirmedAt: new Date(),
+        periodId: existing.periodId ?? period.id,
+        startDate: existing.startDate ?? filingStartDate,
+        endDate: existing.endDate ?? filingEndDate,
+        deadline: existing.deadline ?? filingDeadline,
+      },
     });
   } else {
     await prisma.filing.create({
       data: {
-        companyId,
-        filingType: filingType as "accounts" | "ct600",
+        companyId: companyId!,
+        filingType: typedFilingType,
         periodStart: periodStartDate,
         periodEnd: periodEndDate,
         status: "filed_elsewhere",
         confirmedAt: new Date(),
+        periodId: period.id,
+        startDate: filingStartDate,
+        endDate: filingEndDate,
+        deadline: filingDeadline,
       },
     });
   }
 
   await rollForwardPeriod(
-    companyId,
+    companyId!,
     periodEndDate,
     company.registeredForCorpTax,
-    filingType as "accounts" | "ct600",
+    typedFilingType,
     user.email,
     company.companyName,
-    { skipEmail: true },
+    { skipEmail: true, startDate: filingStartDate, endDate: filingEndDate },
   );
 
   return NextResponse.json({ success: true });

@@ -14,6 +14,9 @@ vi.mock("@/lib/db", () => ({
       createMany: vi.fn(),
       update: vi.fn(),
     },
+    period: {
+      upsert: vi.fn().mockResolvedValue({ id: "period-1" }),
+    },
   },
 }));
 

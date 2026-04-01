@@ -9,6 +9,7 @@ import {
 } from "@/lib/companies-house/submission-client";
 import { rollForwardPeriod } from "@/lib/roll-forward";
 import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
+import { FilingStatus } from "@prisma/client";
 
 // CH typically processes within 24h, so keep inline polling brief
 const POLL_TIMEOUT_MS = 30_000;
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
 
   let body: {
     companyId?: string;
+    filingId?: string;
     companyAuthCode?: string;
     periodStart?: string;
     periodEnd?: string;
@@ -71,15 +73,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "companyId is required" }, { status: 400 });
   }
 
-  if (!body.periodStart || !body.periodEnd) {
-    return NextResponse.json({ error: "periodStart and periodEnd are required" }, { status: 400 });
+  if (!body.filingId && (!body.periodStart || !body.periodEnd)) {
+    return NextResponse.json(
+      { error: "Either filingId or periodStart and periodEnd are required" },
+      { status: 400 },
+    );
   }
 
-  const targetPeriodStart = new Date(body.periodStart);
-  const targetPeriodEnd = new Date(body.periodEnd);
+  let targetPeriodStart: Date | undefined;
+  let targetPeriodEnd: Date | undefined;
 
-  if (isNaN(targetPeriodStart.getTime()) || isNaN(targetPeriodEnd.getTime())) {
-    return NextResponse.json({ error: "Invalid period dates" }, { status: 400 });
+  if (body.periodStart && body.periodEnd) {
+    targetPeriodStart = new Date(body.periodStart);
+    targetPeriodEnd = new Date(body.periodEnd);
+
+    if (isNaN(targetPeriodStart.getTime()) || isNaN(targetPeriodEnd.getTime())) {
+      return NextResponse.json({ error: "Invalid period dates" }, { status: 400 });
+    }
   }
 
   if (!companyAuthCode || !/^[A-Za-z0-9]{6}$/.test(companyAuthCode)) {
@@ -98,23 +108,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
   }
 
-  // Validate the requested period exists as an outstanding Filing
-  const outstandingFiling = await prisma.filing.findFirst({
-    where: {
-      companyId,
-      filingType: "accounts",
-      periodStart: targetPeriodStart,
-      periodEnd: targetPeriodEnd,
-      status: "outstanding",
-    },
-  });
+  // Validate the requested filing exists as outstanding.
+  // Prefer filingId lookup (new path), fall back to period dates (backward compat).
+  const outstandingFiling = body.filingId
+    ? await prisma.filing.findFirst({
+        where: {
+          id: body.filingId,
+          companyId,
+          filingType: "accounts",
+          status: "outstanding",
+        },
+      })
+    : await prisma.filing.findFirst({
+        where: {
+          companyId,
+          filingType: "accounts",
+          periodStart: targetPeriodStart,
+          periodEnd: targetPeriodEnd,
+          status: "outstanding",
+        },
+      });
   if (!outstandingFiling) {
     return NextResponse.json({ error: "Invalid period for this company" }, { status: 400 });
   }
 
+  // Resolve effective dates: prefer new columns, fall back to old
+  const effectiveStart: Date = outstandingFiling.startDate ?? outstandingFiling.periodStart;
+  const effectiveEnd: Date = outstandingFiling.endDate ?? outstandingFiling.periodEnd;
+
   const sixYearsAgo = new Date();
   sixYearsAgo.setUTCFullYear(sixYearsAgo.getUTCFullYear() - 6);
-  if (targetPeriodEnd.getTime() <= sixYearsAgo.getTime()) {
+  if (effectiveEnd.getTime() <= sixYearsAgo.getTime()) {
     return NextResponse.json(
       {
         error:
@@ -156,13 +180,14 @@ export async function POST(req: NextRequest) {
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
   await prisma.filing.updateMany({
     where: {
+      ...(body.filingId
+        ? { id: body.filingId }
+        : { periodStart: targetPeriodStart, periodEnd: targetPeriodEnd }),
       companyId,
       filingType: "accounts",
-      periodStart: targetPeriodStart,
-      periodEnd: targetPeriodEnd,
       OR: [
-        { status: { in: ["failed", "rejected"] } },
-        { status: "pending", createdAt: { lt: fiveMinutesAgo } },
+        { status: { in: [FilingStatus.failed, FilingStatus.rejected] } },
+        { status: FilingStatus.pending, createdAt: { lt: fiveMinutesAgo } },
       ],
     },
     data: {
@@ -178,11 +203,14 @@ export async function POST(req: NextRequest) {
   // Idempotency check
   const existingFiling = await prisma.filing.findFirst({
     where: {
+      ...(body.filingId
+        ? { id: body.filingId }
+        : { periodStart: targetPeriodStart, periodEnd: targetPeriodEnd }),
       companyId,
       filingType: "accounts",
-      periodStart: targetPeriodStart,
-      periodEnd: targetPeriodEnd,
-      status: { in: ["submitted", "polling_timeout", "accepted"] },
+      status: {
+        in: [FilingStatus.submitted, FilingStatus.polling_timeout, FilingStatus.accepted],
+      },
     },
   });
 
@@ -196,11 +224,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Transition outstanding filing to "pending"
-  const filing = await prisma.filing.update({
-    where: { id: outstandingFiling.id },
+  // Optimistic lock: transition outstanding -> pending atomically.
+  // If count is 0 another request already claimed this filing.
+  const lockResult = await prisma.filing.updateMany({
+    where: { id: outstandingFiling.id, status: "outstanding" },
     data: { status: "pending" },
   });
+
+  if (lockResult.count === 0) {
+    return NextResponse.json(
+      { error: "This filing is already being submitted" },
+      { status: 409 },
+    );
+  }
+
+  const filing = { ...outstandingFiling, status: "pending" as const };
 
   let credentials: ReturnType<typeof getPresenterCredentials>;
   let endpoint: string;
@@ -223,8 +261,8 @@ export async function POST(req: NextRequest) {
   const accountsIxbrl = generateDormantAccountsIxbrl({
     companyName: company.companyName,
     companyRegistrationNumber: company.companyRegistrationNumber,
-    periodStart: targetPeriodStart,
-    periodEnd: targetPeriodEnd,
+    periodStart: effectiveStart,
+    periodEnd: effectiveEnd,
     directorName: user.name,
     shareCapital: company.shareCapital,
   });
@@ -236,8 +274,8 @@ export async function POST(req: NextRequest) {
       {
         companyName: company.companyName,
         companyRegistrationNumber: company.companyRegistrationNumber,
-        periodStart: targetPeriodStart,
-        periodEnd: targetPeriodEnd,
+        periodStart: effectiveStart,
+        periodEnd: effectiveEnd,
         companyAuthCode,
         accountsIxbrl,
       },
@@ -309,11 +347,12 @@ export async function POST(req: NextRequest) {
 
       await rollForwardPeriod(
         companyId,
-        targetPeriodEnd,
+        effectiveEnd,
         company.registeredForCorpTax,
         "accounts",
         user.email,
         company.companyName,
+        { startDate: effectiveStart, endDate: effectiveEnd },
       );
 
       return NextResponse.json({ status: "accepted", filingId: filing.id });

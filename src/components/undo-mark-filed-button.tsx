@@ -6,9 +6,10 @@ import { cn } from "@/lib/cn";
 
 interface UndoMarkFiledButtonProps {
   filingId: string;
+  onUndo?: () => void;
 }
 
-export default function UndoMarkFiledButton({ filingId }: UndoMarkFiledButtonProps) {
+export default function UndoMarkFiledButton({ filingId, onUndo }: UndoMarkFiledButtonProps) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -22,6 +23,7 @@ export default function UndoMarkFiledButton({ filingId }: UndoMarkFiledButtonPro
         body: JSON.stringify({ filingId }),
       });
       if (res.ok) {
+        if (onUndo) onUndo();
         router.refresh();
       }
     } finally {

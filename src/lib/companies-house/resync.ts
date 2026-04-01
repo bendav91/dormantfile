@@ -4,6 +4,7 @@ import {
   detectAccountsGaps,
   computeFirstPeriodEnd,
 } from "@/lib/companies-house/filing-history";
+import { calculateAccountsDeadline } from "@/lib/utils";
 
 export interface ResyncResult {
   newFilingsCount: number;
@@ -95,6 +96,12 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
 
   const { dateOfCreation, ardMonth, ardDay, accountsDueOn } = profile;
 
+  // Detect ARD change before updating
+  const ardChanged =
+    company.ardMonth != null &&
+    company.ardDay != null &&
+    (company.ardMonth !== ardMonth || company.ardDay !== ardDay);
+
   // Update company with latest CH data
   await prisma.company.update({
     where: { id: companyId },
@@ -105,8 +112,18 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
       companyType: profile.companyType,
       registeredAddress: profile.registeredAddress,
       sicCodes: profile.sicCodes,
-      ardMonth,
-      ardDay,
+      // Only update ARD if no change detected (otherwise flag for user confirmation)
+      ...(ardChanged
+        ? {
+            ardChangeDetected: true,
+            ardChangeDetectedAt: new Date(),
+            newArdMonth: ardMonth,
+            newArdDay: ardDay,
+          }
+        : {
+            ardMonth,
+            ardDay,
+          }),
     },
   });
 
@@ -169,6 +186,17 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
         periodStart.setUTCDate(periodStart.getUTCDate() + 1);
       }
 
+      const accountsDeadline = calculateAccountsDeadline(periodEnd, new Date(dateOfCreation));
+
+      // Ensure a Period exists for this filing
+      const period = await prisma.period.upsert({
+        where: {
+          companyId_periodStart_periodEnd: { companyId, periodStart, periodEnd },
+        },
+        create: { companyId, periodStart, periodEnd, accountsDeadline },
+        update: {},
+      });
+
       await prisma.filing.create({
         data: {
           companyId,
@@ -177,6 +205,11 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
           periodEnd,
           status: "accepted",
           confirmedAt: new Date(),
+          // New columns (dual-write)
+          periodId: period.id,
+          startDate: periodStart,
+          endDate: periodEnd,
+          deadline: accountsDeadline,
         },
       });
       transitioned++;

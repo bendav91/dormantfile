@@ -122,13 +122,17 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const effectiveStart: Date = filing.startDate ?? filing.periodStart;
+    const effectiveEnd: Date = filing.endDate ?? filing.periodEnd;
+
     await rollForwardPeriod(
       filing.companyId,
-      filing.periodEnd,
+      effectiveEnd,
       filing.company.registeredForCorpTax,
       filing.filingType as "accounts" | "ct600",
       filing.company.user.email,
       filing.company.companyName,
+      { startDate: effectiveStart, endDate: effectiveEnd },
     );
 
     return NextResponse.json({ status: "accepted", filingId: filing.id });

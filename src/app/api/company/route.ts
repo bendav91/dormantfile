@@ -45,7 +45,13 @@ async function materialiseFilings(
   // Generate ALL periods from first period to present
   if (!firstPeriodEnd || !incDate) return;
 
-  const filingData: Array<{
+  // Build periods and filings together
+  interface PeriodData {
+    periodStart: Date;
+    periodEnd: Date;
+    accountsDeadline: Date;
+  }
+  interface FilingData {
     companyId: string;
     filingType: "accounts" | "ct600";
     periodStart: Date;
@@ -54,7 +60,15 @@ async function materialiseFilings(
     accountsDeadline: Date | null;
     ct600Deadline: Date | null;
     confirmedAt: Date | null;
-  }> = [];
+    // New columns
+    startDate: Date;
+    endDate: Date;
+    deadline: Date;
+    periodId?: string;
+  }
+
+  const periodsToCreate: PeriodData[] = [];
+  const filingData: FilingData[] = [];
 
   let pEnd = new Date(firstPeriodEnd);
   let pStart = new Date(incDate);
@@ -77,6 +91,13 @@ async function materialiseFilings(
     const finalAccountsDeadline =
       isLastPeriod && accountsDueOn ? new Date(accountsDueOn) : accountsDeadline;
 
+    // Track period for creation
+    periodsToCreate.push({
+      periodStart: new Date(pStart),
+      periodEnd: new Date(pEnd),
+      accountsDeadline: finalAccountsDeadline,
+    });
+
     // Accounts filing
     filingData.push({
       companyId,
@@ -87,6 +108,9 @@ async function materialiseFilings(
       accountsDeadline: finalAccountsDeadline,
       ct600Deadline,
       confirmedAt: isFiled ? new Date() : null,
+      startDate: new Date(pStart),
+      endDate: new Date(pEnd),
+      deadline: finalAccountsDeadline,
     });
 
     // CT600 filing (only outstanding — we don't know external CT600 status)
@@ -100,6 +124,9 @@ async function materialiseFilings(
         accountsDeadline: finalAccountsDeadline,
         ct600Deadline,
         confirmedAt: null,
+        startDate: new Date(pStart),
+        endDate: new Date(pEnd),
+        deadline: ct600Deadline,
       });
     }
 
@@ -112,9 +139,38 @@ async function materialiseFilings(
     pEnd = nextEnd;
   }
 
-  if (filingData.length > 0) {
+  if (periodsToCreate.length > 0) {
+    // Create Period records and build a lookup for linking filings
+    const periodIdMap = new Map<number, string>();
+
+    for (const p of periodsToCreate) {
+      const period = await prisma.period.upsert({
+        where: {
+          companyId_periodStart_periodEnd: {
+            companyId,
+            periodStart: p.periodStart,
+            periodEnd: p.periodEnd,
+          },
+        },
+        create: {
+          companyId,
+          periodStart: p.periodStart,
+          periodEnd: p.periodEnd,
+          accountsDeadline: p.accountsDeadline,
+        },
+        update: {},
+      });
+      periodIdMap.set(p.periodEnd.getTime(), period.id);
+    }
+
+    // Link filings to their Period
+    const linkedFilings = filingData.map((f) => ({
+      ...f,
+      periodId: periodIdMap.get(f.periodEnd.getTime()) ?? undefined,
+    }));
+
     await prisma.filing.createMany({
-      data: filingData,
+      data: linkedFilings,
       skipDuplicates: true,
     });
   }

@@ -12,7 +12,7 @@ function formatDate(date: Date): string {
 
 interface PageProps {
   params: Promise<{ companyId: string }>;
-  searchParams: Promise<{ periodEnd?: string }>;
+  searchParams: Promise<{ filingId?: string; periodEnd?: string }>;
 }
 
 export default async function CT600FilingPage({ params, searchParams }: PageProps) {
@@ -20,7 +20,7 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
   if (!session?.user?.id) redirect("/login");
 
   const { companyId } = await params;
-  const { periodEnd: periodEndParam } = await searchParams;
+  const { filingId, periodEnd: periodEndParam } = await searchParams;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user || (user.subscriptionStatus !== "active" && user.subscriptionStatus !== "cancelling"))
@@ -32,19 +32,25 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
   if (!company) redirect("/dashboard");
   if (!company.registeredForCorpTax) redirect(`/company/${companyId}`);
 
-  // Resolve target period from search param or fall back to company's current period
+  // Resolve target period: filingId takes priority, then periodEnd param, then redirect
   let periodStart: Date;
   let periodEnd: Date;
 
-  if (periodEndParam) {
+  if (filingId) {
+    const filing = await prisma.filing.findFirst({
+      where: { id: filingId, companyId: company.id, company: { userId: session.user.id } },
+    });
+    if (!filing) redirect(`/company/${companyId}`);
+    periodStart = filing.startDate ?? filing.periodStart;
+    periodEnd = filing.endDate ?? filing.periodEnd;
+  } else if (periodEndParam) {
     periodEnd = new Date(periodEndParam);
     if (isNaN(periodEnd.getTime())) redirect(`/company/${companyId}`);
     periodStart = new Date(periodEnd);
     periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
     periodStart.setUTCDate(periodStart.getUTCDate() + 1);
   } else {
-    periodStart = company.accountingPeriodStart;
-    periodEnd = company.accountingPeriodEnd;
+    redirect(`/company/${companyId}`);
   }
 
   return (

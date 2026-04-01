@@ -6,9 +6,13 @@ function filing(overrides: Partial<FilingRecord> = {}): FilingRecord {
     id: "filing-1",
     companyId: "comp-1",
     filingType: "accounts",
+    periodId: null,
     periodStart: new Date("2024-04-01"),
     periodEnd: new Date("2025-03-31"),
+    startDate: null,
+    endDate: null,
     status: "outstanding",
+    deadline: null,
     accountsDeadline: new Date("2025-12-31"),
     ct600Deadline: new Date("2026-03-31"),
     suppressedAt: null,
@@ -29,7 +33,7 @@ describe("buildPeriodViews", () => {
     const views = buildPeriodViews(filings);
     expect(views).toHaveLength(1);
     expect(views[0].accountsFiling?.id).toBe("a");
-    expect(views[0].ct600Filing?.id).toBe("c");
+    expect(views[0].ct600Filings[0]?.id).toBe("c");
   });
 
   it("marks period as complete when accounts is accepted", () => {
