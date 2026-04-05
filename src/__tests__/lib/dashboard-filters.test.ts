@@ -11,8 +11,6 @@ function filing(overrides: Record<string, unknown> = {}) {
     filingType: "accounts" as string,
     status: "outstanding" as string,
     deadline: new Date("2026-01-01") as Date | null,
-    accountsDeadline: null as Date | null,
-    ct600Deadline: null as Date | null,
     suppressedAt: null as Date | null,
     confirmedAt: null as Date | null,
     ...overrides,

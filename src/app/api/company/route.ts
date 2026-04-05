@@ -52,10 +52,7 @@ async function materialiseFilings(
     periodStart: Date;
     periodEnd: Date;
     status: "accepted" | "outstanding";
-    accountsDeadline: Date | null;
-    ct600Deadline: Date | null;
     confirmedAt: Date | null;
-    // New columns
     startDate: Date;
     endDate: Date;
     deadline: Date;
@@ -91,8 +88,6 @@ async function materialiseFilings(
       periodStart: new Date(pStart),
       periodEnd: new Date(pEnd),
       status: isFiled ? "accepted" : "outstanding",
-      accountsDeadline: finalAccountsDeadline,
-      ct600Deadline,
       confirmedAt: isFiled ? new Date() : null,
       startDate: new Date(pStart),
       endDate: new Date(pEnd),
@@ -107,8 +102,6 @@ async function materialiseFilings(
         periodStart: new Date(pStart),
         periodEnd: new Date(pEnd),
         status: "outstanding",
-        accountsDeadline: finalAccountsDeadline,
-        ct600Deadline,
         confirmedAt: null,
         startDate: new Date(pStart),
         endDate: new Date(pEnd),
