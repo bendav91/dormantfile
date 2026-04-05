@@ -188,15 +188,6 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
 
       const accountsDeadline = calculateAccountsDeadline(periodEnd, new Date(dateOfCreation));
 
-      // Ensure a Period exists for this filing
-      const period = await prisma.period.upsert({
-        where: {
-          companyId_periodStart_periodEnd: { companyId, periodStart, periodEnd },
-        },
-        create: { companyId, periodStart, periodEnd, accountsDeadline },
-        update: {},
-      });
-
       await prisma.filing.create({
         data: {
           companyId,
@@ -206,7 +197,6 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
           status: "accepted",
           confirmedAt: new Date(),
           // New columns (dual-write)
-          periodId: period.id,
           startDate: periodStart,
           endDate: periodEnd,
           deadline: accountsDeadline,

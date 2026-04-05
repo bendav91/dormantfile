@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
-import { getNextCtapStart, findParentPeriod } from "@/lib/ctap";
+import { getNextCtapStart } from "@/lib/ctap";
 
 /**
  * Daily cron (07:30) — creates Period records and outstanding Filing records
@@ -33,10 +33,6 @@ export async function GET(req: NextRequest) {
       id: true,
       registeredForCorpTax: true,
       ctapStartDate: true,
-      periods: {
-        select: { id: true, periodStart: true, periodEnd: true, accountsDeadline: true },
-        orderBy: { periodEnd: "desc" },
-      },
       filings: {
         select: { periodEnd: true, endDate: true, filingType: true },
         orderBy: { periodEnd: "desc" },
@@ -48,10 +44,8 @@ export async function GET(req: NextRequest) {
 
   // ── Loop 1: Accounts periods ──────────────────────────────────────────
   for (const company of companies) {
-    // Find latest period end: prefer Period records, fall back to Filing
-    const latestPeriod = company.periods[0];
     const latestFiling = company.filings[0];
-    let latestPeriodEnd = latestPeriod?.periodEnd ?? latestFiling?.periodEnd;
+    let latestPeriodEnd = latestFiling?.periodEnd;
 
     if (!latestPeriodEnd) continue;
 
@@ -64,30 +58,8 @@ export async function GET(req: NextRequest) {
       if (nextEnd.getTime() > now.getTime()) break;
 
       const accountsDeadline = calculateAccountsDeadline(nextEnd);
-      const ct600Deadline = calculateCT600Deadline(nextEnd);
 
-      // Create Period record
-      const period = await prisma.period.upsert({
-        where: {
-          companyId_periodStart_periodEnd: {
-            companyId: company.id,
-            periodStart: nextStart,
-            periodEnd: nextEnd,
-          },
-        },
-        create: {
-          companyId: company.id,
-          periodStart: nextStart,
-          periodEnd: nextEnd,
-          accountsDeadline,
-        },
-        update: {},
-      });
-
-      // Keep the in-memory list current for Loop 2
-      company.periods.push(period);
-
-      // Create accounts Filing — dual-write old + new columns
+      // Create accounts Filing
       await prisma.filing.upsert({
         where: {
           companyId_periodStart_periodEnd_filingType: {
@@ -103,10 +75,6 @@ export async function GET(req: NextRequest) {
           periodStart: nextStart,
           periodEnd: nextEnd,
           status: "outstanding",
-          accountsDeadline,
-          ct600Deadline,
-          // New columns
-          periodId: period.id,
           startDate: nextStart,
           endDate: nextEnd,
           deadline: accountsDeadline,
@@ -140,10 +108,6 @@ export async function GET(req: NextRequest) {
       if (ctapEnd.getTime() > now.getTime()) break;
 
       const ct600Deadline = calculateCT600Deadline(ctapEnd);
-      const accountsDeadline = calculateAccountsDeadline(ctapEnd);
-
-      // Find the parent Period that contains this CTAP's start date
-      const parentPeriod = findParentPeriod(ctapStart, company.periods);
 
       await prisma.filing.upsert({
         where: {
@@ -157,14 +121,9 @@ export async function GET(req: NextRequest) {
         create: {
           companyId: company.id,
           filingType: "ct600",
-          // Old columns (backward compat)
           periodStart: ctapStart,
           periodEnd: ctapEnd,
-          accountsDeadline,
-          ct600Deadline,
           status: "outstanding",
-          // New columns
-          periodId: parentPeriod?.id ?? null,
           startDate: ctapStart,
           endDate: ctapEnd,
           deadline: ct600Deadline,

@@ -297,8 +297,7 @@ export async function getCustomerDetail(userId: string) {
               periodStart: true,
               periodEnd: true,
               status: true,
-              accountsDeadline: true,
-              ct600Deadline: true,
+              deadline: true,
               submittedAt: true,
               confirmedAt: true,
               correlationId: true,
@@ -344,21 +343,9 @@ export async function getFilingsList(params: {
   }
 
   if (deadline === "overdue") {
-    conditions.push({
-      OR: [
-        { deadline: { lt: now }, status: "outstanding" },
-        { accountsDeadline: { lt: now }, status: "outstanding" },
-        { ct600Deadline: { lt: now }, status: "outstanding" },
-      ],
-    });
+    conditions.push({ deadline: { lt: now }, status: "outstanding" });
   } else if (deadline === "due_soon") {
-    conditions.push({
-      OR: [
-        { deadline: { gte: now, lte: thirtyDays }, status: "outstanding" },
-        { accountsDeadline: { gte: now, lte: thirtyDays }, status: "outstanding" },
-        { ct600Deadline: { gte: now, lte: thirtyDays }, status: "outstanding" },
-      ],
-    });
+    conditions.push({ deadline: { gte: now, lte: thirtyDays }, status: "outstanding" });
   }
 
   const where = conditions.length > 0 ? { AND: conditions } : {};
@@ -370,7 +357,7 @@ export async function getFilingsList(params: {
   } else if (sort === "submitted") {
     orderBy = { submittedAt: order };
   } else {
-    orderBy = { accountsDeadline: order };
+    orderBy = { deadline: order };
   }
 
   const [filings, total] = await Promise.all([
@@ -384,8 +371,6 @@ export async function getFilingsList(params: {
         startDate: true,
         endDate: true,
         status: true,
-        accountsDeadline: true,
-        ct600Deadline: true,
         deadline: true,
         submittedAt: true,
         confirmedAt: true,
@@ -412,9 +397,7 @@ export async function getFilingsList(params: {
       periodStart: (f.startDate ?? f.periodStart).toISOString(),
       periodEnd: (f.endDate ?? f.periodEnd).toISOString(),
       status: f.status,
-      deadline: (f.deadline ?? f.accountsDeadline ?? f.ct600Deadline)?.toISOString() ?? null,
-      accountsDeadline: f.accountsDeadline?.toISOString() ?? null,
-      ct600Deadline: f.ct600Deadline?.toISOString() ?? null,
+      deadline: f.deadline?.toISOString() ?? null,
       submittedAt: f.submittedAt?.toISOString() ?? null,
       confirmedAt: f.confirmedAt?.toISOString() ?? null,
       correlationId: f.correlationId,

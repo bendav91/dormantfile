@@ -1,14 +1,20 @@
-import type { PeriodView } from "@/lib/filing-queries";
+import type { FilingStatus } from "@prisma/client";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
+function isFiled(status: FilingStatus | string): boolean {
+  return status === "accepted" || status === "filed_elsewhere";
+}
+
 interface FilingLike {
+  filingType: string;
   status: string;
+  deadline: Date | null;
+  suppressedAt: Date | null;
   confirmedAt: Date | null;
 }
 
 interface CompanyForCounts {
-  periods: PeriodView[];
   registeredForCorpTax: boolean;
   filings: FilingLike[];
 }
@@ -23,30 +29,25 @@ export interface FilterCounts {
 export type FilterType = "needs-attention" | "recently-filed" | "issues" | "";
 
 export function matchesNeedsAttention(
-  periods: PeriodView[],
+  filings: FilingLike[],
   registeredForCorpTax: boolean,
 ): boolean {
   const now = Date.now();
-  return periods.some((p) => {
-    if (p.isComplete || p.isSuppressed) return false;
-    if (p.isOverdue) return true;
-    const accountsDueSoon =
-      !p.accountsFiled &&
-      p.accountsDeadline.getTime() >= now &&
-      p.accountsDeadline.getTime() <= now + THIRTY_DAYS_MS;
-    const ct600DueSoon =
-      registeredForCorpTax &&
-      !p.ct600Filed &&
-      p.ct600Deadline.getTime() >= now &&
-      p.ct600Deadline.getTime() <= now + THIRTY_DAYS_MS;
-    return accountsDueSoon || ct600DueSoon;
+  return filings.some((f) => {
+    if (isFiled(f.status) || f.suppressedAt != null) return false;
+    if (f.filingType === "ct600" && !registeredForCorpTax) return false;
+    const deadline = f.deadline;
+    if (!deadline) return false;
+    const dl = deadline.getTime();
+    if (dl < now) return true; // overdue
+    return dl >= now && dl <= now + THIRTY_DAYS_MS; // due soon
   });
 }
 
 export function matchesRecentlyFiled(filings: FilingLike[]): boolean {
   const cutoff = Date.now() - THIRTY_DAYS_MS;
   return filings.some(
-    (f) => (f.status === "accepted" || f.status === "filed_elsewhere") && f.confirmedAt && f.confirmedAt.getTime() >= cutoff,
+    (f) => isFiled(f.status) && f.confirmedAt && f.confirmedAt.getTime() >= cutoff,
   );
 }
 
@@ -58,7 +59,7 @@ export function computeFilterCounts(companies: CompanyForCounts[]): FilterCounts
   const counts: FilterCounts = { all: 0, needsAttention: 0, recentlyFiled: 0, issues: 0 };
   for (const c of companies) {
     counts.all++;
-    if (matchesNeedsAttention(c.periods, c.registeredForCorpTax)) counts.needsAttention++;
+    if (matchesNeedsAttention(c.filings, c.registeredForCorpTax)) counts.needsAttention++;
     if (matchesRecentlyFiled(c.filings)) counts.recentlyFiled++;
     if (matchesIssues(c.filings)) counts.issues++;
   }
@@ -67,13 +68,12 @@ export function computeFilterCounts(companies: CompanyForCounts[]): FilterCounts
 
 export function matchesFilter(
   filter: FilterType,
-  periods: PeriodView[],
-  registeredForCorpTax: boolean,
   filings: FilingLike[],
+  registeredForCorpTax: boolean,
 ): boolean {
   switch (filter) {
     case "needs-attention":
-      return matchesNeedsAttention(periods, registeredForCorpTax);
+      return matchesNeedsAttention(filings, registeredForCorpTax);
     case "recently-filed":
       return matchesRecentlyFiled(filings);
     case "issues":

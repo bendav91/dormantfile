@@ -45,12 +45,7 @@ async function materialiseFilings(
   // Generate ALL periods from first period to present
   if (!firstPeriodEnd || !incDate) return;
 
-  // Build periods and filings together
-  interface PeriodData {
-    periodStart: Date;
-    periodEnd: Date;
-    accountsDeadline: Date;
-  }
+  // Build filings
   interface FilingData {
     companyId: string;
     filingType: "accounts" | "ct600";
@@ -64,10 +59,8 @@ async function materialiseFilings(
     startDate: Date;
     endDate: Date;
     deadline: Date;
-    periodId?: string;
   }
 
-  const periodsToCreate: PeriodData[] = [];
   const filingData: FilingData[] = [];
 
   let pEnd = new Date(firstPeriodEnd);
@@ -90,13 +83,6 @@ async function materialiseFilings(
     })();
     const finalAccountsDeadline =
       isLastPeriod && accountsDueOn ? new Date(accountsDueOn) : accountsDeadline;
-
-    // Track period for creation
-    periodsToCreate.push({
-      periodStart: new Date(pStart),
-      periodEnd: new Date(pEnd),
-      accountsDeadline: finalAccountsDeadline,
-    });
 
     // Accounts filing
     filingData.push({
@@ -139,38 +125,9 @@ async function materialiseFilings(
     pEnd = nextEnd;
   }
 
-  if (periodsToCreate.length > 0) {
-    // Create Period records and build a lookup for linking filings
-    const periodIdMap = new Map<number, string>();
-
-    for (const p of periodsToCreate) {
-      const period = await prisma.period.upsert({
-        where: {
-          companyId_periodStart_periodEnd: {
-            companyId,
-            periodStart: p.periodStart,
-            periodEnd: p.periodEnd,
-          },
-        },
-        create: {
-          companyId,
-          periodStart: p.periodStart,
-          periodEnd: p.periodEnd,
-          accountsDeadline: p.accountsDeadline,
-        },
-        update: {},
-      });
-      periodIdMap.set(p.periodEnd.getTime(), period.id);
-    }
-
-    // Link filings to their Period
-    const linkedFilings = filingData.map((f) => ({
-      ...f,
-      periodId: periodIdMap.get(f.periodEnd.getTime()) ?? undefined,
-    }));
-
+  if (filingData.length > 0) {
     await prisma.filing.createMany({
-      data: linkedFilings,
+      data: filingData,
       skipDuplicates: true,
     });
   }

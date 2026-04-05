@@ -71,23 +71,3 @@ export function getNextCtapStart(
   return fromChain ?? ctapStartDate;
 }
 
-/**
- * Find the parent Period that a CTAP belongs to.
- * A CTAP links to the Period whose date range contains the CTAP's start date.
- *
- * @param ctapStart - Start date of the CTAP
- * @param periods - Available Period records to match against
- * @returns The matching Period, or null if none found
- */
-export function findParentPeriod<T extends { periodStart: Date; periodEnd: Date }>(
-  ctapStart: Date,
-  periods: T[],
-): T | null {
-  return (
-    periods.find(
-      (p) =>
-        ctapStart.getTime() >= p.periodStart.getTime() &&
-        ctapStart.getTime() <= p.periodEnd.getTime(),
-    ) ?? null
-  );
-}

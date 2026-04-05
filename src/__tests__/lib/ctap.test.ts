@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeCtaps, getNextCtapStart, findParentPeriod } from "@/lib/ctap";
+import { computeCtaps, getNextCtapStart } from "@/lib/ctap";
 
 describe("computeCtaps", () => {
   it("generates 12-month CTAPs from anchor date", () => {
@@ -73,30 +73,3 @@ describe("getNextCtapStart", () => {
   });
 });
 
-describe("findParentPeriod", () => {
-  const periods = [
-    { id: "p1", periodStart: new Date("2023-04-01"), periodEnd: new Date("2024-03-31") },
-    { id: "p2", periodStart: new Date("2024-04-01"), periodEnd: new Date("2025-03-31") },
-    { id: "p3", periodStart: new Date("2025-04-01"), periodEnd: new Date("2026-03-31") },
-  ];
-
-  it("finds the period containing the CTAP start date", () => {
-    const result = findParentPeriod(new Date("2024-06-15"), periods);
-    expect(result?.id).toBe("p2");
-  });
-
-  it("matches when CTAP starts on the period start date", () => {
-    const result = findParentPeriod(new Date("2024-04-01"), periods);
-    expect(result?.id).toBe("p2");
-  });
-
-  it("matches when CTAP starts on the period end date", () => {
-    const result = findParentPeriod(new Date("2025-03-31"), periods);
-    expect(result?.id).toBe("p2");
-  });
-
-  it("returns null when no period contains the date", () => {
-    const result = findParentPeriod(new Date("2022-01-01"), periods);
-    expect(result).toBeNull();
-  });
-});

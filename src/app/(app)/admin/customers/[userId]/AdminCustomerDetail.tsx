@@ -13,8 +13,7 @@ interface Filing {
   periodStart: string;
   periodEnd: string;
   status: string;
-  accountsDeadline: string | null;
-  ct600Deadline: string | null;
+  deadline: string | null;
   submittedAt: string | null;
   confirmedAt: string | null;
   hasCorrelationId: boolean;
@@ -129,7 +128,7 @@ export function AdminCustomerDetail({ companies, review }: AdminCustomerDetailPr
               {isOpen && company.filings.length > 0 && (
                 <div className="border-t border-border">
                   {company.filings.map((filing) => {
-                    const deadline = filing.filingType === "accounts" ? filing.accountsDeadline : filing.ct600Deadline;
+                    const deadline = filing.deadline;
                     const isOverdue = deadline && new Date(deadline) < new Date() && filing.status === "outstanding";
                     const canRetry = filing.status === "submitted" || (filing.status === "failed" && filing.hasCorrelationId);
                     const canReset = filing.status === "rejected" || filing.status === "failed";

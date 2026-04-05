@@ -6,15 +6,12 @@ function filing(overrides: Partial<FilingRecord> = {}): FilingRecord {
     id: "filing-1",
     companyId: "comp-1",
     filingType: "accounts",
-    periodId: null,
     periodStart: new Date("2024-04-01"),
     periodEnd: new Date("2025-03-31"),
     startDate: null,
     endDate: null,
     status: "outstanding",
-    deadline: null,
-    accountsDeadline: new Date("2025-12-31"),
-    ct600Deadline: new Date("2026-03-31"),
+    deadline: new Date("2025-12-31"),
     suppressedAt: null,
     correlationId: null,
     submittedAt: null,
@@ -53,7 +50,7 @@ describe("buildPeriodViews", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-01"));
 
-    const filings = [filing({ accountsDeadline: new Date("2025-12-31") })];
+    const filings = [filing({ deadline: new Date("2025-12-31") })];
     const views = buildPeriodViews(filings);
     expect(views[0].isOverdue).toBe(true);
 
@@ -66,7 +63,7 @@ describe("buildPeriodViews", () => {
 
     const filings = [
       filing({
-        accountsDeadline: new Date("2025-12-31"),
+        deadline: new Date("2025-12-31"),
         suppressedAt: new Date("2026-01-01"),
       }),
     ];
@@ -86,13 +83,13 @@ describe("buildPeriodViews", () => {
         id: "a1",
         periodStart: new Date("2023-04-01"),
         periodEnd: new Date("2024-03-31"),
-        accountsDeadline: new Date("2024-12-31"),
+        deadline: new Date("2024-12-31"),
       }),
       filing({
         id: "a2",
         periodStart: new Date("2024-04-01"),
         periodEnd: new Date("2025-03-31"),
-        accountsDeadline: new Date("2025-12-31"),
+        deadline: new Date("2025-12-31"),
       }),
     ];
     const views = buildPeriodViews(filings);
@@ -111,14 +108,14 @@ describe("buildPeriodViews", () => {
         id: "a1",
         periodStart: new Date("2023-04-01"),
         periodEnd: new Date("2024-03-31"),
-        accountsDeadline: new Date("2024-12-31"),
+        deadline: new Date("2024-12-31"),
         suppressedAt: new Date("2026-01-01"),
       }),
       filing({
         id: "a2",
         periodStart: new Date("2024-04-01"),
         periodEnd: new Date("2025-03-31"),
-        accountsDeadline: new Date("2025-12-31"),
+        deadline: new Date("2025-12-31"),
       }),
     ];
     const views = buildPeriodViews(filings);
@@ -136,7 +133,7 @@ describe("buildPeriodViews", () => {
       filing({
         periodStart: new Date("2018-04-01"),
         periodEnd: new Date("2019-03-31"),
-        accountsDeadline: new Date("2019-12-31"),
+        deadline: new Date("2019-12-31"),
       }),
     ];
     const views = buildPeriodViews(filings);
@@ -152,13 +149,13 @@ describe("buildPeriodViews", () => {
         id: "b",
         periodStart: new Date("2025-04-01"),
         periodEnd: new Date("2026-03-31"),
-        accountsDeadline: new Date("2026-12-31"),
+        deadline: new Date("2026-12-31"),
       }),
       filing({
         id: "a",
         periodStart: new Date("2024-04-01"),
         periodEnd: new Date("2025-03-31"),
-        accountsDeadline: new Date("2025-12-31"),
+        deadline: new Date("2025-12-31"),
       }),
     ];
     const views = buildPeriodViews(filings);

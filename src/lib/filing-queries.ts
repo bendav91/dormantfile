@@ -4,15 +4,12 @@ export interface FilingRecord {
   id: string;
   companyId: string;
   filingType: FilingType;
-  periodId: string | null;
   periodStart: Date;
   periodEnd: Date;
   startDate: Date | null;
   endDate: Date | null;
   status: FilingStatus;
   deadline: Date | null;
-  accountsDeadline: Date | null;
-  ct600Deadline: Date | null;
   suppressedAt: Date | null;
   correlationId: string | null;
   submittedAt: Date | null;
@@ -78,11 +75,10 @@ function buildFromPeriods(
   fourYearsAgo: Date,
   sixYearsAgo: Date,
 ): PeriodView[] {
-  // Index filings by periodId
+  // Index filings by period (match on periodEnd timestamp)
   const filingsByPeriod = new Map<string, FilingRecord[]>();
   for (const f of filings) {
-    const key = f.periodId;
-    if (!key) continue;
+    const key = f.periodEnd.getTime().toString();
     if (!filingsByPeriod.has(key)) filingsByPeriod.set(key, []);
     filingsByPeriod.get(key)!.push(f);
   }
@@ -95,7 +91,7 @@ function buildFromPeriods(
   const views: PeriodView[] = [];
 
   for (const period of sorted) {
-    const periodFilings = filingsByPeriod.get(period.id) ?? [];
+    const periodFilings = filingsByPeriod.get(period.periodEnd.getTime().toString()) ?? [];
     const accountsFiling = periodFilings.find((f) => f.filingType === "accounts") ?? null;
     const ct600Filings = periodFilings.filter((f) => f.filingType === "ct600");
 
@@ -187,17 +183,15 @@ function buildFromFilings(
     const isSuppressed = group.accounts?.suppressedAt != null;
 
     const accountsDeadline =
-      group.accounts?.deadline ?? group.accounts?.accountsDeadline ?? group.periodEnd;
+      group.accounts?.deadline ?? group.periodEnd;
     const ct600Deadline =
       group.ct600Filings[0]?.deadline ??
-      group.accounts?.ct600Deadline ??
-      group.ct600Filings[0]?.ct600Deadline ??
       group.periodEnd;
 
     const isOverdue = !isComplete && !isSuppressed && accountsDeadline.getTime() < now.getTime();
 
     views.push({
-      periodId: group.accounts?.periodId ?? group.ct600Filings[0]?.periodId ?? "",
+      periodId: "",
       periodStart: group.periodStart,
       periodEnd: group.periodEnd,
       accountsDeadline,

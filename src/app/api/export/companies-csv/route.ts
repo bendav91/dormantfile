@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { buildPeriodViews } from "@/lib/filing-queries";
 
 function escapeCSV(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
@@ -12,6 +11,10 @@ function escapeCSV(value: string): string {
 
 function formatISODate(date: Date): string {
   return date.toISOString().split("T")[0];
+}
+
+function isFiled(status: string): boolean {
+  return status === "accepted" || status === "filed_elsewhere";
 }
 
 export async function GET() {
@@ -57,26 +60,39 @@ export async function GET() {
   const rows: string[][] = [header];
 
   for (const company of companies) {
-    const periods = buildPeriodViews(company.filings);
-    const currentPeriod = periods.find((p) => !p.isComplete && !p.isSuppressed);
+    // Find current (earliest unfiled) accounts filing
+    const currentAccounts = company.filings
+      .filter((f) => f.filingType === "accounts" && !isFiled(f.status) && !f.suppressedAt)
+      .sort((a, b) => a.periodEnd.getTime() - b.periodEnd.getTime())[0];
 
-    if (currentPeriod) {
-      const accountsStatus = currentPeriod.accountsFiling?.status ?? "outstanding";
-      const ct600Status = currentPeriod.ct600Filings[0]?.status ?? (company.registeredForCorpTax ? "outstanding" : "n/a");
+    // Find current (earliest unfiled) CT600 filing
+    const currentCt600 = company.filings
+      .filter((f) => f.filingType === "ct600" && !isFiled(f.status) && !f.suppressedAt)
+      .sort((a, b) => (a.endDate ?? a.periodEnd).getTime() - (b.endDate ?? b.periodEnd).getTime())[0];
+
+    if (currentAccounts || currentCt600) {
+      const refFiling = currentAccounts ?? currentCt600!;
+      const accountsStatus = currentAccounts?.status ?? (company.registeredForCorpTax ? "outstanding" : "n/a");
+      const ct600Status = currentCt600?.status ?? (company.registeredForCorpTax ? "outstanding" : "n/a");
+      const accountsDeadline = currentAccounts?.deadline;
+      const ct600Deadline = currentCt600?.deadline;
 
       rows.push([
         escapeCSV(company.companyName),
         escapeCSV(company.companyRegistrationNumber),
-        formatISODate(currentPeriod.periodStart),
-        formatISODate(currentPeriod.periodEnd),
+        formatISODate(refFiling.periodStart),
+        formatISODate(refFiling.endDate ?? refFiling.periodEnd),
         accountsStatus,
         ct600Status,
-        formatISODate(currentPeriod.accountsDeadline),
-        formatISODate(currentPeriod.ct600Deadline),
+        accountsDeadline ? formatISODate(accountsDeadline) : "",
+        ct600Deadline ? formatISODate(ct600Deadline) : "",
       ]);
     } else {
-      // All periods complete — show latest period
-      const latest = periods[periods.length - 1];
+      // All filings complete — show latest
+      const latest = company.filings
+        .filter((f) => f.filingType === "accounts")
+        .sort((a, b) => b.periodEnd.getTime() - a.periodEnd.getTime())[0];
+
       if (latest) {
         rows.push([
           escapeCSV(company.companyName),
@@ -84,12 +100,11 @@ export async function GET() {
           formatISODate(latest.periodStart),
           formatISODate(latest.periodEnd),
           "accepted",
-          latest.ct600Filed ? "accepted" : (company.registeredForCorpTax ? "n/a" : "n/a"),
-          formatISODate(latest.accountsDeadline),
-          formatISODate(latest.ct600Deadline),
+          company.registeredForCorpTax ? "accepted" : "n/a",
+          latest.deadline ? formatISODate(latest.deadline) : "",
+          "",
         ]);
       } else {
-        // No filing data at all
         rows.push([
           escapeCSV(company.companyName),
           escapeCSV(company.companyRegistrationNumber),

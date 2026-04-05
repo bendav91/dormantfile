@@ -5,8 +5,9 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { ArrowLeft, Building2 } from "lucide-react";
-import { buildPeriodViews } from "@/lib/filing-queries";
+import { getOutstandingCount } from "@/lib/filing-views";
 import FilingsTab from "@/components/filings-tab";
+import CorpTaxTab from "@/components/corp-tax-tab";
 import SettingsTab from "@/components/settings-tab";
 import OverviewTab from "@/components/overview-tab";
 import ActivityTab from "@/components/activity-tab";
@@ -28,13 +29,11 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
     where: { id: companyId, userId: session.user.id, deletedAt: null },
     include: {
       filings: { orderBy: { createdAt: "desc" } },
-      periods: { orderBy: { periodEnd: "asc" } },
     },
   });
   if (!company) redirect("/dashboard");
 
-  const periods = buildPeriodViews(company.filings, company.periods);
-  const incompletePeriods = periods.filter((p) => !p.isComplete && !p.isSuppressed);
+  const outstandingAccountsCount = getOutstandingCount(company.filings as never[], "accounts");
 
   const activeCT600Count = company.filings.filter(
     (f) =>
@@ -42,9 +41,8 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
   ).length;
 
   const { tab: tabParam } = await searchParams;
-  const tab = ["filings", "settings", "overview", "activity"].includes(tabParam ?? "")
-    ? tabParam!
-    : "filings";
+  const validTabs = ["filings", "corp-tax", "settings", "overview", "activity"];
+  const tab = validTabs.includes(tabParam ?? "") ? tabParam! : "filings";
   // eslint-disable-next-line react-hooks/purity -- server component, runs once
   const now = Date.now();
 
@@ -74,11 +72,11 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
               </h1>
               <p className="text-sm text-secondary mt-0.5">
                 {company.companyRegistrationNumber}
-                {incompletePeriods.length > 0 && (
+                {outstandingAccountsCount > 0 && (
                   <>
                     {" "}
-                    &middot; {incompletePeriods.length} outstanding{" "}
-                    {incompletePeriods.length === 1 ? "period" : "periods"}
+                    &middot; {outstandingAccountsCount} outstanding{" "}
+                    {outstandingAccountsCount === 1 ? "period" : "periods"}
                   </>
                 )}
               </p>
@@ -102,7 +100,10 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       {/* Tab bar */}
       <div className="flex border-b border-border mb-6">
         {[
-          { key: "filings", label: "Filings", href: `/company/${companyId}` },
+          { key: "filings", label: "Account Filings", href: `/company/${companyId}` },
+          ...(company.registeredForCorpTax
+            ? [{ key: "corp-tax", label: "Corporation Tax", href: `/company/${companyId}?tab=corp-tax` }]
+            : []),
           { key: "overview", label: "Overview", href: `/company/${companyId}?tab=overview` },
           { key: "settings", label: "Settings", href: `/company/${companyId}?tab=settings` },
           { key: "activity", label: "Activity", href: `/company/${companyId}?tab=activity` },
@@ -128,8 +129,15 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           companyId={companyId}
           companyName={company.companyName}
           companyNumber={company.companyRegistrationNumber}
-          registeredForCorpTax={company.registeredForCorpTax}
-          periods={periods}
+          filings={company.filings}
+          now={now}
+        />
+      )}
+      {tab === "corp-tax" && company.registeredForCorpTax && (
+        <CorpTaxTab
+          companyId={companyId}
+          companyName={company.companyName}
+          companyNumber={company.companyRegistrationNumber}
           filings={company.filings}
           now={now}
         />

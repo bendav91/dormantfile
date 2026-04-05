@@ -5,84 +5,71 @@ import {
   matchesIssues,
   computeFilterCounts,
 } from "@/lib/dashboard-filters";
-import type { PeriodView } from "@/lib/filing-queries";
 
 function filing(overrides: Record<string, unknown> = {}) {
   return {
-    status: "pending" as string,
-    confirmedAt: null as Date | null,
     filingType: "accounts" as string,
-    periodStart: new Date("2024-04-01"),
-    periodEnd: new Date("2025-03-31"),
-    ...overrides,
-  };
-}
-
-function period(overrides: Partial<PeriodView> = {}): PeriodView {
-  return {
-    periodId: "period-1",
-    periodStart: new Date("2024-04-01"),
-    periodEnd: new Date("2025-03-31"),
-    accountsDeadline: new Date("2026-01-01"),
-    ct600Deadline: new Date("2026-03-31"),
-    accountsFiling: null,
-    ct600Filings: [],
-    accountsFiled: false,
-    ct600Filed: false,
-    isComplete: false,
-    isOverdue: false,
-    isSuppressed: false,
-    hasEarlierGaps: false,
-    isDisclosureTerritory: false,
-    isBlockedTerritory: false,
+    status: "outstanding" as string,
+    deadline: new Date("2026-01-01") as Date | null,
+    accountsDeadline: null as Date | null,
+    ct600Deadline: null as Date | null,
+    suppressedAt: null as Date | null,
+    confirmedAt: null as Date | null,
     ...overrides,
   };
 }
 
 describe("matchesNeedsAttention", () => {
-  it("returns true when a period is overdue", () => {
-    const periods = [period({ isOverdue: true })];
-    expect(matchesNeedsAttention(periods, false)).toBe(true);
+  it("returns true when a filing is overdue", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-01"));
+    const filings = [filing({ deadline: new Date("2025-12-31") })];
+    expect(matchesNeedsAttention(filings, false)).toBe(true);
+    vi.useRealTimers();
   });
 
   it("returns true when accounts deadline is within 30 days", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-01-10"));
-    const periods = [period({ accountsDeadline: new Date("2026-01-20") })];
-    expect(matchesNeedsAttention(periods, false)).toBe(true);
+    const filings = [filing({ deadline: new Date("2026-01-20") })];
+    expect(matchesNeedsAttention(filings, false)).toBe(true);
     vi.useRealTimers();
   });
 
   it("returns true when ct600 deadline is within 30 days for corp tax company", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-15"));
-    const periods = [period({ ct600Deadline: new Date("2026-03-31") })];
-    expect(matchesNeedsAttention(periods, true)).toBe(true);
+    const filings = [filing({ filingType: "ct600", deadline: new Date("2026-03-31") })];
+    expect(matchesNeedsAttention(filings, true)).toBe(true);
     vi.useRealTimers();
   });
 
   it("returns false when ct600 is due soon but company not registered for corp tax", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-15"));
-    const periods = [
-      period({ ct600Deadline: new Date("2026-03-31"), accountsDeadline: new Date("2027-01-01") }),
-    ];
-    expect(matchesNeedsAttention(periods, false)).toBe(false);
+    const filings = [filing({ filingType: "ct600", deadline: new Date("2026-03-31") })];
+    expect(matchesNeedsAttention(filings, false)).toBe(false);
     vi.useRealTimers();
   });
 
-  it("returns false when all periods are complete", () => {
-    const periods = [period({ isComplete: true, isOverdue: true })];
-    expect(matchesNeedsAttention(periods, false)).toBe(false);
+  it("returns false when all filings are accepted", () => {
+    const filings = [filing({ status: "accepted", deadline: new Date("2025-01-01") })];
+    expect(matchesNeedsAttention(filings, false)).toBe(false);
   });
 
   it("returns false when no deadlines are near", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2025-01-01"));
-    const periods = [
-      period({ accountsDeadline: new Date("2026-01-01"), ct600Deadline: new Date("2026-03-31") }),
-    ];
-    expect(matchesNeedsAttention(periods, false)).toBe(false);
+    const filings = [filing({ deadline: new Date("2026-01-01") })];
+    expect(matchesNeedsAttention(filings, false)).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it("returns false when filing is suppressed", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-01"));
+    const filings = [filing({ deadline: new Date("2025-12-31"), suppressedAt: new Date() })];
+    expect(matchesNeedsAttention(filings, false)).toBe(false);
     vi.useRealTimers();
   });
 });
@@ -135,17 +122,17 @@ describe("computeFilterCounts", () => {
 
     const companies = [
       {
-        periods: [period({ isOverdue: true })],
         registeredForCorpTax: false,
-        filings: [filing({ status: "accepted", confirmedAt: new Date("2026-03-15") })],
+        filings: [
+          filing({ status: "outstanding", deadline: new Date("2025-12-31") }),
+          filing({ status: "accepted", confirmedAt: new Date("2026-03-15") }),
+        ],
       },
       {
-        periods: [period({ isComplete: true })],
         registeredForCorpTax: false,
-        filings: [filing({ status: "rejected" })],
+        filings: [filing({ status: "rejected", deadline: new Date("2027-01-01") })],
       },
       {
-        periods: [period()],
         registeredForCorpTax: false,
         filings: [],
       },

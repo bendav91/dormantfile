@@ -77,20 +77,29 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Invalid ctapStartDate" }, { status: 400 });
     }
 
-    // Create outstanding ct600 Filings for all existing outstanding periods
-    const outstandingAccounts = await prisma.filing.findMany({
-      where: { companyId, filingType: "accounts", status: "outstanding" },
+    // Create outstanding CT600 filings for all accounts periods that don't already have one.
+    const accountsFilings = await prisma.filing.findMany({
+      where: { companyId, filingType: "accounts" },
       select: {
-        periodId: true,
         periodStart: true,
         periodEnd: true,
-        accountsDeadline: true,
-        ct600Deadline: true,
         suppressedAt: true,
       },
     });
 
-    const ct600Filings = outstandingAccounts.map((f) => {
+    // Deduplicate by periodStart+periodEnd — the unique constraint prevents duplicates
+    const existingCt600Keys = new Set(
+      (await prisma.filing.findMany({
+        where: { companyId, filingType: "ct600" },
+        select: { periodStart: true, periodEnd: true },
+      })).map((f) => `${f.periodStart.getTime()}_${f.periodEnd.getTime()}`),
+    );
+
+    const periodsNeedingCt600 = accountsFilings.filter(
+      (f) => !existingCt600Keys.has(`${f.periodStart.getTime()}_${f.periodEnd.getTime()}`),
+    );
+
+    const ct600Filings = periodsNeedingCt600.map((f) => {
       // For first period, use ctapStartDate if provided; otherwise align with accounts
       const ctapStart = ctapStartDate && ctapStartDate.getTime() >= f.periodStart.getTime() && ctapStartDate.getTime() <= f.periodEnd.getTime()
         ? ctapStartDate
@@ -104,11 +113,7 @@ export async function PATCH(req: NextRequest) {
         periodStart: ctapStart,
         periodEnd: ctapEnd,
         status: "outstanding" as const,
-        accountsDeadline: f.accountsDeadline,
-        ct600Deadline: f.ct600Deadline ?? ct600Deadline,
         suppressedAt: f.suppressedAt,
-        // New columns (dual-write)
-        periodId: f.periodId,
         startDate: ctapStart,
         endDate: ctapEnd,
         deadline: ct600Deadline,

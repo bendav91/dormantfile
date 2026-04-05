@@ -82,10 +82,7 @@ export async function GET(req: NextRequest) {
       status: "outstanding",
       filingType: "accounts",
       suppressedAt: null,
-      OR: [
-        { deadline: { not: null } },
-        { accountsDeadline: { not: null } },
-      ],
+      deadline: { not: null },
       periodEnd: { gt: sixYearsAgo },
       company: {
         deletedAt: null,
@@ -148,7 +145,7 @@ export async function GET(req: NextRequest) {
     >();
 
     for (const filing of userData.filings) {
-      const deadline = filing.deadline ?? filing.accountsDeadline!;
+      const deadline = filing.deadline!;
       const daysUntilDeadline = Math.floor(
         (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
       );

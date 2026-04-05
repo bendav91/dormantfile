@@ -16,7 +16,7 @@ import {
 } from "@/lib/dashboard-filters";
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
-import { buildPeriodViews } from "@/lib/filing-queries";
+import { getOutstandingCount, getEarliestDeadline } from "@/lib/filing-views";
 import { isFilingLive } from "@/lib/launch-mode";
 import { ReviewPrompt } from "@/components/marketing/ReviewPrompt";
 import CalendarFeedSection from "@/components/calendar-feed-section";
@@ -158,20 +158,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
   // Pre-compute sort keys for each company
   const companiesWithSortData = allMatchingCompanies.map((c) => {
-    const periods = buildPeriodViews(c.filings);
-    const incompletePeriods = periods.filter((p) => !p.isComplete && !p.isSuppressed);
-    const outstandingCount = incompletePeriods.length;
+    const outstandingCount = getOutstandingCount(c.filings as never[], "accounts");
+    const earliestDeadline = getEarliestDeadline(c.filings as never[]);
 
-    // Earliest deadline across all outstanding periods (for "most overdue" sort)
-    let earliestDeadline = Infinity;
-    for (const p of incompletePeriods) {
-      if (!p.accountsFiled)
-        earliestDeadline = Math.min(earliestDeadline, p.accountsDeadline.getTime());
-      if (c.registeredForCorpTax && !p.ct600Filed)
-        earliestDeadline = Math.min(earliestDeadline, p.ct600Deadline.getTime());
-    }
-
-    return { company: c, periods, outstandingCount, earliestDeadline };
+    return { company: c, outstandingCount, earliestDeadline };
   });
 
   // Sort
@@ -193,7 +183,6 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   // Compute filter counts over the search-filtered set (counts reflect what the user sees)
   const filterCounts: FilterCounts = computeFilterCounts(
     companiesWithSortData.map((c) => ({
-      periods: c.periods,
       registeredForCorpTax: c.company.registeredForCorpTax,
       filings: c.company.filings,
     })),
@@ -202,7 +191,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   // Apply active filter as JS predicate
   const filteredCompanies = filter
     ? companiesWithSortData.filter((c) =>
-        matchesFilter(filter, c.periods, c.company.registeredForCorpTax, c.company.filings),
+        matchesFilter(filter, c.company.filings, c.company.registeredForCorpTax),
       )
     : companiesWithSortData;
 
@@ -402,10 +391,12 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
       {/* Company cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {paginatedCompanies.map(({ company, periods, outstandingCount }) => {
-          // Show the current (oldest unfiled) period's deadlines
-          const currentPeriod = periods.find((p) => !p.isComplete && !p.isSuppressed) ?? periods[0];
-          const accountsDeadline = currentPeriod?.accountsDeadline ?? company.accountingPeriodEnd;
+        {paginatedCompanies.map(({ company, outstandingCount }) => {
+          // Show the current (oldest unfiled) accounts filing's deadline
+          const currentFiling = company.filings
+            .filter((f) => f.filingType === "accounts" && f.status !== "accepted" && f.status !== "filed_elsewhere" && !f.suppressedAt)
+            .sort((a, b) => a.periodEnd.getTime() - b.periodEnd.getTime())[0];
+          const accountsDeadline = currentFiling?.deadline ?? company.accountingPeriodEnd;
 
           const accountsDaysLeft = Math.ceil(
             (accountsDeadline.getTime() - now) / (1000 * 60 * 60 * 24),

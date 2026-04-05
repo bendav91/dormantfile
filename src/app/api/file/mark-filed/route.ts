@@ -62,30 +62,11 @@ export async function POST(req: NextRequest) {
         : calculateAccountsDeadline(filingEndDate)
     );
 
-    // Ensure parent Period exists
-    const period = await prisma.period.upsert({
-      where: {
-        companyId_periodStart_periodEnd: {
-          companyId: filing.companyId,
-          periodStart: filing.periodStart,
-          periodEnd: filing.periodEnd,
-        },
-      },
-      create: {
-        companyId: filing.companyId,
-        periodStart: filing.periodStart,
-        periodEnd: filing.periodEnd,
-        accountsDeadline: calculateAccountsDeadline(filing.periodEnd),
-      },
-      update: {},
-    });
-
     await prisma.filing.update({
       where: { id: filingId },
       data: {
         status: "filed_elsewhere",
         confirmedAt: new Date(),
-        periodId: filing.periodId ?? period.id,
         startDate: filingStartDate,
         endDate: filingEndDate,
         deadline: filingDeadline,
@@ -140,31 +121,12 @@ export async function POST(req: NextRequest) {
     ? calculateCT600Deadline(filingEndDate)
     : calculateAccountsDeadline(filingEndDate);
 
-  // Ensure parent Period exists
-  const period = await prisma.period.upsert({
-    where: {
-      companyId_periodStart_periodEnd: {
-        companyId: companyId!,
-        periodStart: periodStartDate,
-        periodEnd: periodEndDate,
-      },
-    },
-    create: {
-      companyId: companyId!,
-      periodStart: periodStartDate,
-      periodEnd: periodEndDate,
-      accountsDeadline: calculateAccountsDeadline(periodEndDate),
-    },
-    update: {},
-  });
-
   if (existing) {
     await prisma.filing.update({
       where: { id: existing.id },
       data: {
         status: "filed_elsewhere",
         confirmedAt: new Date(),
-        periodId: existing.periodId ?? period.id,
         startDate: existing.startDate ?? filingStartDate,
         endDate: existing.endDate ?? filingEndDate,
         deadline: existing.deadline ?? filingDeadline,
@@ -179,7 +141,6 @@ export async function POST(req: NextRequest) {
         periodEnd: periodEndDate,
         status: "filed_elsewhere",
         confirmedAt: new Date(),
-        periodId: period.id,
         startDate: filingStartDate,
         endDate: filingEndDate,
         deadline: filingDeadline,
