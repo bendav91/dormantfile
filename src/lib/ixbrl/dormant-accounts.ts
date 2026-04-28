@@ -69,6 +69,7 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
     th { background: #f0f0f0; }
     td.amount { text-align: right; }
     .note { font-size: 9pt; color: #666; margin-top: 32px; }
+    ix\\:header { display: none; }
   </style>
 </head>
 <body>

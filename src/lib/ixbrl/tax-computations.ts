@@ -51,6 +51,7 @@ export function generateDormantTaxComputationsIxbrl(data: IxbrlTaxComputationDat
     th, td { border: 1px solid #999; padding: 6px 10px; text-align: left; }
     th { background: #f0f0f0; }
     td.amount { text-align: right; }
+    ix\\:header { display: none; }
   </style>
 </head>
 <body>
