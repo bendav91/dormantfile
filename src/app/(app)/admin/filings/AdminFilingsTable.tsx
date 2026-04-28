@@ -124,7 +124,7 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
           <span className="w-[90px]">Status</span>
           <span className="w-[90px]">Deadline</span>
           <span className="w-[90px]">Submitted</span>
-          <span className="w-[100px]"></span>
+          <span className="w-[160px]"></span>
         </div>
 
         {filings.map((filing, i) => {
@@ -175,7 +175,17 @@ export function AdminFilingsTable({ filings }: { filings: Filing[] }) {
               <span className="w-[90px] text-muted">
                 {filing.submittedAt ? fmt(filing.submittedAt) : "—"}
               </span>
-              <div className="flex gap-1 w-[100px]">
+              <div className="flex gap-1 w-[160px]">
+                {filing.filingType === "accounts" && (
+                  <a
+                    href={`/api/file/preview-accounts?filingId=${filing.id}`}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-xs font-medium px-2 py-1 rounded cursor-pointer text-secondary border border-border bg-transparent no-underline"
+                  >
+                    Preview
+                  </a>
+                )}
                 {canRetry && (
                   <button
                     onClick={() => handleAction(filing.id, "retry")}
