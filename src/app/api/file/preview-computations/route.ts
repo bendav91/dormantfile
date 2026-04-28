@@ -1,6 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
+import { generateDormantTaxComputationsIxbrl } from "@/lib/ixbrl/tax-computations";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -42,20 +42,26 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Filing not found" }, { status: 404 });
   }
 
+  if (!filing.company.uniqueTaxReference) {
+    return NextResponse.json(
+      { error: "Company has no UTR set" },
+      { status: 400 },
+    );
+  }
+
   const periodEnd = filing.endDate ?? filing.periodEnd;
-  const html = generateDormantAccountsIxbrl({
+  const html = generateDormantTaxComputationsIxbrl({
     companyName: filing.company.companyName,
     companyRegistrationNumber: filing.company.companyRegistrationNumber,
+    uniqueTaxReference: filing.company.uniqueTaxReference,
     periodStart: filing.startDate ?? filing.periodStart,
     periodEnd,
-    directorName: filing.company.user.name,
-    shareCapital: filing.company.shareCapital,
   });
 
   const headers: Record<string, string> = download
     ? {
         "Content-Type": "application/xhtml+xml; charset=utf-8",
-        "Content-Disposition": `attachment; filename="${filing.company.companyRegistrationNumber}-accounts-${periodEnd.toISOString().slice(0, 10)}.html"`,
+        "Content-Disposition": `attachment; filename="${filing.company.companyRegistrationNumber}-computations-${periodEnd.toISOString().slice(0, 10)}.html"`,
       }
     : { "Content-Type": "text/html; charset=utf-8" };
 
