@@ -73,7 +73,7 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
   </style>
 </head>
 <body>
-  <ix:header>
+  <ix:header style="display: none">
     <ix:references>
       <link:schemaRef xlink:type="simple" xlink:href="${SCHEMA_REFS.frc2023Core}" />
     </ix:references>

@@ -55,7 +55,7 @@ export function generateDormantTaxComputationsIxbrl(data: IxbrlTaxComputationDat
   </style>
 </head>
 <body>
-  <ix:header>
+  <ix:header style="display: none">
     <ix:hidden>
       <ix:nonNumeric name="uk-tax-comp:CompanyName" contextRef="duration">${name}</ix:nonNumeric>
       <ix:nonNumeric name="uk-tax-comp:CompanyRegistrationNumber" contextRef="duration">${crn}</ix:nonNumeric>

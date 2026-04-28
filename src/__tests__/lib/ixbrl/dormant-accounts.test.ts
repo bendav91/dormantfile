@@ -28,7 +28,7 @@ describe("generateDormantAccountsIxbrl", () => {
   });
 
   it("includes ix:header with contexts and units", () => {
-    expect(html).toContain("<ix:header>");
+    expect(html).toContain("<ix:header");
     expect(html).toContain('xbrli:context id="duration"');
     expect(html).toContain('xbrli:context id="instant-end"');
     expect(html).toContain('xbrli:context id="instant-start"');
