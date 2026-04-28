@@ -69,10 +69,10 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
     th { background: #f0f0f0; }
     td.amount { text-align: right; }
     .note { font-size: 9pt; color: #666; margin-top: 32px; }
-    ix\\:header { display: none; }
   </style>
 </head>
 <body>
+  <div style="display:none">
   <ix:header>
     <ix:references>
       <link:schemaRef xlink:type="simple" xlink:href="${SCHEMA_REFS.frc2023Core}" />
@@ -168,6 +168,7 @@ export function generateDormantAccountsIxbrl(data: IxbrlCompanyData): string {
       </xbrli:unit>
     </ix:resources>
   </ix:header>
+  </div>
 
   <div style="display:none">
     <ix:nonNumeric name="bus:EntityCurrentLegalOrRegisteredName" contextRef="duration">${name}</ix:nonNumeric>

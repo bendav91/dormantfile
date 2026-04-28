@@ -51,10 +51,10 @@ export function generateDormantTaxComputationsIxbrl(data: IxbrlTaxComputationDat
     th, td { border: 1px solid #999; padding: 6px 10px; text-align: left; }
     th { background: #f0f0f0; }
     td.amount { text-align: right; }
-    ix\\:header { display: none; }
   </style>
 </head>
 <body>
+  <div style="display:none">
   <ix:header>
     <ix:hidden>
       <ix:nonNumeric name="uk-tax-comp:CompanyName" contextRef="duration">${name}</ix:nonNumeric>
@@ -81,6 +81,7 @@ export function generateDormantTaxComputationsIxbrl(data: IxbrlTaxComputationDat
       </xbrli:unit>
     </ix:resources>
   </ix:header>
+  </div>
 
   <h1>${name}</h1>
   <p>UTR: ${utr} | CRN: ${crn}</p>
