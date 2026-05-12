@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { isTaxFilingLive } from "@/lib/launch-mode";
 import FilingFlow from "./filing-flow";
 
 function formatDate(date: Date): string {
@@ -16,6 +17,8 @@ interface PageProps {
 }
 
 export default async function CT600FilingPage({ params, searchParams }: PageProps) {
+  if (!isTaxFilingLive()) redirect("/dashboard");
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 

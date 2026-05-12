@@ -10,7 +10,7 @@ import { Calendar, CheckCircle2, FileText } from "lucide-react";
 import Link from "next/link";
 import CopyFilingSummary from "@/components/copy-filing-summary";
 import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
-import { isFilingLive } from "@/lib/launch-mode";
+import { isTaxFilingLive } from "@/lib/launch-mode";
 import { cn } from "@/lib/cn";
 
 function formatDate(date: Date): string {
@@ -157,7 +157,7 @@ export default function CorpTaxTab({
                             {(f.status === "failed" || f.status === "rejected") && (
                               <>
                                 <MarkFiledButton companyId={companyId} periodEnd={ctapEndISO} filingType="ct600" />
-                                {isFilingLive() && (
+                                {isTaxFilingLive() && (
                                   <Link
                                     href={`/file/${companyId}/ct600?filingId=${f.id}`}
                                     className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
@@ -171,7 +171,7 @@ export default function CorpTaxTab({
                         ) : (
                           <>
                             <MarkFiledButton companyId={companyId} periodEnd={ctapEndISO} filingType="ct600" />
-                            {isFilingLive() && (
+                            {isTaxFilingLive() && (
                               <Link
                                 href={`/file/${companyId}/ct600?filingId=${f.id}`}
                                 className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"

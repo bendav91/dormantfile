@@ -8,6 +8,7 @@ import { generateDormantAccountsIxbrl } from "@/lib/ixbrl/dormant-accounts";
 import { generateDormantTaxComputationsIxbrl } from "@/lib/ixbrl/tax-computations";
 import type { VendorCredentials } from "@/lib/hmrc/types";
 import { FilingStatus } from "@prisma/client";
+import { isTaxFilingLive } from "@/lib/launch-mode";
 
 function getVendorCredentials(): VendorCredentials {
   const vendorId = process.env.HMRC_VENDOR_ID;
@@ -30,6 +31,13 @@ function getHmrcEndpoint(): string {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isTaxFilingLive()) {
+    return NextResponse.json(
+      { error: "CT600 filing is not currently available" },
+      { status: 503 },
+    );
+  }
+
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
