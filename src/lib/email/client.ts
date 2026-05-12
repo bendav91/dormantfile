@@ -10,6 +10,7 @@ export const resend = new Proxy({} as Resend, {
 });
 
 const FROM_ADDRESS = "DormantFile <noreply@notifications.southamwebdesign.co.uk>"; // TODO
+export const REPLY_TO_ADDRESS = "hello@dormantfile.co.uk";
 
 export async function sendEmail({
   to,
@@ -31,7 +32,7 @@ export async function sendEmail({
     to,
     subject,
     ...(html ? { html } : { text: text ?? "" }),
-    ...(replyTo && { replyTo }),
+    replyTo: replyTo ?? REPLY_TO_ADDRESS,
     ...(headers && { headers }),
   });
 }
