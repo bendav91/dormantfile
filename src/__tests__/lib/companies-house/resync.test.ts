@@ -146,14 +146,30 @@ describe("resyncFromCompaniesHouse", () => {
     expect(prisma.filing.createMany).not.toHaveBeenCalled();
   });
 
-  it("returns zero when detectAccountsGaps returns null (all filed)", async () => {
-    vi.mocked(fetchFilingHistoryStrict).mockResolvedValue([new Date("2024-03-31")]);
-    vi.mocked(detectAccountsGaps).mockReturnValue(null);
+  it("reconciles existing outstanding filings when all periods are filed at CH", async () => {
+    // Regression: Codeben Ltd had 7 outstanding Filing rows that were all
+    // already accepted at CH. Previously resync returned null and bailed;
+    // now it must transition outstanding → accepted.
+    const chDate = new Date("2024-03-31");
+    vi.mocked(fetchFilingHistoryStrict).mockResolvedValue([chDate]);
+    vi.mocked(detectAccountsGaps).mockReturnValue({
+      oldestUnfiledPeriodStart: null,
+      oldestUnfiledPeriodEnd: null,
+      filedPeriodEnds: new Map([[chDate.getTime(), new Date("2024-03-31")]]),
+    });
+    vi.mocked(computeFirstPeriodEnd).mockReturnValue(new Date("2021-03-31"));
+
+    vi.mocked(prisma.filing.findMany).mockResolvedValue([
+      { id: "f1", periodEnd: new Date("2024-03-31"), status: "outstanding" } as never,
+    ]);
 
     const result = await resyncFromCompaniesHouse("comp-1");
 
-    expect(result.newFilingsCount).toBe(0);
-    expect(prisma.filing.createMany).not.toHaveBeenCalled();
+    expect(result.newFilingsCount).toBe(1);
+    expect(prisma.filing.update).toHaveBeenCalledWith({
+      where: { id: "f1" },
+      data: expect.objectContaining({ status: "accepted" }),
+    });
   });
 
   it("uses incorporation date as periodStart for first period", async () => {

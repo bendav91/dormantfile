@@ -2,129 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
 import { canAddCompany } from "@/lib/subscription";
 import { Prisma } from "@prisma/client";
 import {
   fetchFilingHistory,
   detectAccountsGaps,
-  computeFirstPeriodEnd,
 } from "@/lib/companies-house/filing-history";
 import type { GapDetectionResult } from "@/lib/companies-house/filing-history";
-
-/**
- * Creates Filing records for all periods from incorporation to present:
- * - Filed periods (from CH gap detection) → status: "accepted"
- * - Unfiled periods (gaps) → status: "outstanding" with computed deadlines
- */
-async function materialiseFilings(
-  companyId: string,
-  dateOfCreation: string | undefined,
-  gapResult: GapDetectionResult | null,
-  ardMonth: number | null,
-  ardDay: number | null,
-  registeredForCorpTax: boolean,
-  accountsDueOn: string | undefined,
-) {
-  const incDate = dateOfCreation ? new Date(dateOfCreation) : null;
-  const now = new Date();
-
-  let firstPeriodEnd: Date | null = null;
-  if (incDate && ardMonth && ardDay) {
-    firstPeriodEnd = computeFirstPeriodEnd(incDate, ardMonth, ardDay);
-  }
-
-  // Build the set of filed period ends from gap detection
-  const filedPeriodEndSet = new Set<number>();
-  if (gapResult) {
-    for (const periodEnd of gapResult.filedPeriodEnds.values()) {
-      filedPeriodEndSet.add(periodEnd.getTime());
-    }
-  }
-
-  // Generate ALL periods from first period to present
-  if (!firstPeriodEnd || !incDate) return;
-
-  // Build filings
-  interface FilingData {
-    companyId: string;
-    filingType: "accounts" | "ct600";
-    periodStart: Date;
-    periodEnd: Date;
-    status: "accepted" | "outstanding";
-    confirmedAt: Date | null;
-    startDate: Date;
-    endDate: Date;
-    deadline: Date;
-  }
-
-  const filingData: FilingData[] = [];
-
-  let pEnd = new Date(firstPeriodEnd);
-  let pStart = new Date(incDate);
-
-  while (pEnd.getTime() <= now.getTime()) {
-    const isFiled = filedPeriodEndSet.has(pEnd.getTime());
-    const isFirstPeriod = pStart.getTime() === incDate.getTime();
-
-    const accountsDeadline = isFirstPeriod
-      ? calculateAccountsDeadline(pEnd, incDate)
-      : calculateAccountsDeadline(pEnd);
-    const ct600Deadline = calculateCT600Deadline(pEnd);
-
-    // Use CH's due_on for the last period if available
-    const isLastPeriod = (() => {
-      const nextEnd = new Date(pEnd);
-      nextEnd.setUTCFullYear(nextEnd.getUTCFullYear() + 1);
-      return nextEnd.getTime() > now.getTime();
-    })();
-    const finalAccountsDeadline =
-      isLastPeriod && accountsDueOn ? new Date(accountsDueOn) : accountsDeadline;
-
-    // Accounts filing
-    filingData.push({
-      companyId,
-      filingType: "accounts",
-      periodStart: new Date(pStart),
-      periodEnd: new Date(pEnd),
-      status: isFiled ? "accepted" : "outstanding",
-      confirmedAt: isFiled ? new Date() : null,
-      startDate: new Date(pStart),
-      endDate: new Date(pEnd),
-      deadline: finalAccountsDeadline,
-    });
-
-    // CT600 filing (only outstanding — we don't know external CT600 status)
-    if (registeredForCorpTax && !isFiled) {
-      filingData.push({
-        companyId,
-        filingType: "ct600",
-        periodStart: new Date(pStart),
-        periodEnd: new Date(pEnd),
-        status: "outstanding",
-        confirmedAt: null,
-        startDate: new Date(pStart),
-        endDate: new Date(pEnd),
-        deadline: ct600Deadline,
-      });
-    }
-
-    // Advance to next annual period
-    const nextStart = new Date(pEnd);
-    nextStart.setUTCDate(nextStart.getUTCDate() + 1);
-    const nextEnd = new Date(pEnd);
-    nextEnd.setUTCFullYear(nextEnd.getUTCFullYear() + 1);
-    pStart = nextStart;
-    pEnd = nextEnd;
-  }
-
-  if (filingData.length > 0) {
-    await prisma.filing.createMany({
-      data: filingData,
-      skipDuplicates: true,
-    });
-  }
-}
+import { materialiseFilings } from "@/lib/companies-house/materialise-filings";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -177,6 +62,7 @@ export async function POST(req: NextRequest) {
   let accountingPeriodStart: string;
   let dateOfCreation: string | undefined;
   let accountsDueOn: string | undefined;
+  let nextAccountsPeriodEndOn: string | undefined;
   let companyStatus: string | undefined;
   let companyType: string | undefined;
   let registeredAddress: string | undefined;
@@ -240,6 +126,7 @@ export async function POST(req: NextRequest) {
 
     const nextAccounts = chData.accounts?.next_accounts;
     accountsDueOn = nextAccounts?.due_on;
+    nextAccountsPeriodEndOn = nextAccounts?.period_end_on;
 
     // Fetch filing history for gap detection (graceful degradation on failure)
     const filedPeriodEnds = await fetchFilingHistory(paddedNumber);
@@ -261,7 +148,7 @@ export async function POST(req: NextRequest) {
       gapResult = detectAccountsGaps(dateOfCreation, ardMonth, ardDay, filedPeriodEnds);
     }
 
-    if (gapResult) {
+    if (gapResult?.oldestUnfiledPeriodStart && gapResult.oldestUnfiledPeriodEnd) {
       // Gaps detected — use the true oldest unfiled period
       accountingPeriodStart = gapResult.oldestUnfiledPeriodStart.toISOString().split("T")[0];
       accountingPeriodEnd = gapResult.oldestUnfiledPeriodEnd.toISOString().split("T")[0];
@@ -350,15 +237,16 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      await materialiseFilings(
-        softDeleted.id,
+      await materialiseFilings({
+        companyId: softDeleted.id,
         dateOfCreation,
         gapResult,
         ardMonth,
         ardDay,
-        !!registeredForCorpTax,
+        registeredForCorpTax: !!registeredForCorpTax,
         accountsDueOn,
-      );
+        nextAccountsPeriodEndOn,
+      });
 
       return NextResponse.json({ id: company.id }, { status: 201 });
     }
@@ -385,15 +273,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    await materialiseFilings(
-      company.id,
+    await materialiseFilings({
+      companyId: company.id,
       dateOfCreation,
       gapResult,
       ardMonth,
       ardDay,
-      !!registeredForCorpTax,
+      registeredForCorpTax: !!registeredForCorpTax,
       accountsDueOn,
-    );
+      nextAccountsPeriodEndOn,
+    });
 
     return NextResponse.json({ id: company.id }, { status: 201 });
   } catch (error) {

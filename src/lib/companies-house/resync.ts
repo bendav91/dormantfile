@@ -136,16 +136,7 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
   }
 
   // Step 4: Map CH dates to expected period ends
-  // TODO: Known limitation — if ALL periods are filed externally,
-  // detectAccountsGaps returns null and we return early without
-  // recording those filings. The company's period pointer won't
-  // advance. This only affects companies that filed every single
-  // period outside DormantFile and have zero Filing records.
   const gapResult = detectAccountsGaps(dateOfCreation, ardMonth, ardDay, filedPeriodEnds);
-  if (!gapResult) {
-    // All periods are filed — nothing to detect
-    return { newFilingsCount: 0 };
-  }
 
   // Step 5: Find externally filed periods and transition outstanding Filings
   const existingFilings = await prisma.filing.findMany({

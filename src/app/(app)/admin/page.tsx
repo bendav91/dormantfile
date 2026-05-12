@@ -11,6 +11,7 @@ import {
   Mail,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import AdminGlobalResyncButton from "@/components/admin-global-resync-button";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -144,6 +145,14 @@ export default async function AdminDashboardPage() {
             &pound;{health.mrr}
           </p>
         </div>
+      </div>
+
+      {/* Tools */}
+      <h2 className="text-lg font-semibold mb-4 text-foreground">
+        Tools
+      </h2>
+      <div className="mb-10">
+        <AdminGlobalResyncButton />
       </div>
 
       {/* Recent Activity */}

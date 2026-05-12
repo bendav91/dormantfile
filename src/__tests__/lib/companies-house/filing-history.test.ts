@@ -58,7 +58,7 @@ describe("detectAccountsGaps", () => {
     expect(result!.oldestUnfiledPeriodStart).toEqual(new Date("2017-04-01"));
   });
 
-  it("returns null when all periods are filed", () => {
+  it("returns result with null oldestUnfiled when all periods are filed", () => {
     // Incorporated 2022-01-01, ARD 31 December, filed 2022 and 2023, current date is 2026-03-29
     const filed = [
       new Date("2022-12-31"),
@@ -67,7 +67,10 @@ describe("detectAccountsGaps", () => {
       new Date("2025-12-31"),
     ];
     const result = detectAccountsGaps("2022-01-01", 12, 31, filed);
-    expect(result).toBeNull();
+    expect(result.oldestUnfiledPeriodStart).toBeNull();
+    expect(result.oldestUnfiledPeriodEnd).toBeNull();
+    // filedPeriodEnds still populated so callers can reconcile existing records
+    expect(result.filedPeriodEnds.size).toBe(filed.length);
   });
 
   it("returns first period when nothing has been filed", () => {

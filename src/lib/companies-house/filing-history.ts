@@ -1,6 +1,7 @@
 export interface GapDetectionResult {
-  oldestUnfiledPeriodStart: Date;
-  oldestUnfiledPeriodEnd: Date;
+  /** Null when every expected period has been filed at CH. */
+  oldestUnfiledPeriodStart: Date | null;
+  oldestUnfiledPeriodEnd: Date | null;
   /** Map of CH made_up_date timestamp → computed expected periodEnd for seeding Filing records */
   filedPeriodEnds: Map<number, Date>;
 }
@@ -115,7 +116,7 @@ export function detectAccountsGaps(
   accountingReferenceMonth: number,
   accountingReferenceDay: number,
   filedPeriodEnds: Date[],
-): GapDetectionResult | null {
+): GapDetectionResult {
   const incDate = new Date(incorporationDate);
   const now = new Date();
   const firstPeriodEnd = computeFirstPeriodEnd(
@@ -145,10 +146,9 @@ export function detectAccountsGaps(
     periodEnd = nextEnd;
   }
 
-  if (!oldestUnfiled) return null;
   return {
-    oldestUnfiledPeriodStart: oldestUnfiled.start,
-    oldestUnfiledPeriodEnd: oldestUnfiled.end,
+    oldestUnfiledPeriodStart: oldestUnfiled?.start ?? null,
+    oldestUnfiledPeriodEnd: oldestUnfiled?.end ?? null,
     filedPeriodEnds: filedMap,
   };
 }
