@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CreditCard, Trash2, AlertTriangle, Building2, ArrowUpCircle } from "lucide-react";
@@ -92,7 +91,10 @@ export default function SettingsActions({
         return;
       }
 
-      await signOut({ callbackUrl: "/" });
+      // The DELETE response clears the session cookie server-side.
+      // Hard-navigate to "/" so the browser drops any in-memory auth state
+      // and the home page renders fresh as a signed-out user.
+      window.location.href = "/";
     } catch {
       setError("An unexpected error occurred. Please try again.");
       setDeleting(false);

@@ -19,6 +19,7 @@ export async function sendEmail({
   text,
   replyTo,
   headers,
+  idempotencyKey,
 }: {
   to: string;
   subject: string;
@@ -26,13 +27,23 @@ export async function sendEmail({
   text?: string;
   replyTo?: string;
   headers?: Record<string, string>;
+  /**
+   * Pass a stable string when this send must not be duplicated even if the
+   * caller is invoked twice. Resend dedupes within its idempotency window
+   * (~24h). Use a deterministic key tied to the business event, e.g.
+   * `account-deleted-${userId}`.
+   */
+  idempotencyKey?: string;
 }) {
-  return resend.emails.send({
-    from: FROM_ADDRESS,
-    to,
-    subject,
-    ...(html ? { html } : { text: text ?? "" }),
-    replyTo: replyTo ?? REPLY_TO_ADDRESS,
-    ...(headers && { headers }),
-  });
+  return resend.emails.send(
+    {
+      from: FROM_ADDRESS,
+      to,
+      subject,
+      ...(html ? { html } : { text: text ?? "" }),
+      replyTo: replyTo ?? REPLY_TO_ADDRESS,
+      ...(headers && { headers }),
+    },
+    idempotencyKey ? { idempotencyKey } : undefined,
+  );
 }
