@@ -1,3 +1,6 @@
+import type { SubscriptionTier } from "@prisma/client";
+import { TIER_LABELS, TIER_PRICES } from "@/lib/subscription";
+
 function formatUKDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
     day: "numeric",
@@ -525,6 +528,154 @@ export function buildAccountDeletedEmail(data: AccountDeletedEmailData): Account
         <p class="secondary-text" style="color:#9ca3af;font-size:12px;">
           If you didn't request this, please
           <a href="${data.contactUrl}" class="primary-link" style="color:#2563eb;">contact us</a> immediately.
+        </p>`,
+    }),
+  };
+}
+
+// ── Admin notification emails ────────────────────────────────────────────
+// Operational alerts sent to every User with isAdmin = true.
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatMoney(amountPence: number, currency: string): string {
+  const symbol = currency.toLowerCase() === "gbp" ? "£" : `${currency.toUpperCase()} `;
+  return `${symbol}${(amountPence / 100).toFixed(2)}`;
+}
+
+interface AdminUserContext {
+  userEmail: string;
+  userName: string;
+}
+
+export function buildAdminSignupEmail(data: AdminUserContext): { subject: string; html: string } {
+  return {
+    subject: `[DormantFile] New sign up — ${data.userName}`,
+    html: emailShell({
+      preheader: `${data.userName} just created an account`,
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">New sign up</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 8px;">
+          <strong>${escapeHtml(data.userName)}</strong> just signed up.
+        </p>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0;">
+          ${escapeHtml(data.userEmail)}
+        </p>`,
+    }),
+  };
+}
+
+interface AdminTierChangeData extends AdminUserContext {
+  fromTier: SubscriptionTier;
+  toTier: SubscriptionTier;
+  direction: "upgrade" | "downgrade";
+}
+
+export function buildAdminTierChangeEmail(
+  data: AdminTierChangeData,
+): { subject: string; html: string } {
+  const arrow = data.direction === "upgrade" ? "↑" : "↓";
+  const verb = data.direction === "upgrade" ? "upgraded" : "downgraded";
+  const delta =
+    (TIER_PRICES[data.toTier] - TIER_PRICES[data.fromTier]) *
+    (data.direction === "upgrade" ? 1 : -1);
+  const deltaText =
+    delta !== 0
+      ? `${data.direction === "upgrade" ? "+" : "-"}£${Math.abs(delta)}/mo`
+      : "no price change";
+
+  return {
+    subject: `[DormantFile] ${arrow} ${verb} — ${TIER_LABELS[data.fromTier]} → ${TIER_LABELS[data.toTier]}`,
+    html: emailShell({
+      preheader: `${data.userName} ${verb} to ${TIER_LABELS[data.toTier]}`,
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Subscription ${verb}</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 8px;">
+          <strong>${escapeHtml(data.userName)}</strong> (${escapeHtml(data.userEmail)})
+        </p>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 8px;">
+          ${TIER_LABELS[data.fromTier]} → <strong>${TIER_LABELS[data.toTier]}</strong> (${deltaText})
+        </p>`,
+    }),
+  };
+}
+
+interface AdminPaymentSucceededData extends AdminUserContext {
+  amountPence: number;
+  currency: string;
+  tier: SubscriptionTier;
+  isFirstPayment: boolean;
+}
+
+export function buildAdminPaymentSucceededEmail(
+  data: AdminPaymentSucceededData,
+): { subject: string; html: string } {
+  const label = data.isFirstPayment ? "First payment" : "Renewal";
+  const amount = formatMoney(data.amountPence, data.currency);
+  return {
+    subject: `[DormantFile] ${label} — ${amount} from ${data.userName}`,
+    html: emailShell({
+      preheader: `${amount} received from ${data.userName}`,
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">${label} received</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 8px;">
+          <strong>${amount}</strong> · ${TIER_LABELS[data.tier]}
+        </p>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0;">
+          ${escapeHtml(data.userName)} (${escapeHtml(data.userEmail)})
+        </p>`,
+    }),
+  };
+}
+
+interface AdminPaymentFailedData extends AdminUserContext {
+  tier: SubscriptionTier;
+}
+
+export function buildAdminPaymentFailedEmail(
+  data: AdminPaymentFailedData,
+): { subject: string; html: string } {
+  return {
+    subject: `[DormantFile] ⚠ Payment failed — ${data.userName}`,
+    html: emailShell({
+      preheader: `Payment failed for ${data.userName}`,
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Payment failed</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 8px;">
+          <strong>${escapeHtml(data.userName)}</strong> (${escapeHtml(data.userEmail)})
+        </p>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0;">
+          Plan: ${TIER_LABELS[data.tier]} · status now <strong>past_due</strong>
+        </p>`,
+    }),
+  };
+}
+
+interface AdminSubscriptionCancelledData extends AdminUserContext {
+  previousTier: SubscriptionTier;
+}
+
+export function buildAdminSubscriptionCancelledEmail(
+  data: AdminSubscriptionCancelledData,
+): { subject: string; html: string } {
+  return {
+    subject: `[DormantFile] ✗ Cancelled — ${data.userName} (${TIER_LABELS[data.previousTier]})`,
+    html: emailShell({
+      preheader: `${data.userName} cancelled their ${TIER_LABELS[data.previousTier]} subscription`,
+      content: `
+        <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Subscription cancelled</h1>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 8px;">
+          <strong>${escapeHtml(data.userName)}</strong> (${escapeHtml(data.userEmail)})
+        </p>
+        <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0;">
+          Previous plan: ${TIER_LABELS[data.previousTier]} (-£${TIER_PRICES[data.previousTier]}/mo)
         </p>`,
     }),
   };

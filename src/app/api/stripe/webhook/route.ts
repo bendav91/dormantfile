@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { getSubscriptionStatusFromEvent } from "@/lib/stripe/helpers";
-import { tierFromPriceId } from "@/lib/subscription";
+import { isUpgrade, tierFromPriceId } from "@/lib/subscription";
 import { prisma } from "@/lib/db";
 import Stripe from "stripe";
 import { SubscriptionTier } from "@prisma/client";
 import { sendEmail } from "@/lib/email/client";
 import { buildPaymentFailedEmail, buildSubscriptionCancelledEmail } from "@/lib/email/templates";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -61,6 +62,15 @@ export async function POST(req: NextRequest) {
         const tier = subscription.items.data.length
           ? tierFromPriceId(subscription.items.data[0].price.id)
           : undefined;
+
+        // Capture pre-update state to detect tier change for admin notification
+        const userBefore = tier
+          ? await prisma.user.findFirst({
+              where: { stripeCustomerId: customerId },
+              select: { email: true, name: true, subscriptionTier: true },
+            })
+          : null;
+
         await prisma.user.updateMany({
           where: { stripeCustomerId: customerId },
           data: {
@@ -70,6 +80,22 @@ export async function POST(req: NextRequest) {
             ...(tier && tier !== "agent" ? { filingAsAgent: false } : {}),
           },
         });
+
+        // Notify admins on tier change (skip if tier didn't move)
+        if (userBefore && tier && tier !== userBefore.subscriptionTier && tier !== "none") {
+          try {
+            await notifyAdmins({
+              kind: "tier_change",
+              userEmail: userBefore.email,
+              userName: userBefore.name,
+              fromTier: userBefore.subscriptionTier,
+              toTier: tier,
+              direction: isUpgrade(userBefore.subscriptionTier, tier) ? "upgrade" : "downgrade",
+            });
+          } catch (err) {
+            console.error("Failed to notify admins of tier change:", err);
+          }
+        }
       }
     }
 
@@ -118,6 +144,19 @@ export async function POST(req: NextRequest) {
         updateData.subscriptionTier = "none";
       }
 
+      // Capture pre-update user state for admin notifications: first-payment
+      // detection needs subscriptionPeriodStart, cancellation needs the
+      // previous tier (we set it to "none" on the update).
+      const userBefore = await prisma.user.findFirst({
+        where: { stripeCustomerId: customerId },
+        select: {
+          email: true,
+          name: true,
+          subscriptionTier: true,
+          subscriptionPeriodStart: true,
+        },
+      });
+
       // Reset agent filing preference when tier changes away from agent
       const resetAgent = updateData.subscriptionTier && updateData.subscriptionTier !== "agent";
 
@@ -134,12 +173,7 @@ export async function POST(req: NextRequest) {
       // Stripe subscriptions, triggering this webhook). findFirst handles
       // this gracefully — if null, we skip the email.
       if (status === "past_due" || status === "cancelled") {
-        const user = await prisma.user.findFirst({
-          where: { stripeCustomerId: customerId },
-          select: { email: true },
-        });
-
-        if (user) {
+        if (userBefore) {
           const appUrl =
             process.env.NEXT_PUBLIC_APP_URL ||
             process.env.NEXTAUTH_URL ||
@@ -150,16 +184,50 @@ export async function POST(req: NextRequest) {
               const { subject, html } = buildPaymentFailedEmail({
                 settingsUrl: `${appUrl}/settings`,
               });
-              await sendEmail({ to: user.email, subject, html });
+              await sendEmail({ to: userBefore.email, subject, html });
             } else if (status === "cancelled") {
               const { subject, html } = buildSubscriptionCancelledEmail({
                 choosePlanUrl: `${appUrl}/choose-plan`,
               });
-              await sendEmail({ to: user.email, subject, html });
+              await sendEmail({ to: userBefore.email, subject, html });
             }
           } catch {
             // Email failure shouldn't break the webhook
           }
+        }
+      }
+
+      // Admin notifications for payment events
+      if (userBefore) {
+        try {
+          if (status === "active" && event.type === "invoice.paid") {
+            const invoice = dataObject as Stripe.Invoice;
+            await notifyAdmins({
+              kind: "payment_succeeded",
+              userEmail: userBefore.email,
+              userName: userBefore.name,
+              amountPence: invoice.amount_paid ?? 0,
+              currency: invoice.currency ?? "gbp",
+              tier: updateData.subscriptionTier ?? userBefore.subscriptionTier,
+              isFirstPayment: userBefore.subscriptionPeriodStart === null,
+            });
+          } else if (status === "past_due") {
+            await notifyAdmins({
+              kind: "payment_failed",
+              userEmail: userBefore.email,
+              userName: userBefore.name,
+              tier: userBefore.subscriptionTier,
+            });
+          } else if (status === "cancelled") {
+            await notifyAdmins({
+              kind: "subscription_cancelled",
+              userEmail: userBefore.email,
+              userName: userBefore.name,
+              previousTier: userBefore.subscriptionTier,
+            });
+          }
+        } catch (err) {
+          console.error(`Failed to notify admins of ${status} event:`, err);
         }
       }
     }

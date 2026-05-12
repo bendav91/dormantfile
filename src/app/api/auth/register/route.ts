@@ -7,6 +7,7 @@ import { Prisma } from "@prisma/client";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email/client";
 import { buildVerificationEmail } from "@/lib/email/templates";
+import { notifyAdmins } from "@/lib/email/admin-notifications";
 
 export async function POST(request: Request) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
@@ -62,6 +63,17 @@ export async function POST(request: Request) {
         name: name.trim(),
       },
     });
+
+    // Notify admins of new signup (failure doesn't block registration)
+    try {
+      await notifyAdmins({
+        kind: "signup",
+        userEmail: user.email,
+        userName: user.name,
+      });
+    } catch (err) {
+      console.error("Failed to notify admins of signup:", err);
+    }
 
     // Send verification email (failure doesn't block registration)
     try {
