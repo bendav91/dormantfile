@@ -18,7 +18,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { mode?: string; subject?: string; bodyMarkdown?: string };
+  let body: {
+    mode?: string;
+    subject?: string;
+    bodyMarkdown?: string;
+    omit?: unknown;
+  };
   try {
     body = await req.json();
   } catch {
@@ -26,6 +31,22 @@ export async function POST(req: NextRequest) {
   }
 
   const { mode, subject, bodyMarkdown } = body;
+
+  // Optional list of email addresses to exclude from the send.
+  // Accept array of strings, normalise to lowercase + trim, dedupe.
+  const omitSet = new Set<string>();
+  if (body.omit !== undefined) {
+    if (!Array.isArray(body.omit) || body.omit.some((e) => typeof e !== "string")) {
+      return NextResponse.json(
+        { error: "omit must be an array of email strings" },
+        { status: 400 },
+      );
+    }
+    for (const raw of body.omit as string[]) {
+      const normalised = raw.trim().toLowerCase();
+      if (normalised) omitSet.add(normalised);
+    }
+  }
 
   if (mode !== "preview" && mode !== "send") {
     return NextResponse.json({ error: "mode must be 'preview' or 'send'" }, { status: 400 });
@@ -78,10 +99,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, recipient: admin.email });
   }
 
-  const recipients = await prisma.user.findMany({
+  const allVerified = await prisma.user.findMany({
     where: { emailVerified: { not: null } },
     select: { id: true, email: true },
   });
+
+  const recipients = omitSet.size > 0
+    ? allVerified.filter((u) => !omitSet.has(u.email.toLowerCase()))
+    : allVerified;
+  const omittedCount = allVerified.length - recipients.length;
 
   // Use Resend's /emails/batch endpoint: one HTTP call per chunk avoids the
   // per-second send rate limit that was silently dropping parallel emails.
@@ -118,6 +144,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     recipientCount: recipients.length,
+    omittedCount,
     sendErrors,
     broadcastId: broadcast.id,
   });

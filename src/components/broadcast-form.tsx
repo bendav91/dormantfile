@@ -7,10 +7,22 @@ import { cn } from "@/lib/cn";
 interface SendResponse {
   ok: boolean;
   recipientCount?: number;
+  omittedCount?: number;
   sendErrors?: number;
   broadcastId?: string;
   recipient?: string;
   error?: string;
+}
+
+function parseOmitList(raw: string): string[] {
+  return Array.from(
+    new Set(
+      raw
+        .split(/[\n,;]/)
+        .map((s) => s.trim().toLowerCase())
+        .filter((s) => s.length > 0),
+    ),
+  );
 }
 
 interface BroadcastFormProps {
@@ -21,17 +33,21 @@ interface BroadcastFormProps {
 export default function BroadcastForm({ recipientCount, adminEmail }: BroadcastFormProps) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [omitRaw, setOmitRaw] = useState("");
   const [busy, setBusy] = useState<"preview" | "send" | null>(null);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
 
   const subjectLen = subject.length;
   const bodyLen = body.length;
+  const omitList = parseOmitList(omitRaw);
   const disabled = busy !== null || subject.trim().length === 0 || body.trim().length === 0;
 
   async function submit(mode: "preview" | "send") {
     if (mode === "send") {
       const ok = window.confirm(
-        `Send to ${recipientCount} verified customer${recipientCount === 1 ? "" : "s"}? This can't be undone.`,
+        omitList.length > 0
+          ? `Send to ${recipientCount} verified customer${recipientCount === 1 ? "" : "s"}, excluding ${omitList.length} address${omitList.length === 1 ? "" : "es"}? This can't be undone.`
+          : `Send to ${recipientCount} verified customer${recipientCount === 1 ? "" : "s"}? This can't be undone.`,
       );
       if (!ok) return;
     }
@@ -43,7 +59,12 @@ export default function BroadcastForm({ recipientCount, adminEmail }: BroadcastF
       const res = await fetch("/api/admin/broadcast", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, subject, bodyMarkdown: body }),
+        body: JSON.stringify({
+          mode,
+          subject,
+          bodyMarkdown: body,
+          omit: omitList,
+        }),
       });
       const data = (await res.json()) as SendResponse;
 
@@ -59,12 +80,15 @@ export default function BroadcastForm({ recipientCount, adminEmail }: BroadcastF
           (data.sendErrors ?? 0) > 0
             ? ` (${data.sendErrors} failed — check Vercel logs)`
             : "";
+        const omitted =
+          (data.omittedCount ?? 0) > 0 ? `, ${data.omittedCount} omitted` : "";
         setMessage({
           kind: "ok",
-          text: `Sent to ${data.recipientCount} customer${data.recipientCount === 1 ? "" : "s"}${errs}.`,
+          text: `Sent to ${data.recipientCount} customer${data.recipientCount === 1 ? "" : "s"}${omitted}${errs}.`,
         });
         setSubject("");
         setBody("");
+        setOmitRaw("");
       }
     } catch (err) {
       setMessage({
@@ -107,6 +131,15 @@ export default function BroadcastForm({ recipientCount, adminEmail }: BroadcastF
           <strong className="text-foreground">
             {recipientCount} verified customer{recipientCount === 1 ? "" : "s"}
           </strong>
+          {omitList.length > 0 && (
+            <>
+              , excluding{" "}
+              <strong className="text-foreground">
+                {omitList.length} address{omitList.length === 1 ? "" : "es"}
+              </strong>{" "}
+              (matches only count toward the exclusion)
+            </>
+          )}
           . Preview goes to <strong className="text-foreground">{adminEmail}</strong>.
         </p>
       </div>
@@ -155,6 +188,23 @@ export default function BroadcastForm({ recipientCount, adminEmail }: BroadcastF
           onChange={(e) => setBody(e.target.value)}
           rows={16}
           placeholder={"Hi,\n\nWe wanted to let you know about an upcoming change to..."}
+          className="w-full px-3 py-2 rounded-lg bg-inset border border-border text-sm text-foreground font-mono leading-relaxed"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="bcast-omit" className="text-xs font-semibold text-foreground">
+          Exclude these addresses{" "}
+          <span className="text-muted font-normal">
+            (one per line — useful for re-sending after a partial failure)
+          </span>
+        </label>
+        <textarea
+          id="bcast-omit"
+          value={omitRaw}
+          onChange={(e) => setOmitRaw(e.target.value)}
+          rows={4}
+          placeholder={"alice@example.com\nbob@example.com"}
           className="w-full px-3 py-2 rounded-lg bg-inset border border-border text-sm text-foreground font-mono leading-relaxed"
         />
       </div>

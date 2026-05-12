@@ -133,6 +133,7 @@ describe("POST /api/admin/broadcast", () => {
     expect(json).toEqual({
       ok: true,
       recipientCount: 3,
+      omittedCount: 0,
       sendErrors: 0,
       broadcastId: "b1",
     });
@@ -191,6 +192,73 @@ describe("POST /api/admin/broadcast", () => {
       data: expect.objectContaining({ sendErrors: 1, recipientCount: 2 }),
       select: { id: true },
     });
+  });
+
+  it("filters out recipients whose email is in the omit list", async () => {
+    vi.mocked(requireAdmin).mockResolvedValue(adminSession);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      { id: "u1", email: "a@x.com" },
+      { id: "u2", email: "b@x.com" },
+      { id: "u3", email: "c@x.com" },
+    ] as never);
+    vi.mocked(sendEmailBatch).mockResolvedValue({ sent: 2, failed: 0 });
+    vi.mocked(prisma.broadcastEmail.create).mockResolvedValue({ id: "b1" } as never);
+
+    const res = await POST(
+      makeRequest({
+        mode: "send",
+        subject: "Hi",
+        bodyMarkdown: "Hi",
+        omit: ["b@x.com"],
+      }) as never,
+    );
+
+    const json = await res.json();
+    expect(res.status).toBe(200);
+    expect(json.recipientCount).toBe(2);
+    expect(json.omittedCount).toBe(1);
+    const batchArg = vi.mocked(sendEmailBatch).mock.calls[0][0];
+    expect(batchArg.map((e) => e.to)).toEqual(["a@x.com", "c@x.com"]);
+  });
+
+  it("normalises omit entries (case + whitespace) and dedupes", async () => {
+    vi.mocked(requireAdmin).mockResolvedValue(adminSession);
+    vi.mocked(prisma.user.findMany).mockResolvedValue([
+      { id: "u1", email: "alice@x.com" },
+      { id: "u2", email: "bob@x.com" },
+    ] as never);
+    vi.mocked(sendEmailBatch).mockResolvedValue({ sent: 1, failed: 0 });
+    vi.mocked(prisma.broadcastEmail.create).mockResolvedValue({ id: "b1" } as never);
+
+    const res = await POST(
+      makeRequest({
+        mode: "send",
+        subject: "Hi",
+        bodyMarkdown: "Hi",
+        // Mixed case, whitespace, duplicate
+        omit: ["  ALICE@X.com ", "alice@x.com", "stranger@nope.com"],
+      }) as never,
+    );
+
+    const json = await res.json();
+    expect(json.recipientCount).toBe(1);
+    // omittedCount counts only those that actually matched a recipient
+    expect(json.omittedCount).toBe(1);
+    const batchArg = vi.mocked(sendEmailBatch).mock.calls[0][0];
+    expect(batchArg.map((e) => e.to)).toEqual(["bob@x.com"]);
+  });
+
+  it("rejects omit when not an array of strings", async () => {
+    vi.mocked(requireAdmin).mockResolvedValue(adminSession);
+    const res = await POST(
+      makeRequest({
+        mode: "send",
+        subject: "Hi",
+        bodyMarkdown: "Hi",
+        omit: "alice@x.com",
+      }) as never,
+    );
+    expect(res.status).toBe(400);
   });
 
   it("rejects subject over 200 chars", async () => {
