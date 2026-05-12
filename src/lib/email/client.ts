@@ -35,7 +35,7 @@ export async function sendEmail({
    */
   idempotencyKey?: string;
 }) {
-  return resend.emails.send(
+  const result = await resend.emails.send(
     {
       from: FROM_ADDRESS,
       to,
@@ -46,4 +46,59 @@ export async function sendEmail({
     },
     idempotencyKey ? { idempotencyKey } : undefined,
   );
+
+  // Resend returns { data, error } — errors are NOT thrown by the SDK.
+  // Surface them as exceptions so callers' try/catch + telemetry work.
+  if (result.error) {
+    const err = new Error(
+      `Resend send failed: ${result.error.name} — ${result.error.message}`,
+    );
+    (err as Error & { resendError?: unknown }).resendError = result.error;
+    throw err;
+  }
+
+  return result;
+}
+
+/**
+ * Send up to 100 emails in a single Resend `/emails/batch` call. For more
+ * than 100 recipients, the caller should chunk. Returns the number of
+ * successful sends and the number of failures (with the first error message
+ * for diagnostics).
+ */
+export async function sendEmailBatch(
+  emails: Array<{
+    to: string;
+    subject: string;
+    html: string;
+    replyTo?: string;
+  }>,
+): Promise<{ sent: number; failed: number; firstError?: string }> {
+  if (emails.length === 0) return { sent: 0, failed: 0 };
+
+  const payload = emails.map((e) => ({
+    from: FROM_ADDRESS,
+    to: e.to,
+    subject: e.subject,
+    html: e.html,
+    replyTo: e.replyTo ?? REPLY_TO_ADDRESS,
+  }));
+
+  const result = await resend.batch.send(payload);
+
+  if (result.error) {
+    return {
+      sent: 0,
+      failed: emails.length,
+      firstError: `${result.error.name} — ${result.error.message}`,
+    };
+  }
+
+  // batch.send with default "strict" validation returns one entry per email,
+  // each with an `id` on success. We treat anything missing an `id` as a
+  // failure (Resend rarely returns partial-success arrays, but be defensive).
+  const items: Array<{ id?: string }> = result.data?.data ?? [];
+  const sent = items.filter((i) => i.id).length;
+  const failed = emails.length - sent;
+  return { sent, failed };
 }

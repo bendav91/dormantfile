@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/db";
-import { sendEmail } from "@/lib/email/client";
+import { sendEmail, sendEmailBatch } from "@/lib/email/client";
 import { buildBroadcastEmail } from "@/lib/email/templates";
 import { renderMarkdownForEmail } from "@/lib/email/render-markdown";
+
+const RESEND_BATCH_SIZE = 100;
 
 export const maxDuration = 300;
 
@@ -81,22 +83,24 @@ export async function POST(req: NextRequest) {
     select: { id: true, email: true },
   });
 
+  // Use Resend's /emails/batch endpoint: one HTTP call per chunk avoids the
+  // per-second send rate limit that was silently dropping parallel emails.
   let sendErrors = 0;
-  let firstError: unknown = null;
+  let firstError: string | undefined;
 
-  await Promise.all(
-    recipients.map(async (recipient) => {
-      try {
-        await sendEmail({ to: recipient.email, subject: finalSubject, html });
-      } catch (err) {
-        sendErrors++;
-        if (!firstError) firstError = err;
-      }
-    }),
-  );
+  for (let i = 0; i < recipients.length; i += RESEND_BATCH_SIZE) {
+    const chunk = recipients.slice(i, i + RESEND_BATCH_SIZE);
+    const result = await sendEmailBatch(
+      chunk.map((r) => ({ to: r.email, subject: finalSubject, html })),
+    );
+    sendErrors += result.failed;
+    if (!firstError && result.firstError) firstError = result.firstError;
+  }
 
-  if (firstError) {
-    console.error(`Broadcast send: ${sendErrors}/${recipients.length} failed. First error:`, firstError);
+  if (sendErrors > 0) {
+    console.error(
+      `Broadcast send: ${sendErrors}/${recipients.length} failed. First error: ${firstError ?? "(none captured)"}`,
+    );
   }
 
   const broadcast = await prisma.broadcastEmail.create({

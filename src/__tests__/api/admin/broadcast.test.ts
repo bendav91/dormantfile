@@ -18,12 +18,13 @@ vi.mock("@/lib/db", () => ({
 
 vi.mock("@/lib/email/client", () => ({
   sendEmail: vi.fn(),
+  sendEmailBatch: vi.fn(),
 }));
 
 import { POST } from "@/app/api/admin/broadcast/route";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/db";
-import { sendEmail } from "@/lib/email/client";
+import { sendEmail, sendEmailBatch } from "@/lib/email/client";
 
 const adminSession = { user: { id: "admin-1" } } as never;
 
@@ -96,14 +97,14 @@ describe("POST /api/admin/broadcast", () => {
     expect(prisma.broadcastEmail.create).not.toHaveBeenCalled();
   });
 
-  it("send mode sends to all verified users and creates audit row", async () => {
+  it("send mode batches all verified users in one Resend call and creates audit row", async () => {
     vi.mocked(requireAdmin).mockResolvedValue(adminSession);
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: "u1", email: "a@x.com" },
       { id: "u2", email: "b@x.com" },
       { id: "u3", email: "c@x.com" },
     ] as never);
-    vi.mocked(sendEmail).mockResolvedValue({} as never);
+    vi.mocked(sendEmailBatch).mockResolvedValue({ sent: 3, failed: 0 });
     vi.mocked(prisma.broadcastEmail.create).mockResolvedValue({ id: "b1" } as never);
 
     const res = await POST(
@@ -116,7 +117,10 @@ describe("POST /api/admin/broadcast", () => {
 
     const json = await res.json();
     expect(res.status).toBe(200);
-    expect(sendEmail).toHaveBeenCalledTimes(3);
+    expect(sendEmailBatch).toHaveBeenCalledTimes(1);
+    const batchArg = vi.mocked(sendEmailBatch).mock.calls[0][0];
+    expect(batchArg).toHaveLength(3);
+    expect(batchArg.map((e) => e.to)).toEqual(["a@x.com", "b@x.com", "c@x.com"]);
     expect(prisma.broadcastEmail.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         sentByUserId: "admin-1",
@@ -134,15 +138,41 @@ describe("POST /api/admin/broadcast", () => {
     });
   });
 
-  it("counts and surfaces sendErrors when some sends fail", async () => {
+  it("chunks recipients above the 100-per-batch Resend limit", async () => {
+    vi.mocked(requireAdmin).mockResolvedValue(adminSession);
+    const recipients = Array.from({ length: 250 }, (_, i) => ({
+      id: `u${i}`,
+      email: `user${i}@x.com`,
+    }));
+    vi.mocked(prisma.user.findMany).mockResolvedValue(recipients as never);
+    vi.mocked(sendEmailBatch)
+      .mockResolvedValueOnce({ sent: 100, failed: 0 })
+      .mockResolvedValueOnce({ sent: 100, failed: 0 })
+      .mockResolvedValueOnce({ sent: 50, failed: 0 });
+    vi.mocked(prisma.broadcastEmail.create).mockResolvedValue({ id: "b1" } as never);
+
+    const res = await POST(
+      makeRequest({ mode: "send", subject: "Hi", bodyMarkdown: "Hi" }) as never,
+    );
+
+    expect(res.status).toBe(200);
+    expect(sendEmailBatch).toHaveBeenCalledTimes(3);
+    expect(vi.mocked(sendEmailBatch).mock.calls[0][0]).toHaveLength(100);
+    expect(vi.mocked(sendEmailBatch).mock.calls[1][0]).toHaveLength(100);
+    expect(vi.mocked(sendEmailBatch).mock.calls[2][0]).toHaveLength(50);
+  });
+
+  it("counts and surfaces sendErrors when some batched sends fail", async () => {
     vi.mocked(requireAdmin).mockResolvedValue(adminSession);
     vi.mocked(prisma.user.findMany).mockResolvedValue([
       { id: "u1", email: "a@x.com" },
       { id: "u2", email: "b@x.com" },
     ] as never);
-    vi.mocked(sendEmail)
-      .mockResolvedValueOnce({} as never)
-      .mockRejectedValueOnce(new Error("Resend rejected"));
+    vi.mocked(sendEmailBatch).mockResolvedValue({
+      sent: 1,
+      failed: 1,
+      firstError: "rate_limit_exceeded — Too many requests",
+    });
     vi.mocked(prisma.broadcastEmail.create).mockResolvedValue({ id: "b1" } as never);
 
     const res = await POST(
