@@ -680,3 +680,24 @@ export function buildAdminSubscriptionCancelledEmail(
     }),
   };
 }
+
+// ── Admin broadcast email ────────────────────────────────────────────────
+// Sent from /admin/broadcast — service notices to all verified customers.
+
+interface BroadcastEmailData {
+  subject: string;
+  bodyHtml: string;
+}
+
+export function buildBroadcastEmail(data: BroadcastEmailData): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: data.subject,
+    html: emailShell({
+      includeUnsubscribe: false,
+      content: `<div class="body-text" style="color:#1f2937;font-size:15px;line-height:1.6;">${data.bodyHtml}</div>`,
+    }),
+  };
+}

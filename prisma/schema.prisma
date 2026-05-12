@@ -57,6 +57,7 @@ model User {
   verificationTokens EmailVerificationToken[]
   pendingEmailChange PendingEmailChange?
   review             Review?
+  broadcastsSent     BroadcastEmail[]
 }
 
 model Company {
@@ -182,4 +183,18 @@ model ContactMessage {
   message   String
   readAt    DateTime?
   createdAt DateTime  @default(now())
+}
+
+model BroadcastEmail {
+  id             String   @id @default(cuid())
+  sentByUserId   String
+  sentBy         User     @relation(fields: [sentByUserId], references: [id])
+  subject        String
+  bodyMarkdown   String
+  bodyHtml       String
+  recipientCount Int
+  sendErrors     Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
 }

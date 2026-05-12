@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FileText, Mail, Star } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Mail, Star, Megaphone } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
   { href: "/admin/filings", label: "Filings", icon: FileText },
   { href: "/admin/messages", label: "Messages", icon: Mail, showBadge: true },
   { href: "/admin/reviews", label: "Reviews", icon: Star },
+  { href: "/admin/broadcast", label: "Broadcast", icon: Megaphone },
 ];
 
 export function AdminNav({ unreadCount }: { unreadCount: number }) {
