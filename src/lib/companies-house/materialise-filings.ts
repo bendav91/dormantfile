@@ -12,6 +12,7 @@ export interface MaterialiseFilingsInput {
   registeredForCorpTax: boolean;
   accountsDueOn: string | undefined;
   nextAccountsPeriodEndOn: string | undefined;
+  ctapStartDate?: Date | null;
 }
 
 export interface FilingData {
@@ -111,6 +112,7 @@ export async function materialiseFilings(input: MaterialiseFilingsInput): Promis
     registeredForCorpTax,
     accountsDueOn,
     nextAccountsPeriodEndOn,
+    ctapStartDate,
   } = input;
 
   const incDate = dateOfCreation ? new Date(dateOfCreation) : null;
@@ -191,7 +193,7 @@ export async function materialiseFilings(input: MaterialiseFilingsInput): Promis
 
   const ct600Rows = buildCt600FilingData({
     registeredForCorpTax,
-    ctapStartDate: null,
+    ctapStartDate: ctapStartDate ?? null,
     accountsPeriods,
     existingCt600s,
   });

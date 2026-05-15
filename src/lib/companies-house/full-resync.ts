@@ -90,6 +90,7 @@ export async function fullResyncCompany(companyId: string): Promise<FullResyncRe
     select: {
       companyRegistrationNumber: true,
       registeredForCorpTax: true,
+      ctapStartDate: true,
     },
   });
   if (!company) return { deletedOutstanding: 0, recreated: 0, error: "Company not found" };
@@ -135,8 +136,17 @@ export async function fullResyncCompany(companyId: string): Promise<FullResyncRe
     },
   });
 
+  // Never delete a user-edited CT600 CTAP: it must survive resync so
+  // `materialiseFilings`/`spanHasProtectedCt600` can see it and suppress
+  // regeneration. submitted/accepted/etc. are already excluded (this delete
+  // is status:"outstanding" only); the sole gap is outstanding user-edited
+  // ct600s, so exclude exactly those.
   const { count: deletedOutstanding } = await prisma.filing.deleteMany({
-    where: { companyId, status: "outstanding" },
+    where: {
+      companyId,
+      status: "outstanding",
+      NOT: { filingType: "ct600", ctapUserEdited: true },
+    },
   });
 
   const countBefore = await prisma.filing.count({ where: { companyId } });
@@ -150,6 +160,9 @@ export async function fullResyncCompany(companyId: string): Promise<FullResyncRe
     registeredForCorpTax: company.registeredForCorpTax,
     accountsDueOn: profile.accountsDueOn ?? undefined,
     nextAccountsPeriodEndOn: profile.nextAccountsPeriodEndOn ?? undefined,
+    // Thread the real CT anchor so resync produces the same CTAP chain as
+    // every other generator path.
+    ctapStartDate: company.ctapStartDate,
   });
 
   const countAfter = await prisma.filing.count({ where: { companyId } });

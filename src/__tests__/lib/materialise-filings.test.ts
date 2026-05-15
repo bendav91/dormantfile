@@ -95,6 +95,44 @@ describe("buildCt600FilingData (pure helper)", () => {
     expect(rows).toEqual([]);
   });
 
+  it("(e) non-null ctapStartDate LATER than accounts-period start → CTAPs anchored at ctapStartDate (parity with generateCt600Ctaps anchor)", () => {
+    // ctapStartDate deliberately set AFTER the accounts-period start so the
+    // anchor visibly changes the chain — proves the anchor is now honoured
+    // instead of the previously-hardcoded null.
+    const accountsPeriodStart = d("2024-02-07");
+    const accountsPeriodEnd = d("2025-02-28");
+    const ctapStartDate = d("2024-06-01");
+
+    const accountsPeriods = [
+      { start: accountsPeriodStart, end: accountsPeriodEnd, isFiled: false },
+    ];
+
+    const rows = buildCt600FilingData({
+      registeredForCorpTax: true,
+      ctapStartDate,
+      accountsPeriods,
+      existingCt600s: [],
+    });
+
+    const expectedCtaps = generateCt600Ctaps({
+      accountsPeriodStart,
+      accountsPeriodEnd,
+      anchor: ctapStartDate,
+    });
+
+    expect(rows.length).toBe(expectedCtaps.length);
+    // First CTAP must start at the anchor, NOT the accounts-period start.
+    expect(rows[0].periodStart.getTime()).toBe(ctapStartDate.getTime());
+    expect(rows[0].periodStart.getTime()).not.toBe(accountsPeriodStart.getTime());
+
+    expect(rows.map((r) => r.periodStart.getTime())).toEqual(
+      expectedCtaps.map((c) => c.start.getTime()),
+    );
+    expect(rows.map((r) => r.periodEnd.getTime())).toEqual(
+      expectedCtaps.map((c) => c.end.getTime()),
+    );
+  });
+
   it("(d) multi-period: filed A skipped, protected B skipped, clean C → exactly C's two split CTAPs", () => {
     const accountsPeriods = [
       // A: filed → no rows
