@@ -43,8 +43,8 @@ describe("emailShell", () => {
     expect(baseHtml).toContain("dormantfile.co.uk");
   });
 
-  it("includes address placeholder in footer", () => {
-    expect(baseHtml).toContain("Company address placeholder");
+  it("does not render the address placeholder (gated off until a real registered address is set)", () => {
+    expect(baseHtml).not.toContain("Company address placeholder");
   });
 
   it("does NOT include unsubscribe link by default", () => {

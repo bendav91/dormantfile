@@ -13,9 +13,8 @@ const data: IxbrlCompanyData = {
 describe("generateDormantAccountsIxbrl", () => {
   const html = generateDormantAccountsIxbrl(data);
 
-  it("returns a well-formed HTML document", () => {
+  it("returns a well-formed XHTML document", () => {
     expect(html).toContain("<?xml version");
-    expect(html).toContain("<!DOCTYPE html>");
     expect(html).toContain("<html");
     expect(html).toContain("</html>");
   });
@@ -23,8 +22,8 @@ describe("generateDormantAccountsIxbrl", () => {
   it("includes iXBRL namespaces", () => {
     expect(html).toContain("xmlns:ix=");
     expect(html).toContain("xmlns:xbrli=");
-    expect(html).toContain("xmlns:uk-core=");
-    expect(html).toContain("xmlns:uk-bus=");
+    expect(html).toContain("xmlns:core=");
+    expect(html).toContain("xmlns:bus=");
   });
 
   it("includes ix:header with contexts and units", () => {
@@ -54,10 +53,10 @@ describe("generateDormantAccountsIxbrl", () => {
   });
 
   it("tags financial figures with ix:nonFraction", () => {
-    expect(html).toContain('ix:nonFraction name="uk-core:FixedAssets"');
-    expect(html).toContain('ix:nonFraction name="uk-core:CurrentAssets"');
-    expect(html).toContain('ix:nonFraction name="uk-core:NetAssetsLiabilities"');
-    expect(html).toContain('ix:nonFraction name="uk-core:ShareholderFunds"');
+    expect(html).toContain('ix:nonFraction name="core:CurrentAssets"');
+    expect(html).toContain('ix:nonFraction name="core:NetCurrentAssetsLiabilities"');
+    expect(html).toContain('ix:nonFraction name="core:NetAssetsLiabilities"');
+    expect(html).toContain('ix:nonFraction name="core:Equity"');
   });
 
   it("includes dormant company statement", () => {
@@ -88,14 +87,14 @@ describe("generateDormantAccountsIxbrl", () => {
   describe("with zero share capital (default)", () => {
     it("shows zero for all balance sheet figures", () => {
       const result = generateDormantAccountsIxbrl({ ...data, shareCapital: 0 });
-      // CalledUpShareCapital should be 0
-      expect(result).toMatch(/CalledUpShareCapital[^>]*>0</);
-      // ShareholderFunds should be 0
-      expect(result).toMatch(/ShareholderFunds[^>]*>0</);
       // CurrentAssets should be 0
       expect(result).toMatch(/CurrentAssets[^>]*>0</);
+      // NetCurrentAssetsLiabilities should be 0
+      expect(result).toMatch(/NetCurrentAssetsLiabilities[^>]*>0</);
       // NetAssetsLiabilities should be 0
       expect(result).toMatch(/NetAssetsLiabilities[^>]*>0</);
+      // Equity (capital & reserves) should be 0
+      expect(result).toMatch(/Equity[^>]*>0</);
     });
   });
 
@@ -110,34 +109,33 @@ describe("generateDormantAccountsIxbrl", () => {
       expect(withShareCapital).toMatch(/NetAssetsLiabilities[^>]*>1</);
     });
 
-    it("shows 1 for called up share capital", () => {
-      expect(withShareCapital).toMatch(/CalledUpShareCapital"[^>]*>1</);
+    it("shows 1 for equity (share capital carried as reserves)", () => {
+      expect(withShareCapital).toMatch(/Equity[^>]*>1</);
     });
 
-    it("shows 1 for shareholders funds", () => {
-      expect(withShareCapital).toMatch(/ShareholderFunds[^>]*>1</);
+    it("shows 1 for net current assets", () => {
+      expect(withShareCapital).toMatch(/NetCurrentAssetsLiabilities[^>]*>1</);
     });
 
-    it("keeps fixed assets at zero", () => {
-      expect(withShareCapital).toMatch(/FixedAssets[^>]*>0</);
+    it("does not tag fixed assets (dormant company)", () => {
+      expect(withShareCapital).not.toMatch(/FixedAssets/);
     });
 
     it("keeps creditors at zero", () => {
-      expect(withShareCapital).toMatch(/Creditors-AmountsFallingDueWithinOneYear[^>]*>0</);
+      expect(withShareCapital).toMatch(/Creditors[^>]*>0</);
     });
 
-    it("keeps profit and loss at zero", () => {
-      expect(withShareCapital).toMatch(/ProfitLossAccountReserve[^>]*>0</);
+    it("does not tag a profit and loss reserve (dormant company)", () => {
+      expect(withShareCapital).not.toMatch(/ProfitLossAccountReserve/);
     });
   });
 
   describe("with share capital of £100 (10000 pence)", () => {
     const withLargerCapital = generateDormantAccountsIxbrl({ ...data, shareCapital: 10000 });
 
-    it("shows 100 for current assets and share capital", () => {
+    it("shows 100 for current assets, equity and net assets", () => {
       expect(withLargerCapital).toMatch(/CurrentAssets[^>]*>100</);
-      expect(withLargerCapital).toMatch(/CalledUpShareCapital"[^>]*>100</);
-      expect(withLargerCapital).toMatch(/ShareholderFunds[^>]*>100</);
+      expect(withLargerCapital).toMatch(/Equity[^>]*>100</);
       expect(withLargerCapital).toMatch(/NetAssetsLiabilities[^>]*>100</);
     });
   });
@@ -145,8 +143,8 @@ describe("generateDormantAccountsIxbrl", () => {
   describe("with no share capital specified", () => {
     it("defaults to zero (same as shareCapital: 0)", () => {
       const withoutProp = generateDormantAccountsIxbrl(data);
-      expect(withoutProp).toMatch(/CalledUpShareCapital[^>]*>0</);
-      expect(withoutProp).toMatch(/ShareholderFunds[^>]*>0</);
+      expect(withoutProp).toMatch(/Equity[^>]*>0</);
+      expect(withoutProp).toMatch(/NetAssetsLiabilities[^>]*>0</);
     });
   });
 });
