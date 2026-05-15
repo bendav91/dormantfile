@@ -46,3 +46,6 @@ next-env.d.ts
 .env*.local
 
 /video
+
+# git worktrees
+.worktrees
