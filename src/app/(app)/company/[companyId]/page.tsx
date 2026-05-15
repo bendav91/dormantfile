@@ -13,8 +13,10 @@ import OverviewTab from "@/components/overview-tab";
 import ActivityTab from "@/components/activity-tab";
 import SyncButton from "@/components/sync-button";
 import ArdMismatchBanner from "@/components/ard-mismatch-banner";
+import FirstFilingNote from "@/components/FirstFilingNote";
 import { buildActivityTimeline } from "@/lib/activity-timeline";
 import { generateCt600Ctaps } from "@/lib/ctap";
+import { isFilingLive, isTaxFilingLive } from "@/lib/launch-mode";
 interface PageProps {
   params: Promise<{ companyId: string }>;
   searchParams: Promise<{ tab?: string }>;
@@ -33,6 +35,12 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
     },
   });
   if (!company) redirect("/dashboard");
+
+  const hasSubmittedFiling = company.filings.some(
+    (f) => f.status === "submitted" || f.status === "accepted",
+  );
+  const showFirstFilingNote =
+    !hasSubmittedFiling && (isFilingLive() || isTaxFilingLive());
 
   const outstandingAccountsCount = getOutstandingCount(company.filings as never[], "accounts");
 
@@ -178,6 +186,8 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           newArdDay={company.newArdDay}
         />
       )}
+
+      {showFirstFilingNote && <FirstFilingNote />}
 
       {/* Tab bar */}
       <div className="flex border-b border-border mb-6">
