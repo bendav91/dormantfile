@@ -42,6 +42,7 @@ export function ImpersonateButton({
   return (
     <div className="flex flex-col items-end gap-1">
       <button
+        type="button"
         onClick={handleImpersonate}
         disabled={loading}
         className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md cursor-pointer disabled:opacity-50 text-primary border border-primary-border bg-primary-bg"
@@ -49,7 +50,11 @@ export function ImpersonateButton({
         <UserCog size={12} />
         {loading ? "Starting…" : "Impersonate"}
       </button>
-      {error && <span className="text-xs text-danger">{error}</span>}
+      {error && (
+        <span role="alert" className="text-xs text-danger">
+          {error}
+        </span>
+      )}
     </div>
   );
 }

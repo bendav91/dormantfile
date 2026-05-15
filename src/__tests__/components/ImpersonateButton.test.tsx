@@ -25,6 +25,7 @@ describe("ImpersonateButton", () => {
     render(<ImpersonateButton userId="cust1" name="Acme Ltd" />);
     fireEvent.click(screen.getByRole("button", { name: /impersonate/i }));
     expect(updateMock).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: /impersonate/i })).not.toBeDisabled();
   });
 
   it("on success calls update and navigates to /dashboard", async () => {
