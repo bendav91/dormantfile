@@ -336,7 +336,7 @@ git commit -m "feat: materialiseFilings generates correct split CT600 CTAPs"
 
 - [ ] **Step 1: Failing test** — assert that enabling Corp Tax on a company whose accounts period is `2024-02-07 → 2025-02-28` creates **two** outstanding CT600 rows (the split) sharing the deadline, and creates none for a span already containing a protected CT600.
 - [ ] **Step 2: Run, verify fail.**
-- [ ] **Step 3: Implement.** Replace the `periodsNeedingCt600.map(...)` body so each accounts period that needs CT600 expands via `generateCt600Ctaps({ accountsPeriodStart: f.periodStart, accountsPeriodEnd: f.periodEnd, anchor: ctapStartDate ?? null })` into one row per CTAP (drop the `ctapEnd = f.periodEnd` / `calculateCT600Deadline(ctapEnd)` logic). Before expanding, skip spans where `spanHasProtectedCt600` is true (load the company's existing CT600 filings). Keep the existing `$transaction`/`createMany`.
+- [ ] **Step 3: Implement.** Replace the `periodsNeedingCt600.map(...)` body so each accounts period that needs CT600 expands via `generateCt600Ctaps({ accountsPeriodStart: f.periodStart, accountsPeriodEnd: f.periodEnd, anchor: ctapStartDate ?? null })` into one row per CTAP (drop the `ctapEnd = f.periodEnd` / `calculateCT600Deadline(ctapEnd)` logic). **Preserve the existing `suppressedAt: f.suppressedAt` passthrough** — carry the source accounts filing's `suppressedAt` onto every generated CTAP row so suppression isn't silently regressed. Before expanding, skip spans where `spanHasProtectedCt600` is true (load the company's existing CT600 filings). Keep the existing `$transaction`/`createMany`.
 - [ ] **Step 4: Run, verify pass.**
 - [ ] **Step 5: Commit** `git add src/app/api/company/update/route.ts src/__tests__/api/company-update-ct600.test.ts && git commit -m "feat: enable-Corp-Tax path generates split CT600 CTAPs"`
 
@@ -460,7 +460,14 @@ export async function POST(req: NextRequest) {
 
 ## Task 9: One-off backfill script
 
-**Files:** Create `scripts/backfill-ct600-ctaps.ts` (mirror `scripts/migrate-materialise-periods.ts` + the dynamic-import dotenv pattern from `scripts/grant-test-subscription.ts`)
+**Files:** Create `scripts/backfill-ct600-ctaps.ts`
+
+> **DB-access pattern (pick one — don't mix the two mirrors):** use the
+> `scripts/grant-test-subscription.ts` pattern — `dotenv.config()` then
+> `const { prisma } = await import("../src/lib/db")` (dynamic import *after* dotenv so
+> `POSTGRES_URL` is loaded). Do **not** use `migrate-materialise-periods.ts`'s
+> standalone `new PrismaClient()/PrismaPg` style; that script is only a structural
+> reference for the per-company loop, not the DB-client approach.
 
 - [ ] **Step 1: Implement.** Loads dotenv then dynamically imports `../src/lib/db`. For every company with `registeredForCorpTax`, per accounts period: if `!spanHasProtectedCt600(span, existingCt600s)`, in a `$transaction` delete the system-generated `outstanding` (`ctapUserEdited=false`) CT600s in span and `createMany` the `generateCt600Ctaps` result (`ctapUserEdited:false`, `status:"outstanding"`). Idempotent (deterministic). Print a per-company summary. Support `--dry-run`.
 - [ ] **Step 2: Unit-test the per-company pure function** (extract `planBackfill(company, accountsPeriods, existingCt600s)` returning `{deleteIds, create[]}`): test idempotency (running on already-correct data yields empty plan) and protection (span with `ctapUserEdited`/submitted → no changes). `src/__tests__/lib/backfill-ct600.test.ts`.
