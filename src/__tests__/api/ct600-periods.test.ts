@@ -175,6 +175,13 @@ describe("POST /api/company/ct600-periods", () => {
           id: "f-old-2",
           status: "failed",
           periodStart: new Date("2024-08-07T00:00:00.000Z"),
+          periodEnd: new Date("2024-11-06T00:00:00.000Z"),
+        },
+        // `rejected` is editable (not immutable) and must be replaced too.
+        {
+          id: "f-old-3",
+          status: "rejected",
+          periodStart: new Date("2024-11-07T00:00:00.000Z"),
           periodEnd: new Date("2025-02-28T00:00:00.000Z"),
         },
         // Outside the span — must be untouched (not in editableIds).
@@ -193,18 +200,91 @@ describe("POST /api/company/ct600-periods", () => {
     expect(await res.json()).toEqual({ ok: true, count: 2 });
 
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    // Atomicity itself is delegated to Prisma; the mock only verifies the two
+    // query-builders (deleteMany then createMany) are passed in order.
     const txArg = vi.mocked(prisma.$transaction).mock.calls[0][0] as unknown as unknown[];
     expect(Array.isArray(txArg)).toBe(true);
     expect(txArg).toHaveLength(2);
 
-    // deleteMany targets exactly the in-span editable ids (f-old-1, f-old-2).
+    // deleteMany targets exactly the in-span editable ids: outstanding (f-old-1),
+    // failed (f-old-2) and rejected (f-old-3) are all editable and replaced.
     expect(prisma.filing.deleteMany).toHaveBeenCalledTimes(1);
     const deleteArg = vi.mocked(prisma.filing.deleteMany).mock.calls[0][0] as {
       where: { id: { in: string[] } };
     };
-    expect(deleteArg.where.id.in.sort()).toEqual(["f-old-1", "f-old-2"]);
+    expect(deleteArg.where.id.in.sort()).toEqual(["f-old-1", "f-old-2", "f-old-3"]);
 
     // createMany inserts the posted periods as user-edited outstanding CT600s.
+    expect(prisma.filing.createMany).toHaveBeenCalledTimes(1);
+    const createArg = vi.mocked(prisma.filing.createMany).mock.calls[0][0] as {
+      data: Array<{
+        companyId: string;
+        filingType: string;
+        periodStart: Date;
+        periodEnd: Date;
+        startDate: Date;
+        endDate: Date;
+        status: string;
+        deadline: Date;
+        ctapUserEdited: boolean;
+      }>;
+    };
+
+    const sharedDeadline = calculateCT600Deadline(new Date(ACCOUNTS_END_ISO));
+
+    expect(createArg.data).toHaveLength(2);
+
+    expect(createArg.data[0].periodStart.toISOString()).toBe(
+      new Date(PERIOD_1.startISO).toISOString(),
+    );
+    expect(createArg.data[0].periodEnd.toISOString()).toBe(
+      new Date(PERIOD_1.endISO).toISOString(),
+    );
+    expect(createArg.data[1].periodStart.toISOString()).toBe(
+      new Date(PERIOD_2.startISO).toISOString(),
+    );
+    expect(createArg.data[1].periodEnd.toISOString()).toBe(
+      new Date(PERIOD_2.endISO).toISOString(),
+    );
+
+    for (const row of createArg.data) {
+      expect(row.companyId).toBe("comp-1");
+      expect(row.filingType).toBe("ct600");
+      expect(row.status).toBe("outstanding");
+      expect(row.ctapUserEdited).toBe(true);
+      expect(row.deadline.toISOString()).toBe(sharedDeadline.toISOString());
+      expect(row.startDate.toISOString()).toBe(row.periodStart.toISOString());
+      expect(row.endDate.toISOString()).toBe(row.periodEnd.toISOString());
+    }
+  });
+
+  it("first-time set: no existing CT600s -> deleteMany with empty id list, createMany the posted periods", async () => {
+    // company.filings is [] (no CT600 at all) — the first-time "set periods" path.
+    vi.mocked(prisma.company.findFirst).mockResolvedValue({
+      ...mockCompany,
+      filings: [],
+    } as never);
+
+    const res = await POST(makeRequest(validBody()));
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true, count: 2 });
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    // Atomicity itself is delegated to Prisma; the mock only verifies the two
+    // query-builders (deleteMany then createMany) are passed in order.
+    const txArg = vi.mocked(prisma.$transaction).mock.calls[0][0] as unknown as unknown[];
+    expect(Array.isArray(txArg)).toBe(true);
+    expect(txArg).toHaveLength(2);
+
+    // Nothing to delete: editableIds is the empty array.
+    expect(prisma.filing.deleteMany).toHaveBeenCalledTimes(1);
+    const deleteArg = vi.mocked(prisma.filing.deleteMany).mock.calls[0][0] as {
+      where: { id: { in: string[] } };
+    };
+    expect(deleteArg.where.id.in).toEqual([]);
+
+    // createMany still inserts the 2 posted periods as user-edited outstanding CT600s.
     expect(prisma.filing.createMany).toHaveBeenCalledTimes(1);
     const createArg = vi.mocked(prisma.filing.createMany).mock.calls[0][0] as {
       data: Array<{
