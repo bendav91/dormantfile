@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { calculateCT600Deadline, validateUTR } from "@/lib/utils";
+import { validateUTR } from "@/lib/utils";
+import { generateCt600Ctaps, spanHasProtectedCt600 } from "@/lib/ctap";
 
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -87,37 +88,48 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
+    // Existing CT600 filings — used both for dedupe and protected-span checks.
+    const existingCt600s = await prisma.filing.findMany({
+      where: { companyId, filingType: "ct600" },
+      select: { status: true, ctapUserEdited: true, periodStart: true, periodEnd: true },
+    });
     // Deduplicate by periodStart+periodEnd — the unique constraint prevents duplicates
     const existingCt600Keys = new Set(
-      (await prisma.filing.findMany({
-        where: { companyId, filingType: "ct600" },
-        select: { periodStart: true, periodEnd: true },
-      })).map((f) => `${f.periodStart.getTime()}_${f.periodEnd.getTime()}`),
+      existingCt600s.map((f) => `${f.periodStart.getTime()}_${f.periodEnd.getTime()}`),
     );
 
     const periodsNeedingCt600 = accountsFilings.filter(
       (f) => !existingCt600Keys.has(`${f.periodStart.getTime()}_${f.periodEnd.getTime()}`),
     );
 
-    const ct600Filings = periodsNeedingCt600.map((f) => {
-      // For first period, use ctapStartDate if provided; otherwise align with accounts
-      const ctapStart = ctapStartDate && ctapStartDate.getTime() >= f.periodStart.getTime() && ctapStartDate.getTime() <= f.periodEnd.getTime()
-        ? ctapStartDate
-        : f.periodStart;
-      const ctapEnd = f.periodEnd;
-      const ct600Deadline = calculateCT600Deadline(ctapEnd);
+    // Expand each accounts period that needs CT600 into one row per CTAP.
+    // Skip spans already protected by a submitted/edited CT600.
+    const ct600Filings = periodsNeedingCt600.flatMap((f) => {
+      if (
+        spanHasProtectedCt600(
+          { accountsPeriodStart: f.periodStart, accountsPeriodEnd: f.periodEnd },
+          existingCt600s,
+        )
+      ) {
+        return [];
+      }
 
-      return {
+      return generateCt600Ctaps({
+        accountsPeriodStart: f.periodStart,
+        accountsPeriodEnd: f.periodEnd,
+        anchor: ctapStartDate ?? null,
+      }).map((ctap) => ({
         companyId,
         filingType: "ct600" as const,
-        periodStart: ctapStart,
-        periodEnd: ctapEnd,
+        periodStart: ctap.start,
+        periodEnd: ctap.end,
         status: "outstanding" as const,
         suppressedAt: f.suppressedAt,
-        startDate: ctapStart,
-        endDate: ctapEnd,
-        deadline: ct600Deadline,
-      };
+        startDate: ctap.start,
+        endDate: ctap.end,
+        deadline: ctap.deadline,
+        ctapUserEdited: false,
+      }));
     });
 
     await prisma.$transaction([
