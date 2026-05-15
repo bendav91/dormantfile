@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCustomerDetail } from "@/lib/admin";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { AdminCustomerDetail } from "./AdminCustomerDetail";
+import { ImpersonateButton } from "@/components/admin/ImpersonateButton";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -48,6 +49,7 @@ export default async function AdminCustomerDetailPage({
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <ImpersonateButton userId={user.id} name={user.name} />
             <StatusBadge status={user.subscriptionStatus} />
             {user.subscriptionTier !== "none" && (
               <StatusBadge status={user.subscriptionTier} label={user.subscriptionTier} />
