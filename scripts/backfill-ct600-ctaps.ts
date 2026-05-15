@@ -24,6 +24,8 @@
  * entrypoint (guarded so importing the module for tests has no side-effects).
  */
 
+import { pathToFileURL } from "node:url";
+
 import { generateCt600Ctaps, spanHasProtectedCt600 } from "@/lib/ctap";
 
 export interface BackfillCompany {
@@ -125,10 +127,6 @@ export function planBackfill(
 // NOT execute when this module is imported (e.g. by the vitest unit test).
 // ---------------------------------------------------------------------------
 
-const isEntrypoint = Boolean(
-  process.argv[1] && process.argv[1].includes("backfill-ct600-ctaps"),
-);
-
 async function main() {
   const { config } = await import("dotenv");
   config({ path: ".env.local", override: true });
@@ -163,46 +161,80 @@ async function main() {
   let totalDeleted = 0;
   let totalCreated = 0;
   let companiesChanged = 0;
+  const failures: { companyId: string; error: string }[] = [];
 
   for (const company of companies) {
-    const accountsPeriods: AccountsPeriod[] = company.filings
-      .filter((f) => f.filingType === "accounts")
-      .map((f) => ({ start: f.periodStart, end: f.periodEnd }));
+    // Per-company error boundary: a failure on one company must not abort the
+    // whole run (or the whole dry run). Record it and move on; the script is
+    // idempotent so a later re-run safely reconciles any skipped companies.
+    try {
+      const accountsPeriods: AccountsPeriod[] = company.filings
+        .filter((f) => f.filingType === "accounts")
+        .map((f) => ({ start: f.periodStart, end: f.periodEnd }));
 
-    const existingCt600s: ExistingCt600[] = company.filings
-      .filter((f) => f.filingType === "ct600")
-      .map((f) => ({
-        id: f.id,
-        status: f.status,
-        ctapUserEdited: f.ctapUserEdited,
-        periodStart: f.periodStart,
-        periodEnd: f.periodEnd,
-      }));
+      const existingCt600s: ExistingCt600[] = company.filings
+        .filter((f) => f.filingType === "ct600")
+        .map((f) => ({
+          id: f.id,
+          status: f.status,
+          ctapUserEdited: f.ctapUserEdited,
+          periodStart: f.periodStart,
+          periodEnd: f.periodEnd,
+        }));
 
-    const plan = planBackfill(
-      { id: company.id, ctapStartDate: company.ctapStartDate },
-      accountsPeriods,
-      existingCt600s,
-    );
+      const plan = planBackfill(
+        { id: company.id, ctapStartDate: company.ctapStartDate },
+        accountsPeriods,
+        existingCt600s,
+      );
 
-    if (plan.deleteIds.length === 0 && plan.create.length === 0) continue;
+      if (plan.deleteIds.length === 0 && plan.create.length === 0) continue;
 
-    companiesChanged++;
-    totalDeleted += plan.deleteIds.length;
-    totalCreated += plan.create.length;
+      companiesChanged++;
+      totalDeleted += plan.deleteIds.length;
+      totalCreated += plan.create.length;
 
-    console.log(
-      `${company.companyName} (${company.companyRegistrationNumber}): ` +
-        `${plan.deleteIds.length} system CT600s deleted, ` +
-        `${plan.create.length} CTAPs recreated` +
-        (dryRun ? " [dry run]" : ""),
-    );
+      // Machine-readable audit line: an exact post-hoc record of which Filing
+      // ids were removed and how many were created, for both dry and live runs.
+      console.log(
+        JSON.stringify({
+          companyId: company.id,
+          deletedIds: plan.deleteIds,
+          createCount: plan.create.length,
+        }),
+      );
 
-    if (!dryRun) {
-      await prisma.$transaction([
-        prisma.filing.deleteMany({ where: { id: { in: plan.deleteIds } } }),
-        prisma.filing.createMany({ data: plan.create }),
-      ]);
+      console.log(
+        `${company.companyName} (${company.companyRegistrationNumber}): ` +
+          `${plan.deleteIds.length} system CT600s deleted, ` +
+          `${plan.create.length} CTAPs recreated` +
+          (dryRun ? " [dry run]" : ""),
+      );
+
+      if (!dryRun) {
+        // Ordering matters: notification.deleteMany then filing.deleteMany must
+        // run before filing.createMany so the deletes free the
+        // @@unique([companyId, periodStart, periodEnd, filingType]) key before
+        // createMany reinserts. Do not reorder or split this array.
+        await prisma.$transaction([
+          // Defensive no-op today: CT600 filings have no Notifications by
+          // construction (the reminders cron is accounts-only), but clearing
+          // them first future-proofs the Notification.filingId FK
+          // (ON DELETE RESTRICT) so the filing.deleteMany can never abort.
+          prisma.notification.deleteMany({
+            where: { filingId: { in: plan.deleteIds } },
+          }),
+          prisma.filing.deleteMany({ where: { id: { in: plan.deleteIds } } }),
+          prisma.filing.createMany({ data: plan.create }),
+        ]);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(
+        `FAILED company ${company.id} (${company.companyRegistrationNumber}): ${message}`,
+      );
+      failures.push({ companyId: company.id, error: message });
+      continue;
     }
   }
 
@@ -210,11 +242,19 @@ async function main() {
   console.log(`  Companies changed: ${companiesChanged}`);
   console.log(`  System CT600s deleted: ${totalDeleted}`);
   console.log(`  CTAPs recreated: ${totalCreated}`);
+  console.log(`  Failures: ${failures.length}`);
+  if (failures.length > 0) {
+    console.log(
+      `  Failed company ids: ${failures.map((f) => f.companyId).join(", ")}`,
+    );
+  }
 
   await prisma.$disconnect();
+
+  process.exit(failures.length > 0 ? 1 : 0);
 }
 
-if (isEntrypoint) {
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   main().catch((err) => {
     console.error(err);
     process.exit(1);

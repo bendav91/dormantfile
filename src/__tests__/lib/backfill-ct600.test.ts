@@ -145,6 +145,52 @@ describe("planBackfill", () => {
     expect(plan.create).toEqual([]);
   });
 
+  it("isolates per span: cleans a clean span while leaving a protected span untouched", () => {
+    const company = { id: "co1", ctapStartDate: null };
+    // Span A: clean (only a system outstanding ct600). Span B: protected (a
+    // submitted ct600). The plan must touch only span A.
+    const accountsPeriods = [
+      { start: d("2024-02-07"), end: d("2025-02-28") },
+      { start: d("2025-03-01"), end: d("2026-02-28") },
+    ];
+    const existingCt600s = [
+      {
+        id: "a-sys",
+        status: "outstanding",
+        ctapUserEdited: false,
+        periodStart: d("2024-02-07"),
+        periodEnd: d("2025-02-06"),
+      },
+      {
+        id: "b-sub",
+        status: "submitted",
+        ctapUserEdited: false,
+        periodStart: d("2025-03-01"),
+        periodEnd: d("2026-02-28"),
+      },
+    ];
+
+    const plan = planBackfill(company, accountsPeriods, existingCt600s);
+
+    // Only span A's system row is deleted; span B's submitted row is protected.
+    expect(plan.deleteIds).toEqual(["a-sys"]);
+
+    const spanACtaps = generateCt600Ctaps({
+      accountsPeriodStart: d("2024-02-07"),
+      accountsPeriodEnd: d("2025-02-28"),
+      anchor: null,
+    });
+    expect(plan.create).toHaveLength(spanACtaps.length);
+    plan.create.forEach((row, i) => {
+      expect(row.periodStart).toEqual(spanACtaps[i].start);
+      expect(row.periodEnd).toEqual(spanACtaps[i].end);
+    });
+    // Nothing created for span B (the protected span).
+    plan.create.forEach((row) => {
+      expect(row.periodStart.getTime()).toBeLessThan(d("2025-03-01").getTime());
+    });
+  });
+
   it("only deletes in-span system rows, leaving out-of-span rows untouched", () => {
     const company = { id: "co1", ctapStartDate: null };
     const accountsPeriods = [{ start: d("2024-02-07"), end: d("2025-02-28") }];
