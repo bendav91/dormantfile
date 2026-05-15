@@ -18,14 +18,60 @@ function makeFetchResponse(body: string, status = 200): Response {
   } as unknown as Response;
 }
 
+// Mirrors a real HMRC acknowledgement: ResponseEndPoint is nested inside
+// Header/MessageDetails and points at the /poll endpoint.
 const SUBMIT_RESPONSE_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
   <Header>
     <MessageDetails>
+      <Qualifier>acknowledgement</Qualifier>
       <CorrelationID>corr-abc-123</CorrelationID>
+      <ResponseEndPoint PollInterval="30">https://poll.example.com/poll</ResponseEndPoint>
     </MessageDetails>
   </Header>
-  <ResponseEndPoint PollInterval="30">https://poll.example.com/poll</ResponseEndPoint>
+</GovTalkMessage>`;
+
+// Real HMRC schema-rejection shape: Qualifier=error, errors nested under
+// GovTalkDetails, empty CorrelationID.
+const SUBMIT_ERROR_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
+  <Header>
+    <MessageDetails>
+      <Qualifier>error</Qualifier>
+      <CorrelationID></CorrelationID>
+    </MessageDetails>
+  </Header>
+  <GovTalkDetails>
+    <Keys/>
+    <GovTalkErrors>
+      <Error>
+        <RaisedBy>System</RaisedBy>
+        <Number>1001</Number>
+        <Type>fatal</Type>
+        <Text>cvc-complex-type.2.4.d: Invalid content was found starting with element 'ChannelRouting'.</Text>
+      </Error>
+    </GovTalkErrors>
+  </GovTalkDetails>
+  <Body/>
+</GovTalkMessage>`;
+
+// Real HMRC business-rejection shape: errors nested under GovTalkDetails.
+const REJECTED_POLL_GOVTALKDETAILS_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
+  <Header>
+    <MessageDetails>
+      <Qualifier>error</Qualifier>
+    </MessageDetails>
+  </Header>
+  <GovTalkDetails>
+    <GovTalkErrors>
+      <Error>
+        <Number>1046</Number>
+        <Text>Authentication Failure</Text>
+      </Error>
+    </GovTalkErrors>
+  </GovTalkDetails>
+  <Body/>
 </GovTalkMessage>`;
 
 const ACCEPTED_POLL_XML = `<?xml version="1.0" encoding="UTF-8"?>
@@ -87,6 +133,14 @@ describe("submitToHmrc", () => {
 
     await expect(submitToHmrc("<xml>submission</xml>", ENDPOINT)).rejects.toThrow();
   });
+
+  it("surfaces the actual HMRC GovTalk error text (nested under GovTalkDetails)", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(makeFetchResponse(SUBMIT_ERROR_XML));
+
+    await expect(submitToHmrc("<xml>submission</xml>", ENDPOINT)).rejects.toThrow(
+      /HMRC submission error:.*1001.*ChannelRouting/,
+    );
+  });
 });
 
 describe("pollHmrc", () => {
@@ -120,5 +174,17 @@ describe("pollHmrc", () => {
     expect(result.status).toBe("rejected");
     expect(result.message).toContain("Submission rejected by HMRC");
     expect(result.responsePayload).toBeDefined();
+  });
+
+  it("reads errors nested under GovTalkDetails and maps code 1046 to a helpful message", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      makeFetchResponse(REJECTED_POLL_GOVTALKDETAILS_XML),
+    );
+
+    const result = await pollHmrc("corr-abc-123", ENDPOINT, vendor);
+
+    expect(result.status).toBe("rejected");
+    expect(result.errorCode).toBe("1046");
+    expect(result.message).toContain("not enrolled for Corporation Tax");
   });
 });

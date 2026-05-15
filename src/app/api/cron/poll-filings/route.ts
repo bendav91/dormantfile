@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
 
       if (filing.filingType === "ct600") {
         if (!vendor) continue;
-        const endpoint = process.env.HMRC_ENDPOINT;
+        const endpoint = filing.pollEndpoint ?? process.env.HMRC_ENDPOINT;
         if (!endpoint) continue;
         const result = await pollHmrc(filing.correlationId!, endpoint, vendor);
         pollStatus = result.status;

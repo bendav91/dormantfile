@@ -83,7 +83,9 @@ export async function POST(req: NextRequest) {
   try {
     if (filing.filingType === "ct600") {
       const vendor = getVendorCredentials();
-      const endpoint = process.env.HMRC_ENDPOINT;
+      // Poll the ResponseEndPoint HMRC returned in the acknowledgement
+      // (the /poll endpoint), not the /submission endpoint.
+      const endpoint = filing.pollEndpoint ?? process.env.HMRC_ENDPOINT;
       if (!endpoint) {
         return NextResponse.json({ error: "HMRC_ENDPOINT is not configured" }, { status: 500 });
       }

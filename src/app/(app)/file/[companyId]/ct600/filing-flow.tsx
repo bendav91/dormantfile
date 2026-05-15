@@ -358,10 +358,18 @@ function StepSubmitting() {
 
 function StepResult({
   result,
+  filingId,
+  checking,
+  checkNote,
+  onCheckStatus,
   onTryAgain,
   onDashboard,
 }: {
   result: ResultState;
+  filingId: string | null;
+  checking: boolean;
+  checkNote: string | null;
+  onCheckStatus: () => void;
   onTryAgain: () => void;
   onDashboard: () => void;
 }) {
@@ -450,11 +458,26 @@ function StepResult({
                 HMRC is still processing
               </h2>
               <p className="text-[15px] text-warning-deep m-0 leading-relaxed">
-                Your return has been submitted but HMRC has not yet confirmed the outcome. You can
-                check the status from your dashboard - it may take a few more minutes.
+                Your return has been submitted but HMRC has not yet confirmed the outcome. Check
+                the status now, or return to your dashboard - it may take a few more minutes.
               </p>
             </div>
           </div>
+          {checkNote !== null && (
+            <p className="text-[13px] text-warning-deep text-center mb-4 m-0">{checkNote}</p>
+          )}
+          {filingId !== null && (
+            <button
+              onClick={onCheckStatus}
+              disabled={checking}
+              className={cn(
+                "focus-ring bg-cta text-card px-6 py-3 rounded-lg font-semibold text-base border-0 transition-all duration-200 inline-flex items-center justify-center gap-2 w-full mb-3 hover:opacity-90 hover:-translate-y-px",
+                checking ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
+              )}
+            >
+              {checking ? "Checking..." : "Check status now"}
+            </button>
+          )}
           <button
             onClick={onDashboard}
             className="focus-ring bg-primary text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
@@ -513,6 +536,9 @@ export default function FilingFlow({
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");
   const [result, setResult] = useState<ResultState | null>(null);
+  const [filingId, setFilingId] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [checkNote, setCheckNote] = useState<string | null>(null);
   const [pendingCredentials, setPendingCredentials] = useState<{
     username: string;
     password: string;
@@ -535,6 +561,7 @@ export default function FilingFlow({
       });
 
       const data = await res.json();
+      setFilingId(data.filingId ?? null);
 
       if (!res.ok) {
         setResult({
@@ -570,8 +597,41 @@ export default function FilingFlow({
     }
   }
 
+  async function handleCheckStatus() {
+    if (!filingId || checking) return;
+    setChecking(true);
+    setCheckNote(null);
+    try {
+      const res = await fetch("/api/file/check-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filingId }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setCheckNote(data.error || "Could not check status. Please try again shortly.");
+        return;
+      }
+
+      if (data.status === "accepted") {
+        setResult({ type: "accepted" });
+      } else if (data.status === "rejected") {
+        setResult({ type: "rejected", message: data.message || "HMRC rejected the filing." });
+      } else {
+        setCheckNote("HMRC is still processing. Please try again in a few minutes.");
+      }
+    } catch {
+      setCheckNote("A network error occurred while checking status.");
+    } finally {
+      setChecking(false);
+    }
+  }
+
   function handleTryAgain() {
     setResult(null);
+    setFilingId(null);
+    setCheckNote(null);
     setStep("credentials");
   }
 
@@ -621,5 +681,15 @@ export default function FilingFlow({
   }
 
   // result step
-  return <StepResult result={result!} onTryAgain={handleTryAgain} onDashboard={handleDashboard} />;
+  return (
+    <StepResult
+      result={result!}
+      filingId={filingId}
+      checking={checking}
+      checkNote={checkNote}
+      onCheckStatus={handleCheckStatus}
+      onTryAgain={handleTryAgain}
+      onDashboard={handleDashboard}
+    />
+  );
 }

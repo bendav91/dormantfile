@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { XMLParser } from "fast-xml-parser";
 import { buildGovTalkMessage, buildPollMessage } from "@/lib/hmrc/xml-builder";
 import type { CT600Data, HmrcCredentials, VendorCredentials } from "@/lib/hmrc/types";
 
@@ -121,6 +122,97 @@ describe("buildGovTalkMessage", () => {
   });
 });
 
+describe("buildGovTalkMessage — special-character credential escaping", () => {
+  // HMRC test password [2] — exercises < > & £ ' ; ] and a space in <Value>.
+  const specialPassword = "doo;w<x.h&bn>p 67J&EE£t'n-w;ld123]w";
+
+  it("XML-escapes a special-character gateway password inside <Value>", async () => {
+    const xml = await buildGovTalkMessage({
+      ct600,
+      credentials: { gatewayUsername: "CTUser100", gatewayPassword: specialPassword },
+      vendor,
+      accountsIxbrl,
+      computationsIxbrl,
+      isTest: true,
+    });
+
+    // Escaping happened, and the raw unescaped password fragment is absent.
+    expect(xml).toContain("&lt;");
+    expect(xml).toContain("&gt;");
+    expect(xml).toContain("&amp;");
+    expect(xml).not.toContain("doo;w<x.h&bn>p");
+
+    // Round-trips losslessly: parsed <Value> equals the original password.
+    const parsed = new XMLParser().parse(xml);
+    const value =
+      parsed.GovTalkMessage.Header.SenderDetails.IDAuthentication.Authentication.Value;
+    expect(value).toBe(specialPassword);
+  });
+
+  it("does not change the IRmark when only the password changes (password is in Header, not Body)", async () => {
+    const irmarkOf = (x: string) => x.match(/<IRmark[^>]*>([^<]+)<\/IRmark>/)?.[1];
+
+    const plain = await buildGovTalkMessage({
+      ct600,
+      credentials,
+      vendor,
+      accountsIxbrl,
+      computationsIxbrl,
+    });
+    const special = await buildGovTalkMessage({
+      ct600,
+      credentials: { gatewayUsername: "CTUser100", gatewayPassword: specialPassword },
+      vendor,
+      accountsIxbrl,
+      computationsIxbrl,
+    });
+
+    expect(irmarkOf(plain)).toBeTruthy();
+    expect(irmarkOf(special)).toBe(irmarkOf(plain));
+  });
+});
+
+describe("GovTalk envelope structure (HMRC envelope schema)", () => {
+  const p = () => new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+
+  it("places ChannelRouting in GovTalkDetails (sibling of Header), never inside Header", async () => {
+    const xml = await buildGovTalkMessage({
+      ct600,
+      credentials,
+      vendor,
+      accountsIxbrl,
+      computationsIxbrl,
+      isTest: true,
+    });
+    const msg = p().parse(xml).GovTalkMessage;
+
+    expect(msg.Header.MessageDetails).toBeTruthy();
+    expect(msg.Header.SenderDetails).toBeTruthy();
+    expect(msg.Header.ChannelRouting).toBeUndefined();
+
+    expect(msg.GovTalkDetails).toBeTruthy();
+    expect(msg.GovTalkDetails.ChannelRouting.Channel.URI).toBe("urn:software:vendor:vendor123");
+    // GovTalk Channel content model is URI, Product?, Version? — no <Name> child.
+    expect(msg.GovTalkDetails.ChannelRouting.Channel.Name).toBeUndefined();
+    expect(xml).toContain("<Version>1.0</Version>");
+    expect(xml).toContain('<Keys><Key Type="UTR">1234567890</Key></Keys>');
+
+    const h = xml.indexOf("</Header>");
+    const g = xml.indexOf("<GovTalkDetails>");
+    const b = xml.indexOf("<Body");
+    expect(h).toBeGreaterThan(-1);
+    expect(g).toBeGreaterThan(h);
+    expect(b).toBeGreaterThan(g);
+  });
+
+  it("poll message also puts ChannelRouting in GovTalkDetails, not Header", () => {
+    const xml = buildPollMessage("corr-123", vendor);
+    const msg = p().parse(xml).GovTalkMessage;
+    expect(msg.Header.ChannelRouting).toBeUndefined();
+    expect(msg.GovTalkDetails.ChannelRouting.Channel.URI).toBe("urn:software:vendor:vendor123");
+  });
+});
+
 describe("buildPollMessage", () => {
   const correlationId = "abc-correlation-123";
 
@@ -139,5 +231,15 @@ describe("buildPollMessage", () => {
   it("includes vendor credentials", () => {
     const xml = buildPollMessage(correlationId, vendor);
     expect(xml).toContain("vendor123");
+  });
+
+  it("defaults GatewayTest to 0 (live)", () => {
+    expect(buildPollMessage(correlationId, vendor)).toContain("<GatewayTest>0</GatewayTest>");
+  });
+
+  it("sets GatewayTest to 1 when polling the test service (must match the submission)", () => {
+    expect(buildPollMessage(correlationId, vendor, true)).toContain(
+      "<GatewayTest>1</GatewayTest>",
+    );
   });
 });

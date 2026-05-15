@@ -7,6 +7,31 @@ const parser = new XMLParser({
   attributeNamePrefix: "@_",
 });
 
+type GovTalkError = { Number?: string | number; Text?: string };
+
+/** HMRC nests errors under GovTalkDetails; some responses use a top-level GovTalkErrors. */
+function extractGovTalkErrors(parsed: unknown): GovTalkError[] {
+  const root = parsed as {
+    GovTalkMessage?: {
+      GovTalkDetails?: { GovTalkErrors?: { Error?: GovTalkError | GovTalkError[] } };
+      GovTalkErrors?: { Error?: GovTalkError | GovTalkError[] };
+    };
+  };
+  const errors =
+    root?.GovTalkMessage?.GovTalkDetails?.GovTalkErrors?.Error ??
+    root?.GovTalkMessage?.GovTalkErrors?.Error;
+  return Array.isArray(errors) ? errors : errors ? [errors] : [];
+}
+
+function formatGovTalkErrors(errors: GovTalkError[]): string {
+  return (
+    errors
+      .map((e) => [e.Number, e.Text].filter(Boolean).join(": "))
+      .filter(Boolean)
+      .join("; ") || "HMRC rejected the submission without a specific error message"
+  );
+}
+
 export async function submitToHmrc(
   govTalkXml: string,
   endpoint: string,
@@ -24,20 +49,36 @@ export async function submitToHmrc(
   const responseXml = await response.text();
   const parsed = parser.parse(responseXml);
 
-  const correlationId = parsed?.GovTalkMessage?.Header?.MessageDetails?.CorrelationID;
+  const messageDetails = parsed?.GovTalkMessage?.Header?.MessageDetails;
+  const qualifier = messageDetails?.Qualifier;
 
+  // Surface the actual HMRC error text — a generic "no correlationId" here
+  // hides the real cause (schema/auth/business validation).
+  const submitErrors = extractGovTalkErrors(parsed);
+  if (qualifier === "error" || submitErrors.length > 0) {
+    throw new Error(`HMRC submission error: ${formatGovTalkErrors(submitErrors)}`);
+  }
+
+  const correlationId = messageDetails?.CorrelationID;
   if (!correlationId) {
     throw new Error("No correlationId found in HMRC response");
   }
 
-  const responseEndPoint = parsed?.GovTalkMessage?.ResponseEndPoint;
-  const pollInterval: number = responseEndPoint?.["@_PollInterval"] ?? 10;
-  const pollEndpoint: string = responseEndPoint?.["#text"] ?? endpoint;
+  // ResponseEndPoint is nested in Header/MessageDetails (per the GovTalk
+  // acknowledgement); it points at the /poll endpoint, which differs from the
+  // /submission endpoint. Polling must use this, not the submission URL.
+  const responseEndPoint =
+    messageDetails?.ResponseEndPoint ?? parsed?.GovTalkMessage?.ResponseEndPoint;
+  const pollInterval =
+    (typeof responseEndPoint === "object" ? responseEndPoint?.["@_PollInterval"] : undefined) ?? 10;
+  const pollEndpoint =
+    (typeof responseEndPoint === "object" ? responseEndPoint?.["#text"] : responseEndPoint) ??
+    endpoint;
 
   return {
     correlationId: String(correlationId),
     pollInterval: Number(pollInterval),
-    endpoint: pollEndpoint,
+    endpoint: String(pollEndpoint),
   };
 }
 
@@ -46,7 +87,10 @@ export async function pollHmrc(
   endpoint: string,
   vendor: VendorCredentials,
 ): Promise<PollResult> {
-  const pollXml = buildPollMessage(correlationId, vendor);
+  // GatewayTest is a schema-fixed value that must match the environment the
+  // submission used; the test /poll endpoint requires GatewayTest=1.
+  const isTest = endpoint.includes("test");
+  const pollXml = buildPollMessage(correlationId, vendor, isTest);
 
   const response = await fetch(endpoint, {
     method: "POST",
@@ -62,19 +106,14 @@ export async function pollHmrc(
   const parsed = parser.parse(responseXml);
 
   const qualifier = parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
+  const errorList = extractGovTalkErrors(parsed);
 
-  if (qualifier === "error") {
-    const errors = parsed?.GovTalkMessage?.GovTalkErrors?.Error;
-    const errorList = Array.isArray(errors) ? errors : errors ? [errors] : [];
-    const errorText =
-      errorList
-        .map((e: { Text?: string }) => e.Text)
-        .filter(Boolean)
-        .join("; ") || "Unknown error";
+  if (qualifier === "error" || errorList.length > 0) {
+    const errorText = formatGovTalkErrors(errorList);
 
     // Extract error codes for specific handling
     const errorCodes = errorList
-      .map((e: { Number?: string | number }) => String(e.Number ?? ""))
+      .map((e) => String(e.Number ?? ""))
       .filter(Boolean);
 
     // 1046 = UTR not enrolled on Government Gateway

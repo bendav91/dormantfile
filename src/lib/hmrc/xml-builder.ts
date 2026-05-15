@@ -64,7 +64,8 @@ export async function buildGovTalkMessage(opts: GovTalkMessageOptions): Promise<
     GovTalkMessage: {
       [`${ATTR}xmlns`]: "http://www.govtalk.gov.uk/CM/envelope",
       EnvelopeVersion: "2.0",
-      Header: buildHeaderObject(senderCredentials, vendor, isTest),
+      Header: buildHeaderObject(senderCredentials, isTest),
+      GovTalkDetails: buildGovTalkDetails(vendor, ct600.uniqueTaxReference),
       Body: {
         ...bodyObj,
         IRmark: {
@@ -81,7 +82,11 @@ export async function buildGovTalkMessage(opts: GovTalkMessageOptions): Promise<
 /**
  * Builds a GovTalk poll request message.
  */
-export function buildPollMessage(correlationId: string, vendor: VendorCredentials): string {
+export function buildPollMessage(
+  correlationId: string,
+  vendor: VendorCredentials,
+  isTest?: boolean,
+): string {
   const builder = makeBuilder();
 
   const pollObj = {
@@ -96,7 +101,7 @@ export function buildPollMessage(correlationId: string, vendor: VendorCredential
           Function: "submit",
           CorrelationID: correlationId,
           Transformation: "XML",
-          GatewayTest: "0",
+          GatewayTest: isTest ? "1" : "0",
         },
         SenderDetails: {
           IDAuthentication: {
@@ -108,15 +113,8 @@ export function buildPollMessage(correlationId: string, vendor: VendorCredential
             },
           },
         },
-        ChannelRouting: {
-          Channel: {
-            URI: `urn:software:vendor:${vendor.vendorId}`,
-            Name: vendor.vendorId,
-            Version: "1.0",
-          },
-          Timestamp: new Date().toISOString(),
-        },
       },
+      GovTalkDetails: buildGovTalkDetails(vendor),
       Body: {},
     },
   };
@@ -126,11 +124,7 @@ export function buildPollMessage(correlationId: string, vendor: VendorCredential
 
 // ─── Private helpers ─────────────────────────────────────────────────────────
 
-function buildHeaderObject(
-  sender: { id: string; password: string },
-  vendor: VendorCredentials,
-  isTest?: boolean,
-) {
+function buildHeaderObject(sender: { id: string; password: string }, isTest?: boolean) {
   return {
     MessageDetails: {
       Class: HMRC_SUBMISSION_CLASS,
@@ -149,10 +143,21 @@ function buildHeaderObject(
         },
       },
     },
+  };
+}
+
+/**
+ * GovTalkDetails is a sibling of Header (between Header and Body) in the
+ * GovTalk envelope schema. ChannelRouting (carrying the vendor URI) belongs
+ * here, NOT in Header — HMRC rejects Header/ChannelRouting with fatal error
+ * 1001 (cvc-complex-type.2.4.d). Keys must precede ChannelRouting.
+ */
+function buildGovTalkDetails(vendor: VendorCredentials, utr?: string) {
+  return {
+    Keys: utr ? { Key: { [`${ATTR}Type`]: "UTR", "#text": utr } } : {},
     ChannelRouting: {
       Channel: {
         URI: `urn:software:vendor:${vendor.vendorId}`,
-        Name: vendor.vendorId,
         Version: "1.0",
       },
       Timestamp: new Date().toISOString(),

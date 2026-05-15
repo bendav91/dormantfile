@@ -346,6 +346,7 @@ export async function POST(req: NextRequest) {
         correlationId: submissionResult.correlationId,
         irmark: irmarkValue,
         pollInterval: submissionResult.pollInterval,
+        pollEndpoint: submissionResult.endpoint,
         submittedAt: new Date(),
       },
     });
