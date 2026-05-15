@@ -109,6 +109,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       firstCompanyId: firstCompany?.id ?? null,
     });
   } catch {
+    // getOnboardingState is pure; this only fires on a programming error.
+    // Degrade gracefully (hide the checklist) rather than 500 the dashboard.
     onboardingState = null;
   }
   const showOnboarding =
