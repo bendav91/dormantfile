@@ -154,6 +154,35 @@ describe("jwt callback — stop impersonation", () => {
     expect(result.emailVerified).toEqual(verified);
     expect(result.impersonatorId).toBeUndefined();
     expect(result.impersonatedName).toBeUndefined();
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      where: { id: "admin1" },
+      select: { name: true, email: true, emailVerified: true },
+    });
+  });
+
+  it("stop with the original admin deleted still restores the id, nulls the rest", async () => {
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null as never);
+
+    const token: Record<string, unknown> = {
+      id: "cust1",
+      email: "owner@acme.test",
+      name: "Acme Ltd",
+      emailVerified: new Date(),
+      impersonatorId: "admin1",
+      impersonatedName: "Acme Ltd",
+    };
+    const result = await jwt({
+      token,
+      trigger: "update",
+      session: { stopImpersonating: true },
+    });
+
+    expect(result.id).toBe("admin1");
+    expect(result.email).toBeNull();
+    expect(result.name).toBeNull();
+    expect(result.emailVerified).toBeNull();
+    expect(result.impersonatorId).toBeUndefined();
+    expect(result.impersonatedName).toBeUndefined();
   });
 
   it("stopImpersonating with no active impersonation falls through to normal refresh", async () => {
