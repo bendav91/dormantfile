@@ -110,6 +110,7 @@ model Filing {
   irmark           String?
   pollInterval     Int?
   pollEndpoint     String?
+  ctapUserEdited   Boolean      @default(false)
   submissionNumber String?
   submittedAt      DateTime?
   confirmedAt      DateTime?
