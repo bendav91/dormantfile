@@ -152,4 +152,12 @@ describe("Ct600PeriodEditor", () => {
       { startISO: "2024-01-01", endISO: "2024-03-31" },
     ]);
   });
+
+  it("closes the modal when Escape is pressed", () => {
+    render(<Ct600PeriodEditor {...baseProps} />);
+
+    expect(baseProps.onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(baseProps.onClose).toHaveBeenCalledTimes(1);
+  });
 });

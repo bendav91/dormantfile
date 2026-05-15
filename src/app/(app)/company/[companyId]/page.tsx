@@ -70,10 +70,21 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
   if (targetCt600) {
     const tStart = (targetCt600.startDate ?? targetCt600.periodStart).getTime();
     const tEnd = (targetCt600.endDate ?? targetCt600.periodEnd).getTime();
-    const accountsSpan = accountsFilings.find(
-      (a) =>
-        a.periodStart.getTime() <= tStart && a.periodEnd.getTime() >= tEnd,
-    );
+    // Among ALL accounts-type Filings whose span CONTAINS the target ct600
+    // span, pick deterministically: the NARROWEST span, tie-broken by the
+    // earliest periodStart. This makes the multiple-containing-span case
+    // order-independent (identical behaviour when exactly one contains).
+    const accountsSpan = [...accountsFilings]
+      .filter(
+        (a) =>
+          a.periodStart.getTime() <= tStart && a.periodEnd.getTime() >= tEnd,
+      )
+      .sort((a, b) => {
+        const aSpan = a.periodEnd.getTime() - a.periodStart.getTime();
+        const bSpan = b.periodEnd.getTime() - b.periodStart.getTime();
+        if (aSpan !== bSpan) return aSpan - bSpan;
+        return a.periodStart.getTime() - b.periodStart.getTime();
+      })[0];
     if (accountsSpan) {
       const accountsPeriodStart = accountsSpan.periodStart;
       const accountsPeriodEnd = accountsSpan.periodEnd;

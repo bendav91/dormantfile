@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { validateCtapChain } from "@/lib/ctap";
 import { cn } from "@/lib/cn";
 import { X, Plus, Scissors, AlertTriangle } from "lucide-react";
 
 interface Row {
+  /** Render-only stable id. Never sent in the POST body. */
+  id: string;
   startISO: string;
   endISO: string;
 }
@@ -62,11 +64,38 @@ export default function Ct600PeriodEditor({
   onClose,
 }: Ct600PeriodEditorProps) {
   const router = useRouter();
-  const [rows, setRows] = useState<Row[]>(
-    suggested.map((s) => ({ startISO: s.startISO, endISO: s.endISO })),
+  const rowIdSeq = useRef(0);
+  const nextRowId = useCallback(() => `row-${rowIdSeq.current++}`, []);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const [rows, setRows] = useState<Row[]>(() =>
+    suggested.map((s) => ({
+      id: nextRowId(),
+      startISO: s.startISO,
+      endISO: s.endISO,
+    })),
   );
   const [saving, setSaving] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKeyDown);
+    dialogRef.current?.focus();
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   const errors = useMemo(
     () =>
@@ -84,41 +113,63 @@ export default function Ct600PeriodEditor({
   const isValid = errors.length === 0;
 
   function updateRow(index: number, patch: Partial<Row>) {
+    setServerError(null);
     setRows((prev) =>
       prev.map((r, i) => (i === index ? { ...r, ...patch } : r)),
     );
   }
 
   function deleteRow(index: number) {
+    setServerError(null);
     setRows((prev) => prev.filter((_, i) => i !== index));
   }
 
   function splitRow(index: number) {
+    setServerError(null);
     setRows((prev) => {
       const r = prev[index];
       const mid = splitMidISO(r.startISO, r.endISO);
-      const first: Row = { startISO: r.startISO, endISO: mid };
-      const second: Row = { startISO: addDaysISO(mid, 1), endISO: r.endISO };
+      const first: Row = { id: r.id, startISO: r.startISO, endISO: mid };
+      const second: Row = {
+        id: nextRowId(),
+        startISO: addDaysISO(mid, 1),
+        endISO: r.endISO,
+      };
       return [...prev.slice(0, index), first, second, ...prev.slice(index + 1)];
     });
   }
 
   function addRow() {
+    setServerError(null);
     setRows((prev) => {
       if (prev.length === 0) {
         return [
-          { startISO: accountsPeriodStartISO, endISO: accountsPeriodEndISO },
+          {
+            id: nextRowId(),
+            startISO: accountsPeriodStartISO,
+            endISO: accountsPeriodEndISO,
+          },
         ];
       }
       const last = prev[prev.length - 1];
       const nextStart = addDaysISO(last.endISO, 1);
-      return [...prev, { startISO: nextStart, endISO: accountsPeriodEndISO }];
+      const nextEnd = splitMidISO(nextStart, accountsPeriodEndISO);
+      return [
+        ...prev,
+        { id: nextRowId(), startISO: nextStart, endISO: nextEnd },
+      ];
     });
   }
 
   function reset() {
     setServerError(null);
-    setRows(suggested.map((s) => ({ startISO: s.startISO, endISO: s.endISO })));
+    setRows(
+      suggested.map((s) => ({
+        id: nextRowId(),
+        startISO: s.startISO,
+        endISO: s.endISO,
+      })),
+    );
   }
 
   async function handleSave() {
@@ -159,10 +210,12 @@ export default function Ct600PeriodEditor({
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Manage CT600 accounting periods"
-        className="bg-card rounded-xl shadow-card border border-border w-full max-w-2xl my-auto"
+        tabIndex={-1}
+        className="bg-card rounded-xl shadow-card border border-border w-full max-w-2xl my-auto outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -232,7 +285,7 @@ export default function Ct600PeriodEditor({
             )}
             {rows.map((row, i) => (
               <div
-                key={i}
+                key={row.id}
                 data-testid="ctap-row"
                 className="flex flex-wrap items-center gap-2 px-3 py-2.5 bg-inset rounded-lg border border-border"
               >
