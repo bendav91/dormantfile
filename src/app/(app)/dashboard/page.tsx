@@ -17,7 +17,9 @@ import {
 import { canAddCompany, getCompanyLimit, TIER_LABELS } from "@/lib/subscription";
 import { syncSubscriptionIfStale } from "@/lib/stripe/sync";
 import { getOutstandingCount, getEarliestDeadline } from "@/lib/filing-views";
-import { isFilingLive } from "@/lib/launch-mode";
+import { isFilingLive, isTaxFilingLive } from "@/lib/launch-mode";
+import { getOnboardingState } from "@/lib/onboarding";
+import OnboardingChecklist from "@/components/OnboardingChecklist";
 import { ReviewPrompt } from "@/components/marketing/ReviewPrompt";
 import CalendarFeedSection from "@/components/calendar-feed-section";
 
@@ -61,7 +63,13 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const freshUser = await prisma.user.findUnique({ where: { id: user.id } });
   if (freshUser) Object.assign(user, freshUser);
 
-  const [allCompanyCount, hasAcceptedFiling, existingReview] = await Promise.all([
+  const [
+    allCompanyCount,
+    hasAcceptedFiling,
+    existingReview,
+    hasSubmittedFilingRow,
+    firstCompany,
+  ] = await Promise.all([
     prisma.company.count({
       where: { userId: user.id, deletedAt: null },
     }),
@@ -73,9 +81,38 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       where: { userId: user.id },
       select: { id: true },
     }),
+    prisma.filing.findFirst({
+      where: {
+        company: { userId: user.id },
+        status: { in: ["submitted", "accepted"] },
+      },
+      select: { id: true },
+    }),
+    prisma.company.findFirst({
+      where: { userId: user.id, deletedAt: null },
+      orderBy: { createdAt: "asc" },
+      select: { id: true },
+    }),
   ]);
 
   const showReviewPrompt = !!hasAcceptedFiling && !existingReview;
+
+  let onboardingState: ReturnType<typeof getOnboardingState> | null = null;
+  try {
+    onboardingState = getOnboardingState({
+      companyCount: allCompanyCount,
+      subscriptionStatus: user.subscriptionStatus,
+      hasSubmittedFiling: !!hasSubmittedFilingRow,
+      dismissedAt: user.onboardingDismissedAt ?? null,
+      accountsFilingLive: isFilingLive(),
+      ct600FilingLive: isTaxFilingLive(),
+      firstCompanyId: firstCompany?.id ?? null,
+    });
+  } catch {
+    onboardingState = null;
+  }
+  const showOnboarding =
+    !!onboardingState && (onboardingState.visible || onboardingState.complete);
 
   if (allCompanyCount === 0) {
     return (
@@ -88,25 +125,29 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
             </h1>
           </div>
         </div>
-        <div className="text-center px-6 py-16 bg-card border border-border rounded-xl">
-          <div className="w-12 h-12 rounded-xl bg-primary-bg inline-flex items-center justify-center mb-4">
-            <Building2 size={24} color="var(--color-primary)" strokeWidth={2} />
+        {showOnboarding && onboardingState ? (
+          <OnboardingChecklist state={onboardingState} />
+        ) : (
+          <div className="text-center px-6 py-16 bg-card border border-border rounded-xl">
+            <div className="w-12 h-12 rounded-xl bg-primary-bg inline-flex items-center justify-center mb-4">
+              <Building2 size={24} color="var(--color-primary)" strokeWidth={2} />
+            </div>
+            <h2 className="text-lg font-bold text-foreground mb-2">
+              No companies yet
+            </h2>
+            <p className="text-[15px] text-secondary mb-6 max-w-[400px] mx-auto leading-normal">
+              Add your first company to get started with filing. You can explore the dashboard in the
+              meantime.
+            </p>
+            <Link
+              href="/onboarding"
+              className="inline-flex items-center gap-1.5 bg-primary text-card py-2.5 px-6 rounded-lg font-semibold text-sm no-underline"
+            >
+              <Plus size={16} strokeWidth={2.5} />
+              Add your first company
+            </Link>
           </div>
-          <h2 className="text-lg font-bold text-foreground mb-2">
-            No companies yet
-          </h2>
-          <p className="text-[15px] text-secondary mb-6 max-w-[400px] mx-auto leading-normal">
-            Add your first company to get started with filing. You can explore the dashboard in the
-            meantime.
-          </p>
-          <Link
-            href="/onboarding"
-            className="inline-flex items-center gap-1.5 bg-primary text-card py-2.5 px-6 rounded-lg font-semibold text-sm no-underline"
-          >
-            <Plus size={16} strokeWidth={2.5} />
-            Add your first company
-          </Link>
-        </div>
+        )}
       </div>
     );
   }
@@ -210,6 +251,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   return (
     <div className="max-w-[960px] mx-auto">
       <SubscriptionBanner status={user.subscriptionStatus} />
+
+      {showOnboarding && onboardingState && (
+        <OnboardingChecklist state={onboardingState} />
+      )}
 
       {showReviewPrompt && <ReviewPrompt />}
 
