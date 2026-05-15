@@ -74,12 +74,49 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
-        token.emailVerified = (user as { emailVerified?: Date | null }).emailVerified ?? null;
+        token.emailVerified =
+          (user as { emailVerified?: Date | null }).emailVerified ?? null;
       }
+
       if (trigger === "update") {
+        const update = session as
+          | { impersonate?: string; stopImpersonating?: boolean }
+          | undefined;
+
+        // Already impersonating — block nested impersonation entirely.
+        if (update?.impersonate && token.impersonatorId) {
+          return token;
+        }
+
+        // Start impersonation: admin (current token) -> target customer.
+        if (update?.impersonate && !token.impersonatorId) {
+          const admin = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { isAdmin: true },
+          });
+          const target = admin?.isAdmin
+            ? await prisma.user.findUnique({
+                where: { id: update.impersonate },
+                select: { id: true, name: true, email: true, emailVerified: true },
+              })
+            : null;
+          if (admin?.isAdmin && target) {
+            token.impersonatorId = token.id as string;
+            token.id = target.id;
+            token.email = target.email;
+            token.name = target.name;
+            token.emailVerified = target.emailVerified;
+            token.impersonatedName = target.name ?? undefined;
+          }
+          return token;
+        }
+
+        // (Stop impersonation case added in Task 3.)
+
+        // Normal update (e.g. email verification): refresh emailVerified.
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
           select: { emailVerified: true },
@@ -88,6 +125,7 @@ export const authOptions: NextAuthOptions = {
           token.emailVerified = dbUser.emailVerified;
         }
       }
+
       return token;
     },
     async session({ session, token }) {
