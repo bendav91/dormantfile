@@ -13,6 +13,8 @@ declare module "next-auth" {
       image?: string | null;
       emailVerified?: Date | null;
     };
+    impersonating?: boolean;
+    impersonatedName?: string | null;
   }
 }
 
@@ -20,6 +22,8 @@ declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
     emailVerified?: Date | null;
+    impersonatorId?: string;
+    impersonatedName?: string;
   }
 }
 
@@ -91,6 +95,11 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
       }
       session.user.emailVerified = token.emailVerified as Date | null;
+      if (token.impersonatorId) {
+        session.impersonating = true;
+        session.impersonatedName =
+          (token.impersonatedName as string | undefined) ?? null;
+      }
       return session;
     },
   },
