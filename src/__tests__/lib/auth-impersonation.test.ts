@@ -122,3 +122,67 @@ describe("jwt callback — start impersonation", () => {
     expect(prisma.user.findUnique).not.toHaveBeenCalled();
   });
 });
+
+describe("jwt callback — stop impersonation", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("stop restores the original admin identity and clears impersonation fields", async () => {
+    const verified = new Date("2024-01-01");
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce({
+      name: "Admin User",
+      email: "admin@dormantfile.test",
+      emailVerified: verified,
+    } as never);
+
+    const token: Record<string, unknown> = {
+      id: "cust1",
+      email: "owner@acme.test",
+      name: "Acme Ltd",
+      emailVerified: null,
+      impersonatorId: "admin1",
+      impersonatedName: "Acme Ltd",
+    };
+    const result = await jwt({
+      token,
+      trigger: "update",
+      session: { stopImpersonating: true },
+    });
+
+    expect(result.id).toBe("admin1");
+    expect(result.email).toBe("admin@dormantfile.test");
+    expect(result.name).toBe("Admin User");
+    expect(result.emailVerified).toEqual(verified);
+    expect(result.impersonatorId).toBeUndefined();
+    expect(result.impersonatedName).toBeUndefined();
+  });
+
+  it("stopImpersonating with no active impersonation falls through to normal refresh", async () => {
+    const verified = new Date("2024-02-02");
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce({
+      emailVerified: verified,
+    } as never);
+
+    const token: Record<string, unknown> = { id: "u1", emailVerified: null };
+    const result = await jwt({
+      token,
+      trigger: "update",
+      session: { stopImpersonating: true },
+    });
+
+    expect(result.id).toBe("u1");
+    expect(result.emailVerified).toEqual(verified);
+    expect(result.impersonatorId).toBeUndefined();
+  });
+
+  it("regression: a normal update still refreshes emailVerified", async () => {
+    const verified = new Date("2024-03-03");
+    vi.mocked(prisma.user.findUnique).mockResolvedValueOnce({
+      emailVerified: verified,
+    } as never);
+
+    const token: Record<string, unknown> = { id: "u1", emailVerified: null };
+    const result = await jwt({ token, trigger: "update", session: {} });
+
+    expect(result.emailVerified).toEqual(verified);
+  });
+});

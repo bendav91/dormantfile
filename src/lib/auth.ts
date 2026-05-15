@@ -114,7 +114,21 @@ export const authOptions: NextAuthOptions = {
           return token;
         }
 
-        // (Stop impersonation case added in Task 3.)
+        // Stop impersonation: restore the original admin identity.
+        if (update?.stopImpersonating && token.impersonatorId) {
+          const adminId = token.impersonatorId;
+          const admin = await prisma.user.findUnique({
+            where: { id: adminId },
+            select: { name: true, email: true, emailVerified: true },
+          });
+          token.id = adminId;
+          token.email = admin?.email ?? null;
+          token.name = admin?.name ?? null;
+          token.emailVerified = admin?.emailVerified ?? null;
+          delete token.impersonatorId;
+          delete token.impersonatedName;
+          return token;
+        }
 
         // Normal update (e.g. email verification): refresh emailVerified.
         const dbUser = await prisma.user.findUnique({
