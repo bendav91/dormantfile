@@ -132,8 +132,12 @@ Server component `OnboardingChecklist`, rendered at the top of `/dashboard` in
   added (actionable now), plan + file shown as "opening soon".
 - When `complete` (transient, until next load clears it): a brief "You're set"
   state with one soft line pointing to the *other* filing, since a dormant
-  company genuinely needs both Accounts and CT600. This is body copy, **not** a
-  blocking fourth step.
+  company genuinely needs both Accounts and CT600. This is **static reassurance
+  copy** ("your other return — Accounts or CT600 — is on your company page when
+  you're ready"), not a data-driven which-one-is-done determination.
+  `getOnboardingState` deliberately exposes only a single `hasSubmittedFiling`
+  boolean; no per-path submitted state is needed. Body copy, **not** a blocking
+  fourth step.
 - A subtle "Hide this" text button (not a large X) calls the dismiss action.
 
 ### C. First-filing reassurance note
@@ -184,8 +188,8 @@ The zero-company empty-state branch returns *early* and never reaches the
 populated render — the checklist must be rendered in **both** `return` blocks
 (two distinct edit sites in the same file).
 
-Dismiss: a server action (in `src/lib/onboarding.ts` or an `api/account` route)
-sets `onboardingDismissedAt = now()` for the session user and revalidates
+Dismiss: a server action in `src/lib/onboarding.ts` (not an API route) sets
+`onboardingDismissedAt = now()` for the session user and revalidates
 `/dashboard`.
 
 ### F. Error handling
