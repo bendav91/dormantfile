@@ -68,7 +68,7 @@ export function buildCt600FilingData(input: {
     const ctaps = generateCt600Ctaps({
       accountsPeriodStart: start,
       accountsPeriodEnd: end,
-      anchor: ctapStartDate ?? null,
+      anchor: ctapStartDate,
     });
 
     for (const ctap of ctaps) {
@@ -95,7 +95,11 @@ export function buildCt600FilingData(input: {
  * - Unfiled periods (gaps) → status: "outstanding" with computed deadlines
  *
  * Uses `skipDuplicates` so existing rows (e.g. already-accepted filings)
- * are preserved on re-run. Safe to call as part of a resync.
+ * are preserved on re-run. CT600 regeneration is additionally suppressed
+ * for any accounts span containing a protected CT600 (submitted/accepted/
+ * rejected/failed/filed_elsewhere or user-edited) via `spanHasProtectedCt600`,
+ * so resync no longer blindly regenerates CT600s. Safe to call as part of a
+ * resync.
  */
 export async function materialiseFilings(input: MaterialiseFilingsInput): Promise<void> {
   const {

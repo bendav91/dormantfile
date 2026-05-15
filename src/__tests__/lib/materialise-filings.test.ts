@@ -94,4 +94,64 @@ describe("buildCt600FilingData (pure helper)", () => {
 
     expect(rows).toEqual([]);
   });
+
+  it("(d) multi-period: filed A skipped, protected B skipped, clean C → exactly C's two split CTAPs", () => {
+    const accountsPeriods = [
+      // A: filed → no rows
+      { start: d("2022-02-07"), end: d("2023-02-06"), isFiled: true },
+      // B: not filed but contains a submitted CT600 → protected → no rows
+      { start: d("2023-02-07"), end: d("2024-02-06"), isFiled: false },
+      // C: clean → two split CTAPs
+      { start: d("2024-02-07"), end: d("2025-02-28"), isFiled: false },
+    ];
+
+    const rows = buildCt600FilingData({
+      registeredForCorpTax: true,
+      ctapStartDate: null,
+      accountsPeriods,
+      existingCt600s: [
+        {
+          status: "submitted",
+          ctapUserEdited: false,
+          periodStart: d("2023-02-07"),
+          periodEnd: d("2024-02-06"),
+        },
+      ],
+    });
+
+    const expectedCtaps = generateCt600Ctaps({
+      accountsPeriodStart: d("2024-02-07"),
+      accountsPeriodEnd: d("2025-02-28"),
+      anchor: null,
+    });
+    const sharedDeadline = calculateCT600Deadline(d("2025-02-28")).getTime();
+
+    expect(rows.length).toBe(2);
+    expect(rows.length).toBe(expectedCtaps.length);
+
+    expect(
+      rows.map((r) => [
+        r.periodStart.toISOString().slice(0, 10),
+        r.periodEnd.toISOString().slice(0, 10),
+      ]),
+    ).toEqual([
+      ["2024-02-07", "2025-02-06"],
+      ["2025-02-07", "2025-02-28"],
+    ]);
+
+    for (const r of rows) {
+      expect(r.filingType).toBe("ct600");
+      expect(r.status).toBe("outstanding");
+      expect(r.ctapUserEdited).toBe(false);
+      expect(r.confirmedAt).toBeNull();
+      expect(r.deadline.getTime()).toBe(sharedDeadline);
+    }
+
+    expect(rows.map((r) => r.periodStart.getTime())).toEqual(
+      expectedCtaps.map((c) => c.start.getTime()),
+    );
+    expect(rows.map((r) => r.periodEnd.getTime())).toEqual(
+      expectedCtaps.map((c) => c.end.getTime()),
+    );
+  });
 });
