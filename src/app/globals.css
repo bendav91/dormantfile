@@ -266,3 +266,12 @@ input[type="search"]::-webkit-search-cancel-button {
     border: none !important;
   }
 }
+
+@keyframes onboarding-step-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+li[data-delay="0"] { animation-delay: 0ms; }
+li[data-delay="1"] { animation-delay: 70ms; }
+li[data-delay="2"] { animation-delay: 140ms; }
