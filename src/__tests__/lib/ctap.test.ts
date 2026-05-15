@@ -153,11 +153,32 @@ describe("validateCtapChain", () => {
     const errs = validateCtapChain({ ...base, periods: [{ start: d("2024-02-07"), end: d("2025-02-28") }] });
     expect(errs.join(" ")).toMatch(/12 months/i);
   });
-  it("rejects gaps and non-spanning chains", () => {
+  it("rejects a gap between periods", () => {
     expect(validateCtapChain({ ...base, periods: [
       { start: d("2024-02-07"), end: d("2024-12-31") },
       { start: d("2025-02-07"), end: d("2025-02-28") },
-    ] }).length).toBeGreaterThan(0);
+    ] }).join(" ")).toMatch(/gaps or overlaps/i);
+  });
+  it("rejects an overlap between periods", () => {
+    expect(validateCtapChain({ ...base, periods: [
+      { start: d("2024-02-07"), end: d("2025-02-06") },
+      { start: d("2025-01-01"), end: d("2025-02-28") },
+    ] }).join(" ")).toMatch(/gaps or overlaps/i);
+  });
+  it("rejects an empty chain", () => {
+    expect(validateCtapChain({ ...base, periods: [] })).toEqual([
+      "At least one period is required.",
+    ]);
+  });
+  it("rejects a period whose end is before its start", () => {
+    expect(validateCtapChain({ ...base, periods: [
+      { start: d("2025-02-28"), end: d("2024-02-07") },
+    ] }).join(" ")).toMatch(/end is before start/i);
+  });
+  it("rejects a chain that does not span the accounts period", () => {
+    expect(validateCtapChain({ ...base, periods: [
+      { start: d("2024-03-01"), end: d("2025-02-28") },
+    ] }).join(" ")).toMatch(/first period must start/i);
   });
 });
 

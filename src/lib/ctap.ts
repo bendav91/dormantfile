@@ -103,6 +103,7 @@ export function generateCt600Ctaps(input: {
   }));
 }
 
+/** Validates a manual CTAP chain against CT rules; returns human-readable error strings ([] = valid). Shared by the modal, the ct600-periods endpoint and the generators. */
 export function validateCtapChain(input: {
   accountsPeriodStart: Date;
   accountsPeriodEnd: Date;
@@ -118,7 +119,10 @@ export function validateCtapChain(input: {
     errs.push("The last period must end on the period-of-accounts end date.");
   for (let i = 0; i < sorted.length; i++) {
     const p = sorted[i];
-    if (p.end.getTime() < p.start.getTime()) errs.push(`Period ${i + 1}: end is before start.`);
+    if (p.end.getTime() < p.start.getTime()) {
+      errs.push(`Period ${i + 1}: end is before start.`);
+      continue;
+    }
     const max = new Date(p.start);
     max.setUTCFullYear(max.getUTCFullYear() + 1);
     max.setUTCDate(max.getUTCDate() - 1);
