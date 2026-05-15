@@ -165,4 +165,71 @@ describe("GET /api/cron/create-periods — Loop 2 CT600 CTAPs", () => {
     // (c) loop not halted — clean company still generated
     expect(ct600Creates("clean-co")).toHaveLength(2);
   });
+
+  it("(d) anchors the next CTAP from the latest existing CT600 regardless of findMany order", async () => {
+    // Two non-protected (outstanding / ctapUserEdited:false) CT600s exist.
+    // The chain anchor must be the LATEST by end date (2024-11-30), not the
+    // earliest (2024-06-30). Supply them in ASCENDING order so a naive
+    // `existingCt600s[0]` would pick the WRONG (earliest) row and start the
+    // next CTAP at 2024-07-01 instead of the correct 2024-12-01.
+    const EARLIEST_END = new Date("2024-06-30T00:00:00.000Z");
+    const LATEST_END = new Date("2024-11-30T00:00:00.000Z");
+
+    vi.mocked(prisma.company.findMany).mockResolvedValue([
+      {
+        id: "anchor-co",
+        registeredForCorpTax: true,
+        ctapStartDate: null,
+        filings: [
+          // Ascending (earliest first) — [0] would be the WRONG anchor.
+          {
+            filingType: "ct600",
+            periodStart: new Date("2024-02-07T00:00:00.000Z"),
+            periodEnd: EARLIEST_END,
+            startDate: new Date("2024-02-07T00:00:00.000Z"),
+            endDate: EARLIEST_END,
+            status: "outstanding",
+            ctapUserEdited: false,
+          },
+          {
+            filingType: "ct600",
+            periodStart: new Date("2024-07-01T00:00:00.000Z"),
+            periodEnd: LATEST_END,
+            startDate: new Date("2024-07-01T00:00:00.000Z"),
+            endDate: LATEST_END,
+            status: "outstanding",
+            ctapUserEdited: false,
+          },
+          {
+            filingType: "accounts",
+            periodStart: ACCOUNTS_START,
+            periodEnd: ACCOUNTS_END,
+            startDate: ACCOUNTS_START,
+            endDate: ACCOUNTS_END,
+            status: "outstanding",
+            ctapUserEdited: false,
+          },
+        ],
+      },
+    ] as never);
+
+    const res = await GET(makeRequest("test-secret"));
+    expect(res.status).toBe(200);
+
+    const creates = ct600Creates("anchor-co");
+    expect(creates.length).toBeGreaterThan(0);
+
+    // First generated CTAP must start the day AFTER the LATEST CT600 end
+    // (2024-11-30 -> 2024-12-01), NOT the day after the earliest (2024-07-01).
+    expect((creates[0].periodStart as Date).toISOString()).toBe(
+      new Date("2024-12-01T00:00:00.000Z").toISOString(),
+    );
+    expect((creates[0].periodStart as Date).toISOString()).not.toBe(
+      new Date("2024-07-01T00:00:00.000Z").toISOString(),
+    );
+    // Span ends 2025-02-28; single clamped CTAP from the correct anchor.
+    expect((creates[0].periodEnd as Date).toISOString()).toBe(
+      ACCOUNTS_END.toISOString(),
+    );
+  });
 });

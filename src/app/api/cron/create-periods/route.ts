@@ -118,7 +118,16 @@ export async function GET(req: NextRequest) {
 
     // Find latest CT600 filing's endDate (fall back to periodEnd) to anchor
     // the next CTAP chain.
-    const latestCt600 = existingCt600s[0];
+    // Most-recent CT600 by effective end date — computed explicitly so this
+    // does not silently depend on the findMany orderBy.
+    const latestCt600 = existingCt600s.reduce<(typeof existingCt600s)[number] | null>(
+      (latest, f) => {
+        const fEnd = (f.endDate ?? f.periodEnd).getTime();
+        const lEnd = latest ? (latest.endDate ?? latest.periodEnd).getTime() : -Infinity;
+        return fEnd > lEnd ? f : latest;
+      },
+      null,
+    );
     const latestCt600EndDate =
       latestCt600?.endDate ?? latestCt600?.periodEnd ?? null;
     const anchor = getNextCtapStart(latestCt600EndDate, company.ctapStartDate);
