@@ -27,6 +27,12 @@ describe("ImpersonationBanner", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("renders nothing when session is null (loading)", () => {
+    sessionData = null;
+    const { container } = render(<ImpersonationBanner />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it("renders the impersonated name when impersonating", () => {
     sessionData = { impersonating: true, impersonatedName: "Acme Ltd" };
     render(<ImpersonationBanner />);

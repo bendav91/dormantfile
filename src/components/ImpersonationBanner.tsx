@@ -6,16 +6,19 @@ import { useSession } from "next-auth/react";
 export function ImpersonationBanner() {
   const { data: session, update } = useSession();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!session?.impersonating) return null;
 
   async function handleStop() {
+    setError(null);
     setLoading(true);
     try {
       await update({ stopImpersonating: true });
       window.location.href = "/admin";
     } catch {
       setLoading(false);
+      setError("Could not stop impersonating.");
     }
   }
 
@@ -30,6 +33,11 @@ export function ImpersonationBanner() {
       >
         {loading ? "Stopping…" : "Stop"}
       </button>
+      {error && (
+        <span role="alert" className="text-xs">
+          {error}
+        </span>
+      )}
     </div>
   );
 }
