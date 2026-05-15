@@ -52,27 +52,54 @@ period-correctness layer above it.
 
 ### 1. Period-generation engine & CT rules
 
-In `materialiseFilings`, stop mirroring the accounts period for CT600. Per period of
-accounts, generate CTAPs via `computeCtaps(anchor, accountsPeriodEnd)`:
+**Single source of truth.** Today **three** independent code paths create outstanding
+CT600 `Filing` rows, each with its own (buggy) period/deadline logic:
 
-- `anchor = company.ctapStartDate ?? incorporation` (preserves existing
+1. `src/lib/companies-house/materialise-filings.ts` (~L98–110) — CT600 mirrors the
+   accounts period (no split); `calculateCT600Deadline(pEnd)`.
+2. `src/app/api/company/update/route.ts` (~L102–119) — the *enable Corp Tax* path:
+   `ctapEnd = f.periodEnd` (no split); `calculateCT600Deadline(ctapEnd)`.
+3. `src/app/api/cron/create-periods/route.ts` Loop 2 (~L101–129) — the daily cron:
+   *does* 12-month chunk via `getNextCtapStart`, but uses per-CTAP
+   `calculateCT600Deadline(ctapEnd)` (violates the shared-deadline rule) and `upsert`s.
+
+Introduce one shared helper and refactor **all three** (plus the modal API and backfill)
+onto it:
+
+```
+generateCt600Ctaps({ accountsPeriodStart, accountsPeriodEnd, anchor }):
+  Array<{ start: Date; end: Date; deadline: Date }>
+```
+
+- Internally calls the existing `computeCtaps(anchor ?? accountsPeriodStart,
+  accountsPeriodEnd)`. `computeCtaps` **already** yields 12-month chunks with a short
+  final remainder (`while (start < upToDate)`), so `07/02/2024–28/02/2025` →
+  `07/02/2024–06/02/2025` + `07/02/2025–28/02/2025`. **No change to `computeCtaps` is
+  needed.**
+- `anchor = company.ctapStartDate ?? incorporation` (preserves the existing
   "registered for CT mid-period / started trading later" semantics).
-- 12-month chunks from the anchor; the **final chunk is the remainder** (ends on the
-  period-of-accounts end). `07/02/2024–28/02/2025` → `07/02/2024–06/02/2025` +
-  `07/02/2025–28/02/2025`. One CT600 `Filing` per CTAP (`startDate/endDate` = bounds,
-  `periodStart/periodEnd` kept in sync).
-- Subsequent ≤12-month, ARD-aligned periods → one CTAP each (unchanged behaviour).
+- One CT600 `Filing` per CTAP; `startDate/endDate` = CTAP bounds, `periodStart/periodEnd`
+  kept in sync. Subsequent ≤12-month ARD-aligned periods → one CTAP (unchanged).
 
-**Deadline correctness:** the CT600 filing deadline is **12 months after the end of the
-period of accounts**, and *every* CTAP in that period of accounts shares it (e.g. both
-due `28/02/2026`). Replace per-CTAP `calculateCT600Deadline(ctapEnd)` with
-`accountsPeriodEnd + 12 months`. Payment deadlines (per-CTAP) are nil/£0 for dormant
-returns and are deliberately **not** surfaced (YAGNI).
+**Deadline contract (unambiguous).** `calculateCT600Deadline(date)` keeps its current
+signature and meaning (`date + 12 months`). The rule change is purely *which date is
+passed*: every CT600 generator must pass the **period-of-accounts end**, never the CTAP
+end. `generateCt600Ctaps` centralises this — it computes
+`deadline = calculateCT600Deadline(accountsPeriodEnd)` once and stamps it on every CTAP
+in that period of accounts (so both CTAPs of a split share e.g. `28/02/2026`). For a
+normal ≤12-month single CTAP the value is unchanged. `mark-filed/route.ts` is
+**deliberately left as-is** (its deadline is cosmetic on a user-asserted
+`filed_elsewhere` period — not a generator); a conscious scope decision, not an
+oversight. Payment deadlines (per-CTAP) are nil/£0 for dormant and not surfaced (YAGNI).
 
-**Resync protection (permanent rule):** on (re)materialise, for CT600 only, regenerate
-**only** CT600s that are system-generated, still `outstanding`, and `ctapUserEdited=false`.
-Never touch CT600s in `submitted/accepted/rejected/failed/filed_elsewhere` or with
-`ctapUserEdited=true`.
+**Resync protection (permanent rule, enforced in ALL generators).** A generator may
+create/replace CT600 CTAPs for a given period-of-accounts span only if that span has
+**no** CT600 that is `submitted/accepted/rejected/failed/filed_elsewhere` and **no**
+`ctapUserEdited=true` CT600. Otherwise the span is left entirely to the user. This guard
+must be honoured by materialiseFilings, company/update, **and the daily
+`cron/create-periods` Loop 2** — otherwise the cron *resurrects a pre-edit CTAP* the day
+after a user splits/edits (its `upsert` recreates the old period because that row no
+longer exists).
 
 ### 2. Data model
 
@@ -122,15 +149,17 @@ CT600 filing was never live in production (feature-flagged off), so there are no
 submitted/accepted CT600s to protect — but companies registered for Corp Tax already
 have the wrong single long-period `outstanding` CT600 rows.
 
-- **Forward fix:** corrected `materialiseFilings` flows through the existing per-company
-  "Sync with CH" and global resync paths — no new plumbing.
+- **All three generators must be reconciled** (Section 1) — the corrected logic does
+  *not* "just flow through resync": `company/update` (enable Corp Tax) and the daily
+  `cron/create-periods` create CT600s outside `materialiseFilings`. All three call
+  `generateCt600Ctaps` and honour the resync-protection guard.
 - **One-off backfill:** a `scripts/` script (mirroring `scripts/migrate-materialise-
-  periods.ts`) that per company deletes system-generated `outstanding`
-  (`ctapUserEdited=false`) CT600s and regenerates correct CTAPs in a transaction.
-  Idempotent; protection rule keeps user-edited / filed periods intact.
-- **Ship together:** schema field + corrected engine + backfill script + modal/API as
-  one cohesive change. `prisma migrate deploy` runs in the build; backfill is a one-time
-  post-deploy script run.
+  periods.ts`) that, per company, deletes system-generated `outstanding`
+  (`ctapUserEdited=false`) CT600s for spans with no immutable/edited CT600, then
+  regenerates correct CTAPs via `generateCt600Ctaps` in a transaction. Idempotent.
+- **Ship together:** schema field + shared helper + all three generators refactored +
+  backfill script + modal/API, as one cohesive change. `prisma migrate deploy` runs in
+  the build; backfill is a one-time post-deploy script run.
 
 ### 6. Error handling & testing
 
@@ -149,10 +178,13 @@ have the wrong single long-period `outstanding` CT600 rows.
 
 **Testing**
 
-- Unit (Vitest, mirrors `src/__tests__/lib`): generation incl. the **Anouar case**
-  (`07/02/2024–28/02/2025` → two exact CTAPs), ≤12mo → 1 CTAP, `ctapStartDate` anchor
-  respected, subsequent ARD periods → 1 each; shared-deadline rule; each validation rule
-  (table-driven); resync-protection; backfill idempotency.
+- Unit (Vitest, mirrors `src/__tests__/lib`): `generateCt600Ctaps` incl. the **Anouar
+  case** (`07/02/2024–28/02/2025` → two exact CTAPs), ≤12mo → 1 CTAP, `ctapStartDate`
+  anchor respected, subsequent ARD periods → 1 each; shared-deadline rule; each
+  validation rule (table-driven); resync-protection; backfill idempotency. **All three
+  generators delegate to `generateCt600Ctaps` (identical output); the daily cron Loop 2
+  does NOT recreate a CTAP for a span containing a `ctapUserEdited`/immutable CT600 (no
+  pre-edit resurrection).**
 - Route: `POST /api/company/ct600-periods` — auth, ownership, server-side rejection,
   transactional replace, immutable protection.
 - E2E (headed Chrome): Manage-periods modal → auto-split shown → adjust → save → two
@@ -176,15 +208,25 @@ CTAP and confirm HMRC acknowledgement + poll. Plus the unit/route suites above.
 
 ## Critical files
 
-- `src/lib/companies-house/materialise-filings.ts` — generation (the root fix)
-- `src/lib/ctap.ts` — `computeCtaps` (reused; possibly extended for remainder/anchor)
-- `src/lib/utils.ts` — `calculateCT600Deadline` (deadline rule change)
+- `src/lib/ctap.ts` — `computeCtaps` reused **as-is** (no change) + **new**
+  `generateCt600Ctaps` shared helper (single source of truth)
+- `src/lib/companies-house/materialise-filings.ts` — generator #1: refactor onto helper
+- `src/app/api/company/update/route.ts` — generator #2 (enable Corp Tax): refactor onto
+  helper (currently no split)
+- `src/app/api/cron/create-periods/route.ts` — generator #3 (daily cron Loop 2):
+  refactor onto helper + apply resync-protection guard (prevents pre-edit resurrection)
+- `src/lib/utils.ts` — `calculateCT600Deadline` signature **unchanged**; only callers
+  change (always pass period-of-accounts end, via the helper)
 - `prisma/schema.prisma` — `Filing.ctapUserEdited` (+ migration)
 - `src/components/corp-tax-tab.tsx` — "Manage periods" entry + modal
 - `src/app/api/company/ct600-periods/route.ts` — new validated endpoint
 - `scripts/` — one-off backfill (mirror `migrate-materialise-periods.ts`)
+- `src/app/api/file/mark-filed/route.ts` — **intentionally unchanged** (cosmetic
+  deadline on user-asserted filed periods; documented scope decision)
 
 ## Open questions
 
-None blocking. Anchor semantics, deadline rule, and resync-protection were resolved
-during brainstorm.
+None blocking. Anchor semantics, the deadline contract (`calculateCT600Deadline`
+unchanged; callers pass period-of-accounts end via `generateCt600Ctaps`), the
+three-generator reconciliation, and resync-protection (enforced in all generators
+including the daily cron) were resolved during brainstorm and spec review.
