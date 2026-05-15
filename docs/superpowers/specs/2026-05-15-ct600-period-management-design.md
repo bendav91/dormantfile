@@ -57,7 +57,8 @@ CT600 `Filing` rows, each with its own (buggy) period/deadline logic:
 
 1. `src/lib/companies-house/materialise-filings.ts` (~L98–110) — CT600 mirrors the
    accounts period (no split); `calculateCT600Deadline(pEnd)`.
-2. `src/app/api/company/update/route.ts` (~L102–119) — the *enable Corp Tax* path:
+2. `src/app/api/company/update/route.ts` (~L98–136 — the `periodsNeedingCt600` map
+   *and* its surrounding `$transaction`/`createMany`) — the *enable Corp Tax* path:
    `ctapEnd = f.periodEnd` (no split); `calculateCT600Deadline(ctapEnd)`.
 3. `src/app/api/cron/create-periods/route.ts` Loop 2 (~L101–129) — the daily cron:
    *does* 12-month chunk via `getNextCtapStart`, but uses per-CTAP
@@ -134,6 +135,13 @@ Validation (enforced **client- and server-side**; server is authoritative):
 - Only `outstanding/failed/rejected` rows are editable; immutable rows cannot be
   modified or deleted.
 - Inline messages explain each violation; invalid sets cannot be saved.
+
+**Intentional asymmetry (do not "harmonise"):** the manual editor's *editable* set
+(`outstanding/failed/rejected`) is deliberately broader than the generators' *protected*
+set (a generator must not touch a span containing any `submitted/accepted/rejected/
+failed/filed_elsewhere` CT600 — Section 1). So auto-regeneration leaves a `failed/
+rejected` span alone, yet the user may still manually fix that `failed/rejected` row in
+the modal. These are two distinct rules for two distinct mechanisms; keep them separate.
 
 API: `POST /api/company/ct600-periods`
 `{ companyId, accountsPeriodEndISO, periods: [{ startISO, endISO }] }`.
@@ -214,7 +222,8 @@ CTAP and confirm HMRC acknowledgement + poll. Plus the unit/route suites above.
 - `src/app/api/company/update/route.ts` — generator #2 (enable Corp Tax): refactor onto
   helper (currently no split)
 - `src/app/api/cron/create-periods/route.ts` — generator #3 (daily cron Loop 2):
-  refactor onto helper + apply resync-protection guard (prevents pre-edit resurrection)
+  refactor onto helper + apply resync-protection guard (prevents pre-edit resurrection);
+  also correct the stale `periodId`/`Period` docstring (no longer in schema)
 - `src/lib/utils.ts` — `calculateCT600Deadline` signature **unchanged**; only callers
   change (always pass period-of-accounts end, via the helper)
 - `prisma/schema.prisma` — `Filing.ctapUserEdited` (+ migration)
