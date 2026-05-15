@@ -17,7 +17,8 @@
 | File | Responsibility |
 |------|----------------|
 | `prisma/schema.prisma` (+ migration) | Add nullable `onboardingDismissedAt` to `User` |
-| `src/lib/onboarding.ts` | Pure `getOnboardingState` + types + `dismissOnboarding` server action |
+| `src/lib/onboarding.ts` | Pure `getOnboardingState` + types **only** (no server imports — must stay unit-testable without a DB) |
+| `src/lib/onboarding-actions.ts` | File-level `"use server"` module: `dismissOnboarding` action |
 | `src/__tests__/lib/onboarding.test.ts` | Unit tests for `getOnboardingState` (full launch-flag matrix) |
 | `src/components/OnboardingChecklist.tsx` | Client: renders the strip, optimistic dismiss |
 | `src/__tests__/components/OnboardingChecklist.test.tsx` | Render tests (jsdom) |
@@ -338,27 +339,26 @@ git commit -m "feat: getOnboardingState helper with launch-flag-aware steps"
 
 ---
 
-## Task 3: `dismissOnboarding` server action
+## Task 3: `dismissOnboarding` server action (separate module)
+
+**Why a separate file:** `@/lib/db` parses `process.env.POSTGRES_URL` with `new URL(...)` at module-eval time. Vitest has no `POSTGRES_URL` and no env setup, so *any* test that transitively imports `@/lib/db` throws `TypeError: Invalid URL` at import. Keeping the action out of `onboarding.ts` means the pure helper (Task 2) and its test never touch `@/lib/db`. This also keeps server-only deps out of the client bundle. (The spec was updated to pin this location.)
 
 **Files:**
-- Modify: `src/lib/onboarding.ts` (append the action)
+- Create: `src/lib/onboarding-actions.ts`
 
-- [ ] **Step 1: Append the server action**
+- [ ] **Step 1: Create the server-action module**
 
-Add to the top imports of `src/lib/onboarding.ts`:
+Create `src/lib/onboarding-actions.ts`:
 
 ```ts
+"use server";
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-```
 
-Append at the end of the file:
-
-```ts
 export async function dismissOnboarding(): Promise<void> {
-  "use server";
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return;
   await prisma.user.update({
@@ -369,22 +369,22 @@ export async function dismissOnboarding(): Promise<void> {
 }
 ```
 
-Note: inline `"use server"` (not a file-level directive) keeps `getOnboardingState` a normal pure export that the dashboard server component and the Vitest suite import directly. The action is safe to import from the client `OnboardingChecklist` — Next.js strips the server body from the client bundle.
+File-level `"use server"` makes every export an action; this file exports only the action. The client `OnboardingChecklist` imports it; Next.js strips the server body from the client bundle.
 
-- [ ] **Step 2: Verify the helper tests still pass (no regression)**
+- [ ] **Step 2: Verify the pure-helper tests still pass (no regression)**
 
 Run: `npx vitest run src/__tests__/lib/onboarding.test.ts`
-Expected: PASS — adding the action must not change pure-function behaviour.
+Expected: PASS — `onboarding.ts` is untouched and imports no DB module, so the suite is unaffected.
 
-- [ ] **Step 3: Typecheck/lint the file**
+- [ ] **Step 3: Typecheck/lint**
 
 Run: `npm run lint`
-Expected: no errors for `src/lib/onboarding.ts`.
+Expected: no errors for `src/lib/onboarding-actions.ts`.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/lib/onboarding.ts
+git add src/lib/onboarding-actions.ts
 git commit -m "feat: dismissOnboarding server action"
 ```
 
@@ -420,10 +420,11 @@ import { render, screen } from "@testing-library/react";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
 import type { OnboardingState } from "@/lib/onboarding";
 
-vi.mock("@/lib/onboarding", async (orig) => {
-  const actual = await orig<typeof import("@/lib/onboarding")>();
-  return { ...actual, dismissOnboarding: vi.fn() };
-});
+// Stub the server-action module so the test never loads @/lib/db
+// (which throws at import without POSTGRES_URL). The OnboardingState
+// import above is type-only and erased at runtime — @/lib/onboarding is
+// pure, so it does not need mocking.
+vi.mock("@/lib/onboarding-actions", () => ({ dismissOnboarding: vi.fn() }));
 
 function state(overrides: Partial<OnboardingState> = {}): OnboardingState {
   return {
@@ -528,7 +529,8 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Check, Lock, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { dismissOnboarding, type OnboardingState } from "@/lib/onboarding";
+import { dismissOnboarding } from "@/lib/onboarding-actions";
+import type { OnboardingState } from "@/lib/onboarding";
 
 export default function OnboardingChecklist({ state }: { state: OnboardingState }) {
   const [hidden, setHidden] = useState(false);
@@ -921,4 +923,5 @@ Report the exact output of Steps 1–3 (pass/fail counts) when claiming completi
 - **YAGNI:** No analytics, no settings replay, no tour engine, no per-path submitted state — out of scope per spec.
 - **Styling:** Tailwind tokens only, no inline `style`. `cn()` from `@/lib/cn`. No `border-left`/`border-right` accent stripes, no gradient text, no decorative glass — these are explicit bans.
 - **Accessibility/motion:** the staggered reveal is wrapped in `motion-safe:` so `prefers-reduced-motion` users get no animation.
-- If `npm run build` complains about importing `dismissOnboarding` into the client component, the fallback is to split the action into `src/lib/onboarding-actions.ts` with a top-level `"use server"` directive and import it from there (helper stays in `onboarding.ts`). Try the inline-directive approach first per the spec.
+- **Module split is mandatory, not optional:** `getOnboardingState` lives in `src/lib/onboarding.ts` with only a type-only `@prisma/client` import (erased at runtime). The `dismissOnboarding` action lives in `src/lib/onboarding-actions.ts`. Never import `@/lib/db`, `next-auth`, or `next/cache` into `onboarding.ts` — doing so reintroduces the Vitest `POSTGRES_URL` import-time crash and regresses the green baseline.
+- **Test-mock convention:** any test whose import graph would reach `@/lib/db` must `vi.mock` the offending module *before* importing the unit under test (see `src/__tests__/lib/auth-impersonation.test.ts` for the established pattern). Here, `OnboardingChecklist.test.tsx` stubs `@/lib/onboarding-actions`; `onboarding.test.ts` needs no mocks because `onboarding.ts` is pure.

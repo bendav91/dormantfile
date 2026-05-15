@@ -188,9 +188,13 @@ The zero-company empty-state branch returns *early* and never reaches the
 populated render — the checklist must be rendered in **both** `return` blocks
 (two distinct edit sites in the same file).
 
-Dismiss: a server action in `src/lib/onboarding.ts` (not an API route) sets
-`onboardingDismissedAt = now()` for the session user and revalidates
-`/dashboard`.
+Dismiss: a server action in `src/lib/onboarding-actions.ts` (a file-level
+`"use server"` module — **not** an API route) sets `onboardingDismissedAt =
+now()` for the session user and revalidates `/dashboard`. It lives in its own
+file (not `onboarding.ts`) so the pure `getOnboardingState` helper stays free of
+`@/lib/db` / `next-auth` imports and remains unit-testable without a database —
+`@/lib/db` parses `POSTGRES_URL` at module-eval time, which would throw under
+Vitest.
 
 ### F. Error handling
 
