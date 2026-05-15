@@ -397,15 +397,19 @@ git commit -m "feat: dismissOnboarding server action"
 - Test: `src/__tests__/components/OnboardingChecklist.test.tsx`
 - Create: `src/components/OnboardingChecklist.tsx`
 
-- [ ] **Step 1: Add the staggered-reveal keyframe**
+- [ ] **Step 1: Add the staggered-reveal CSS (one block)**
 
-Append to `src/app/globals.css` (do not modify existing rules):
+Append this entire block to the end of `src/app/globals.css` (do not modify existing rules):
 
 ```css
 @keyframes onboarding-step-in {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+li[data-delay="0"] { animation-delay: 0ms; }
+li[data-delay="1"] { animation-delay: 70ms; }
+li[data-delay="2"] { animation-delay: 140ms; }
 ```
 
 - [ ] **Step 2: Write the failing render tests**
@@ -586,7 +590,6 @@ export default function OnboardingChecklist({ state }: { state: OnboardingState 
             <li
               key={step.key}
               className="flex items-center gap-4 motion-safe:[animation:onboarding-step-in_320ms_cubic-bezier(0.22,1,0.36,1)_both]"
-              style={undefined}
               data-delay={i}
             >
               <span
@@ -650,15 +653,7 @@ export default function OnboardingChecklist({ state }: { state: OnboardingState 
 }
 ```
 
-Per-step stagger: add the delay via a CSS attribute selector so no inline `style` is used (CLAUDE.md forbids inline styles). Append to `src/app/globals.css`:
-
-```css
-li[data-delay="0"] { animation-delay: 0ms; }
-li[data-delay="1"] { animation-delay: 70ms; }
-li[data-delay="2"] { animation-delay: 140ms; }
-```
-
-Then remove the unused `style={undefined}` attribute from the `<li>` in the component (it is a placeholder to make this instruction explicit — the final `<li>` should have only `key`, `className`, and `data-delay`).
+The per-step stagger delay is supplied by the CSS added in Step 1 (the `data-delay` attribute selector), so no inline `style` is used (CLAUDE.md forbids inline styles). The `<li>` carries only `key`, `className`, and `data-delay` — there is no `style` attribute.
 
 - [ ] **Step 5: Run the tests to verify they pass**
 
