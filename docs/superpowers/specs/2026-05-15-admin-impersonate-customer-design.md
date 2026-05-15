@@ -40,7 +40,16 @@ already handles a `trigger === "update"` branch (used today to refresh
 
 ### 1. Auth core — `src/lib/auth.ts`
 
-**`jwt` callback**, extend the `trigger === "update"` branch into three cases:
+**`jwt` callback** — restructure the `trigger === "update"` branch into three
+**mutually exclusive** cases with early `return token` (if / else-if / else).
+This matters: today the branch ends with an unconditional
+`prisma.user.findUnique({ where: { id: token.id } })` `emailVerified` re-fetch.
+If that tail still runs after a **stop**, it re-queries and could clobber the
+just-restored admin `emailVerified`. So Start and Stop must each set their
+fields and `return token` *before* the existing tail; the tail becomes the
+`else` (non-impersonation `update`) case only.
+
+The three cases:
 
 - **Start impersonation** — when `session.impersonate` (a target user id) is
   set AND the token is not already impersonating (`!token.impersonatorId`):
@@ -69,12 +78,16 @@ token.impersonatedName`.
 **TypeScript module augmentation** — add to the existing `declare module`
 blocks: `Session` gains `impersonating?: boolean` and
 `impersonatedName?: string | null`; `JWT` gains `impersonatorId?: string` and
-`impersonatedName?: string`.
+`impersonatedName?: string`. `token.email`/`token.name` need no augmentation —
+they are part of next-auth's default `JWT` type (`string | null | undefined`),
+compatible with the target's `name` (`string | null`).
 
 ### 2. Start — `ImpersonateButton` (new client component)
 
 `src/components/admin/ImpersonateButton.tsx`. Props: `userId: string`,
-`name: string`. Rendered in the customer-detail header in
+`name: string | null` (`getCustomerDetail` returns `user.name` which may be
+null — coalesce for display, e.g. `name ?? user email/"this customer"`).
+Rendered in the customer-detail header in
 `src/app/(app)/admin/customers/[userId]/page.tsx` (that page already has
 `user.id` and `user.name`).
 
@@ -83,12 +96,19 @@ operator confirm). On confirm:
 
 ```ts
 const { update } = useSession();
-await update({ impersonate: userId });
-window.location.href = "/dashboard";
+const next = await update({ impersonate: userId });
+if (next?.impersonating) {
+  window.location.href = "/dashboard";
+} else {
+  // swap did not take (not admin / invalid target) — surface an error,
+  // do NOT navigate
+}
 ```
 
 A full navigation (not `router.push`) is used so every server component
-re-renders under the new identity.
+re-renders under the new identity. The post-`update()` check is **required**
+(not optional): if `impersonating` did not become true, show an inline error
+and stay on the page rather than navigating into an unchanged session.
 
 ### 3. Stop — `ImpersonationBanner` (new client component)
 
@@ -143,9 +163,9 @@ correct); the banner is the only way back, by design.
 ## Edge cases
 
 - **Invalid / nonexistent target id** → `jwt` callback no-ops (no swap). The
-  admin selects from the real customer list, so this is unlikely; the button
-  may optionally check `update()`'s returned session and surface a message if
-  `impersonating` did not become true.
+  button checks `update()`'s returned session and, if `impersonating` is not
+  true, surfaces an inline error and does not navigate (see §2 — this is a
+  required check, not optional).
 - **Non-admin calls `update({ impersonate })`** → callback no-ops (isAdmin
   false). Safe.
 - **Already impersonating, tries to impersonate again** → blocked by the guard;
