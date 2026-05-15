@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { computeCtaps, getNextCtapStart, generateCt600Ctaps } from "@/lib/ctap";
+import {
+  computeCtaps,
+  getNextCtapStart,
+  generateCt600Ctaps,
+  validateCtapChain,
+  spanHasProtectedCt600,
+} from "@/lib/ctap";
 import { calculateCT600Deadline } from "@/lib/utils";
 
 const d = (s: string) => new Date(s + "T00:00:00.000Z");
@@ -129,6 +135,45 @@ describe("generateCt600Ctaps", () => {
       anchor: d("2025-02-28"),
     });
     expect(out).toEqual([]);
+  });
+});
+
+describe("validateCtapChain", () => {
+  const base = { accountsPeriodStart: d("2024-02-07"), accountsPeriodEnd: d("2025-02-28") };
+  it("accepts a correct contiguous split", () => {
+    expect(validateCtapChain({
+      ...base,
+      periods: [
+        { start: d("2024-02-07"), end: d("2025-02-06") },
+        { start: d("2025-02-07"), end: d("2025-02-28") },
+      ],
+    })).toEqual([]);
+  });
+  it("rejects a CTAP longer than 12 months", () => {
+    const errs = validateCtapChain({ ...base, periods: [{ start: d("2024-02-07"), end: d("2025-02-28") }] });
+    expect(errs.join(" ")).toMatch(/12 months/i);
+  });
+  it("rejects gaps and non-spanning chains", () => {
+    expect(validateCtapChain({ ...base, periods: [
+      { start: d("2024-02-07"), end: d("2024-12-31") },
+      { start: d("2025-02-07"), end: d("2025-02-28") },
+    ] }).length).toBeGreaterThan(0);
+  });
+});
+
+describe("spanHasProtectedCt600", () => {
+  const span = { accountsPeriodStart: d("2024-02-07"), accountsPeriodEnd: d("2025-02-28") };
+  const mk = (status: string, ctapUserEdited = false, ps = "2024-02-07", pe = "2025-02-06") =>
+    ({ status, ctapUserEdited, periodStart: d(ps), periodEnd: d(pe) }) as never;
+  it("is true when an in-span CT600 is submitted/accepted/etc", () => {
+    expect(spanHasProtectedCt600(span, [mk("submitted")])).toBe(true);
+    expect(spanHasProtectedCt600(span, [mk("filed_elsewhere")])).toBe(true);
+  });
+  it("is true when an in-span CT600 is user-edited", () => {
+    expect(spanHasProtectedCt600(span, [mk("outstanding", true)])).toBe(true);
+  });
+  it("is false when only system-generated outstanding rows are in span", () => {
+    expect(spanHasProtectedCt600(span, [mk("outstanding", false)])).toBe(false);
   });
 });
 
