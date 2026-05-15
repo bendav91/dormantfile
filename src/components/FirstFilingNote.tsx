@@ -3,7 +3,7 @@ import { ShieldCheck } from "lucide-react";
 export default function FirstFilingNote() {
   return (
     <div className="flex items-start gap-2.5 px-4 py-3.5 bg-primary-bg border border-primary-border rounded-lg mb-6">
-      <span className="text-primary shrink-0 mt-px flex">
+      <span className="text-primary shrink-0 mt-px flex" aria-hidden="true">
         <ShieldCheck size={18} color="currentColor" strokeWidth={2} />
       </span>
       <p className="text-sm text-primary-text m-0 leading-normal">
