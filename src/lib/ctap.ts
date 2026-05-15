@@ -91,11 +91,12 @@ export function generateCt600Ctaps(input: {
   anchor: Date | null;
 }): Ct600Ctap[] {
   const { accountsPeriodStart, accountsPeriodEnd, anchor } = input;
+  // CTAPs start at the CT anchor if set, else the accounts-period start
   const start = anchor ?? accountsPeriodStart;
   if (start.getTime() > accountsPeriodEnd.getTime()) return [];
   const deadline = calculateCT600Deadline(accountsPeriodEnd);
   return computeCtaps(start, accountsPeriodEnd).map((r) => ({
-    start: r.start,
+    start: new Date(r.start),
     // computeCtaps' final chunk may run past the accounts end — clamp it.
     end: r.end.getTime() > accountsPeriodEnd.getTime() ? new Date(accountsPeriodEnd) : r.end,
     deadline: new Date(deadline),

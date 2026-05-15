@@ -112,5 +112,23 @@ describe("generateCt600Ctaps", () => {
     expect(out[0].start.toISOString().slice(0, 10)).toBe("2024-06-01");
     expect(out[out.length - 1].end.toISOString().slice(0, 10)).toBe("2025-02-28");
   });
+
+  it("returns [] when the anchor is strictly after the accounts end", () => {
+    const out = generateCt600Ctaps({
+      accountsPeriodStart: d("2024-02-07"),
+      accountsPeriodEnd: d("2025-02-28"),
+      anchor: d("2025-03-01"),
+    });
+    expect(out).toEqual([]);
+  });
+
+  it("returns [] when the anchor equals the accounts end (zero-length period)", () => {
+    const out = generateCt600Ctaps({
+      accountsPeriodStart: d("2024-02-07"),
+      accountsPeriodEnd: d("2025-02-28"),
+      anchor: d("2025-02-28"),
+    });
+    expect(out).toEqual([]);
+  });
 });
 
