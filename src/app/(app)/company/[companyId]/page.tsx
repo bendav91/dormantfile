@@ -14,6 +14,7 @@ import ActivityTab from "@/components/activity-tab";
 import SyncButton from "@/components/sync-button";
 import ArdMismatchBanner from "@/components/ard-mismatch-banner";
 import { buildActivityTimeline } from "@/lib/activity-timeline";
+import { generateCt600Ctaps } from "@/lib/ctap";
 interface PageProps {
   params: Promise<{ companyId: string }>;
   searchParams: Promise<{ tab?: string }>;
@@ -39,6 +40,76 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
     (f) =>
       f.filingType === "ct600" && ["submitted", "pending"].includes(f.status),
   ).length;
+
+  // Derive the period of accounts that the CT600 "Manage periods" modal manages.
+  // Rule: take the earliest *outstanding* ct600 (or, if none outstanding, the
+  // earliest ct600), then pick the accounts-type Filing whose [periodStart,
+  // periodEnd] CONTAINS that ct600's period. That accounts period is the span;
+  // `suggested` comes from generateCt600Ctaps so the modal and the server agree.
+  const IMMUTABLE_CT600 = new Set(["submitted", "accepted", "filed_elsewhere"]);
+  const ct600Filings = company.filings.filter((f) => f.filingType === "ct600");
+  const accountsFilings = company.filings.filter((f) => f.filingType === "accounts");
+
+  const sortedCt600 = [...ct600Filings].sort(
+    (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
+  );
+  const targetCt600 =
+    sortedCt600.find(
+      (f) => !["accepted", "filed_elsewhere"].includes(f.status) && !f.suppressedAt,
+    ) ?? sortedCt600[0];
+
+  let corpTaxPeriodProps:
+    | {
+        accountsPeriodStartISO: string;
+        accountsPeriodEndISO: string;
+        suggested: { startISO: string; endISO: string }[];
+        immutable: { startISO: string; endISO: string; status: string }[];
+      }
+    | undefined;
+
+  if (targetCt600) {
+    const tStart = (targetCt600.startDate ?? targetCt600.periodStart).getTime();
+    const tEnd = (targetCt600.endDate ?? targetCt600.periodEnd).getTime();
+    const accountsSpan = accountsFilings.find(
+      (a) =>
+        a.periodStart.getTime() <= tStart && a.periodEnd.getTime() >= tEnd,
+    );
+    if (accountsSpan) {
+      const accountsPeriodStart = accountsSpan.periodStart;
+      const accountsPeriodEnd = accountsSpan.periodEnd;
+      const suggested = generateCt600Ctaps({
+        accountsPeriodStart,
+        accountsPeriodEnd,
+        anchor: company.ctapStartDate ?? null,
+      }).map((c) => ({
+        startISO: c.start.toISOString().split("T")[0],
+        endISO: c.end.toISOString().split("T")[0],
+      }));
+      const immutable = ct600Filings
+        .filter((f) => {
+          const fs = (f.startDate ?? f.periodStart).getTime();
+          const fe = (f.endDate ?? f.periodEnd).getTime();
+          return (
+            fs >= accountsPeriodStart.getTime() &&
+            fe <= accountsPeriodEnd.getTime() &&
+            IMMUTABLE_CT600.has(f.status)
+          );
+        })
+        .map((f) => ({
+          startISO: (f.startDate ?? f.periodStart).toISOString().split("T")[0],
+          endISO: (f.endDate ?? f.periodEnd).toISOString().split("T")[0],
+          status: f.status,
+        }));
+      corpTaxPeriodProps = {
+        accountsPeriodStartISO: accountsPeriodStart
+          .toISOString()
+          .split("T")[0],
+        accountsPeriodEndISO: accountsPeriodEnd.toISOString().split("T")[0],
+        suggested,
+        immutable,
+      };
+    }
+  }
 
   const { tab: tabParam } = await searchParams;
   const validTabs = ["filings", "corp-tax", "settings", "overview", "activity"];
@@ -140,6 +211,10 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           companyNumber={company.companyRegistrationNumber}
           filings={company.filings}
           now={now}
+          accountsPeriodStartISO={corpTaxPeriodProps?.accountsPeriodStartISO}
+          accountsPeriodEndISO={corpTaxPeriodProps?.accountsPeriodEndISO}
+          suggested={corpTaxPeriodProps?.suggested}
+          immutable={corpTaxPeriodProps?.immutable}
         />
       )}
       {tab === "overview" && (

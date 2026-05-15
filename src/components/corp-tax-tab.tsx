@@ -10,8 +10,10 @@ import { Calendar, CheckCircle2, FileText } from "lucide-react";
 import Link from "next/link";
 import CopyFilingSummary from "@/components/copy-filing-summary";
 import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
+import Ct600PeriodEditor from "@/components/ct600-period-editor";
 import { isTaxFilingLive } from "@/lib/launch-mode";
 import { cn } from "@/lib/cn";
+import { Settings2 } from "lucide-react";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -42,6 +44,10 @@ interface CorpTaxTabProps {
   companyNumber: string;
   filings: Filing[];
   now: number;
+  accountsPeriodStartISO?: string;
+  accountsPeriodEndISO?: string;
+  suggested?: { startISO: string; endISO: string }[];
+  immutable?: { startISO: string; endISO: string; status: string }[];
 }
 
 export default function CorpTaxTab({
@@ -50,6 +56,10 @@ export default function CorpTaxTab({
   companyNumber,
   filings,
   now,
+  accountsPeriodStartISO,
+  accountsPeriodEndISO,
+  suggested,
+  immutable,
 }: CorpTaxTabProps) {
   const views = buildFilingViews(filings as never[], "ct600");
 
@@ -60,9 +70,41 @@ export default function CorpTaxTab({
   const [activeTab, setActiveTab] = useState<"outstanding" | "filed_elsewhere" | "completed">(
     "outstanding",
   );
+  const [editing, setEditing] = useState(false);
+
+  const canManagePeriods =
+    accountsPeriodStartISO != null &&
+    accountsPeriodEndISO != null &&
+    suggested != null &&
+    immutable != null;
 
   return (
     <>
+      {/* Manage periods action — shown alongside the sub-tab bar */}
+      {activeTab === "outstanding" && canManagePeriods && (
+        <div className="flex justify-end mb-3">
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="inline-flex items-center gap-1.5 bg-primary text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] transition-opacity duration-200"
+          >
+            <Settings2 size={14} strokeWidth={2} />
+            Manage periods
+          </button>
+        </div>
+      )}
+
+      {editing && canManagePeriods && (
+        <Ct600PeriodEditor
+          companyId={companyId}
+          accountsPeriodStartISO={accountsPeriodStartISO}
+          accountsPeriodEndISO={accountsPeriodEndISO}
+          suggested={suggested}
+          immutable={immutable}
+          onClose={() => setEditing(false)}
+        />
+      )}
+
       {/* Sub-tab bar */}
       <div className="flex bg-inset rounded-[10px] p-1 mb-5">
         <button
