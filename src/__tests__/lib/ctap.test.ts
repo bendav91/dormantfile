@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { computeCtaps, getNextCtapStart } from "@/lib/ctap";
+import { computeCtaps, getNextCtapStart, generateCt600Ctaps } from "@/lib/ctap";
+import { calculateCT600Deadline } from "@/lib/utils";
+
+const d = (s: string) => new Date(s + "T00:00:00.000Z");
 
 describe("computeCtaps", () => {
   it("generates 12-month CTAPs from anchor date", () => {
@@ -70,6 +73,44 @@ describe("getNextCtapStart", () => {
   it("returns null when both sources are null", () => {
     const result = getNextCtapStart(null, null);
     expect(result).toBeNull();
+  });
+});
+
+describe("generateCt600Ctaps", () => {
+  it("splits the Anouar >12-month first period into two CTAPs sharing one deadline", () => {
+    const out = generateCt600Ctaps({
+      accountsPeriodStart: d("2024-02-07"),
+      accountsPeriodEnd: d("2025-02-28"),
+      anchor: null,
+    });
+    expect(out.map((c) => [c.start.toISOString().slice(0, 10), c.end.toISOString().slice(0, 10)]))
+      .toEqual([
+        ["2024-02-07", "2025-02-06"],
+        ["2025-02-07", "2025-02-28"],
+      ]);
+    const shared = calculateCT600Deadline(d("2025-02-28")).getTime();
+    expect(out.every((c) => c.deadline.getTime() === shared)).toBe(true);
+  });
+
+  it("returns a single CTAP for a <=12-month period", () => {
+    const out = generateCt600Ctaps({
+      accountsPeriodStart: d("2024-04-01"),
+      accountsPeriodEnd: d("2025-03-31"),
+      anchor: null,
+    });
+    expect(out).toHaveLength(1);
+    expect(out[0].start.toISOString().slice(0, 10)).toBe("2024-04-01");
+    expect(out[0].end.toISOString().slice(0, 10)).toBe("2025-03-31");
+  });
+
+  it("honours an explicit anchor later than the accounts start", () => {
+    const out = generateCt600Ctaps({
+      accountsPeriodStart: d("2024-02-07"),
+      accountsPeriodEnd: d("2025-02-28"),
+      anchor: d("2024-06-01"),
+    });
+    expect(out[0].start.toISOString().slice(0, 10)).toBe("2024-06-01");
+    expect(out[out.length - 1].end.toISOString().slice(0, 10)).toBe("2025-02-28");
   });
 });
 

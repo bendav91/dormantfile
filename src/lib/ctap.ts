@@ -9,6 +9,8 @@
  *   for CT mid-way through an accounts period)
  */
 
+import { calculateCT600Deadline } from "@/lib/utils";
+
 export interface CtapRange {
   start: Date;
   end: Date;
@@ -69,5 +71,34 @@ export function getNextCtapStart(
   }
 
   return fromChain ?? ctapStartDate;
+}
+
+export interface Ct600Ctap {
+  start: Date;
+  end: Date;
+  deadline: Date;
+}
+
+/**
+ * Single source of truth for CT600 CTAP generation. Wraps computeCtaps
+ * (12-month chunks + short final remainder) and stamps every CTAP in the
+ * period of accounts with the SAME filing deadline (12 months after the
+ * period-of-accounts end — never the CTAP end).
+ */
+export function generateCt600Ctaps(input: {
+  accountsPeriodStart: Date;
+  accountsPeriodEnd: Date;
+  anchor: Date | null;
+}): Ct600Ctap[] {
+  const { accountsPeriodStart, accountsPeriodEnd, anchor } = input;
+  const start = anchor ?? accountsPeriodStart;
+  if (start.getTime() > accountsPeriodEnd.getTime()) return [];
+  const deadline = calculateCT600Deadline(accountsPeriodEnd);
+  return computeCtaps(start, accountsPeriodEnd).map((r) => ({
+    start: r.start,
+    // computeCtaps' final chunk may run past the accounts end — clamp it.
+    end: r.end.getTime() > accountsPeriodEnd.getTime() ? new Date(accountsPeriodEnd) : r.end,
+    deadline: new Date(deadline),
+  }));
 }
 
