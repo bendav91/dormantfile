@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { IBM_Plex_Sans } from "next/font/google";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -24,7 +25,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     select: { emailVerified: true, isAdmin: true },
   });
 
-  if (!user?.emailVerified) {
+  if (!user) {
+    redirect("/login");
+  }
+
+  if (!user.emailVerified && !session.impersonating) {
     redirect("/verify-email");
   }
 
@@ -32,6 +37,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className={`${ibmPlexSans.variable} min-h-screen font-[family-name:var(--font-ibm-plex-sans),sans-serif] bg-page flex flex-col`}>
+      <ImpersonationBanner />
       <SiteNav variant="app" user={{ email: session.user.email! }} isAdmin={isAdmin} />
 
       <main id="main-content" className="px-6 py-10 flex-1">
