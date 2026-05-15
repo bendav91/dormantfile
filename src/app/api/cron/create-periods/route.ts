@@ -1,19 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { calculateAccountsDeadline, calculateCT600Deadline } from "@/lib/utils";
-import { getNextCtapStart } from "@/lib/ctap";
+import { calculateAccountsDeadline } from "@/lib/utils";
+import {
+  getNextCtapStart,
+  generateCt600Ctaps,
+  spanHasProtectedCt600,
+} from "@/lib/ctap";
 
 /**
- * Daily cron (07:30) — creates Period records and outstanding Filing records
- * when a company's next accounting period / CTAP has ended and needs filing.
+ * Daily cron (07:30) — creates outstanding Filing records when a company's
+ * next accounting period / CTAP has ended and needs filing.
  *
- * Loop 1 (Accounts): creates Period + accounts Filing for each annual period due.
- * Loop 2 (CT600 CTAPs): creates ct600 Filing for each 12-month CTAP due,
- *   linked to the parent Period via periodId.
+ * Loop 1 (Accounts): for each company, walks forward from the latest filed
+ *   period end and upserts an outstanding `accounts` Filing for every annual
+ *   accounting period that has fully elapsed.
+ * Loop 2 (CT600 CTAPs): for each Corp-Tax-registered company, iterates that
+ *   company's accounts-period spans and upserts an outstanding `ct600` Filing
+ *   per CTAP via the shared `generateCt600Ctaps` helper (12-month chunks plus
+ *   a short final remainder, all sharing the accounts-period filing deadline).
+ *   Spans already protected by a submitted or user-edited CT600 are skipped
+ *   so the cron never resurrects deleted/edited CTAP rows.
  *
- * Dual-write phase: populates both old columns (periodStart/periodEnd/
- * accountsDeadline/ct600Deadline) and new columns (periodId/startDate/
- * endDate/deadline) on Filing records.
+ * Upserts are keyed on the `@@unique([companyId, periodStart, periodEnd,
+ * filingType])` constraint with a no-op `update: {}`, so re-runs are
+ * idempotent and never clobber existing rows.
  */
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -34,7 +44,15 @@ export async function GET(req: NextRequest) {
       registeredForCorpTax: true,
       ctapStartDate: true,
       filings: {
-        select: { periodEnd: true, endDate: true, filingType: true },
+        select: {
+          periodStart: true,
+          periodEnd: true,
+          startDate: true,
+          endDate: true,
+          filingType: true,
+          status: true,
+          ctapUserEdited: true,
+        },
         orderBy: { periodEnd: "desc" },
       },
     },
@@ -91,51 +109,70 @@ export async function GET(req: NextRequest) {
   for (const company of companies) {
     if (!company.registeredForCorpTax) continue;
 
-    // Find latest CT600 filing's endDate (fall back to periodEnd)
-    const latestCt600 = company.filings.find((f) => f.filingType === "ct600");
-    const latestCt600EndDate = latestCt600?.endDate ?? latestCt600?.periodEnd ?? null;
+    // Existing CT600 filings — used for the protected-span guard so the cron
+    // never resurrects a deleted/user-edited CTAP chain. Reuse the already-
+    // loaded filings (no extra query).
+    const existingCt600s = company.filings.filter(
+      (f) => f.filingType === "ct600",
+    );
 
-    const ctapAnchor = getNextCtapStart(latestCt600EndDate, company.ctapStartDate);
-    if (!ctapAnchor) continue;
+    // Find latest CT600 filing's endDate (fall back to periodEnd) to anchor
+    // the next CTAP chain.
+    const latestCt600 = existingCt600s[0];
+    const latestCt600EndDate =
+      latestCt600?.endDate ?? latestCt600?.periodEnd ?? null;
+    const anchor = getNextCtapStart(latestCt600EndDate, company.ctapStartDate);
 
-    let ctapStart = new Date(ctapAnchor);
+    // Each elapsed accounts period is a span; CTAPs are generated per span
+    // with the shared accounts-period filing deadline.
+    const accountsSpans = company.filings.filter(
+      (f) => f.filingType === "accounts" && f.periodEnd.getTime() <= now.getTime(),
+    );
 
-    while (true) {
-      const ctapEnd = new Date(ctapStart);
-      ctapEnd.setUTCFullYear(ctapEnd.getUTCFullYear() + 1);
-      ctapEnd.setUTCDate(ctapEnd.getUTCDate() - 1);
+    for (const span of accountsSpans) {
+      const accountsPeriodStart = span.periodStart;
+      const accountsPeriodEnd = span.periodEnd;
 
-      if (ctapEnd.getTime() > now.getTime()) break;
+      // Skip THIS span (continue to the next span/company) when it already
+      // contains a submitted or user-edited CT600 — never break the loop.
+      if (
+        spanHasProtectedCt600(
+          { accountsPeriodStart, accountsPeriodEnd },
+          existingCt600s,
+        )
+      ) {
+        continue;
+      }
 
-      const ct600Deadline = calculateCT600Deadline(ctapEnd);
-
-      await prisma.filing.upsert({
-        where: {
-          companyId_periodStart_periodEnd_filingType: {
-            companyId: company.id,
-            periodStart: ctapStart,
-            periodEnd: ctapEnd,
-            filingType: "ct600",
+      for (const ctap of generateCt600Ctaps({
+        accountsPeriodStart,
+        accountsPeriodEnd,
+        anchor,
+      })) {
+        await prisma.filing.upsert({
+          where: {
+            companyId_periodStart_periodEnd_filingType: {
+              companyId: company.id,
+              periodStart: ctap.start,
+              periodEnd: ctap.end,
+              filingType: "ct600",
+            },
           },
-        },
-        create: {
-          companyId: company.id,
-          filingType: "ct600",
-          periodStart: ctapStart,
-          periodEnd: ctapEnd,
-          status: "outstanding",
-          startDate: ctapStart,
-          endDate: ctapEnd,
-          deadline: ct600Deadline,
-        },
-        update: {},
-      });
-      created++;
-
-      // Next CTAP starts the day after this one ends
-      const nextStart = new Date(ctapEnd);
-      nextStart.setUTCDate(nextStart.getUTCDate() + 1);
-      ctapStart = nextStart;
+          create: {
+            companyId: company.id,
+            filingType: "ct600",
+            periodStart: ctap.start,
+            periodEnd: ctap.end,
+            status: "outstanding",
+            startDate: ctap.start,
+            endDate: ctap.end,
+            deadline: ctap.deadline,
+            ctapUserEdited: false,
+          },
+          update: {},
+        });
+        created++;
+      }
     }
   }
 
