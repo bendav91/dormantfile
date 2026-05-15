@@ -53,7 +53,7 @@ export default function OnboardingChecklist({ state }: { state: OnboardingState 
         </button>
       </div>
 
-      <ol className="flex flex-col gap-3 m-0 p-0 list-none">
+      <ol role="list" className="flex flex-col gap-3 m-0 p-0 list-none">
         {state.steps.map((step, i) => {
           const isActive = state.activeStepKey === step.key;
           const note = step.locked ? step.lockedNote : step.subLabel;
@@ -64,6 +64,7 @@ export default function OnboardingChecklist({ state }: { state: OnboardingState 
               data-delay={i}
             >
               <span
+                aria-hidden="true"
                 className={cn(
                   "w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold shrink-0",
                   step.done
