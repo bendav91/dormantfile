@@ -36,7 +36,7 @@ Commands: `npm test` (vitest run), `npm run lint`, `npx prisma migrate dev`, `np
 | `src/components/ct600-period-editor.tsx` | "Manage periods" modal (client) | Create |
 | `src/components/corp-tax-tab.tsx` | Mount the "Manage periods" button + modal | Modify |
 | `scripts/backfill-ct600-ctaps.ts` | One-off idempotent backfill | Create |
-| `src/__tests__/lib/ctap.test.ts` | Unit tests for the three pure helpers | Create |
+| `src/__tests__/lib/ctap.test.ts` | Unit tests for the three pure helpers | **Modify (append — file already exists with computeCtaps/getNextCtapStart suites; never overwrite)** |
 | `src/__tests__/api/ct600-periods.test.ts` | Route contract tests | Create |
 
 ---
@@ -64,7 +64,10 @@ Expected: success. Then `npx tsc --noEmit -p tsconfig.json 2>&1 | grep ctapUserE
 - [ ] **Step 4: Commit**
 
 ```bash
-git add prisma/schema.prisma prisma/migrations/
+# Stage ONLY the new migration dir by its actual generated name — NOT
+# `prisma/migrations/` wholesale, which would also stage the pre-existing
+# untracked 20260515084730_add_filing_poll_endpoint/ from the prior session.
+git add prisma/schema.prisma "prisma/migrations/$(ls -d prisma/migrations/*add_filing_ctap_user_edited)"
 git commit -m "feat: add Filing.ctapUserEdited for CT600 period protection"
 ```
 
@@ -74,14 +77,12 @@ git commit -m "feat: add Filing.ctapUserEdited for CT600 period protection"
 
 **Files:** Test `src/__tests__/lib/ctap.test.ts`; Modify `src/lib/ctap.ts`
 
-- [ ] **Step 1: Write failing tests.** Create `src/__tests__/lib/ctap.test.ts`:
+- [ ] **Step 1: Write failing tests.** `src/__tests__/lib/ctap.test.ts` **already exists** (75 lines: `computeCtaps`/`getNextCtapStart` suites). Do **NOT** overwrite/recreate it. Add `generateCt600Ctaps` to the existing `@/lib/ctap` import, add `import { calculateCT600Deadline } from "@/lib/utils";` if absent, add the `d()` helper if absent, then **append** this new `describe` block to the end of the file:
 
 ```ts
-import { describe, it, expect } from "vitest";
-import { generateCt600Ctaps } from "@/lib/ctap";
-import { calculateCT600Deadline } from "@/lib/utils";
-
-const d = (s: string) => new Date(s + "T00:00:00.000Z");
+// add to existing imports: import { generateCt600Ctaps } from "@/lib/ctap";
+// add if absent: import { calculateCT600Deadline } from "@/lib/utils";
+// add if absent: const d = (s: string) => new Date(s + "T00:00:00.000Z");
 
 describe("generateCt600Ctaps", () => {
   it("splits the Anouar >12-month first period into two CTAPs sharing one deadline", () => {
@@ -232,8 +233,6 @@ describe("spanHasProtectedCt600", () => {
 - [ ] **Step 3: Implement.** Append to `src/lib/ctap.ts`:
 
 ```ts
-const TWELVE_MONTHS_MS = 366; // guard tolerance handled by date math below
-
 export function validateCtapChain(input: {
   accountsPeriodStart: Date;
   accountsPeriodEnd: Date;
@@ -262,7 +261,6 @@ export function validateCtapChain(input: {
         errs.push(`Period ${i + 1}: must start the day after the previous period ends (no gaps or overlaps).`);
     }
   }
-  void TWELVE_MONTHS_MS;
   return errs;
 }
 
@@ -299,11 +297,27 @@ git commit -m "feat: add CTAP chain validator and resync-protection predicate"
 
 **Files:** Modify `src/lib/companies-house/materialise-filings.ts`; Test `src/__tests__/lib/materialise-filings.test.ts`
 
-- [ ] **Step 1: Failing test** — create `src/__tests__/lib/materialise-filings.test.ts` asserting that, given an input whose first accounts period is `2024-02-07 → 2025-02-28`, the CT600 `filingData` entries are the two CTAPs from `generateCt600Ctaps` with the shared deadline (extract the CT600-building into a pure exported helper `buildCt600FilingData(company, accountsPeriods, existingCt600s)` so it is unit-testable without Prisma). Test also asserts a span containing a `submitted` CT600 yields no new CT600 rows (`spanHasProtectedCt600`).
+> **Decision (resolves a reviewer-flagged behaviour question — keep this scope-tight):**
+> Today CT600 is generated only when `registeredForCorpTax && !isFiled`, where `isFiled`
+> means the *accounts* period was filed at Companies House (gap detection). **Retain
+> `!isFiled`.** This feature changes *how generated periods are shaped* (split), not
+> *which* periods get a CT600. Whether a CH-filed historical period should still surface
+> a CT600 is a separate product question, explicitly **out of scope** here. New gate:
+> `registeredForCorpTax && !isFiled && !spanHasProtectedCt600(span, existingCt600s)`.
 
-- [ ] **Step 2: Run, verify fail.** `npx vitest run src/__tests__/lib/materialise-filings.test.ts` → FAIL.
+> **Pure-helper contract (so it is unit-testable without Prisma):** extract
+> `buildCt600FilingData({ registeredForCorpTax, ctapStartDate, accountsPeriods, existingCt600s }): FilingData[]`
+> where `accountsPeriods: { start: Date; end: Date; isFiled: boolean }[]` and
+> `existingCt600s: { status; ctapUserEdited; periodStart; periodEnd }[]`. This helper is
+> **pure (no Prisma import)**. `materialiseFilings` loads `existingCt600s` via
+> `prisma.filing.findMany({ where: { companyId, filingType: "ct600" } })`, builds the
+> `accountsPeriods` list it already iterates, calls the helper, and `createMany`s.
 
-- [ ] **Step 3: Implement.** In `materialise-filings.ts`, replace the CT600 block (currently ~L98–110, the `if (registeredForCorpTax && !isFiled) { filingData.push({ filingType: "ct600", ... pStart..pEnd ... }) }`) with: after the accounts period loop, for each accounts period, if `registeredForCorpTax` and `!spanHasProtectedCt600(span, existingCt600s)`, push one `ct600` row per `generateCt600Ctaps({ accountsPeriodStart: pStart, accountsPeriodEnd: pEnd, anchor: company.ctapStartDate ?? null })`, with `periodStart/periodEnd/startDate/endDate` = CTAP bounds, `deadline` = CTAP deadline, `status: "outstanding"`, `ctapUserEdited: false`. The `accounts` filing block is unchanged. `createMany({ skipDuplicates: true })` stays. Add `import { generateCt600Ctaps, spanHasProtectedCt600 } from "@/lib/ctap";` and load existing CT600 filings for the company at the top (or accept via input) to feed the predicate.
+- [ ] **Step 1: Failing test** — create `src/__tests__/lib/materialise-filings.test.ts` exercising the pure `buildCt600FilingData` helper: (a) first accounts period `2024-02-07 → 2025-02-28`, `isFiled:false`, no existing CT600 → exactly the two CTAPs from `generateCt600Ctaps` with the shared deadline, `ctapUserEdited:false`; (b) a span containing a `submitted` CT600 → no CT600 rows for that span; (c) an accounts period with `isFiled:true` → no CT600 rows (behaviour retained).
+
+- [ ] **Step 2: Run, verify fail.** `npx vitest run src/__tests__/lib/materialise-filings.test.ts` → FAIL (helper not exported).
+
+- [ ] **Step 3: Implement.** Add `import { generateCt600Ctaps, spanHasProtectedCt600 } from "@/lib/ctap";`. Add and export the pure `buildCt600FilingData` per the contract above: for each accounts period, when `registeredForCorpTax && !isFiled && !spanHasProtectedCt600({accountsPeriodStart:start,accountsPeriodEnd:end}, existingCt600s)`, push one `ct600` `FilingData` per `generateCt600Ctaps({ accountsPeriodStart:start, accountsPeriodEnd:end, anchor: ctapStartDate ?? null })` with `periodStart/periodEnd/startDate/endDate` = CTAP bounds, `deadline` = CTAP deadline, `status:"outstanding"`, `ctapUserEdited:false`. Replace the inline CT600 block (~L98–110) so `materialiseFilings` instead: collects its accounts periods, loads `existingCt600s`, calls `buildCt600FilingData`, and pushes the result into `filingData`. The `accounts` block and `createMany({ skipDuplicates: true })` are unchanged.
 
 - [ ] **Step 4: Run, verify pass.** `npx vitest run src/__tests__/lib/materialise-filings.test.ts` → PASS.
 
@@ -332,7 +346,7 @@ git commit -m "feat: materialiseFilings generates correct split CT600 CTAPs"
 
 **Files:** Modify `src/app/api/cron/create-periods/route.ts` (Loop 2, ~L90–140); Test `src/__tests__/api/cron-create-periods-ct600.test.ts`
 
-- [ ] **Step 1: Failing test** — assert: (a) Loop 2 produces split CTAPs with the shared deadline via the helper; (b) **no resurrection** — for a span containing a `ctapUserEdited=true` CT600, the cron creates no CT600 rows for that span.
+- [ ] **Step 1: Failing test** — assert: (a) Loop 2 produces split CTAPs with the shared deadline via the helper; (b) **no resurrection** — for a span containing a `ctapUserEdited=true` CT600, the cron creates no CT600 rows for that span; (c) **a different, unprotected later span still generates** (the per-span guard must not halt the loop or suppress other spans — the cron still advances correctly for spans with no protected/edited CT600).
 - [ ] **Step 2: Run, verify fail.**
 - [ ] **Step 3: Implement.** Replace Loop 2's manual `while` chunk + per-CTAP `calculateCT600Deadline(ctapEnd)` with `generateCt600Ctaps({ accountsPeriodStart, accountsPeriodEnd, anchor: getNextCtapStart(latestCt600EndDate, company.ctapStartDate) })`; gate the whole span on `!spanHasProtectedCt600(span, existingCt600s)`; keep the `upsert` (still keyed on `(companyId, periodStart, periodEnd, filingType)`). Correct the stale docstring at the top of the file (remove `periodId`/`Period` model references — no longer in schema).
 - [ ] **Step 4: Run, verify pass.**
@@ -343,6 +357,13 @@ git commit -m "feat: materialiseFilings generates correct split CT600 CTAPs"
 ## Task 7: `POST /api/company/ct600-periods` endpoint (TDD)
 
 **Files:** Create `src/app/api/company/ct600-periods/route.ts`; Test `src/__tests__/api/ct600-periods.test.ts`
+
+> **Note (intentional supersede of spec §4):** the request body adds
+> `accountsPeriodStartISO` in addition to the spec's `{ companyId,
+> accountsPeriodEndISO, periods }`. `validateCtapChain` genuinely needs the accounts
+> *start* to enforce "first CTAP start = accounts start". Task 8's modal sends it too —
+> the plan is internally consistent; treat this as the authoritative payload, not a
+> spec mistake to "fix back".
 
 - [ ] **Step 1: Failing tests** — mock `getServerSession` and `prisma` (mirror `src/__tests__` patterns). Cover: 401 no session; 404/403 not owner; 400 when `validateCtapChain` returns errors (>12mo, gap, overlap, not spanning); success replaces editable CT600s for the accounts span with the submitted CTAPs, sets `ctapUserEdited=true`, recomputes `deadline = calculateCT600Deadline(accountsPeriodEnd)`, leaves `submitted/accepted/filed_elsewhere` rows untouched; concurrent-immutable → 409 "already filed — reopen to refresh".
 - [ ] **Step 2: Run, verify fail.**
@@ -426,7 +447,12 @@ export async function POST(req: NextRequest) {
 - [ ] **Step 2: Run, verify fail.**
 - [ ] **Step 3: Implement `ct600-period-editor.tsx`** — a `"use client"` modal. Props: `companyId`, `accountsPeriodStartISO`, `accountsPeriodEndISO`, `suggested: {startISO,endISO}[]`, `immutable: {startISO,endISO,status}[]`. State = editable rows (init from `suggested`). Render: read-only period-of-accounts header + the >12-month explainer; immutable rows read-only; editable rows with date `<input type="date">`, **Split**, delete (×); **+ Add period**; live `validateCtapChain` summary; **Reset to suggested**; Cancel / Save (disabled until `validateCtapChain(...) === []`). Save → `POST /api/company/ct600-periods`, on `ok` `router.refresh()`, on non-OK show `data.error`. Tailwind only, reuse `cn()` and existing button classes from `corp-tax-tab.tsx` (no inline styles per CLAUDE.md).
 - [ ] **Step 4: Run, verify pass.**
-- [ ] **Step 5: Wire entry.** In `src/components/corp-tax-tab.tsx`, add a "Manage periods" button in the Outstanding sub-tab header area (next to the sub-tab bar, ~L66–103), opening `<Ct600PeriodEditor/>` (state `const [editing,setEditing]=useState(false)`). Pass the accounts period (derive from the accounts filing covering the span; the page already loads `company.filings` — thread the needed props from `src/app/(app)/company/[companyId]/page.tsx` where `<CorpTaxTab/>` is rendered, computing `suggested` server-side via `generateCt600Ctaps` so the modal and server agree). Build server-side suggestion in the page; pass down.
+- [ ] **Step 5: Wire entry.** In `src/components/corp-tax-tab.tsx`, add a "Manage periods" button in the Outstanding sub-tab header area (next to the sub-tab bar, ~L66–103), opening `<Ct600PeriodEditor/>` (state `const [editing,setEditing]=useState(false)`). Thread props from `src/app/(app)/company/[companyId]/page.tsx` (server component, already loads `company.filings`): compute the suggestion server-side via `generateCt600Ctaps` so modal and server agree. Add these **exact** props to `CorpTaxTabProps` (and pass them straight through to `Ct600PeriodEditor`), matching the modal Props in Step 3 and the endpoint payload in Task 7:
+  - `accountsPeriodStartISO: string`
+  - `accountsPeriodEndISO: string`
+  - `suggested: { startISO: string; endISO: string }[]`  (from `generateCt600Ctaps`, mapped to ISO)
+  - `immutable: { startISO: string; endISO: string; status: string }[]`
+  These names must be identical across page → `CorpTaxTab` → `Ct600PeriodEditor` → fetch body so there is no rework.
 - [ ] **Step 6: Run full suite + lint.** `npm test` (expect no new failures vs. baseline) and `npm run lint` (expect clean for all created/modified files).
 - [ ] **Step 7: Commit** `git add src/components/ct600-period-editor.tsx src/components/corp-tax-tab.tsx "src/app/(app)/company/[companyId]/page.tsx" src/__tests__/components/ct600-period-editor.test.tsx && git commit -m "feat: add Manage CT600 periods modal"`
 
