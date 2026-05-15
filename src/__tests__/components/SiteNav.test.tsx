@@ -3,8 +3,8 @@
  */
 
 import "@testing-library/jest-dom/vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
@@ -13,6 +13,7 @@ vi.mock("next/navigation", () => ({
 
 // Mock next/link to render a plain anchor
 vi.mock("next/link", () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default: ({ children, href, ...props }: any) => (
     <a href={href} {...props}>
       {children}
@@ -23,6 +24,7 @@ vi.mock("next/link", () => ({
 // Mock next-auth/react
 vi.mock("next-auth/react", () => ({
   signOut: vi.fn(),
+  useSession: vi.fn(() => ({ data: null, status: "unauthenticated" })),
 }));
 
 // Mock next-themes
@@ -42,7 +44,7 @@ describe("SiteNav", () => {
       render(<SiteNav variant="marketing" />);
       // Links appear in both desktop and mobile drawer
       expect(screen.getAllByText("Pricing").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getAllByText("Resources").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("More").length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText("Sign in").length).toBeGreaterThanOrEqual(1);
       expect(screen.getAllByText("Get started").length).toBeGreaterThanOrEqual(1);
     });
@@ -61,13 +63,13 @@ describe("SiteNav", () => {
       expect(logoLink).toHaveAttribute("href", "/");
     });
 
-    it("opens Resources dropdown on click", () => {
+    it("opens More dropdown on click", () => {
       render(<SiteNav variant="marketing" />);
-      const resourcesButtons = screen.getAllByText("Resources");
+      const resourcesButtons = screen.getAllByText("More");
       // Desktop dropdown button (first one)
       fireEvent.click(resourcesButtons[0]);
       expect(screen.getByRole("menu")).toBeInTheDocument();
-      expect(screen.getByRole("menuitem", { name: "Guides" })).toBeInTheDocument();
+      expect(screen.getByRole("menuitem", { name: /Guides/ })).toBeInTheDocument();
     });
   });
 
@@ -135,8 +137,8 @@ describe("SiteNav", () => {
     it("expands accordion in drawer", () => {
       render(<SiteNav variant="marketing" />);
       fireEvent.click(screen.getByLabelText("Open menu"));
-      // Find the accordion button in the drawer (the second "Resources" text)
-      const resourcesButtons = screen.getAllByText("Resources");
+      // Find the accordion button in the drawer (the second "More" text)
+      const resourcesButtons = screen.getAllByText("More");
       const drawerResourcesBtn = resourcesButtons[resourcesButtons.length - 1];
       fireEvent.click(drawerResourcesBtn);
       expect(screen.getByText("Guides")).toBeInTheDocument();
