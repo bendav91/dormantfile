@@ -147,7 +147,7 @@ export async function pollCompaniesHouse(
     // 8026 = "No Accepted or Rejected Documents Found" — the clean
     // "still processing" code. Always transient; poll again later.
     if (String(errorNumber) === "8026") {
-      return { status: "pending" };
+      return { status: "pending", responsePayload: responseXml };
     }
 
     // 8023 = "EF documents not found". Almost always a poll-too-soon timing
@@ -217,8 +217,8 @@ export async function pollCompaniesHouse(
     }
 
     // PENDING (or any non-terminal/unknown code): still being examined.
-    return { status: "pending" };
+    return { status: "pending", responsePayload: responseXml };
   }
 
-  return { status: "pending" };
+  return { status: "pending", responsePayload: responseXml };
 }
