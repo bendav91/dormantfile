@@ -14,23 +14,36 @@ export default function OnboardingChecklist({ state }: { state: OnboardingState 
   if (hidden) return null;
   if (!state.visible && !state.complete) return null;
 
-  if (state.complete) {
-    return (
-      <section className="bg-card border border-border rounded-xl p-6 mb-8">
-        <h2 className="text-lg font-bold text-foreground mb-1.5">You&apos;re set</h2>
-        <p className="text-[15px] text-secondary leading-normal m-0">
-          Your first return is in. Your other return — Accounts or CT600 — is on your
-          company page whenever you&apos;re ready.
-        </p>
-      </section>
-    );
-  }
-
   function handleDismiss() {
     setHidden(true);
     startTransition(() => {
       void dismissOnboarding();
     });
+  }
+
+  if (state.complete) {
+    return (
+      <section className="bg-card border border-border rounded-xl p-6 mb-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-foreground mb-1.5">
+              You&apos;re set
+            </h2>
+            <p className="text-[15px] text-secondary leading-normal m-0">
+              Your first return is in. Your other return — Accounts or CT600 — is on
+              your company page whenever you&apos;re ready.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleDismiss}
+            className="text-xs text-muted hover:text-secondary transition-colors shrink-0"
+          >
+            Hide this
+          </button>
+        </div>
+      </section>
+    );
   }
 
   return (

@@ -77,9 +77,9 @@ describe("getOnboardingState — complete & visible", () => {
     expect(s.complete).toBe(false);
   });
 
-  it("complete overrides dismissed (complete true even if dismissedAt set)", () => {
+  it("dismissed stays dismissed: completing a filing does not resurrect the panel", () => {
     const s = getOnboardingState(base({ hasSubmittedFiling: true, dismissedAt: new Date() }));
-    expect(s.complete).toBe(true);
+    expect(s.complete).toBe(false);
     expect(s.visible).toBe(false);
   });
 

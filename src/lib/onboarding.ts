@@ -85,13 +85,16 @@ export function getOnboardingState(input: OnboardingStateInput): OnboardingState
     },
   ];
 
-  const complete = hasSubmittedFiling;
+  // `complete` drives the "You're set" confirmation panel. It is only shown
+  // when the user hasn't already dismissed onboarding — completing a filing
+  // should not resurrect a panel they explicitly hid while still in progress.
+  const complete = hasSubmittedFiling && dismissedAt == null;
   const activeStep = steps.find((s) => !s.done && !s.locked);
 
   return {
     steps,
     activeStepKey: activeStep ? activeStep.key : null,
     complete,
-    visible: !complete && dismissedAt == null,
+    visible: !hasSubmittedFiling && dismissedAt == null,
   };
 }
