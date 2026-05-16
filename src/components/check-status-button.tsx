@@ -13,6 +13,7 @@ type ResultState =
   | { type: "accepted"; message: string }
   | { type: "rejected"; message: string }
   | { type: "processing"; message: string }
+  | { type: "needs_attention"; message: string }
   | null;
 
 export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) {
@@ -53,6 +54,13 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
           message: data.message || "Filing rejected. Please retry or contact support.",
         });
         setTimeout(() => router.refresh(), 1500);
+      } else if (status === "needs_attention") {
+        setResult({
+          type: "needs_attention",
+          message:
+            "Submitted, but no confirmation from Companies House yet. Not a rejection — contact support if it doesn't clear.",
+        });
+        setTimeout(() => router.refresh(), 1500);
       } else {
         setResult({
           type: "processing",
@@ -75,6 +83,7 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
             "text-xs font-medium",
             result.type === "accepted" && "text-success",
             result.type === "rejected" && "text-danger-deep",
+            result.type === "needs_attention" && "text-warning-deep",
             result.type === "processing" && "text-warning-deep"
           )}
         >

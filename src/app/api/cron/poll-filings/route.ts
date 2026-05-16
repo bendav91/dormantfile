@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { pollHmrc } from "@/lib/hmrc/submission-client";
 import { pollCompaniesHouse } from "@/lib/companies-house/submission-client";
+import { shouldFlagDocumentsNotFound } from "@/lib/companies-house/review-policy";
 import type { VendorCredentials } from "@/lib/hmrc/types";
 import { rollForwardPeriod } from "@/lib/roll-forward";
 
@@ -67,6 +68,7 @@ export async function GET(req: NextRequest) {
     try {
       let pollStatus: "accepted" | "rejected" | "processing" | "pending";
       let pollResponsePayload: string | undefined;
+      let chPendingReason: "documents_not_found" | undefined;
 
       if (filing.filingType === "ct600") {
         if (!vendor) continue;
@@ -82,6 +84,7 @@ export async function GET(req: NextRequest) {
         const result = await pollCompaniesHouse(filing.correlationId!, endpoint, presenterCreds, process.env.CH_GATEWAY_TEST === "1");
         pollStatus = result.status;
         pollResponsePayload = result.responsePayload;
+        chPendingReason = result.pendingReason;
       }
 
       if (pollStatus === "accepted") {
@@ -91,6 +94,8 @@ export async function GET(req: NextRequest) {
             status: "accepted",
             confirmedAt: new Date(),
             responsePayload: pollResponsePayload,
+            // Resolved — clear any prior "awaiting confirmation" flag.
+            reviewFlaggedAt: null,
           },
         });
 
@@ -114,12 +119,28 @@ export async function GET(req: NextRequest) {
           data: {
             status: "rejected",
             responsePayload: pollResponsePayload,
+            // Resolved (rejected) — clear any prior flag.
+            reviewFlaggedAt: null,
           },
         });
 
         resolved++;
+      } else if (
+        pollStatus === "pending" &&
+        chPendingReason === "documents_not_found" &&
+        filing.reviewFlaggedAt == null &&
+        shouldFlagDocumentsNotFound(filing.submittedAt, Date.now())
+      ) {
+        // CH 8023 "EF documents not found" has persisted past the grace
+        // window. Keep status "submitted" so polling continues (it may still
+        // resolve to accepted), but flag it so the user is told it's
+        // unconfirmed rather than waiting silently forever.
+        await prisma.filing.update({
+          where: { id: filing.id },
+          data: { reviewFlaggedAt: new Date() },
+        });
       }
-      // processing/pending: leave as submitted, try again next cron run
+      // processing/pending (within grace, or 8026): leave as submitted, retry next run
     } catch {
       // Don't crash the cron -- continue to next filing
     }

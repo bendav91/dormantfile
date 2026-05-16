@@ -114,6 +114,7 @@ model Filing {
   submissionNumber String?
   submittedAt      DateTime?
   confirmedAt      DateTime?
+  reviewFlaggedAt  DateTime?
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   company          Company      @relation(fields: [companyId], references: [id])

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { pollHmrc } from "@/lib/hmrc/submission-client";
 import { pollCompaniesHouse } from "@/lib/companies-house/submission-client";
+import { shouldFlagDocumentsNotFound } from "@/lib/companies-house/review-policy";
 import type { VendorCredentials } from "@/lib/hmrc/types";
 import { rollForwardPeriod } from "@/lib/roll-forward";
 
@@ -79,6 +80,7 @@ export async function POST(req: NextRequest) {
   let pollStatus: "accepted" | "rejected" | "processing" | "pending";
   let pollMessage: string | undefined;
   let pollResponsePayload: string | undefined;
+  let chPendingReason: "documents_not_found" | undefined;
 
   try {
     if (filing.filingType === "ct600") {
@@ -106,6 +108,7 @@ export async function POST(req: NextRequest) {
       pollStatus = result.status;
       pollMessage = result.message;
       pollResponsePayload = result.responsePayload;
+      chPendingReason = result.pendingReason;
     }
   } catch (err) {
     return NextResponse.json(
@@ -121,6 +124,8 @@ export async function POST(req: NextRequest) {
         status: "accepted",
         confirmedAt: new Date(),
         responsePayload: pollResponsePayload,
+        // Resolved — clear any prior "awaiting confirmation" flag.
+        reviewFlaggedAt: null,
       },
     });
 
@@ -146,6 +151,8 @@ export async function POST(req: NextRequest) {
       data: {
         status: "rejected",
         responsePayload: pollResponsePayload,
+        // Resolved (rejected) — clear any prior "awaiting confirmation" flag.
+        reviewFlaggedAt: null,
       },
     });
 
@@ -153,6 +160,28 @@ export async function POST(req: NextRequest) {
       status: "rejected",
       filingId: filing.id,
       message: pollMessage,
+    });
+  }
+
+  // CH error 8023 "EF documents not found": still pending. Keep the filing in
+  // "submitted" so polling continues (it may yet resolve to accepted), but if
+  // it has persisted past the grace window flag it for review so the user is
+  // told it's unconfirmed instead of waiting silently forever.
+  if (pollStatus === "pending" && chPendingReason === "documents_not_found") {
+    const flagged =
+      filing.reviewFlaggedAt != null ||
+      shouldFlagDocumentsNotFound(filing.submittedAt, Date.now());
+
+    if (flagged && filing.reviewFlaggedAt == null) {
+      await prisma.filing.update({
+        where: { id: filing.id },
+        data: { reviewFlaggedAt: new Date() },
+      });
+    }
+
+    return NextResponse.json({
+      status: flagged ? "needs_attention" : "processing",
+      filingId: filing.id,
     });
   }
 

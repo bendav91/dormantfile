@@ -4,7 +4,7 @@ import { useState } from "react";
 import FilingStatusBadge from "@/components/filing-status-badge";
 import CheckStatusButton from "@/components/check-status-button";
 import MarkFiledButton from "@/components/mark-filed-button";
-import { buildFilingViews, type FilingView } from "@/lib/filing-views";
+import { buildFilingViews } from "@/lib/filing-views";
 import { FilingStatus } from "@prisma/client";
 import { AlertTriangle, Calendar, CheckCircle2, EyeOff, FileText } from "lucide-react";
 import Link from "next/link";
@@ -35,6 +35,7 @@ interface Filing {
   createdAt: Date;
   confirmedAt: Date | null;
   submittedAt: Date | null;
+  reviewFlaggedAt: Date | null;
 }
 
 interface FilingsTabProps {
@@ -234,7 +235,11 @@ export default function FilingsTab({
                             {f.status === "submitted" && (
                               <CheckStatusButton filingId={f.id} />
                             )}
-                            <FilingStatusBadge status={f.status} filingType="accounts" />
+                            <FilingStatusBadge
+                              status={f.status}
+                              filingType="accounts"
+                              flaggedForReview={!!f.reviewFlaggedAt}
+                            />
                             {(f.status === "failed" || f.status === "rejected") && (
                               <>
                                 <MarkFiledButton companyId={companyId} periodEnd={endISO} filingType="accounts" />
@@ -264,6 +269,21 @@ export default function FilingsTab({
                         )}
                       </div>
                     </div>
+
+                    {/* Awaiting-confirmation note (CH 8023 persisted past grace) */}
+                    {f.status === "submitted" && f.reviewFlaggedAt && (
+                      <div className="flex items-start gap-1.5 px-2.5 py-1.5 bg-warning-bg border border-warning-border rounded-md mt-2.5">
+                        <span className="text-warning shrink-0 mt-px flex">
+                          <AlertTriangle size={13} color="currentColor" strokeWidth={2} />
+                        </span>
+                        <p className="text-xs text-warning-text m-0 font-medium">
+                          Submitted to Companies House, but we haven&apos;t had a confirmation back
+                          yet. This is usually a delay on their side &mdash; we&apos;re still
+                          checking automatically. If it doesn&apos;t clear, contact support and
+                          we&apos;ll chase it with Companies House.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Suppress button */}
                     {view.isOverdue && (

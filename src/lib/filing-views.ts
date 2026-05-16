@@ -14,6 +14,7 @@ export interface FilingRecord {
   correlationId: string | null;
   submittedAt: Date | null;
   confirmedAt: Date | null;
+  reviewFlaggedAt: Date | null;
   createdAt: Date;
 }
 

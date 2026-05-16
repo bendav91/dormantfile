@@ -21,6 +21,7 @@ function filing(overrides: Partial<FilingRecord> = {}): FilingRecord {
     correlationId: null,
     submittedAt: null,
     confirmedAt: null,
+    reviewFlaggedAt: null,
     createdAt: new Date(),
     ...overrides,
   };

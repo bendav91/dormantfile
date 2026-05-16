@@ -4,6 +4,12 @@ import { cn } from "@/lib/cn";
 interface FilingStatusBadgeProps {
   status: FilingStatus;
   filingType?: "accounts" | "ct600";
+  /**
+   * Submitted to Companies House but no accept/reject confirmation after the
+   * grace window (CH error 8023 persisting). Not a rejection — it overrides
+   * the "Submitted" label with an amber "Awaiting confirmation".
+   */
+  flaggedForReview?: boolean;
 }
 
 const statusConfig: Record<
@@ -40,8 +46,17 @@ const statusConfig: Record<
   },
 };
 
-export default function FilingStatusBadge({ status }: FilingStatusBadgeProps) {
-  const config = statusConfig[status];
+export default function FilingStatusBadge({
+  status,
+  flaggedForReview,
+}: FilingStatusBadgeProps) {
+  const config =
+    flaggedForReview && status === "submitted"
+      ? {
+          label: "Awaiting confirmation",
+          className: "bg-warning-bg text-warning-text",
+        }
+      : statusConfig[status];
   const label = config.label;
 
   return (

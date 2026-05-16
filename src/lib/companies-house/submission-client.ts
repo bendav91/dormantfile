@@ -20,6 +20,13 @@ interface PollResult {
   status: "accepted" | "rejected" | "pending";
   responsePayload?: string;
   message?: string;
+  /**
+   * Why a "pending" result is pending. "documents_not_found" is CH error 8023
+   * ("EF documents not found") — usually a poll-too-soon timing lag, but if it
+   * persists it can mean a genuinely lost submission, so callers apply a grace
+   * window before flagging. Absent for the clean 8026 "still processing" case.
+   */
+  pendingReason?: "documents_not_found";
 }
 
 const parser = new XMLParser({
@@ -117,9 +124,24 @@ export async function pollCompaniesHouse(
           .join("; ")
       : (errors?.Text ?? "Unknown error");
 
-    // Error 8026 = "No Accepted or Rejected Documents Found" — still processing
+    // 8026 = "No Accepted or Rejected Documents Found" — the clean
+    // "still processing" code. Always transient; poll again later.
     if (String(errorNumber) === "8026") {
       return { status: "pending" };
+    }
+
+    // 8023 = "EF documents not found". Almost always a poll-too-soon timing
+    // lag (NOT a rejection of the accounts), so it must not be mapped to
+    // "rejected". But it can also indicate a genuinely lost submission if it
+    // persists, so we surface the reason and let the caller decide when a
+    // long-running 8023 should be escalated for review.
+    if (String(errorNumber) === "8023") {
+      return {
+        status: "pending",
+        pendingReason: "documents_not_found",
+        message: errorText,
+        responsePayload: responseXml,
+      };
     }
 
     return {
