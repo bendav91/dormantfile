@@ -6,8 +6,9 @@ import CheckStatusButton from "@/components/check-status-button";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { buildFilingViews } from "@/lib/filing-views";
 import { FilingStatus } from "@prisma/client";
-import { Calendar, CheckCircle2, FileText } from "lucide-react";
+import { Calendar, CheckCircle2, FileText, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import CopyFilingSummary from "@/components/copy-filing-summary";
 import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
 import Ct600PeriodEditor from "@/components/ct600-period-editor";
@@ -67,10 +68,41 @@ export default function CorpTaxTab({
   const filedElsewhere = views.filter((v) => v.filing.status === "filed_elsewhere");
   const completed = views.filter((v) => v.filing.status === "accepted");
 
+  const router = useRouter();
+
   const [activeTab, setActiveTab] = useState<"outstanding" | "filed_elsewhere" | "completed">(
     "outstanding",
   );
   const [editing, setEditing] = useState(false);
+  const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
+  const [removeError, setRemoveError] = useState("");
+
+  const REMOVABLE_STATUSES = new Set(["outstanding", "failed", "rejected"]);
+
+  async function handleRemove() {
+    if (!confirmRemoveId) return;
+    setRemoving(true);
+    setRemoveError("");
+    try {
+      const res = await fetch("/api/company/ct600-periods", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ companyId, filingId: confirmRemoveId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRemoveError(data.error ?? "Something went wrong.");
+        setRemoving(false);
+        return;
+      }
+      setConfirmRemoveId(null);
+      router.refresh();
+    } catch {
+      setRemoveError("Something went wrong.");
+      setRemoving(false);
+    }
+  }
 
   const canManagePeriods =
     accountsPeriodStartISO != null &&
@@ -223,6 +255,16 @@ export default function CorpTaxTab({
                             )}
                           </>
                         )}
+                        {REMOVABLE_STATUSES.has(f.status) && (
+                          <button
+                            type="button"
+                            title="Remove this CT600"
+                            onClick={() => { setConfirmRemoveId(f.id); setRemoveError(""); }}
+                            className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-border text-secondary transition-colors duration-200"
+                          >
+                            <Trash2 size={13} strokeWidth={2.5} />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -275,6 +317,39 @@ export default function CorpTaxTab({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Remove CT600 confirmation modal */}
+      {confirmRemoveId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card rounded-xl p-5 max-w-[420px] w-[calc(100%-32px)] shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+            <h3 className="text-base font-bold text-foreground m-0 mb-3">
+              Remove this CT600?
+            </h3>
+            <p className="text-sm text-body m-0 mb-5 leading-relaxed">
+              This will permanently remove the CT600 period. You can add it again using &ldquo;Manage periods&rdquo;. Are you sure?
+            </p>
+            {removeError && (
+              <p className="text-xs text-danger m-0 mb-4">{removeError}</p>
+            )}
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => { setConfirmRemoveId(null); setRemoveError(""); }}
+                disabled={removing}
+                className="bg-transparent border border-border px-4 py-2 text-xs font-semibold cursor-pointer rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRemove}
+                disabled={removing}
+                className="bg-danger text-white px-4 py-2 text-xs font-semibold cursor-pointer rounded-md border-0"
+              >
+                {removing ? "Removing…" : "Remove"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

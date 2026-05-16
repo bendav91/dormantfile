@@ -60,3 +60,37 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true, count: parsed.length });
 }
+
+const REMOVABLE = new Set(["outstanding", "failed", "rejected"]);
+
+export async function DELETE(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  let body: { companyId?: string; filingId?: string };
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid body" }, { status: 400 }); }
+  const { companyId, filingId } = body;
+  if (!companyId || !filingId)
+    return NextResponse.json({ error: "companyId and filingId are required" }, { status: 400 });
+
+  const company = await prisma.company.findFirst({
+    where: { id: companyId, userId: session.user.id, deletedAt: null },
+    select: { id: true },
+  });
+  if (!company) return NextResponse.json({ error: "Company not found" }, { status: 404 });
+
+  const filing = await prisma.filing.findFirst({
+    where: { id: filingId, companyId, filingType: "ct600" },
+    select: { id: true, status: true },
+  });
+  if (!filing) return NextResponse.json({ error: "Filing not found" }, { status: 404 });
+
+  if (!REMOVABLE.has(filing.status))
+    return NextResponse.json(
+      { error: "This CT600 has been submitted or filed and cannot be removed." },
+      { status: 409 },
+    );
+
+  await prisma.filing.delete({ where: { id: filing.id } });
+  return NextResponse.json({ ok: true });
+}
