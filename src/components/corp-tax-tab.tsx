@@ -1,6 +1,7 @@
 "use client";
 
 import CheckStatusButton from "@/components/check-status-button";
+import { formatUkDate, formatUkDateShort } from "@/lib/format-date";
 import CopyFilingSummary from "@/components/copy-filing-summary";
 import Ct600PeriodEditor from "@/components/ct600-period-editor";
 import FilingStatusBadge from "@/components/filing-status-badge";
@@ -16,23 +17,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function formatShortDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
+const formatDate = formatUkDate;
+const formatShortDate = formatUkDateShort;
 
 interface Filing {
   id: string;

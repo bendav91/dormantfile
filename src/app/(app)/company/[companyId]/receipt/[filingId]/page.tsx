@@ -5,14 +5,13 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import PrintButton from "./print-button";
+import { formatUkDate } from "@/lib/format-date";
 
 interface PageProps {
   params: Promise<{ companyId: string; filingId: string }>;
 }
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-}
+const formatDate = formatUkDate;
 
 export default async function ReceiptPage({ params }: PageProps) {
   const session = await getServerSession(authOptions);

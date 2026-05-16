@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import FilingStatusBadge from "@/components/filing-status-badge";
+import { formatUkDate, formatUkDateShort } from "@/lib/format-date";
 import CheckStatusButton from "@/components/check-status-button";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { buildFilingViews } from "@/lib/filing-views";
@@ -14,13 +15,8 @@ import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
 import { isFilingLive } from "@/lib/launch-mode";
 import { cn } from "@/lib/cn";
 
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-}
-
-function formatShortDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-}
+const formatDate = formatUkDate;
+const formatShortDate = formatUkDateShort;
 
 interface Filing {
   id: string;

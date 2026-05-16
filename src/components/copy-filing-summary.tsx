@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { formatUkDate } from "@/lib/format-date";
 
 interface CopyFilingSummaryProps {
   companyName: string;
@@ -13,9 +14,7 @@ interface CopyFilingSummaryProps {
   confirmedAt: Date | null;
 }
 
-function fmtDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-}
+const fmtDate = formatUkDate;
 
 export default function CopyFilingSummary({
   companyName,

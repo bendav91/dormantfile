@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { formatUkDate } from "@/lib/format-date";
 
 interface OverviewTabProps {
   companyName: string;
@@ -23,7 +24,7 @@ interface OverviewTabProps {
 
 function formatDate(date: Date | null): string {
   if (!date) return "\u2014";
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  return formatUkDate(date);
 }
 
 function formatStatus(status: string): string {
