@@ -15,7 +15,7 @@ interface FormErrors {
 
 // Bump when the disclaimer wording below changes — stored against the company
 // so we have a record of exactly which text the user agreed to.
-const DORMANCY_ATTESTATION_VERSION = "v1";
+const DORMANCY_ATTESTATION_VERSION = "v2";
 
 const ACCOUNTS_TYPE_LABELS: Record<string, string> = {
   dormant: "Dormant",
@@ -593,21 +593,22 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
                 />
                 <span className="flex flex-col gap-2">
                   <span className="font-semibold">
-                    I confirm this company had no significant accounting transactions in this
-                    accounting period and is genuinely dormant.
+                    I confirm this company had no significant accounting transactions in any
+                    accounting period I file through DormantFile, and is genuinely dormant for
+                    those periods — including any historical or back-dated periods.
                   </span>
                   <span className="text-[13px] text-body">
                     I understand DormantFile is not accountancy software and will only file nil
                     returns for both annual accounts (Companies House) and CT600 (HMRC) filings.
                   </span>
                   <span className="text-[13px] text-body">
-                    If you are not sure whether your company is genuinely dormant, or are not sure
-                    what a dormant company means, please speak with an accountancy professional or
-                    Companies House before using this tool.
+                    If you are not sure whether your company is (or was) genuinely dormant for any
+                    period, or are not sure what a dormant company means, please speak with an
+                    accountancy professional or Companies House before using this tool.
                   </span>
                   <span className="text-[13px] text-body">
-                    DormantFile is not responsible for the submission of nil accounts for genuinely
-                    active and trading companies.
+                    DormantFile is not responsible for the submission of nil accounts for any
+                    company that was active or trading in any period filed.
                   </span>
                 </span>
               </label>
