@@ -9,7 +9,31 @@ import { cn } from "@/lib/cn";
 interface FormErrors {
   companyRegistrationNumber?: string;
   uniqueTaxReference?: string;
+  dormancyAttestation?: string;
   general?: string;
+}
+
+// Bump when the disclaimer wording below changes — stored against the company
+// so we have a record of exactly which text the user agreed to.
+const DORMANCY_ATTESTATION_VERSION = "v1";
+
+const ACCOUNTS_TYPE_LABELS: Record<string, string> = {
+  dormant: "Dormant",
+  "micro-entity": "Micro-entity",
+  small: "Small",
+  medium: "Medium",
+  full: "Full",
+  "group": "Group",
+  "interim": "Interim",
+  "initial": "Initial",
+  "total-exemption-full": "Total exemption full",
+  "total-exemption-small": "Total exemption small",
+  "audit-exemption-subsidiary": "Audit exemption subsidiary",
+  "filleted": "Filleted",
+};
+
+function formatAccountsType(type: string): string {
+  return ACCOUNTS_TYPE_LABELS[type] ?? type.replace(/-/g, " ");
 }
 
 function FormField({
@@ -105,6 +129,13 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
   const [uniqueTaxReference, setUniqueTaxReference] = useState("");
   const [registeredForCorpTax, setRegisteredForCorpTax] = useState(false);
   const [shareCapitalPounds, setShareCapitalPounds] = useState("");
+  const [sicCodes, setSicCodes] = useState<string[]>([]);
+  const [lastAccountsType, setLastAccountsType] = useState<string | null>(null);
+  const [lastAccountsMadeUpTo, setLastAccountsMadeUpTo] = useState<string | null>(null);
+  const [dormancySignal, setDormancySignal] = useState<
+    "dormant" | "non-dormant" | "unknown" | null
+  >(null);
+  const [dormancyAccepted, setDormancyAccepted] = useState(false);
   const [deletedWarning, setDeletedWarning] = useState<{ companyName: string; deletedAt: string } | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
@@ -123,6 +154,11 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         setCompanyName("");
         setPeriodStartOn(null);
         setPeriodEndOn(null);
+        setSicCodes([]);
+        setLastAccountsType(null);
+        setLastAccountsMadeUpTo(null);
+        setDormancySignal(null);
+        setDormancyAccepted(false);
         setDeletedWarning(null);
       }, 0);
       return;
@@ -153,6 +189,11 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         setCompanyName(data.companyName);
         setPeriodStartOn(data.periodStartOn);
         setPeriodEndOn(data.periodEndOn);
+        setSicCodes(Array.isArray(data.sicCodes) ? data.sicCodes : []);
+        setLastAccountsType(data.lastAccountsType ?? null);
+        setLastAccountsMadeUpTo(data.lastAccountsMadeUpTo ?? null);
+        setDormancySignal(data.dormancySignal ?? null);
+        setDormancyAccepted(false);
         if (data.shareCapitalPence != null && data.shareCapitalPence > 0) {
           setShareCapitalPounds(String(data.shareCapitalPence / 100));
         }
@@ -202,6 +243,10 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
         errs.uniqueTaxReference = "UTR must be exactly 10 digits.";
       }
     }
+    if (lookupStatus === "found" && !dormancyAccepted) {
+      errs.dormancyAttestation =
+        "You must confirm the dormancy declaration before adding this company.";
+    }
     return errs;
   }
 
@@ -224,6 +269,8 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
           uniqueTaxReference: registeredForCorpTax ? uniqueTaxReference : undefined,
           registeredForCorpTax,
           shareCapital: shareCapitalPounds ? Math.round(parseFloat(shareCapitalPounds) * 100) : 0,
+          dormancyAttestationAccepted: dormancyAccepted,
+          dormancyAttestationVersion: DORMANCY_ATTESTATION_VERSION,
         }),
       });
 
@@ -430,6 +477,147 @@ export default function CompanyForm({ isFirstCompany = true }: { isFirstCompany?
               </FormField>
             )}
           </>
+        )}
+
+        {lookupStatus === "found" && (
+          <div className="flex flex-col gap-4">
+            <div
+              className={cn(
+                "flex flex-col gap-3 py-4 px-4 rounded-lg border",
+                dormancySignal === "dormant" && "bg-success-bg border-success-border",
+                dormancySignal === "non-dormant" && "bg-warning-bg border-warning-border",
+                (dormancySignal === "unknown" || dormancySignal == null) &&
+                  "bg-page border-border"
+              )}
+            >
+              <div className="flex items-start gap-2.5">
+                <span
+                  className={cn(
+                    "shrink-0 mt-px",
+                    dormancySignal === "dormant" && "text-success",
+                    dormancySignal === "non-dormant" && "text-warning",
+                    (dormancySignal === "unknown" || dormancySignal == null) && "text-body"
+                  )}
+                >
+                  {dormancySignal === "dormant" ? (
+                    <CheckCircle2 size={18} color="currentColor" strokeWidth={2} />
+                  ) : (
+                    <AlertTriangle size={18} color="currentColor" strokeWidth={2} />
+                  )}
+                </span>
+                <div className="flex flex-col gap-1">
+                  <p
+                    className={cn(
+                      "text-sm font-semibold m-0",
+                      dormancySignal === "dormant" && "text-success",
+                      dormancySignal === "non-dormant" && "text-warning-text",
+                      (dormancySignal === "unknown" || dormancySignal == null) &&
+                        "text-foreground"
+                    )}
+                  >
+                    {dormancySignal === "dormant" &&
+                      "Companies House records show the last accounts were filed as dormant."}
+                    {dormancySignal === "non-dormant" &&
+                      "Companies House records show the last accounts were NOT filed as dormant."}
+                    {(dormancySignal === "unknown" || dormancySignal == null) &&
+                      "No accounts have been filed at Companies House yet."}
+                  </p>
+                  <p
+                    className={cn(
+                      "text-[13px] m-0",
+                      dormancySignal === "non-dormant" ? "text-warning-text" : "text-body"
+                    )}
+                  >
+                    {dormancySignal === "dormant" &&
+                      "This is a positive signal, but it does not guarantee the company is dormant for the period you are about to file. You are responsible for confirming that below."}
+                    {dormancySignal === "non-dormant" &&
+                      `The most recent accounts were filed as ${
+                        lastAccountsType ? formatAccountsType(lastAccountsType).toLowerCase() : "non-dormant"
+                      }. If the company has since become dormant you can still proceed, but you must be certain it had no significant accounting transactions in the period you are filing.`}
+                    {(dormancySignal === "unknown" || dormancySignal == null) &&
+                      "Companies House has no prior accounts to indicate dormancy either way. You are responsible for confirming the company is genuinely dormant below."}
+                  </p>
+                </div>
+              </div>
+
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 m-0">
+                <div className="flex flex-col gap-0.5">
+                  <dt className="text-[12px] uppercase tracking-wide text-muted m-0">
+                    Last accounts type
+                  </dt>
+                  <dd className="text-sm text-foreground m-0">
+                    {lastAccountsType
+                      ? formatAccountsType(lastAccountsType)
+                      : "None filed"}
+                  </dd>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <dt className="text-[12px] uppercase tracking-wide text-muted m-0">
+                    Last accounts made up to
+                  </dt>
+                  <dd className="text-sm text-foreground m-0">
+                    {lastAccountsMadeUpTo
+                      ? formatDisplayDate(lastAccountsMadeUpTo)
+                      : "—"}
+                  </dd>
+                </div>
+                <div className="flex flex-col gap-0.5 sm:col-span-2">
+                  <dt className="text-[12px] uppercase tracking-wide text-muted m-0">
+                    SIC codes (nature of business)
+                  </dt>
+                  <dd className="text-sm text-foreground m-0">
+                    {sicCodes.length > 0 ? (
+                      sicCodes.join(", ") +
+                      (sicCodes.includes("99999")
+                        ? "  — 99999 indicates a dormant company"
+                        : "")
+                    ) : (
+                      "Not recorded"
+                    )}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="flex flex-col gap-2 py-4 px-4 bg-inset border border-border rounded-lg">
+              <label
+                htmlFor="dormancyAttestation"
+                className="flex items-start gap-2.5 text-sm text-foreground cursor-pointer"
+              >
+                <input
+                  id="dormancyAttestation"
+                  type="checkbox"
+                  checked={dormancyAccepted}
+                  onChange={(e) => setDormancyAccepted(e.target.checked)}
+                  className="w-[18px] h-[18px] mt-0.5 shrink-0 accent-primary"
+                />
+                <span className="flex flex-col gap-2">
+                  <span className="font-semibold">
+                    I confirm this company had no significant accounting transactions in this
+                    accounting period and is genuinely dormant.
+                  </span>
+                  <span className="text-[13px] text-body">
+                    I understand DormantFile is not accountancy software and will only file nil
+                    returns for both annual accounts (Companies House) and CT600 (HMRC) filings.
+                  </span>
+                  <span className="text-[13px] text-body">
+                    If you are not sure whether your company is genuinely dormant, or are not sure
+                    what a dormant company means, please speak with an accountancy professional or
+                    Companies House before using this tool.
+                  </span>
+                  <span className="text-[13px] text-body">
+                    DormantFile is not responsible for the submission of nil accounts for genuinely
+                    active and trading companies.
+                  </span>
+                </span>
+              </label>
+              {errors.dormancyAttestation && (
+                <p className="text-[13px] text-danger m-0 pl-7">
+                  {errors.dormancyAttestation}
+                </p>
+              )}
+            </div>
+          </div>
         )}
 
         {errors.general && (

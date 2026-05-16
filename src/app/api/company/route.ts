@@ -41,12 +41,29 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { companyRegistrationNumber, uniqueTaxReference, registeredForCorpTax, shareCapital } =
-    body;
+  const {
+    companyRegistrationNumber,
+    uniqueTaxReference,
+    registeredForCorpTax,
+    shareCapital,
+    dormancyAttestationAccepted,
+    dormancyAttestationVersion,
+  } = body;
 
   if (!companyRegistrationNumber) {
     return NextResponse.json({ error: "Registration number is required" }, { status: 400 });
   }
+
+  if (dormancyAttestationAccepted !== true) {
+    return NextResponse.json(
+      { error: "You must confirm the dormancy declaration before adding a company." },
+      { status: 400 },
+    );
+  }
+
+  const attestationAcceptedAt = new Date();
+  const attestationVersion =
+    typeof dormancyAttestationVersion === "string" ? dormancyAttestationVersion : null;
 
   // Fetch company details from Companies House (server-side verification)
   const apiKey = process.env.COMPANIES_HOUSE_API_KEY;
@@ -233,6 +250,8 @@ export async function POST(req: NextRequest) {
           sicCodes: sicCodes ?? null,
           ardMonth,
           ardDay,
+          dormancyAttestationAcceptedAt: attestationAcceptedAt,
+          dormancyAttestationVersion: attestationVersion,
           deletedAt: null,
         },
       });
@@ -269,6 +288,8 @@ export async function POST(req: NextRequest) {
         sicCodes: sicCodes ?? null,
         ardMonth,
         ardDay,
+        dormancyAttestationAcceptedAt: attestationAcceptedAt,
+        dormancyAttestationVersion: attestationVersion,
       },
     });
 

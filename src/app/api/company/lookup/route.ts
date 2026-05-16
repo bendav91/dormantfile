@@ -48,6 +48,23 @@ export async function GET(req: NextRequest) {
   const data = await res.json();
 
   const nextAccounts = data.accounts?.next_accounts;
+  const lastAccounts = data.accounts?.last_accounts;
+
+  // CH accounts.last_accounts.type is the closest thing to a dormancy signal.
+  // It is the type of the *most recently filed* accounts, not a guarantee about
+  // the current period. "dormant" is reassuring; "micro-entity"/"small"/"full"
+  // means the last accounts were NOT dormant; absent means nothing filed yet.
+  const lastAccountsType: string | null = lastAccounts?.type ?? null;
+  let dormancySignal: "dormant" | "non-dormant" | "unknown";
+  if (!lastAccountsType || lastAccountsType === "null") {
+    dormancySignal = "unknown";
+  } else if (lastAccountsType === "dormant") {
+    dormancySignal = "dormant";
+  } else {
+    dormancySignal = "non-dormant";
+  }
+
+  const sicCodes: string[] = Array.isArray(data.sic_codes) ? data.sic_codes : [];
 
   // Extract total share capital in pence from the CH API confirmation statement capital array.
   // The API returns an array of capital objects with currency and value fields.
@@ -68,11 +85,17 @@ export async function GET(req: NextRequest) {
     companyName: data.company_name,
     companyNumber: data.company_number,
     companyStatus: data.company_status,
+    companyType: data.type ?? null,
     dateOfCreation: data.date_of_creation,
     periodStartOn: nextAccounts?.period_start_on ?? null,
     periodEndOn: nextAccounts?.period_end_on ?? null,
     accountsDueOn: nextAccounts?.due_on ?? null,
     accountsOverdue: nextAccounts?.overdue ?? false,
     shareCapitalPence,
+    // Dormancy evidence — surfaced to the user so they can judge for themselves.
+    sicCodes,
+    lastAccountsType,
+    lastAccountsMadeUpTo: lastAccounts?.made_up_to ?? null,
+    dormancySignal,
   });
 }

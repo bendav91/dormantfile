@@ -84,6 +84,8 @@ model Company {
   ardChangeDetectedAt       DateTime?
   newArdMonth               Int?
   newArdDay                 Int?
+  dormancyAttestationAcceptedAt DateTime?
+  dormancyAttestationVersion    String?
   deletedAt                 DateTime?
   createdAt                 DateTime   @default(now())
   updatedAt                 DateTime   @updatedAt
