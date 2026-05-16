@@ -38,8 +38,6 @@ beforeEach(() => {
 
   vi.mocked(prisma.company.findUnique).mockResolvedValue({
     companyRegistrationNumber: "12345678",
-    registeredForCorpTax: true,
-    ctapStartDate: null,
   } as never);
   vi.mocked(prisma.company.update).mockResolvedValue({} as never);
   vi.mocked(prisma.filing.deleteMany).mockResolvedValue({ count: 0 } as never);

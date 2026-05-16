@@ -134,11 +134,11 @@ export async function fullResyncCompany(companyId: string): Promise<FullResyncRe
     },
   });
 
-  // Never delete a user-edited CT600 CTAP: it must survive resync so
-  // `materialiseFilings`/`spanHasProtectedCt600` can see it and suppress
-  // regeneration. submitted/accepted/etc. are already excluded (this delete
-  // is status:"outstanding" only); the sole gap is outstanding user-edited
-  // ct600s, so exclude exactly those.
+  // Never silently discard user-edited outstanding CT600 rows: they represent
+  // intentional user data (a manually set CTAP) and `materialiseFilings` will
+  // not recreate them (it only writes accounts rows). All other statuses
+  // (accepted, submitted, filed_elsewhere, etc.) are already excluded because
+  // this delete targets status:"outstanding" only.
   const { count: deletedOutstanding } = await prisma.filing.deleteMany({
     where: {
       companyId,

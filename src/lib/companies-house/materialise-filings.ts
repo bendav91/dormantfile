@@ -63,7 +63,6 @@ export async function materialiseFilings(input: MaterialiseFilingsInput): Promis
   if (!firstPeriodEnd || !incDate) return;
 
   const filingData: FilingData[] = [];
-  const accountsPeriods: { start: Date; end: Date; isFiled: boolean }[] = [];
 
   let pEnd = new Date(firstPeriodEnd);
   let pStart = new Date(incDate);
@@ -93,12 +92,6 @@ export async function materialiseFilings(input: MaterialiseFilingsInput): Promis
       endDate: new Date(pEnd),
       deadline: finalAccountsDeadline,
       ctapUserEdited: false,
-    });
-
-    accountsPeriods.push({
-      start: new Date(pStart),
-      end: new Date(pEnd),
-      isFiled,
     });
 
     const nextStart = new Date(pEnd);
