@@ -1,28 +1,37 @@
 "use client";
 
-import { useState } from "react";
-import FilingStatusBadge from "@/components/filing-status-badge";
 import CheckStatusButton from "@/components/check-status-button";
+import CopyFilingSummary from "@/components/copy-filing-summary";
+import Ct600PeriodEditor from "@/components/ct600-period-editor";
+import FilingStatusBadge from "@/components/filing-status-badge";
 import MarkFiledButton from "@/components/mark-filed-button";
+import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
+import { cn } from "@/lib/cn";
+import { REMOVABLE_CT600_STATUSES } from "@/lib/ct600-remove-policy";
 import { buildFilingViews } from "@/lib/filing-views";
+import { isTaxFilingLive } from "@/lib/launch-mode";
 import { FilingStatus } from "@prisma/client";
-import { Calendar, CheckCircle2, FileText, Trash2 } from "lucide-react";
+import { Calendar, CheckCircle2, FileText, Settings2, Trash2, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import CopyFilingSummary from "@/components/copy-filing-summary";
-import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
-import Ct600PeriodEditor from "@/components/ct600-period-editor";
-import { isTaxFilingLive } from "@/lib/launch-mode";
-import { cn } from "@/lib/cn";
-import { Settings2 } from "lucide-react";
-import { REMOVABLE_CT600_STATUSES } from "@/lib/ct600-remove-policy";
+import { useState } from "react";
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 function formatShortDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  return date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 interface Filing {
@@ -112,13 +121,28 @@ export default function CorpTaxTab({
 
   return (
     <>
+      {/* CT600 filing is gated off via env — surface that it's still in development */}
+      {!isTaxFilingLive() && (
+        <div className="flex items-start gap-2.5 px-5 py-3.5 bg-warning-bg border border-warning-border rounded-xl mb-5">
+          <span className="text-warning shrink-0 mt-px">
+            <Wrench size={18} color="currentColor" strokeWidth={2} />
+          </span>
+          <p className="text-sm text-warning-text m-0 font-medium leading-relaxed">
+            CT600 filing is in active development and not yet available. You can still set up your
+            Corporation Tax periods and mark returns as filed elsewhere — online submission to HMRC
+            is coming soon.
+          </p>
+        </div>
+      )}
+
       {/* Manage periods action — shown alongside the sub-tab bar */}
       {activeTab === "outstanding" && canManagePeriods && (
         <div className="flex justify-end mb-3">
           <button
+            disabled={!isTaxFilingLive()}
             type="button"
             onClick={() => setEditing(true)}
-            className="inline-flex items-center gap-1.5 bg-primary text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] transition-opacity duration-200"
+            className={`inline-flex items-center gap-1.5 bg-primary text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] transition-opacity duration-200 ${!isTaxFilingLive() ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             <Settings2 size={14} strokeWidth={2} />
             {outstanding.length === 0 && completed.length === 0 && filedElsewhere.length === 0
@@ -146,7 +170,7 @@ export default function CorpTaxTab({
             "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
             activeTab === "outstanding"
               ? "bg-card text-foreground shadow-active"
-              : "bg-transparent text-secondary"
+              : "bg-transparent text-secondary",
           )}
           onClick={() => setActiveTab("outstanding")}
         >
@@ -158,7 +182,7 @@ export default function CorpTaxTab({
               "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
               activeTab === "filed_elsewhere"
                 ? "bg-card text-foreground shadow-active"
-                : "bg-transparent text-secondary"
+                : "bg-transparent text-secondary",
             )}
             onClick={() => setActiveTab("filed_elsewhere")}
           >
@@ -170,7 +194,7 @@ export default function CorpTaxTab({
             "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
             activeTab === "completed"
               ? "bg-card text-foreground shadow-active"
-              : "bg-transparent text-secondary"
+              : "bg-transparent text-secondary",
           )}
           onClick={() => setActiveTab("completed")}
         >
@@ -196,7 +220,7 @@ export default function CorpTaxTab({
                     key={f.id}
                     className={cn(
                       "bg-card rounded-xl p-5 shadow-card",
-                      isFirst ? "border-2 border-primary-border" : "border border-border"
+                      isFirst ? "border-2 border-primary-border" : "border border-border",
                     )}
                   >
                     <div className="flex items-center gap-2 mb-3.5">
@@ -215,7 +239,7 @@ export default function CorpTaxTab({
                           <p
                             className={cn(
                               "text-xs m-0",
-                              deadline.getTime() < now ? "text-danger" : "text-secondary"
+                              deadline.getTime() < now ? "text-danger" : "text-secondary",
                             )}
                           >
                             Due: {formatShortDate(deadline)}
@@ -226,13 +250,15 @@ export default function CorpTaxTab({
                       <div className="flex items-center gap-1.5">
                         {f.status !== "outstanding" ? (
                           <>
-                            {f.status === "submitted" && (
-                              <CheckStatusButton filingId={f.id} />
-                            )}
+                            {f.status === "submitted" && <CheckStatusButton filingId={f.id} />}
                             <FilingStatusBadge status={f.status} filingType="ct600" />
                             {(f.status === "failed" || f.status === "rejected") && (
                               <>
-                                <MarkFiledButton companyId={companyId} periodEnd={ctapEndISO} filingType="ct600" />
+                                <MarkFiledButton
+                                  companyId={companyId}
+                                  periodEnd={ctapEndISO}
+                                  filingType="ct600"
+                                />
                                 {isTaxFilingLive() && (
                                   <Link
                                     href={`/file/${companyId}/ct600?filingId=${f.id}`}
@@ -246,7 +272,11 @@ export default function CorpTaxTab({
                           </>
                         ) : (
                           <>
-                            <MarkFiledButton companyId={companyId} periodEnd={ctapEndISO} filingType="ct600" />
+                            <MarkFiledButton
+                              companyId={companyId}
+                              periodEnd={ctapEndISO}
+                              filingType="ct600"
+                            />
                             {isTaxFilingLive() && (
                               <Link
                                 href={`/file/${companyId}/ct600?filingId=${f.id}`}
@@ -261,7 +291,10 @@ export default function CorpTaxTab({
                           <button
                             type="button"
                             title="Remove this CT600"
-                            onClick={() => { setConfirmRemoveId(f.id); setRemoveError(""); }}
+                            onClick={() => {
+                              setConfirmRemoveId(f.id);
+                              setRemoveError("");
+                            }}
                             className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-border text-secondary transition-colors duration-200"
                           >
                             <Trash2 size={13} strokeWidth={2.5} />
@@ -276,7 +309,8 @@ export default function CorpTaxTab({
           ) : canManagePeriods ? (
             <div className="px-5 py-5 bg-card rounded-xl border border-border shadow-card">
               <p className="text-sm text-body m-0 leading-relaxed">
-                No Corporation Tax periods set up yet — add the accounting period (or split periods if your first period was longer than 12 months) you need to file, then submit.
+                No Corporation Tax periods set up yet — add the accounting period (or split periods
+                if your first period was longer than 12 months) you need to file, then submit.
               </p>
             </div>
           ) : (
@@ -317,9 +351,14 @@ export default function CorpTaxTab({
                   <div className="flex items-center gap-1.5">
                     <UndoMarkFiledButton
                       filingId={f.id}
-                      onUndo={filedElsewhere.length === 1 ? () => setActiveTab("outstanding") : undefined}
+                      onUndo={
+                        filedElsewhere.length === 1 ? () => setActiveTab("outstanding") : undefined
+                      }
                     />
-                    <FilingStatusBadge status={"filed_elsewhere" as FilingStatus} filingType="ct600" />
+                    <FilingStatusBadge
+                      status={"filed_elsewhere" as FilingStatus}
+                      filingType="ct600"
+                    />
                   </div>
                 </div>
               </div>
@@ -332,18 +371,18 @@ export default function CorpTaxTab({
       {confirmRemoveId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-card rounded-xl p-5 max-w-[420px] w-[calc(100%-32px)] shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
-            <h3 className="text-base font-bold text-foreground m-0 mb-3">
-              Remove this CT600?
-            </h3>
+            <h3 className="text-base font-bold text-foreground m-0 mb-3">Remove this CT600?</h3>
             <p className="text-sm text-body m-0 mb-5 leading-relaxed">
-              This will permanently remove the CT600 period. You can add it again using the period editor. Are you sure?
+              This will permanently remove the CT600 period. You can add it again using the period
+              editor. Are you sure?
             </p>
-            {removeError && (
-              <p className="text-xs text-danger m-0 mb-4">{removeError}</p>
-            )}
+            {removeError && <p className="text-xs text-danger m-0 mb-4">{removeError}</p>}
             <div className="flex gap-2 justify-end">
               <button
-                onClick={() => { setConfirmRemoveId(null); setRemoveError(""); }}
+                onClick={() => {
+                  setConfirmRemoveId(null);
+                  setRemoveError("");
+                }}
                 disabled={removing}
                 className="bg-transparent border border-border px-4 py-2 text-xs font-semibold cursor-pointer rounded"
               >
@@ -372,7 +411,10 @@ export default function CorpTaxTab({
                 const ctapEnd = f.endDate ?? f.periodEnd;
 
                 return (
-                  <div key={f.id} className="bg-card rounded-xl p-5 shadow-card border border-border">
+                  <div
+                    key={f.id}
+                    className="bg-card rounded-xl p-5 shadow-card border border-border"
+                  >
                     <div className="flex items-center gap-2 mb-3.5">
                       <span className="text-success flex">
                         <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
