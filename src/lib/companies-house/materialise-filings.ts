@@ -1,5 +1,4 @@
 import { calculateAccountsDeadline } from "@/lib/utils";
-import { generateCt600Ctaps, spanHasProtectedCt600 } from "@/lib/ctap";
 import { computeFirstPeriodEnd } from "@/lib/companies-house/filing-history";
 import type { GapDetectionResult } from "@/lib/companies-house/filing-history";
 
@@ -9,10 +8,8 @@ export interface MaterialiseFilingsInput {
   gapResult: GapDetectionResult | null;
   ardMonth: number | null;
   ardDay: number | null;
-  registeredForCorpTax: boolean;
   accountsDueOn: string | undefined;
   nextAccountsPeriodEndOn: string | undefined;
-  ctapStartDate?: Date | null;
 }
 
 export interface FilingData {
@@ -29,78 +26,13 @@ export interface FilingData {
 }
 
 /**
- * Pure (no Prisma) builder for CT600 Filing rows.
- *
- * For each accounts period, when the company is registered for CT, the
- * accounts period is NOT filed at Companies House (gap detection), and the
- * span does not already contain a protected CT600 (submitted/accepted/etc.
- * or user-edited), generate one CT600 `FilingData` per split CTAP via
- * `generateCt600Ctaps`. Every CTAP in a period shares the same deadline
- * (12 months after the accounts-period end) and is created as outstanding
- * and not user-edited.
- */
-export function buildCt600FilingData(input: {
-  registeredForCorpTax: boolean;
-  ctapStartDate: Date | null;
-  accountsPeriods: { start: Date; end: Date; isFiled: boolean }[];
-  existingCt600s: {
-    status: string;
-    ctapUserEdited: boolean;
-    periodStart: Date;
-    periodEnd: Date;
-  }[];
-}): Omit<FilingData, "companyId">[] {
-  const { registeredForCorpTax, ctapStartDate, accountsPeriods, existingCt600s } = input;
-
-  const rows: Omit<FilingData, "companyId">[] = [];
-  if (!registeredForCorpTax) return rows;
-
-  for (const { start, end, isFiled } of accountsPeriods) {
-    if (isFiled) continue;
-    if (
-      spanHasProtectedCt600(
-        { accountsPeriodStart: start, accountsPeriodEnd: end },
-        existingCt600s,
-      )
-    ) {
-      continue;
-    }
-
-    const ctaps = generateCt600Ctaps({
-      accountsPeriodStart: start,
-      accountsPeriodEnd: end,
-      anchor: ctapStartDate,
-    });
-
-    for (const ctap of ctaps) {
-      rows.push({
-        filingType: "ct600",
-        periodStart: new Date(ctap.start),
-        periodEnd: new Date(ctap.end),
-        status: "outstanding",
-        confirmedAt: null,
-        startDate: new Date(ctap.start),
-        endDate: new Date(ctap.end),
-        deadline: new Date(ctap.deadline),
-        ctapUserEdited: false,
-      });
-    }
-  }
-
-  return rows;
-}
-
-/**
- * Creates Filing records for all periods from incorporation to present:
+ * Creates `accounts` Filing records for all periods from incorporation to present:
  * - Filed periods (from CH gap detection) → status: "accepted"
  * - Unfiled periods (gaps) → status: "outstanding" with computed deadlines
  *
  * Uses `skipDuplicates` so existing rows (e.g. already-accepted filings)
- * are preserved on re-run. CT600 regeneration is additionally suppressed
- * for any accounts span containing a protected CT600 (submitted/accepted/
- * rejected/failed/filed_elsewhere or user-edited) via `spanHasProtectedCt600`,
- * so resync no longer blindly regenerates CT600s. Safe to call as part of a
- * resync.
+ * are preserved on re-run. Only `accounts` rows are written; CT600 rows are
+ * never created here. Safe to call as part of a resync.
  */
 export async function materialiseFilings(input: MaterialiseFilingsInput): Promise<void> {
   const {
@@ -109,10 +41,8 @@ export async function materialiseFilings(input: MaterialiseFilingsInput): Promis
     gapResult,
     ardMonth,
     ardDay,
-    registeredForCorpTax,
     accountsDueOn,
     nextAccountsPeriodEndOn,
-    ctapStartDate,
   } = input;
 
   const incDate = dateOfCreation ? new Date(dateOfCreation) : null;
@@ -180,26 +110,6 @@ export async function materialiseFilings(input: MaterialiseFilingsInput): Promis
   }
 
   const { prisma } = await import("@/lib/db");
-
-  const existingCt600s = await prisma.filing.findMany({
-    where: { companyId, filingType: "ct600" },
-    select: {
-      status: true,
-      ctapUserEdited: true,
-      periodStart: true,
-      periodEnd: true,
-    },
-  });
-
-  const ct600Rows = buildCt600FilingData({
-    registeredForCorpTax,
-    ctapStartDate: ctapStartDate ?? null,
-    accountsPeriods,
-    existingCt600s,
-  });
-  for (const row of ct600Rows) {
-    filingData.push({ companyId, ...row });
-  }
 
   if (filingData.length > 0) {
     await prisma.filing.createMany({

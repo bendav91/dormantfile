@@ -93,18 +93,4 @@ describe("fullResyncCompany — C1: preserves user-edited CT600 CTAPs", () => {
     expect(call.where.status).toBe("outstanding");
   });
 
-  it("threads the company's ctapStartDate into materialiseFilings (I1)", async () => {
-    const anchor = new Date("2024-06-01T00:00:00.000Z");
-    vi.mocked(prisma.company.findUnique).mockResolvedValue({
-      companyRegistrationNumber: "12345678",
-      registeredForCorpTax: true,
-      ctapStartDate: anchor,
-    } as never);
-
-    await fullResyncCompany("comp-1");
-
-    expect(materialiseFilings).toHaveBeenCalledTimes(1);
-    const arg = vi.mocked(materialiseFilings).mock.calls[0]?.[0];
-    expect(arg?.ctapStartDate).toEqual(anchor);
-  });
 });

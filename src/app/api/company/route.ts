@@ -243,12 +243,8 @@ export async function POST(req: NextRequest) {
         gapResult,
         ardMonth,
         ardDay,
-        registeredForCorpTax: !!registeredForCorpTax,
         accountsDueOn,
         nextAccountsPeriodEndOn,
-        // Preserve the company's CT anchor across soft-delete restore so the
-        // regenerated CTAP chain matches every other generator path.
-        ctapStartDate: softDeleted.ctapStartDate,
       });
 
       return NextResponse.json({ id: company.id }, { status: 201 });
@@ -282,12 +278,8 @@ export async function POST(req: NextRequest) {
       gapResult,
       ardMonth,
       ardDay,
-      registeredForCorpTax: !!registeredForCorpTax,
       accountsDueOn,
       nextAccountsPeriodEndOn,
-      // Newly created company has no CT anchor yet (null) — pass the real
-      // value so this path matches every other generator.
-      ctapStartDate: company.ctapStartDate,
     });
 
     return NextResponse.json({ id: company.id }, { status: 201 });

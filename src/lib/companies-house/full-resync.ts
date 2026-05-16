@@ -89,8 +89,6 @@ export async function fullResyncCompany(companyId: string): Promise<FullResyncRe
     where: { id: companyId },
     select: {
       companyRegistrationNumber: true,
-      registeredForCorpTax: true,
-      ctapStartDate: true,
     },
   });
   if (!company) return { deletedOutstanding: 0, recreated: 0, error: "Company not found" };
@@ -157,12 +155,8 @@ export async function fullResyncCompany(companyId: string): Promise<FullResyncRe
     gapResult,
     ardMonth: profile.ardMonth,
     ardDay: profile.ardDay,
-    registeredForCorpTax: company.registeredForCorpTax,
     accountsDueOn: profile.accountsDueOn ?? undefined,
     nextAccountsPeriodEndOn: profile.nextAccountsPeriodEndOn ?? undefined,
-    // Thread the real CT anchor so resync produces the same CTAP chain as
-    // every other generator path.
-    ctapStartDate: company.ctapStartDate,
   });
 
   const countAfter = await prisma.filing.count({ where: { companyId } });
