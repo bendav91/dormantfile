@@ -336,7 +336,7 @@ export default function CorpTaxTab({
               Remove this CT600?
             </h3>
             <p className="text-sm text-body m-0 mb-5 leading-relaxed">
-              This will permanently remove the CT600 period. You can add it again using &ldquo;Manage periods&rdquo;. Are you sure?
+              This will permanently remove the CT600 period. You can add it again using the period editor. Are you sure?
             </p>
             {removeError && (
               <p className="text-xs text-danger m-0 mb-4">{removeError}</p>
