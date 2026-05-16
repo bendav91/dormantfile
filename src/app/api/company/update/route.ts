@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { validateUTR } from "@/lib/utils";
-import { generateCt600Ctaps, spanHasProtectedCt600 } from "@/lib/ctap";
 
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -12,7 +11,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { companyId, registeredForCorpTax, uniqueTaxReference, shareCapital, ctapStartDate: ctapStartDateStr } = body;
+  const { companyId, registeredForCorpTax, uniqueTaxReference, shareCapital } = body;
 
   if (!companyId) {
     return NextResponse.json({ error: "companyId is required" }, { status: 400 });
@@ -38,7 +37,7 @@ export async function PATCH(req: NextRequest) {
     await prisma.$transaction([
       prisma.company.update({
         where: { id: companyId },
-        data: { registeredForCorpTax: false, uniqueTaxReference: null, ctapStartDate: null },
+        data: { registeredForCorpTax: false, uniqueTaxReference: null },
       }),
       // Delete outstanding ct600 Filings (keep accepted ones)
       prisma.filing.deleteMany({
@@ -60,7 +59,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
-  // Case 3: Enable Corp Tax for the first time
+  // Case 3: Enable Corp Tax for the first time — set the UTR (the single
+  // switch that unlocks the Corporation Tax tab). CT600 periods are created
+  // only when the user manually confirms them via the period editor.
   if (registeredForCorpTax === true && !company.registeredForCorpTax) {
     if (!uniqueTaxReference) {
       return NextResponse.json(
@@ -72,80 +73,10 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "UTR must be exactly 10 digits" }, { status: 400 });
     }
 
-    // Parse optional ctapStartDate
-    const ctapStartDate = ctapStartDateStr ? new Date(ctapStartDateStr) : null;
-    if (ctapStartDate && isNaN(ctapStartDate.getTime())) {
-      return NextResponse.json({ error: "Invalid ctapStartDate" }, { status: 400 });
-    }
-
-    // Create outstanding CT600 filings for all accounts periods that don't already have one.
-    const accountsFilings = await prisma.filing.findMany({
-      where: { companyId, filingType: "accounts" },
-      select: {
-        periodStart: true,
-        periodEnd: true,
-        suppressedAt: true,
-      },
+    await prisma.company.update({
+      where: { id: companyId },
+      data: { registeredForCorpTax: true, uniqueTaxReference },
     });
-
-    // Existing CT600 filings — used both for dedupe and protected-span checks.
-    const existingCt600s = await prisma.filing.findMany({
-      where: { companyId, filingType: "ct600" },
-      select: { status: true, ctapUserEdited: true, periodStart: true, periodEnd: true },
-    });
-    // Deduplicate by periodStart+periodEnd — the unique constraint prevents duplicates
-    const existingCt600Keys = new Set(
-      existingCt600s.map((f) => `${f.periodStart.getTime()}_${f.periodEnd.getTime()}`),
-    );
-
-    const periodsNeedingCt600 = accountsFilings.filter(
-      (f) => !existingCt600Keys.has(`${f.periodStart.getTime()}_${f.periodEnd.getTime()}`),
-    );
-
-    // Expand each accounts period that needs CT600 into one row per CTAP.
-    // Skip spans already protected by a submitted/edited CT600.
-    const ct600Filings = periodsNeedingCt600.flatMap((f) => {
-      if (
-        spanHasProtectedCt600(
-          { accountsPeriodStart: f.periodStart, accountsPeriodEnd: f.periodEnd },
-          existingCt600s,
-        )
-      ) {
-        return [];
-      }
-
-      return generateCt600Ctaps({
-        accountsPeriodStart: f.periodStart,
-        accountsPeriodEnd: f.periodEnd,
-        anchor: ctapStartDate ?? null,
-      }).map((ctap) => ({
-        companyId,
-        filingType: "ct600" as const,
-        periodStart: ctap.start,
-        periodEnd: ctap.end,
-        status: "outstanding" as const,
-        suppressedAt: f.suppressedAt,
-        startDate: ctap.start,
-        endDate: ctap.end,
-        deadline: ctap.deadline,
-        ctapUserEdited: false,
-      }));
-    });
-
-    await prisma.$transaction([
-      prisma.company.update({
-        where: { id: companyId },
-        data: {
-          registeredForCorpTax: true,
-          uniqueTaxReference,
-          ctapStartDate: ctapStartDate,
-        },
-      }),
-      prisma.filing.createMany({
-        data: ct600Filings,
-        skipDuplicates: true,
-      }),
-    ]);
 
     return NextResponse.json({ success: true });
   }
