@@ -79,7 +79,7 @@ export default async function ReviewsPage() {
 
           {/* Bar breakdown */}
           <div className="max-w-xs mx-auto mt-6 space-y-2">
-            {[5, 4, 3, 2, 1].map((star) => {
+            {[5, 4].map((star) => {
               const count = breakdown[star] || 0;
               const pct = total > 0 ? (count / total) * 100 : 0;
               return (
@@ -93,8 +93,8 @@ export default async function ReviewsPage() {
                     className="flex-1 h-2 rounded-full overflow-hidden bg-inset"
                   >
                     <div
-                      className="h-full rounded-full transition-all duration-300 bg-cta"
-                      style={{ width: `${pct}%` }}
+                      className="h-full rounded-full transition-all duration-300 bg-cta w-[var(--bar-pct)]"
+                      style={{ "--bar-pct": `${pct}%` } as React.CSSProperties}
                     />
                   </div>
                   <span
