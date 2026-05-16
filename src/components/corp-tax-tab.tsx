@@ -121,7 +121,9 @@ export default function CorpTaxTab({
             className="inline-flex items-center gap-1.5 bg-primary text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] transition-opacity duration-200"
           >
             <Settings2 size={14} strokeWidth={2} />
-            Manage periods
+            {outstanding.length === 0 && completed.length === 0 && filedElsewhere.length === 0
+              ? "Set up CT600 periods"
+              : "Manage periods"}
           </button>
         </div>
       )}
@@ -270,6 +272,12 @@ export default function CorpTaxTab({
                   </div>
                 );
               })}
+            </div>
+          ) : canManagePeriods ? (
+            <div className="px-5 py-5 bg-card rounded-xl border border-border shadow-card">
+              <p className="text-sm text-body m-0 leading-relaxed">
+                No Corporation Tax periods set up yet — add the accounting period (or split periods if your first period was longer than 12 months) you need to file, then submit.
+              </p>
             </div>
           ) : (
             <div className="text-center px-6 py-10 bg-card rounded-xl shadow-active">
