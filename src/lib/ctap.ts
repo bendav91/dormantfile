@@ -44,34 +44,6 @@ export function computeCtaps(ctapStartDate: Date, upToDate: Date): CtapRange[] {
   return ctaps;
 }
 
-/**
- * Determine the anchor date for the next CTAP to generate.
- *
- * Uses whichever is later:
- * - The day after the latest CT600 filing's endDate (the chain)
- * - The company's ctapStartDate (the manual anchor, set during onboarding or re-registration)
- *
- * @param latestCt600EndDate - endDate of the most recent CT600 filing, or null
- * @param ctapStartDate - Company's stored CTAP anchor date, or null
- * @returns The start date for the next CTAP, or null if neither source is available
- */
-export function getNextCtapStart(
-  latestCt600EndDate: Date | null,
-  ctapStartDate: Date | null,
-): Date | null {
-  const fromChain = latestCt600EndDate
-    ? new Date(latestCt600EndDate.getTime())
-    : null;
-  if (fromChain) {
-    fromChain.setUTCDate(fromChain.getUTCDate() + 1);
-  }
-
-  if (fromChain && ctapStartDate) {
-    return fromChain.getTime() >= ctapStartDate.getTime() ? fromChain : ctapStartDate;
-  }
-
-  return fromChain ?? ctapStartDate;
-}
 
 export interface Ct600Ctap {
   start: Date;

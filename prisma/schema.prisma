@@ -80,7 +80,6 @@ model Company {
   sicCodes                  String?
   ardMonth                  Int?
   ardDay                    Int?
-  ctapStartDate             DateTime?
   ardChangeDetected         Boolean    @default(false)
   ardChangeDetectedAt       DateTime?
   newArdMonth               Int?

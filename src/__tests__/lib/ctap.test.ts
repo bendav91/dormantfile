@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   computeCtaps,
-  getNextCtapStart,
   generateCt600Ctaps,
   validateCtapChain,
   spanHasProtectedCt600,
@@ -55,32 +54,6 @@ describe("computeCtaps", () => {
   });
 });
 
-describe("getNextCtapStart", () => {
-  it("returns day after latest CT600 end when both sources exist and chain is later", () => {
-    const result = getNextCtapStart(new Date("2025-03-31"), new Date("2024-04-01"));
-    expect(result).toEqual(new Date("2025-04-01"));
-  });
-
-  it("returns ctapStartDate when it is later than chain", () => {
-    const result = getNextCtapStart(new Date("2023-03-31"), new Date("2025-01-01"));
-    expect(result).toEqual(new Date("2025-01-01"));
-  });
-
-  it("returns chain date when ctapStartDate is null", () => {
-    const result = getNextCtapStart(new Date("2025-03-31"), null);
-    expect(result).toEqual(new Date("2025-04-01"));
-  });
-
-  it("returns ctapStartDate when chain is null", () => {
-    const result = getNextCtapStart(null, new Date("2024-04-01"));
-    expect(result).toEqual(new Date("2024-04-01"));
-  });
-
-  it("returns null when both sources are null", () => {
-    const result = getNextCtapStart(null, null);
-    expect(result).toBeNull();
-  });
-});
 
 describe("generateCt600Ctaps", () => {
   it("splits the Anouar >12-month first period into two CTAPs sharing one deadline", () => {

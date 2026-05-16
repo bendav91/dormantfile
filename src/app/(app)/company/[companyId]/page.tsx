@@ -202,7 +202,6 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           uniqueTaxReference={company.uniqueTaxReference}
           shareCapital={company.shareCapital}
           activeCT600Count={activeCT600Count}
-          firstPeriodStart={company.accountingPeriodStart.toISOString()}
         />
       )}
       {tab === "activity" && <ActivityTabSection companyId={companyId} companyCreatedAt={company.createdAt} filings={company.filings} />}
