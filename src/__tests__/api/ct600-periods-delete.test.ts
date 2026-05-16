@@ -49,6 +49,24 @@ beforeEach(() => {
 });
 
 describe("DELETE /api/company/ct600-periods", () => {
+  it("0a. returns 400 for an unparseable JSON body", async () => {
+    const res = await DELETE(makeRequest("{ not json"));
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Invalid body" });
+    expect(prisma.company.findFirst).not.toHaveBeenCalled();
+    expect(prisma.filing.delete).not.toHaveBeenCalled();
+  });
+
+  it("0b. returns 400 when companyId or filingId is missing", async () => {
+    const res = await DELETE(makeRequest({ companyId: "comp-1" }));
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "companyId and filingId are required" });
+    expect(prisma.company.findFirst).not.toHaveBeenCalled();
+    expect(prisma.filing.delete).not.toHaveBeenCalled();
+  });
+
   it("1. returns 401 when there is no session", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null as never);
 

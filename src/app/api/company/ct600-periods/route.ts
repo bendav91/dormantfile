@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { validateCtapChain } from "@/lib/ctap";
 import { calculateCT600Deadline } from "@/lib/utils";
+import { REMOVABLE_CT600_STATUSES } from "@/lib/ct600-remove-policy";
 
 const IMMUTABLE = new Set(["submitted", "accepted", "filed_elsewhere"]);
 
@@ -61,8 +62,6 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, count: parsed.length });
 }
 
-const REMOVABLE = new Set(["outstanding", "failed", "rejected"]);
-
 export async function DELETE(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -85,7 +84,7 @@ export async function DELETE(req: NextRequest) {
   });
   if (!filing) return NextResponse.json({ error: "Filing not found" }, { status: 404 });
 
-  if (!REMOVABLE.has(filing.status))
+  if (!REMOVABLE_CT600_STATUSES.has(filing.status))
     return NextResponse.json(
       { error: "This CT600 has been submitted or filed and cannot be removed." },
       { status: 409 },

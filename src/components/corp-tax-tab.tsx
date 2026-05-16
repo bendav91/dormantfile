@@ -15,6 +15,7 @@ import Ct600PeriodEditor from "@/components/ct600-period-editor";
 import { isTaxFilingLive } from "@/lib/launch-mode";
 import { cn } from "@/lib/cn";
 import { Settings2 } from "lucide-react";
+import { REMOVABLE_CT600_STATUSES } from "@/lib/ct600-remove-policy";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
@@ -78,8 +79,6 @@ export default function CorpTaxTab({
   const [removing, setRemoving] = useState(false);
   const [removeError, setRemoveError] = useState("");
 
-  const REMOVABLE_STATUSES = new Set(["outstanding", "failed", "rejected"]);
-
   async function handleRemove() {
     if (!confirmRemoveId) return;
     setRemoving(true);
@@ -97,6 +96,7 @@ export default function CorpTaxTab({
         return;
       }
       setConfirmRemoveId(null);
+      setRemoving(false);
       router.refresh();
     } catch {
       setRemoveError("Something went wrong.");
@@ -255,7 +255,7 @@ export default function CorpTaxTab({
                             )}
                           </>
                         )}
-                        {REMOVABLE_STATUSES.has(f.status) && (
+                        {REMOVABLE_CT600_STATUSES.has(f.status) && (
                           <button
                             type="button"
                             title="Remove this CT600"
