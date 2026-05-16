@@ -65,17 +65,12 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
 
   const [
     allCompanyCount,
-    hasAcceptedFiling,
     existingReview,
     hasSubmittedFilingRow,
     firstCompany,
   ] = await Promise.all([
     prisma.company.count({
       where: { userId: user.id, deletedAt: null },
-    }),
-    prisma.filing.findFirst({
-      where: { company: { userId: user.id }, status: "accepted" },
-      select: { id: true },
     }),
     prisma.review.findUnique({
       where: { userId: user.id },
@@ -98,7 +93,10 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
     }),
   ]);
 
-  const showReviewPrompt = !!hasAcceptedFiling && !existingReview;
+  // Only prompt for a review once the user has actually filed *through*
+  // DormantFile (submittedAt set). Seeded Companies House history lands as
+  // status "accepted" with no submittedAt and must not trigger the prompt.
+  const showReviewPrompt = !!hasSubmittedFilingRow && !existingReview;
 
   let onboardingState: ReturnType<typeof getOnboardingState> | null = null;
   try {
