@@ -104,7 +104,11 @@ export async function POST(req: NextRequest) {
           { status: 500 },
         );
       }
-      const result = await pollCompaniesHouse(filing.correlationId, endpoint, credentials, process.env.CH_GATEWAY_TEST === "1");
+      // Poll by the presenter submission number we filed under (CH
+      // GetSubmissionStatus matches on this, not the GovTalk correlationId);
+      // fall back to correlationId for legacy rows predating submissionNumber.
+      const chPollId = filing.submissionNumber ?? filing.correlationId;
+      const result = await pollCompaniesHouse(chPollId, endpoint, credentials, process.env.CH_GATEWAY_TEST === "1");
       pollStatus = result.status;
       pollMessage = result.message;
       pollResponsePayload = result.responsePayload;

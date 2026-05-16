@@ -81,7 +81,14 @@ export async function GET(req: NextRequest) {
         if (!presenterCreds) continue;
         const endpoint = process.env.COMPANIES_HOUSE_FILING_ENDPOINT;
         if (!endpoint) continue;
-        const result = await pollCompaniesHouse(filing.correlationId!, endpoint, presenterCreds, process.env.CH_GATEWAY_TEST === "1");
+        // CH GetSubmissionStatus matches on the presenter submission number
+        // we filed under (sent as <TransactionID>), NOT the GovTalk
+        // correlationId CH returns in the acknowledgement. Polling with the
+        // correlationId yields a permanent 8026 "documents not found".
+        // Fall back to correlationId only for legacy rows predating
+        // submissionNumber.
+        const chPollId = filing.submissionNumber ?? filing.correlationId!;
+        const result = await pollCompaniesHouse(chPollId, endpoint, presenterCreds, process.env.CH_GATEWAY_TEST === "1");
         pollStatus = result.status;
         pollResponsePayload = result.responsePayload;
         chPendingReason = result.pendingReason;

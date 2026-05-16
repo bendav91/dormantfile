@@ -152,11 +152,52 @@ export async function pollCompaniesHouse(
   }
 
   if (qualifier === "response") {
-    return {
-      status: "accepted",
-      message: "Submission accepted",
-      responsePayload: responseXml,
-    };
+    // CH GetSubmissionStatus returns the submission's status *history* as a
+    // <Body><SubmissionStatus><Status><StatusCode>…</StatusCode></Status>…>.
+    // The envelope qualifier being "response" only means "query answered" —
+    // the real outcome is in StatusCode (PENDING / ACCEPTED / PARSED /
+    // REJECTED). Treating any "response" as accepted falsely confirms filings
+    // that CH still has under examiner review.
+    const statusNode = parsed?.GovTalkMessage?.Body?.SubmissionStatus?.Status;
+    const statuses = Array.isArray(statusNode)
+      ? statusNode
+      : statusNode != null
+        ? [statusNode]
+        : [];
+
+    const codeOf = (s: { StatusCode?: unknown }) =>
+      String(s?.StatusCode ?? "").trim().toUpperCase();
+
+    const rejected = statuses.find((s) => codeOf(s) === "REJECTED");
+    if (rejected) {
+      // Rejections: { Reject: {Description} } | { Reject: [{Description}] }
+      const rejectNode = (rejected as { Rejections?: { Reject?: unknown } })
+        ?.Rejections?.Reject;
+      const rejects = Array.isArray(rejectNode)
+        ? rejectNode
+        : rejectNode != null
+          ? [rejectNode]
+          : [];
+      const message =
+        rejects
+          .map((r: { Description?: string }) => r?.Description)
+          .filter(Boolean)
+          .join("; ") || "Submission rejected by Companies House";
+      return { status: "rejected", message, responsePayload: responseXml };
+    }
+
+    // Latest status entry is the current state.
+    const latest = statuses.length ? codeOf(statuses[statuses.length - 1]) : "";
+    if (latest === "ACCEPTED" || latest === "PARSED") {
+      return {
+        status: "accepted",
+        message: "Submission accepted",
+        responsePayload: responseXml,
+      };
+    }
+
+    // PENDING (or any non-terminal/unknown code): still being examined.
+    return { status: "pending" };
   }
 
   return { status: "pending" };
