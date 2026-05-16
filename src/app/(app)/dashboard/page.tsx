@@ -81,10 +81,13 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       where: { userId: user.id },
       select: { id: true },
     }),
+    // "Filed through DormantFile" means submittedAt is set. Synced Companies
+    // House history lands as status "accepted"/"filed_elsewhere" with no
+    // submittedAt, so it must NOT count toward onboarding completion.
     prisma.filing.findFirst({
       where: {
         company: { userId: user.id },
-        status: { in: ["submitted", "accepted"] },
+        submittedAt: { not: null },
       },
       select: { id: true },
     }),
