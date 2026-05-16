@@ -121,16 +121,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // TEMPORARY DIAGNOSTIC — persist the raw CH poll response on every outcome
-  // (incl. pending) so the stuck filing can be root-caused via the DB. Revert
-  // with the rest of the diagnostic instrumentation.
-  if (pollResponsePayload) {
-    await prisma.filing.update({
-      where: { id: filing.id },
-      data: { responsePayload: pollResponsePayload },
-    });
-  }
-
   if (pollStatus === "accepted") {
     await prisma.filing.update({
       where: { id: filing.id },

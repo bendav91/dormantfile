@@ -112,26 +112,6 @@ export async function pollCompaniesHouse(
 
   const qualifier = parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
 
-  // TEMPORARY DIAGNOSTIC — remove after root-causing the stuck SIMON FRASER
-  // filing. Logs exactly what CH returns to production for this poll.
-  console.error(
-    "[CH-POLL-DEBUG]",
-    JSON.stringify({
-      submissionId,
-      isTest,
-      httpStatus: response.status,
-      qualifier,
-      errorNumber:
-        parsed?.GovTalkMessage?.GovTalkDetails?.GovTalkErrors?.Error?.Number ??
-        parsed?.GovTalkMessage?.GovTalkErrors?.Error?.Number ??
-        null,
-      statusCode: JSON.stringify(
-        parsed?.GovTalkMessage?.Body?.SubmissionStatus?.Status ?? null,
-      ).slice(0, 300),
-      rawHead: responseXml.slice(0, 1200),
-    }),
-  );
-
   if (qualifier === "error") {
     const errors =
       parsed?.GovTalkMessage?.GovTalkDetails?.GovTalkErrors?.Error ??
@@ -147,7 +127,7 @@ export async function pollCompaniesHouse(
     // 8026 = "No Accepted or Rejected Documents Found" — the clean
     // "still processing" code. Always transient; poll again later.
     if (String(errorNumber) === "8026") {
-      return { status: "pending", responsePayload: responseXml };
+      return { status: "pending" };
     }
 
     // 8023 = "EF documents not found". Almost always a poll-too-soon timing
@@ -188,7 +168,12 @@ export async function pollCompaniesHouse(
     const codeOf = (s: { StatusCode?: unknown }) =>
       String(s?.StatusCode ?? "").trim().toUpperCase();
 
-    const rejected = statuses.find((s) => codeOf(s) === "REJECTED");
+    // CH's terminal codes are the verb forms ACCEPT / REJECT (observed live);
+    // accept the past-tense spellings too for robustness.
+    const ACCEPTED_CODES = ["ACCEPT", "ACCEPTED", "PARSED"];
+    const REJECTED_CODES = ["REJECT", "REJECTED"];
+
+    const rejected = statuses.find((s) => REJECTED_CODES.includes(codeOf(s)));
     if (rejected) {
       // Rejections: { Reject: {Description} } | { Reject: [{Description}] }
       const rejectNode = (rejected as { Rejections?: { Reject?: unknown } })
@@ -208,7 +193,7 @@ export async function pollCompaniesHouse(
 
     // Latest status entry is the current state.
     const latest = statuses.length ? codeOf(statuses[statuses.length - 1]) : "";
-    if (latest === "ACCEPTED" || latest === "PARSED") {
+    if (ACCEPTED_CODES.includes(latest)) {
       return {
         status: "accepted",
         message: "Submission accepted",
@@ -217,8 +202,8 @@ export async function pollCompaniesHouse(
     }
 
     // PENDING (or any non-terminal/unknown code): still being examined.
-    return { status: "pending", responsePayload: responseXml };
+    return { status: "pending" };
   }
 
-  return { status: "pending", responsePayload: responseXml };
+  return { status: "pending" };
 }

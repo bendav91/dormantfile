@@ -48,7 +48,10 @@ const PENDING_STATUS_XML = `<?xml version="1.0" encoding="UTF-8" ?>
   </Body>
 </GovTalkMessage>`;
 
-// Same shape, terminal ACCEPTED state.
+// Real CH production GetSubmissionStatus body for an accepted accounts
+// filing, captured live. Note CH's terminal codes are the VERB forms
+// "ACCEPT" / "REJECT" (NOT "ACCEPTED"/"REJECTED"), a single <Status>, and a
+// CH-prefixed SubmissionNumber (E…-000029).
 const ACCEPTED_STATUS_XML = `<?xml version="1.0" encoding="UTF-8" ?>
 <GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
   <Header>
@@ -61,14 +64,8 @@ const ACCEPTED_STATUS_XML = `<?xml version="1.0" encoding="UTF-8" ?>
   <Body>
 <SubmissionStatus>
   <Status>
-    <SubmissionNumber>000029</SubmissionNumber>
-    <StatusCode>PENDING</StatusCode>
-    <CompanyNumber>06989379</CompanyNumber>
-    <Rejections></Rejections>
-  </Status>
-  <Status>
-    <SubmissionNumber>000029</SubmissionNumber>
-    <StatusCode>ACCEPTED</StatusCode>
+    <SubmissionNumber>E0000041498-000029</SubmissionNumber>
+    <StatusCode>ACCEPT</StatusCode>
     <CompanyNumber>06989379</CompanyNumber>
     <Rejections></Rejections>
   </Status>
@@ -76,7 +73,7 @@ const ACCEPTED_STATUS_XML = `<?xml version="1.0" encoding="UTF-8" ?>
   </Body>
 </GovTalkMessage>`;
 
-// Terminal REJECTED state with a rejection reason.
+// Terminal REJECT state with a rejection reason (verb form, mirroring ACCEPT).
 const REJECTED_STATUS_XML = `<?xml version="1.0" encoding="UTF-8" ?>
 <GovTalkMessage xmlns="http://www.govtalk.gov.uk/CM/envelope">
   <Header>
@@ -89,8 +86,8 @@ const REJECTED_STATUS_XML = `<?xml version="1.0" encoding="UTF-8" ?>
   <Body>
 <SubmissionStatus>
   <Status>
-    <SubmissionNumber>000029</SubmissionNumber>
-    <StatusCode>REJECTED</StatusCode>
+    <SubmissionNumber>E0000041498-000030</SubmissionNumber>
+    <StatusCode>REJECT</StatusCode>
     <CompanyNumber>06989379</CompanyNumber>
     <Rejections>
       <Reject>
