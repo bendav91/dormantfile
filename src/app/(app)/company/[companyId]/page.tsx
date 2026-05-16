@@ -60,7 +60,6 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           startDate: f.startDate,
           endDate: f.endDate,
           status: f.status,
-          suppressedAt: f.suppressedAt,
           ctapUserEdited: f.ctapUserEdited,
         })),
       }) ?? undefined)

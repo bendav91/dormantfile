@@ -1,5 +1,9 @@
 import { generateCt600Ctaps, spanHasProtectedCt600 } from "@/lib/ctap";
 
+// Editor-lock set: periods the manual CT600 editor must show as non-editable.
+// Intentionally {submitted, accepted, filed_elsewhere} — mirroring the IMMUTABLE set in
+// src/app/api/company/ct600-periods/route.ts (the server-side save guard). Narrower than
+// PROTECTED_STATUSES in ctap.ts (which adds "rejected"/"failed" to govern generator regeneration).
 const IMMUTABLE_CT600 = new Set(["submitted", "accepted", "filed_elsewhere"]);
 
 interface SeedFiling {
@@ -9,7 +13,6 @@ interface SeedFiling {
   startDate: Date | null;
   endDate: Date | null;
   status: string;
-  suppressedAt: Date | null;
   ctapUserEdited: boolean;
 }
 
