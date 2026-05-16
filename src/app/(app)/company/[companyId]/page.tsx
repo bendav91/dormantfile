@@ -15,7 +15,7 @@ import SyncButton from "@/components/sync-button";
 import ArdMismatchBanner from "@/components/ard-mismatch-banner";
 import FirstFilingNote from "@/components/FirstFilingNote";
 import { buildActivityTimeline } from "@/lib/activity-timeline";
-import { generateCt600Ctaps } from "@/lib/ctap";
+import { deriveCt600EditorSeed } from "@/lib/ct600-editor-seed";
 import { isFilingLive, isTaxFilingLive } from "@/lib/launch-mode";
 interface PageProps {
   params: Promise<{ companyId: string }>;
@@ -49,86 +49,22 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       f.filingType === "ct600" && ["submitted", "pending"].includes(f.status),
   ).length;
 
-  // Derive the period of accounts that the CT600 "Manage periods" modal manages.
-  // Rule: take the earliest *outstanding* ct600 (or, if none outstanding, the
-  // earliest ct600), then pick the accounts-type Filing whose [periodStart,
-  // periodEnd] CONTAINS that ct600's period. That accounts period is the span;
-  // `suggested` comes from generateCt600Ctaps so the modal and the server agree.
-  const IMMUTABLE_CT600 = new Set(["submitted", "accepted", "filed_elsewhere"]);
-  const ct600Filings = company.filings.filter((f) => f.filingType === "ct600");
-  const accountsFilings = company.filings.filter((f) => f.filingType === "accounts");
+  const hasUtr = (company.uniqueTaxReference ?? "").trim() !== "";
 
-  const sortedCt600 = [...ct600Filings].sort(
-    (a, b) => a.periodStart.getTime() - b.periodStart.getTime(),
-  );
-  const targetCt600 =
-    sortedCt600.find(
-      (f) => !["accepted", "filed_elsewhere"].includes(f.status) && !f.suppressedAt,
-    ) ?? sortedCt600[0];
-
-  let corpTaxPeriodProps:
-    | {
-        accountsPeriodStartISO: string;
-        accountsPeriodEndISO: string;
-        suggested: { startISO: string; endISO: string }[];
-        immutable: { startISO: string; endISO: string; status: string }[];
-      }
-    | undefined;
-
-  if (targetCt600) {
-    const tStart = (targetCt600.startDate ?? targetCt600.periodStart).getTime();
-    const tEnd = (targetCt600.endDate ?? targetCt600.periodEnd).getTime();
-    // Among ALL accounts-type Filings whose span CONTAINS the target ct600
-    // span, pick deterministically: the NARROWEST span, tie-broken by the
-    // earliest periodStart. This makes the multiple-containing-span case
-    // order-independent (identical behaviour when exactly one contains).
-    const accountsSpan = [...accountsFilings]
-      .filter(
-        (a) =>
-          a.periodStart.getTime() <= tStart && a.periodEnd.getTime() >= tEnd,
-      )
-      .sort((a, b) => {
-        const aSpan = a.periodEnd.getTime() - a.periodStart.getTime();
-        const bSpan = b.periodEnd.getTime() - b.periodStart.getTime();
-        if (aSpan !== bSpan) return aSpan - bSpan;
-        return a.periodStart.getTime() - b.periodStart.getTime();
-      })[0];
-    if (accountsSpan) {
-      const accountsPeriodStart = accountsSpan.periodStart;
-      const accountsPeriodEnd = accountsSpan.periodEnd;
-      const suggested = generateCt600Ctaps({
-        accountsPeriodStart,
-        accountsPeriodEnd,
-        anchor: company.ctapStartDate ?? null,
-      }).map((c) => ({
-        startISO: c.start.toISOString().split("T")[0],
-        endISO: c.end.toISOString().split("T")[0],
-      }));
-      const immutable = ct600Filings
-        .filter((f) => {
-          const fs = (f.startDate ?? f.periodStart).getTime();
-          const fe = (f.endDate ?? f.periodEnd).getTime();
-          return (
-            fs >= accountsPeriodStart.getTime() &&
-            fe <= accountsPeriodEnd.getTime() &&
-            IMMUTABLE_CT600.has(f.status)
-          );
-        })
-        .map((f) => ({
-          startISO: (f.startDate ?? f.periodStart).toISOString().split("T")[0],
-          endISO: (f.endDate ?? f.periodEnd).toISOString().split("T")[0],
+  const corpTaxPeriodProps = hasUtr
+    ? (deriveCt600EditorSeed({
+        filings: company.filings.map((f) => ({
+          filingType: f.filingType,
+          periodStart: f.periodStart,
+          periodEnd: f.periodEnd,
+          startDate: f.startDate,
+          endDate: f.endDate,
           status: f.status,
-        }));
-      corpTaxPeriodProps = {
-        accountsPeriodStartISO: accountsPeriodStart
-          .toISOString()
-          .split("T")[0],
-        accountsPeriodEndISO: accountsPeriodEnd.toISOString().split("T")[0],
-        suggested,
-        immutable,
-      };
-    }
-  }
+          suppressedAt: f.suppressedAt,
+          ctapUserEdited: f.ctapUserEdited,
+        })),
+      }) ?? undefined)
+    : undefined;
 
   const { tab: tabParam } = await searchParams;
   const validTabs = ["filings", "corp-tax", "settings", "overview", "activity"];
@@ -193,7 +129,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       <div className="flex border-b border-border mb-6">
         {[
           { key: "filings", label: "Account Filings", href: `/company/${companyId}` },
-          ...(company.registeredForCorpTax
+          ...(hasUtr
             ? [{ key: "corp-tax", label: "Corporation Tax", href: `/company/${companyId}?tab=corp-tax` }]
             : []),
           { key: "overview", label: "Overview", href: `/company/${companyId}?tab=overview` },
@@ -225,7 +161,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           now={now}
         />
       )}
-      {tab === "corp-tax" && company.registeredForCorpTax && (
+      {tab === "corp-tax" && hasUtr && (
         <CorpTaxTab
           companyId={companyId}
           companyName={company.companyName}
