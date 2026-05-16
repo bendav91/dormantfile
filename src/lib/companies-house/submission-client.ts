@@ -112,6 +112,26 @@ export async function pollCompaniesHouse(
 
   const qualifier = parsed?.GovTalkMessage?.Header?.MessageDetails?.Qualifier;
 
+  // TEMPORARY DIAGNOSTIC — remove after root-causing the stuck SIMON FRASER
+  // filing. Logs exactly what CH returns to production for this poll.
+  console.error(
+    "[CH-POLL-DEBUG]",
+    JSON.stringify({
+      submissionId,
+      isTest,
+      httpStatus: response.status,
+      qualifier,
+      errorNumber:
+        parsed?.GovTalkMessage?.GovTalkDetails?.GovTalkErrors?.Error?.Number ??
+        parsed?.GovTalkMessage?.GovTalkErrors?.Error?.Number ??
+        null,
+      statusCode: JSON.stringify(
+        parsed?.GovTalkMessage?.Body?.SubmissionStatus?.Status ?? null,
+      ).slice(0, 300),
+      rawHead: responseXml.slice(0, 1200),
+    }),
+  );
+
   if (qualifier === "error") {
     const errors =
       parsed?.GovTalkMessage?.GovTalkDetails?.GovTalkErrors?.Error ??
