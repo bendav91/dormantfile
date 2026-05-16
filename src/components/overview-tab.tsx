@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { formatUkDate } from "@/lib/format-date";
+import { formatCivilDate, formatUkDate } from "@/lib/format-date";
 
 interface OverviewTabProps {
   companyName: string;
@@ -22,9 +22,11 @@ interface OverviewTabProps {
   }>;
 }
 
+// Statutory calendar dates (incorporation, made-up date, accounts-due,
+// period end) \u2192 rendered verbatim, never timezone-shifted.
 function formatDate(date: Date | null): string {
   if (!date) return "\u2014";
-  return formatUkDate(date);
+  return formatCivilDate(date);
 }
 
 function formatStatus(status: string): string {
@@ -169,7 +171,7 @@ export default function OverviewTab({
                   </span>
                   <span className="text-foreground font-semibold text-right whitespace-nowrap text-xs">
                     Period: {formatDate(filing.periodEnd)}
-                    {filing.confirmedAt && ` \u00b7 ${formatDate(filing.confirmedAt)}`}
+                    {filing.confirmedAt && ` \u00b7 ${formatUkDate(filing.confirmedAt)}`}
                   </span>
                 </div>
               );

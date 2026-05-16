@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { formatUkDate } from "@/lib/format-date";
+import { formatCivilDate, formatUkDate } from "@/lib/format-date";
 
 interface CopyFilingSummaryProps {
   companyName: string;
@@ -14,7 +14,8 @@ interface CopyFilingSummaryProps {
   confirmedAt: Date | null;
 }
 
-const fmtDate = formatUkDate;
+// Period dates are statutory civil dates; confirmedAt (below) is an instant.
+const fmtDate = formatCivilDate;
 
 export default function CopyFilingSummary({
   companyName,
@@ -34,7 +35,7 @@ export default function CopyFilingSummary({
       `Filing: ${filingType === "accounts" ? "Annual Accounts" : "CT600"}`,
       `Period: ${fmtDate(periodStart)} to ${fmtDate(periodEnd)}`,
       "Status: Accepted",
-      confirmedAt ? `Date confirmed: ${fmtDate(confirmedAt)}` : null,
+      confirmedAt ? `Date confirmed: ${formatUkDate(confirmedAt)}` : null,
       "Filed via dormantfile.co.uk",
     ]
       .filter(Boolean)

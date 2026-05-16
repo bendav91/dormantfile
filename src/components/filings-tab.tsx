@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import FilingStatusBadge from "@/components/filing-status-badge";
-import { formatUkDate, formatUkDateShort } from "@/lib/format-date";
+import { formatCivilDate, formatCivilDateShort, formatUkDateShort } from "@/lib/format-date";
 import CheckStatusButton from "@/components/check-status-button";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { buildFilingViews } from "@/lib/filing-views";
@@ -15,8 +15,9 @@ import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
 import { isFilingLive } from "@/lib/launch-mode";
 import { cn } from "@/lib/cn";
 
-const formatDate = formatUkDate;
-const formatShortDate = formatUkDateShort;
+// Period dates and accounts deadlines are statutory calendar dates → verbatim.
+const formatDate = formatCivilDate;
+const formatShortDate = formatCivilDateShort;
 
 interface Filing {
   id: string;
@@ -411,7 +412,7 @@ export default function FilingsTab({
                         <p className="text-[13px] font-semibold text-foreground m-0">Annual accounts</p>
                         <p className="text-xs text-secondary m-0">
                           {f.confirmedAt
-                            ? `Accepted ${formatShortDate(f.confirmedAt)}`
+                            ? `Accepted ${formatUkDateShort(f.confirmedAt)}`
                             : "Accepted"}
                           {f.submittedAt && " \u00b7 Filed via DormantFile"}
                         </p>

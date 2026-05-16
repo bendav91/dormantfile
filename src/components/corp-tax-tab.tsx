@@ -1,7 +1,7 @@
 "use client";
 
 import CheckStatusButton from "@/components/check-status-button";
-import { formatUkDate, formatUkDateShort } from "@/lib/format-date";
+import { formatCivilDate, formatCivilDateShort, formatUkDateShort } from "@/lib/format-date";
 import CopyFilingSummary from "@/components/copy-filing-summary";
 import Ct600PeriodEditor from "@/components/ct600-period-editor";
 import FilingStatusBadge from "@/components/filing-status-badge";
@@ -17,8 +17,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const formatDate = formatUkDate;
-const formatShortDate = formatUkDateShort;
+// CTAP period dates and deadlines are statutory calendar dates → verbatim.
+const formatDate = formatCivilDate;
+const formatShortDate = formatCivilDateShort;
 
 interface Filing {
   id: string;
@@ -414,7 +415,7 @@ export default function CorpTaxTab({
                         <p className="text-[13px] font-semibold text-foreground m-0">CT600</p>
                         <p className="text-xs text-secondary m-0">
                           {f.confirmedAt
-                            ? `Accepted ${formatShortDate(f.confirmedAt)}`
+                            ? `Accepted ${formatUkDateShort(f.confirmedAt)}`
                             : "Accepted"}
                           {f.submittedAt && " \u00b7 Filed via DormantFile"}
                         </p>

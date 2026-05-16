@@ -5,13 +5,14 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import PrintButton from "./print-button";
-import { formatUkDate } from "@/lib/format-date";
+import { formatCivilDate, formatUkDate } from "@/lib/format-date";
 
 interface PageProps {
   params: Promise<{ companyId: string; filingId: string }>;
 }
 
-const formatDate = formatUkDate;
+// Period dates are statutory civil dates; submitted/confirmed are instants.
+const formatDate = formatCivilDate;
 
 export default async function ReceiptPage({ params }: PageProps) {
   const session = await getServerSession(authOptions);
@@ -84,12 +85,12 @@ export default async function ReceiptPage({ params }: PageProps) {
           </div>
           <div className={rowClass}>
             <span className={labelClass}>Date submitted</span>
-            <span className={valueClass}>{formatDate(filing.submittedAt)}</span>
+            <span className={valueClass}>{formatUkDate(filing.submittedAt)}</span>
           </div>
           {filing.confirmedAt && (
             <div className={rowClass}>
               <span className={labelClass}>Date confirmed</span>
-              <span className={valueClass}>{formatDate(filing.confirmedAt)}</span>
+              <span className={valueClass}>{formatUkDate(filing.confirmedAt)}</span>
             </div>
           )}
           {filing.correlationId && (
