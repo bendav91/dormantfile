@@ -356,6 +356,7 @@ export async function POST(req: NextRequest) {
         submissionNumber,
         pollInterval: submissionResult.pollInterval,
         submittedAt: new Date(),
+        filedAccountsIxbrl: accountsIxbrl,
       },
     });
 
