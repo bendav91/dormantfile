@@ -143,7 +143,7 @@ export async function POST(req: NextRequest) {
       filing.filingType as "accounts" | "ct600",
       filing.company.user.email,
       filing.company.companyName,
-      { startDate: effectiveStart, endDate: effectiveEnd },
+      { filingId: filing.id, startDate: effectiveStart, endDate: effectiveEnd },
     );
 
     return NextResponse.json({ status: "accepted", filingId: filing.id });

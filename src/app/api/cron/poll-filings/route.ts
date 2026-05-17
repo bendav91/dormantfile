@@ -114,6 +114,7 @@ export async function GET(req: NextRequest) {
           filing.company.user.email,
           filing.company.companyName,
           {
+            filingId: filing.id,
             startDate: filing.startDate ?? filing.periodStart,
             endDate: filing.endDate ?? filing.periodEnd,
           },
