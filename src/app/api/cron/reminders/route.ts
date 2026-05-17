@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email/client";
-import { buildReminderEmail, type ReminderSection } from "@/lib/email/templates";
+import {
+  buildReminderEmail,
+  buildLapsedComplianceEmail,
+  type ReminderSection,
+} from "@/lib/email/templates";
 import { isFilingLive } from "@/lib/launch-mode";
 import { generateMuteUrl } from "@/lib/email/mute-token";
+import {
+  classifyComplianceCohort,
+  decideLapsedNotificationType,
+} from "@/lib/lapsed-compliance";
 
 // Upcoming: remind at these days-before-deadline thresholds.
 // Overdue: remind at these days-after-deadline thresholds.
@@ -85,22 +93,53 @@ export async function GET(req: NextRequest) {
       deadline: { not: null },
       periodEnd: { gt: sixYearsAgo },
       company: {
+        // Soft-deleted companies are silenced entirely (Stop). The
+        // active/cancelling restriction is intentionally REMOVED so the
+        // Lapsed cohort (past_due / cancelled / none) also loads here; the
+        // per-filing classification below splits Covered vs Lapsed so the
+        // existing reminder path stays byte-for-byte unchanged.
         deletedAt: null,
         user: {
-          subscriptionStatus: { in: ["active", "cancelling"] },
+          // Honouring an explicit reminder-email opt-out for both the
+          // reminder and the win-back stream (same email channel).
           remindersMuted: false,
         },
       },
     },
     include: {
       company: {
-        include: { user: { select: { id: true, email: true, name: true } } },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              subscriptionStatus: true,
+            },
+          },
+        },
       },
       notifications: true,
     },
   });
 
-  // Group filings by user
+  // Split by compliance cohort. Covered → existing reminder path, UNCHANGED.
+  // Lapsed → honest reactivate-only win-back track. Stop → nothing.
+  const coveredFilings: typeof filings = [];
+  const lapsedFilings: typeof filings = [];
+  for (const filing of filings) {
+    const cohort = classifyComplianceCohort({
+      subscriptionStatus: filing.company.user.subscriptionStatus,
+      companyDeleted: filing.company.deletedAt != null,
+      filingStatus: filing.status,
+      hasObligation: true, // query already restricts to live obligations
+    });
+    if (cohort === "Covered") coveredFilings.push(filing);
+    else if (cohort === "Lapsed") lapsedFilings.push(filing);
+    // cohort === "Stop" → skip entirely
+  }
+
+  // Group Covered filings by user (existing reminder path — UNCHANGED).
   const userMap = new Map<
     string,
     {
@@ -110,7 +149,7 @@ export async function GET(req: NextRequest) {
     }
   >();
 
-  for (const filing of filings) {
+  for (const filing of coveredFilings) {
     const userId = filing.company.user.id;
     if (!userMap.has(userId)) {
       userMap.set(userId, {
@@ -216,6 +255,108 @@ export async function GET(req: NextRequest) {
             type: item.notificationType,
           })),
         ),
+      });
+
+      sent++;
+    } catch {
+      // Continue to next user on error
+    }
+  }
+
+  // ── Lapsed win-back track ──────────────────────────────────────────────
+  // Honest, reactivate-only. Same per-user consolidation and the SAME
+  // notification-history idempotency + createMany dedupe as above, but the
+  // tier/cap/grace decision is delegated to decideLapsedNotificationType
+  // and the copy is the lapsed compliance template.
+  const lapsedUserMap = new Map<
+    string,
+    {
+      email: string;
+      name: string;
+      filings: typeof filings;
+    }
+  >();
+
+  for (const filing of lapsedFilings) {
+    const userId = filing.company.user.id;
+    if (!lapsedUserMap.has(userId)) {
+      lapsedUserMap.set(userId, {
+        email: filing.company.user.email,
+        name: filing.company.user.name,
+        filings: [],
+      });
+    }
+    lapsedUserMap.get(userId)!.filings.push(filing);
+  }
+
+  for (const [userId, userData] of lapsedUserMap.entries()) {
+    const items: Array<{
+      companyName: string;
+      deadline: Date;
+      daysUntilDeadline: number;
+      filingId: string;
+      companyId: string;
+      notificationType: string;
+    }> = [];
+
+    for (const filing of userData.filings) {
+      const deadline = filing.deadline!;
+      const daysUntilDeadline = Math.floor(
+        (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+      );
+
+      const notificationType = decideLapsedNotificationType({
+        subscriptionStatus: filing.company.user.subscriptionStatus,
+        companyDeleted: filing.company.deletedAt != null,
+        filingStatus: filing.status,
+        daysUntilDeadline,
+        existingTypes: filing.notifications.map((n) => n.type),
+      });
+      if (!notificationType) continue;
+
+      items.push({
+        companyName: filing.company.companyName,
+        deadline,
+        daysUntilDeadline,
+        filingId: filing.id,
+        companyId: filing.companyId,
+        notificationType,
+      });
+    }
+
+    if (items.length === 0) continue;
+
+    try {
+      const { subject, html } = buildLapsedComplianceEmail({
+        userName: userData.name,
+        reactivateUrl: `${appUrl}/settings/billing`,
+        companies: items.map((i) => ({
+          companyName: i.companyName,
+          deadline: i.deadline,
+          daysUntilDeadline: i.daysUntilDeadline,
+        })),
+      });
+
+      const unsubscribeUrl = generateMuteUrl(userId);
+
+      await sendEmail({
+        to: userData.email,
+        subject,
+        html,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      });
+
+      // Same dedupe pattern: one row per (filing, lapsed-tier) so a tier
+      // never re-sends and the per-period cap is enforced via history.
+      await prisma.notification.createMany({
+        data: items.map((item) => ({
+          companyId: item.companyId,
+          filingId: item.filingId,
+          type: item.notificationType,
+        })),
       });
 
       sent++;

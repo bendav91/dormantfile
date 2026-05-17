@@ -22,34 +22,62 @@ export async function getAttentionCounts() {
   const fiveMinAgo = new Date(Date.now() - FIVE_MINUTES_MS);
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const [stuckFilings, rejectedFilings, failedPayments, pendingReviews, unreadMessages] =
-    await Promise.all([
-      prisma.filing.count({
-        where: {
-          OR: [
-            { status: "submitted", submittedAt: { lt: new Date(Date.now() - FIVE_MINUTES_MS) } },
-            { status: "pending", updatedAt: { lt: fiveMinAgo } },
-          ],
+  const [
+    stuckFilings,
+    rejectedFilings,
+    failedPayments,
+    pendingReviews,
+    unreadMessages,
+    atRiskUncovered,
+  ] = await Promise.all([
+    prisma.filing.count({
+      where: {
+        OR: [
+          { status: "submitted", submittedAt: { lt: new Date(Date.now() - FIVE_MINUTES_MS) } },
+          { status: "pending", updatedAt: { lt: fiveMinAgo } },
+        ],
+      },
+    }),
+    prisma.filing.count({
+      where: {
+        status: "rejected",
+        confirmedAt: { lt: sevenDaysAgo },
+      },
+    }),
+    prisma.user.count({
+      where: { subscriptionStatus: "past_due" },
+    }),
+    prisma.review.count({
+      where: { approved: false, hiddenAt: null },
+    }),
+    prisma.contactMessage.count({
+      where: { readAt: null },
+    }),
+    // Ops exposure (Risk 1 wrap): non-deleted companies whose classification
+    // is NOT Covered (subscription not active/cancelling, i.e. nobody is
+    // contracted to file for them) yet which still carry a live statutory
+    // obligation — an outstanding filing with a deadline. This is the count
+    // of companies relying on the lapsed win-back track rather than the
+    // covered filing path; high values mean compliance exposure to surface.
+    prisma.company.count({
+      where: {
+        deletedAt: null,
+        user: { subscriptionStatus: { notIn: ["active", "cancelling"] } },
+        filings: {
+          some: { status: "outstanding", deadline: { not: null } },
         },
-      }),
-      prisma.filing.count({
-        where: {
-          status: "rejected",
-          confirmedAt: { lt: sevenDaysAgo },
-        },
-      }),
-      prisma.user.count({
-        where: { subscriptionStatus: "past_due" },
-      }),
-      prisma.review.count({
-        where: { approved: false, hiddenAt: null },
-      }),
-      prisma.contactMessage.count({
-        where: { readAt: null },
-      }),
-    ]);
+      },
+    }),
+  ]);
 
-  return { stuckFilings, rejectedFilings, failedPayments, pendingReviews, unreadMessages };
+  return {
+    stuckFilings,
+    rejectedFilings,
+    failedPayments,
+    pendingReviews,
+    unreadMessages,
+    atRiskUncovered,
+  };
 }
 
 export async function getHealthStats() {

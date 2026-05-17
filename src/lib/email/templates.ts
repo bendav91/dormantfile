@@ -208,6 +208,94 @@ export function buildReminderEmail(data: ReminderEmailData): ReminderEmailResult
   return { subject, html };
 }
 
+// ── Lapsed compliance / win-back ─────────────────────────────────────────
+// Sent by the daily reminders cron to the Lapsed cohort (subscription
+// past_due / cancelled / none) that still has an upcoming or overdue
+// filing. Honest, reactivate-only: it states plainly that the plan ended
+// and that we are therefore NOT filing on their behalf, with a single
+// reactivate CTA. It must NOT mention Companies House WebFiling or any
+// free/alternative filing route. Honest and clear — not alarmist, not
+// soft-pedalled.
+
+interface LapsedComplianceCompany {
+  companyName: string;
+  deadline: Date;
+  daysUntilDeadline: number;
+}
+
+interface LapsedComplianceEmailData {
+  userName: string;
+  reactivateUrl: string;
+  companies: LapsedComplianceCompany[];
+}
+
+interface LapsedComplianceEmailResult {
+  subject: string;
+  html: string;
+}
+
+export function buildLapsedComplianceEmail(
+  data: LapsedComplianceEmailData,
+): LapsedComplianceEmailResult {
+  const { userName, reactivateUrl, companies } = data;
+  const hasOverdue = companies.some((c) => c.daysUntilDeadline < 0);
+  const count = companies.length;
+
+  const subject = hasOverdue
+    ? "Your DormantFile plan ended — an overdue filing is not being filed"
+    : `Your DormantFile plan ended — ${pluralise(count, "filing", "filings")} not being filed`;
+
+  const rowsHtml = companies
+    .map((c) => {
+      const deadlineStr = formatUKDate(c.deadline);
+      const daysAbs = Math.abs(c.daysUntilDeadline);
+      const timing =
+        c.daysUntilDeadline < 0
+          ? `${pluralise(daysAbs, "day")} overdue`
+          : `${pluralise(daysAbs, "day")} remaining`;
+      return `<tr>
+      <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;" class="divider">
+        <strong class="heading-text" style="color:#1a1a1a;">${escapeHtml(c.companyName)}</strong><br>
+        <span class="secondary-text" style="color:#666;font-size:13px;">Deadline: ${deadlineStr} (${timing})</span>
+      </td>
+    </tr>`;
+    })
+    .join("");
+
+  const html = emailShell({
+    preheader: hasOverdue
+      ? "Your plan ended and an overdue filing is not being submitted for you"
+      : "Your plan ended — these filings are not being submitted for you",
+    content: `
+    <h1 class="heading-text" style="color:#1a1a1a;font-size:22px;margin:0 0 12px;">Your plan has ended</h1>
+    <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 16px;">Hi ${escapeHtml(userName)},</p>
+    <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 16px;">
+      Your DormantFile subscription has ended, so <strong>we are not filing the
+      ${count === 1 ? "return below" : "returns below"} for you</strong>. The
+      ${pluralise(count, "deadline", "deadlines")} below still ${count === 1 ? "applies" : "apply"},
+      and the filing remains your responsibility until it is submitted.
+    </p>
+    <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:8px;overflow:hidden;margin:0 0 20px;" class="table-bg">
+      ${rowsHtml}
+    </table>
+    <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
+      To have us prepare and submit ${count === 1 ? "this filing" : "these filings"} for you, reactivate your plan.
+    </p>
+    <p>
+      <a href="${reactivateUrl}" class="primary-button" style="display:inline-block;background-color:#2563eb;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">
+        Reactivate my plan
+      </a>
+    </p>
+    <p class="secondary-text" style="color:#9ca3af;font-size:12px;margin-top:20px;">
+      If you have already filed elsewhere or no longer need this, you can
+      ignore this email — but the obligation stays with you until the filing
+      is made.
+    </p>`,
+  });
+
+  return { subject, html };
+}
+
 interface FilingConfirmationEmailData {
   companyName: string;
   periodStart: Date;

@@ -32,6 +32,7 @@ describe("getAttentionCounts", () => {
     vi.mocked(prisma.user.count).mockResolvedValue(0);
     vi.mocked(prisma.review.count).mockResolvedValue(0);
     vi.mocked(prisma.contactMessage.count).mockResolvedValue(0);
+    vi.mocked(prisma.company.count).mockResolvedValue(0);
 
     const result = await getAttentionCounts();
 
@@ -41,6 +42,7 @@ describe("getAttentionCounts", () => {
       failedPayments: 0,
       pendingReviews: 0,
       unreadMessages: 0,
+      atRiskUncovered: 0,
     });
   });
 
@@ -51,6 +53,7 @@ describe("getAttentionCounts", () => {
     vi.mocked(prisma.user.count).mockResolvedValue(2);
     vi.mocked(prisma.review.count).mockResolvedValue(5);
     vi.mocked(prisma.contactMessage.count).mockResolvedValue(4);
+    vi.mocked(prisma.company.count).mockResolvedValue(7);
 
     const result = await getAttentionCounts();
 
@@ -59,6 +62,33 @@ describe("getAttentionCounts", () => {
     expect(result.failedPayments).toBe(2);
     expect(result.pendingReviews).toBe(5);
     expect(result.unreadMessages).toBe(4);
+    expect(result.atRiskUncovered).toBe(7);
+  });
+
+  it("at-risk metric counts non-deleted, non-Covered companies with a live outstanding obligation", async () => {
+    vi.mocked(prisma.filing.count).mockResolvedValue(0);
+    vi.mocked(prisma.user.count).mockResolvedValue(0);
+    vi.mocked(prisma.review.count).mockResolvedValue(0);
+    vi.mocked(prisma.contactMessage.count).mockResolvedValue(0);
+    vi.mocked(prisma.company.count).mockResolvedValue(9);
+
+    await getAttentionCounts();
+
+    const [arg] = (
+      prisma.company.count as unknown as ReturnType<typeof vi.fn>
+    ).mock.calls[0];
+    // Non-deleted only (deleted = Stop, intentionally silenced — not at risk).
+    expect(arg.where.deletedAt).toBeNull();
+    // Classification ≠ Covered ⇒ user not in the Covered statuses.
+    expect(arg.where.user.subscriptionStatus.notIn).toEqual([
+      "active",
+      "cancelling",
+    ]);
+    // Has at least one live obligation: an outstanding filing with a deadline.
+    expect(arg.where.filings.some).toMatchObject({
+      status: "outstanding",
+      deadline: { not: null },
+    });
   });
 });
 
