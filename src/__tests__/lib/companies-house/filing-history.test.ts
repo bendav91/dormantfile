@@ -3,6 +3,7 @@ import {
   computeFirstPeriodEnd,
   detectAccountsGaps,
   fetchFilingHistoryStrict,
+  fetchAccountsFilingDocuments,
 } from "@/lib/companies-house/filing-history";
 
 describe("computeFirstPeriodEnd", () => {
@@ -172,5 +173,56 @@ describe("fetchFilingHistoryStrict", () => {
     await expect(fetchFilingHistoryStrict("12345678")).rejects.toThrow(
       "Companies House API is not configured",
     );
+  });
+});
+
+describe("fetchAccountsFilingDocuments", () => {
+  beforeEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); });
+
+  it("returns enriched AA* entries with document metadata url", async () => {
+    vi.stubEnv("COMPANIES_HOUSE_API_KEY", "k");
+    vi.stubEnv("COMPANY_INFORMATION_API_ENDPOINT", "https://api.test");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(JSON.stringify({
+      items: [
+        { type: "AA", date: "2024-02-01", transaction_id: "tx1",
+          description_values: { made_up_date: "2023-12-31" },
+          links: { document_metadata: "https://doc.test/abc" } },
+        { type: "GAZ1", date: "2024-01-01" },
+      ],
+    }), { status: 200 }));
+
+    const out = await fetchAccountsFilingDocuments("12345678");
+    expect(out).toEqual([{
+      madeUpDate: new Date("2023-12-31"),
+      type: "AA",
+      date: new Date("2024-02-01"),
+      transactionId: "tx1",
+      documentMetadataUrl: "https://doc.test/abc",
+    }]);
+  });
+
+  it("returns [] on API failure (graceful)", async () => {
+    vi.stubEnv("COMPANIES_HOUSE_API_KEY", "k");
+    vi.stubEnv("COMPANY_INFORMATION_API_ENDPOINT", "https://api.test");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response("x", { status: 500 }));
+    expect(await fetchAccountsFilingDocuments("12345678")).toEqual([]);
+  });
+
+  it("returns [] when unconfigured", async () => {
+    vi.stubEnv("COMPANIES_HOUSE_API_KEY", "");
+    vi.stubEnv("COMPANY_INFORMATION_API_ENDPOINT", "");
+    expect(await fetchAccountsFilingDocuments("12345678")).toEqual([]);
+  });
+});
+
+describe("regression: existing fetchFilingHistoryStrict shape unchanged", () => {
+  it("still maps AA items to Date[]", async () => {
+    vi.unstubAllEnvs(); vi.restoreAllMocks();
+    vi.stubEnv("COMPANIES_HOUSE_API_KEY", "k");
+    vi.stubEnv("COMPANY_INFORMATION_API_ENDPOINT", "https://api.test");
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(JSON.stringify({
+      items: [{ type: "AA", description_values: { made_up_date: "2023-12-31" } }],
+    }), { status: 200 }));
+    expect(await fetchFilingHistoryStrict("12345678")).toEqual([new Date("2023-12-31")]);
   });
 });
