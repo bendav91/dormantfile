@@ -326,6 +326,26 @@ describe("GET /api/cron/reminders — Lapsed win-back track", () => {
     expect(sendEmailMock).not.toHaveBeenCalled();
   });
 
+  it("muted lapsed user → cron sends nothing (mute enforced at the shared query predicate, so no lapsed_* email or notification)", async () => {
+    // Mute is enforced by the single findMany predicate
+    // (company.user.remindersMuted: false) that BOTH cohorts share, so a
+    // cancelled/lapsed user who has muted reminders is filtered out before
+    // cohort classification — the lapsed win-back track inherits the opt-out.
+    // A muted user therefore never reaches the query result set.
+    vi.mocked(prisma.filing.findMany).mockResolvedValue([] as never);
+
+    const res = await GET(makeRequest("test-secret"));
+    expect(await res.json()).toEqual({ sent: 0 });
+
+    // The query the cron issued must carry the mute guard for everyone.
+    const [arg] = callsOf(prisma.filing.findMany)[0];
+    expect(arg.where.company.user.remindersMuted).toBe(false);
+
+    // No win-back email, no lapsed_* notification recorded.
+    expect(sendEmailMock).not.toHaveBeenCalled();
+    expect(prisma.notification.createMany).not.toHaveBeenCalled();
+  });
+
   it("lapsed tier already sent → no re-send (per-tier idempotency, reuses notification history)", async () => {
     vi.mocked(prisma.filing.findMany).mockResolvedValue([
       filing({

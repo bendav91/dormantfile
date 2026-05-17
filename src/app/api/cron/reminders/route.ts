@@ -12,11 +12,7 @@ import {
   classifyComplianceCohort,
   decideLapsedNotificationType,
 } from "@/lib/lapsed-compliance";
-
-// Upcoming: remind at these days-before-deadline thresholds.
-// Overdue: remind at these days-after-deadline thresholds.
-const UPCOMING_TIERS = [90, 30, 14, 7, 3, 1] as const;
-const OVERDUE_TIERS = [1, 7, 30, 90] as const;
+import { crossedTier } from "@/lib/reminder-tiers";
 
 const SIX_YEARS_MS = 6 * 365.25 * 24 * 60 * 60 * 1000;
 
@@ -26,22 +22,14 @@ const SIX_YEARS_MS = 6 * 365.25 * 24 * 60 * 60 * 1000;
  *
  * For a filing at 25 days until deadline, the current tier is "due_30"
  * (the most recently crossed threshold). For 10 days overdue, it's "overdue_7".
+ *
+ * Tier arithmetic is the shared `crossedTier` (src/lib/reminder-tiers.ts) so
+ * this stays in lock-step with the lapsed track; only the `reminder_` prefix
+ * is local here.
  */
 function getCurrentTierType(daysUntilDeadline: number): string | null {
-  if (daysUntilDeadline >= 0) {
-    let matched: number | null = null;
-    for (const tier of UPCOMING_TIERS) {
-      if (daysUntilDeadline <= tier) matched = tier;
-    }
-    return matched !== null ? `reminder_due_${matched}` : null;
-  } else {
-    const daysOverdue = -daysUntilDeadline;
-    let matched: number | null = null;
-    for (const tier of OVERDUE_TIERS) {
-      if (daysOverdue >= tier) matched = tier;
-    }
-    return matched !== null ? `reminder_overdue_${matched}` : null;
-  }
+  const t = crossedTier(daysUntilDeadline);
+  return t ? `reminder_${t.kind}_${t.days}` : null;
 }
 
 function tierLabel(tierType: string): { heading: string; isOverdue: boolean; sortOrder: number } {

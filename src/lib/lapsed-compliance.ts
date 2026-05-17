@@ -27,6 +27,7 @@
  * notification-type namespace and different copy.
  */
 import type { SubscriptionStatus, FilingStatus } from "@prisma/client";
+import { crossedTier } from "@/lib/reminder-tiers";
 
 /**
  * Maximum number of lapsed-track ("lapsed_*") emails to send per filing
@@ -40,12 +41,6 @@ export const LAPSED_PERIOD_CAP = 3;
  * `lapsed_overdue_90` tier.
  */
 export const LAPSED_OVERDUE_GRACE_DAYS = 30;
-
-// Mirror of the reminders cron tiers (see
-// src/app/api/cron/reminders/route.ts). Kept in lock-step deliberately:
-// the lapsed track must cross the SAME thresholds as getCurrentTierType.
-const UPCOMING_TIERS = [90, 30, 14, 7, 3, 1] as const;
-const OVERDUE_TIERS = [1, 7, 30, 90] as const;
 
 export type ComplianceCohort = "Covered" | "Lapsed" | "Stop";
 
@@ -98,24 +93,15 @@ export function classifyComplianceCohort(input: ClassifyInput): ComplianceCohort
 
 /**
  * The lapsed `Notification.type` for a filing's current tier, or null if no
- * tier has been crossed. Mirrors the cron's `getCurrentTierType` arithmetic
- * exactly (same `<=` / `>=` boundary semantics, same most-recently-crossed
- * selection) but emits the `lapsed_*` namespace instead of `reminder_*`.
+ * tier has been crossed. Delegates to the shared `crossedTier`
+ * (src/lib/reminder-tiers.ts) so it crosses the SAME thresholds as the cron's
+ * `getCurrentTierType` (same `<=` / `>=` boundary semantics, same
+ * most-recently-crossed selection) but emits the `lapsed_*` namespace instead
+ * of `reminder_*`. The lock-step is now structural, not coincidental.
  */
 function currentLapsedTierType(daysUntilDeadline: number): string | null {
-  if (daysUntilDeadline >= 0) {
-    let matched: number | null = null;
-    for (const tier of UPCOMING_TIERS) {
-      if (daysUntilDeadline <= tier) matched = tier;
-    }
-    return matched !== null ? `lapsed_due_${matched}` : null;
-  }
-  const daysOverdue = -daysUntilDeadline;
-  let matched: number | null = null;
-  for (const tier of OVERDUE_TIERS) {
-    if (daysOverdue >= tier) matched = tier;
-  }
-  return matched !== null ? `lapsed_overdue_${matched}` : null;
+  const t = crossedTier(daysUntilDeadline);
+  return t ? `lapsed_${t.kind}_${t.days}` : null;
 }
 
 export interface LapsedDecisionInput extends Omit<ClassifyInput, "hasObligation"> {
