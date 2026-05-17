@@ -5,6 +5,10 @@ import { pollCompaniesHouse } from "@/lib/companies-house/submission-client";
 import { shouldFlagDocumentsNotFound } from "@/lib/companies-house/review-policy";
 import type { VendorCredentials } from "@/lib/hmrc/types";
 import { rollForwardPeriod } from "@/lib/roll-forward";
+import {
+  drainPendingFilingConfirmations,
+  type StuckConfirmation,
+} from "@/lib/filing-confirmation";
 
 function getVendorCredentials(): VendorCredentials {
   const vendorId = process.env.HMRC_VENDOR_ID;
@@ -154,5 +158,20 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ checked: total, resolved });
+  // Durable confirmation drain (Task D): retry owed/pending confirmations
+  // whose inline send failed, and surface terminally-stuck ones to ops via a
+  // single structured digest line (no synchronous email-on-email-failure).
+  // Must never break the cron response.
+  let confirmationStuck: StuckConfirmation[] = [];
+  try {
+    confirmationStuck = await drainPendingFilingConfirmations();
+  } catch (error) {
+    console.error("[filing-confirmation] drain failed", { error });
+  }
+
+  if (confirmationStuck.length > 0) {
+    console.error("[filing-confirmation] stuck", { items: confirmationStuck });
+  }
+
+  return NextResponse.json({ checked: total, resolved, confirmationStuck });
 }
