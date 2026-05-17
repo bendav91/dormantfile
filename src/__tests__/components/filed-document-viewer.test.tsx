@@ -34,4 +34,10 @@ describe("FiledDocumentViewer", () => {
     expect(link).toHaveAttribute("href", "/x?download=1");
     expect(link).toHaveAttribute("download");
   });
+
+  it("shows the official label for official context", () => {
+    render(<FiledDocumentViewer src="/x" downloadHref="/x?download=1"
+      context="official" title="t" />);
+    expect(screen.getByText(/the official copy filed at companies house/i)).toBeInTheDocument();
+  });
 });

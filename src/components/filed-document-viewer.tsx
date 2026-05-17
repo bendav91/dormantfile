@@ -2,13 +2,14 @@
 
 import { Download } from "lucide-react";
 
-type Context = "pre-filing" | "post-ct600" | "post-accounts-interim";
+type Context = "pre-filing" | "post-ct600" | "post-accounts-interim" | "official";
 
 const LABEL: Record<Context, string> = {
   "pre-filing": "This is exactly what will be submitted.",
   "post-ct600": "This is the return filed with HMRC.",
   "post-accounts-interim":
     "Our copy — the official copy from Companies House will be available shortly.",
+  "official": "The official copy filed at Companies House.",
 };
 
 export default function FiledDocumentViewer({

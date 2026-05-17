@@ -6,6 +6,9 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import PrintButton from "./print-button";
 import { formatCivilDate, formatUkDate } from "@/lib/format-date";
+import { fetchAccountsFilingDocuments } from "@/lib/companies-house/filing-history";
+import { resolvePostFilingDocument } from "@/lib/post-filing-resolution";
+import FiledDocumentViewer from "@/components/filed-document-viewer";
 
 interface PageProps {
   params: Promise<{ companyId: string; filingId: string }>;
@@ -31,6 +34,62 @@ export default async function ReceiptPage({ params }: PageProps) {
 
   if (!filing || filing.status !== "accepted" || !filing.submittedAt) {
     redirect(`/company/${companyId}`);
+  }
+
+  // --- Post-filing document resolution (accepted only) ---
+  type DocumentSection =
+    | { type: "viewer"; src: string; downloadHref: string; context: "official" | "post-accounts-interim" | "post-ct600"; title: string; secondaryHref?: string }
+    | { type: "legacy-none"; companyNumber: string }
+    | { type: "ct600-legacy" }
+    | { type: "none" };
+
+  let documentSection: DocumentSection = { type: "none" };
+
+  if (filing.filingType === "accounts") {
+    const chFilings = await fetchAccountsFilingDocuments(
+      filing.company.companyRegistrationNumber,
+    );
+    const resolution = resolvePostFilingDocument({
+      periodEnd: filing.endDate ?? filing.periodEnd,
+      filingType: filing.filingType,
+      hasSnapshot: !!filing.filedAccountsIxbrl,
+      chFilings,
+    });
+    if (resolution.kind === "official") {
+      documentSection = {
+        type: "viewer",
+        src: `/api/file/official-accounts?filingId=${filing.id}`,
+        downloadHref: `/api/file/official-accounts?filingId=${filing.id}`,
+        context: "official",
+        title: "Accounts filed at Companies House",
+      };
+    } else if (resolution.kind === "interim") {
+      documentSection = {
+        type: "viewer",
+        src: `/api/file/preview-accounts?filingId=${filing.id}`,
+        downloadHref: `/api/file/preview-accounts?filingId=${filing.id}&download=1`,
+        context: "post-accounts-interim",
+        title: "Filed dormant accounts",
+      };
+    } else {
+      documentSection = {
+        type: "legacy-none",
+        companyNumber: filing.company.companyRegistrationNumber,
+      };
+    }
+  } else if (filing.filingType === "ct600") {
+    if (filing.filedComputationsIxbrl) {
+      documentSection = {
+        type: "viewer",
+        src: `/api/file/preview-computations?filingId=${filing.id}`,
+        downloadHref: `/api/file/preview-computations?filingId=${filing.id}&download=1`,
+        context: "post-ct600",
+        title: "Corporation Tax return filed with HMRC",
+        secondaryHref: `/api/file/preview-accounts?filingId=${filing.id}`,
+      };
+    } else {
+      documentSection = { type: "ct600-legacy" };
+    }
   }
 
   const authority = filing.filingType === "accounts" ? "Companies House" : "HMRC";
@@ -118,6 +177,57 @@ export default async function ReceiptPage({ params }: PageProps) {
 
         <PrintButton />
       </div>
+
+      {documentSection.type === "viewer" && (
+        <div className="mt-8 max-w-[560px]">
+          <h2 className="text-[15px] font-semibold text-foreground mb-3">
+            {documentSection.title}
+          </h2>
+          <FiledDocumentViewer
+            src={documentSection.src}
+            downloadHref={documentSection.downloadHref}
+            context={documentSection.context}
+            title={documentSection.title}
+          />
+          {documentSection.secondaryHref && (
+            <p className="mt-3 text-[13px] text-secondary">
+              <a
+                href={documentSection.secondaryHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary no-underline"
+              >
+                View attached accounts
+              </a>
+            </p>
+          )}
+        </div>
+      )}
+
+      {documentSection.type === "legacy-none" && (
+        <div className="mt-8 max-w-[560px]">
+          <p className="text-[13px] text-secondary">
+            The official copy of your accounts is available on the{" "}
+            <a
+              href={`https://find-and-update.company-information.service.gov.uk/company/${documentSection.companyNumber}/filing-history`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary no-underline"
+            >
+              Companies House website
+            </a>
+            .
+          </p>
+        </div>
+      )}
+
+      {documentSection.type === "ct600-legacy" && (
+        <div className="mt-8 max-w-[560px]">
+          <p className="text-[13px] text-secondary">
+            The filed document was not retained for filings made before this feature.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
