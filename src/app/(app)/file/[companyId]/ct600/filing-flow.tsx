@@ -34,6 +34,7 @@ interface Props {
   periodEnd: string;
   periodStartISO: string;
   periodEndISO: string;
+  filingId: string;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -549,6 +550,7 @@ export default function FilingFlow({
   periodEnd,
   periodStartISO,
   periodEndISO,
+  // filingId is accepted via Props; consumed in Tasks 10/11 (preview step)
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");

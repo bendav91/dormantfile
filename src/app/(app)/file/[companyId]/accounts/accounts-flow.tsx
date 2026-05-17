@@ -26,6 +26,7 @@ interface Props {
   periodStartISO: string;
   periodEndISO: string;
   shareCapitalPence: number;
+  filingId: string;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -443,6 +444,7 @@ export default function AccountsFlow({
   periodStartISO,
   periodEndISO,
   shareCapitalPence,
+  // filingId is accepted via Props; consumed in Tasks 10/11 (preview step)
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");

@@ -40,6 +40,7 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
   // Resolve target period: filingId takes priority, then periodEnd param, then redirect
   let periodStart: Date;
   let periodEnd: Date;
+  let resolvedFilingId: string;
 
   if (filingId) {
     const filing = await prisma.filing.findFirst({
@@ -48,12 +49,28 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
     if (!filing) redirect(`/company/${companyId}`);
     periodStart = filing.startDate ?? filing.periodStart;
     periodEnd = filing.endDate ?? filing.periodEnd;
+    resolvedFilingId = filing.id;
   } else if (periodEndParam) {
     periodEnd = new Date(periodEndParam);
     if (isNaN(periodEnd.getTime())) redirect(`/company/${companyId}`);
     periodStart = new Date(periodEnd);
     periodStart.setUTCFullYear(periodStart.getUTCFullYear() - 1);
     periodStart.setUTCDate(periodStart.getUTCDate() + 1);
+    // NOTE: notIn:["accepted"] is intentionally broader than submit's status:"outstanding" lock.
+    // A failed/rejected row can still be previewed/retried here. When duplicates exist for a
+    // period this could resolve a different row than submit locks — acceptable for v1 (preview
+    // is read-only and regenerated from live company data). Keep these aligned in future changes.
+    const row = await prisma.filing.findFirst({
+      where: {
+        companyId: company.id,
+        filingType: "ct600",
+        periodEnd,
+        status: { notIn: ["accepted"] },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    if (!row) redirect(`/company/${companyId}`);
+    resolvedFilingId = row.id;
   } else {
     redirect(`/company/${companyId}`);
   }
@@ -90,6 +107,7 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
         periodEnd={formatDate(periodEnd)}
         periodStartISO={periodStart.toISOString()}
         periodEndISO={periodEnd.toISOString()}
+        filingId={resolvedFilingId}
       />
     </div>
   );
