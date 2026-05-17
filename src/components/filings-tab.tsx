@@ -7,11 +7,12 @@ import CheckStatusButton from "@/components/check-status-button";
 import MarkFiledButton from "@/components/mark-filed-button";
 import { buildFilingViews } from "@/lib/filing-views";
 import { FilingStatus } from "@prisma/client";
-import { AlertTriangle, Calendar, CheckCircle2, EyeOff, FileText } from "lucide-react";
+import { AlertTriangle, Calendar, CheckCircle2, ExternalLink, EyeOff, FileText } from "lucide-react";
 import Link from "next/link";
 import SuppressButton from "@/components/suppress-button";
 import CopyFilingSummary from "@/components/copy-filing-summary";
 import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
+import FiledDocumentModal from "@/components/filed-document-modal";
 import { isFilingLive } from "@/lib/launch-mode";
 import { cn } from "@/lib/cn";
 
@@ -35,10 +36,9 @@ interface Filing {
   reviewFlaggedAt: Date | null;
 }
 
-interface ChAccountsFilingRow {
-  madeUpDate: string;
-  type: string;
-  hasDocument: boolean; // reserved for per-row PDF links (future task)
+interface ChAccountsDoc {
+  madeUpDate: string; // YYYY-MM-DD, equals the accounting period end
+  transactionId: string;
 }
 
 interface FilingsTabProps {
@@ -47,7 +47,7 @@ interface FilingsTabProps {
   companyNumber: string;
   filings: Filing[];
   now: number;
-  chAccountsFilings?: ChAccountsFilingRow[];
+  chAccountsDocs?: ChAccountsDoc[];
 }
 
 export default function FilingsTab({
@@ -56,9 +56,15 @@ export default function FilingsTab({
   companyNumber,
   filings,
   now,
-  chAccountsFilings,
+  chAccountsDocs,
 }: FilingsTabProps) {
   const views = buildFilingViews(filings as never[], "accounts");
+
+  // Map accounting period end → CH document transaction id, so each accepted
+  // filing can deep-link to its exact filed document on Companies House.
+  const chDocByPeriodEnd = new Map(
+    (chAccountsDocs ?? []).map((d) => [d.madeUpDate, d.transactionId]),
+  );
 
   const outstanding = views.filter((v) => !v.isFiled && !v.isSuppressed);
   const suppressed = views.filter((v) => !v.isFiled && v.isSuppressed);
@@ -69,6 +75,7 @@ export default function FilingsTab({
   const [activeTab, setActiveTab] = useState<"outstanding" | "suppressed" | "filed_elsewhere" | "completed">(
     "outstanding",
   );
+  const [previewFilingId, setPreviewFilingId] = useState<string | null>(null);
 
   return (
     <>
@@ -245,6 +252,17 @@ export default function FilingsTab({
                               filingType="accounts"
                               flaggedForReview={!!f.reviewFlaggedAt}
                             />
+                            {(f.status === "submitted" || f.status === "rejected") && (
+                              <button
+                                type="button"
+                                onClick={() => setPreviewFilingId(f.id)}
+                                title="Preview what was submitted to Companies House"
+                                className="focus-ring inline-flex items-center gap-1 text-[13px] font-semibold text-primary bg-transparent border-0 p-0 cursor-pointer"
+                              >
+                                <FileText size={13} strokeWidth={2} />
+                                Preview submitted
+                              </button>
+                            )}
                             {(f.status === "failed" || f.status === "rejected") && (
                               <>
                                 <MarkFiledButton companyId={companyId} periodEnd={endISO} filingType="accounts" />
@@ -404,6 +422,7 @@ export default function FilingsTab({
                 const f = view.filing;
                 const start = f.startDate ?? f.periodStart;
                 const end = f.endDate ?? f.periodEnd;
+                const chTxnId = chDocByPeriodEnd.get(end.toISOString().split("T")[0]);
 
                 return (
                   <div key={f.id} className="bg-card rounded-xl p-5 shadow-card border border-border">
@@ -426,6 +445,18 @@ export default function FilingsTab({
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5">
+                        {chTxnId && (
+                          <a
+                            href={`https://find-and-update.company-information.service.gov.uk/company/${companyNumber}/filing-history/${chTxnId}/document?format=pdf&download=0`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="View the filed accounts document on Companies House"
+                            className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary no-underline"
+                          >
+                            <ExternalLink size={13} strokeWidth={2} />
+                            View on Companies House
+                          </a>
+                        )}
                         {f.submittedAt && (
                           <>
                             <CopyFilingSummary
@@ -462,47 +493,17 @@ export default function FilingsTab({
               </p>
             </div>
           )}
-
-          {chAccountsFilings && chAccountsFilings.length > 0 && (
-            <div className="bg-card rounded-xl p-5 shadow-card border border-border mt-4">
-              <div className="flex items-center justify-between mb-1">
-                <h3 className="text-base font-bold text-foreground m-0">
-                  Companies House record
-                </h3>
-                <a
-                  href={`https://find-and-update.company-information.service.gov.uk/company/${companyNumber}/filing-history`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[13px] font-semibold text-primary no-underline"
-                >
-                  View on Companies House
-                </a>
-              </div>
-              <p className="text-xs text-secondary m-0 mb-3">
-                Official accounts filings held by Companies House — including any filed before
-                DormantFile or by an accountant. Full documents are available on Companies House.
-              </p>
-              <div className="flex flex-col gap-1.5">
-                {[...chAccountsFilings]
-                  .sort(
-                    (a, b) =>
-                      new Date(b.madeUpDate).getTime() - new Date(a.madeUpDate).getTime(),
-                  )
-                  .map((doc) => (
-                    <div
-                      key={`${doc.madeUpDate}-${doc.type}`}
-                      className="flex items-center justify-between px-3 py-2 bg-inset rounded-lg"
-                    >
-                      <p className="text-[13px] font-semibold text-foreground m-0">
-                        Made up to {formatDate(new Date(doc.madeUpDate))}
-                      </p>
-                      <p className="text-xs text-secondary m-0">{doc.type}</p>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
         </>
+      )}
+
+      {previewFilingId && (
+        <FiledDocumentModal
+          src={`/api/file/preview-accounts?filingId=${previewFilingId}`}
+          downloadHref={`/api/file/preview-accounts?filingId=${previewFilingId}&download=1`}
+          context="submitted-snapshot"
+          title="Submitted accounts"
+          onClose={() => setPreviewFilingId(null)}
+        />
       )}
     </>
   );

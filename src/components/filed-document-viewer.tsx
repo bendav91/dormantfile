@@ -2,7 +2,12 @@
 
 import { Download } from "lucide-react";
 
-type Context = "pre-filing" | "post-ct600" | "post-accounts-interim" | "official";
+export type Context =
+  | "pre-filing"
+  | "post-ct600"
+  | "post-accounts-interim"
+  | "official"
+  | "submitted-snapshot";
 
 const LABEL: Record<Context, string> = {
   "pre-filing": "This is exactly what will be submitted.",
@@ -10,6 +15,8 @@ const LABEL: Record<Context, string> = {
   "post-accounts-interim":
     "Our copy — the official copy from Companies House will be available shortly.",
   "official": "The official copy filed at Companies House.",
+  "submitted-snapshot":
+    "This is exactly what was submitted — a verbatim copy of the filed document.",
 };
 
 export default function FiledDocumentViewer({

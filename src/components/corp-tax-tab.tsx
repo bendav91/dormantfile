@@ -7,6 +7,7 @@ import Ct600PeriodEditor from "@/components/ct600-period-editor";
 import FilingStatusBadge from "@/components/filing-status-badge";
 import MarkFiledButton from "@/components/mark-filed-button";
 import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
+import FiledDocumentModal from "@/components/filed-document-modal";
 import { cn } from "@/lib/cn";
 import { REMOVABLE_CT600_STATUSES } from "@/lib/ct600-remove-policy";
 import { buildFilingViews } from "@/lib/filing-views";
@@ -74,6 +75,7 @@ export default function CorpTaxTab({
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
   const [removing, setRemoving] = useState(false);
   const [removeError, setRemoveError] = useState("");
+  const [previewFilingId, setPreviewFilingId] = useState<string | null>(null);
 
   async function handleRemove() {
     if (!confirmRemoveId) return;
@@ -239,6 +241,17 @@ export default function CorpTaxTab({
                           <>
                             {f.status === "submitted" && <CheckStatusButton filingId={f.id} />}
                             <FilingStatusBadge status={f.status} filingType="ct600" />
+                            {(f.status === "submitted" || f.status === "rejected") && (
+                              <button
+                                type="button"
+                                onClick={() => setPreviewFilingId(f.id)}
+                                title="Preview what was submitted to HMRC"
+                                className="focus-ring inline-flex items-center gap-1 text-[13px] font-semibold text-primary bg-transparent border-0 p-0 cursor-pointer"
+                              >
+                                <FileText size={13} strokeWidth={2} />
+                                Preview submitted
+                              </button>
+                            )}
                             {(f.status === "failed" || f.status === "rejected") && (
                               <>
                                 <MarkFiledButton
@@ -458,6 +471,16 @@ export default function CorpTaxTab({
             </div>
           )}
         </>
+      )}
+
+      {previewFilingId && (
+        <FiledDocumentModal
+          src={`/api/file/preview-computations?filingId=${previewFilingId}`}
+          downloadHref={`/api/file/preview-computations?filingId=${previewFilingId}&download=1`}
+          context="submitted-snapshot"
+          title="Submitted CT600"
+          onClose={() => setPreviewFilingId(null)}
+        />
       )}
     </>
   );

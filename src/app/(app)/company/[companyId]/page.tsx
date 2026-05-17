@@ -73,13 +73,16 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
   // eslint-disable-next-line react-hooks/purity -- server component, runs once
   const now = Date.now();
 
-  const chAccountsFilings =
+  // CH document deep-links, keyed by made-up date (= accounting period end).
+  // Only entries with a transaction id can be linked to a public CH document.
+  const chAccountsDocs =
     tab === "filings"
-      ? (await fetchAccountsFilingDocuments(company.companyRegistrationNumber)).map((f) => ({
-          madeUpDate: f.madeUpDate.toISOString(),
-          type: f.type,
-          hasDocument: !!f.documentMetadataUrl,
-        }))
+      ? (await fetchAccountsFilingDocuments(company.companyRegistrationNumber))
+          .filter((f) => f.transactionId)
+          .map((f) => ({
+            madeUpDate: f.madeUpDate.toISOString().split("T")[0],
+            transactionId: f.transactionId as string,
+          }))
       : [];
 
   return (
@@ -189,7 +192,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
           companyNumber={company.companyRegistrationNumber}
           filings={company.filings}
           now={now}
-          chAccountsFilings={chAccountsFilings}
+          chAccountsDocs={chAccountsDocs}
         />
       )}
       {tab === "corp-tax" && hasUtr && (
