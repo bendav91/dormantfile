@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
   let body: {
     companyId?: string;
     filingId?: string;
+    directorName?: string;
     periodStart?: string;
     periodEnd?: string;
     gatewayUsername?: string;
@@ -79,6 +80,17 @@ export async function POST(req: NextRequest) {
 
   if (!companyId) {
     return NextResponse.json({ error: "companyId is required" }, { status: 400 });
+  }
+
+  // Director confirmed at the pre-file gate. Required: it signs the accounts
+  // iXBRL and (in director mode) is the CT600 declarant — never assumed to be
+  // the account holder, who may be an agent filing for another company.
+  const filingDirectorName = body.directorName?.trim();
+  if (!filingDirectorName || filingDirectorName.length > 160) {
+    return NextResponse.json(
+      { error: "Confirm the director filing this return before submitting." },
+      { status: 400 },
+    );
   }
 
   if (!body.filingId && (!body.periodStart || !body.periodEnd)) {
@@ -121,6 +133,19 @@ export async function POST(req: NextRequest) {
 
   if (!company) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
+  }
+
+  // Fast guard: company flagged as struck off / dissolved by the daily
+  // resync. Defence in depth — no network needed; the live CH check below
+  // is the backstop if the flag is stale.
+  if (company.companyGoneAt) {
+    return NextResponse.json(
+      {
+        error:
+          "This company has been struck off or dissolved at Companies House and can no longer file returns.",
+      },
+      { status: 400 },
+    );
   }
 
   if (!company.registeredForCorpTax) {
@@ -262,6 +287,12 @@ export async function POST(req: NextRequest) {
 
   const filing = { ...outstandingFiling, status: "pending" as const };
 
+  // Persist the confirmed director so it's pre-selected next period.
+  await prisma.company.update({
+    where: { id: company.id },
+    data: { filingDirectorName, filingDirectorConfirmedAt: new Date() },
+  });
+
   let vendor: VendorCredentials;
   let endpoint: string;
 
@@ -285,7 +316,7 @@ export async function POST(req: NextRequest) {
     companyRegistrationNumber: company.companyRegistrationNumber,
     periodStart: effectiveStart,
     periodEnd: effectiveEnd,
-    directorName: user.name,
+    directorName: filingDirectorName,
   });
 
   const computationsIxbrl = generateDormantTaxComputationsIxbrl({
@@ -309,7 +340,10 @@ export async function POST(req: NextRequest) {
         uniqueTaxReference: company.uniqueTaxReference!,
         periodStart: effectiveStart,
         periodEnd: effectiveEnd,
-        declarantName: user.name,
+        // Director mode: the confirmed director is the declarant. Agent mode:
+        // the agent (account holder) makes the agent declaration, but the
+        // accounts iXBRL above is still signed by the company director.
+        declarantName: isAgentFiling ? user.name : filingDirectorName,
         declarantStatus: isAgentFiling ? "Agent" : "Director",
       },
       credentials: { gatewayUsername: gatewayUsername!, gatewayPassword: gatewayPassword! },

@@ -219,9 +219,12 @@ describe("GET /api/cron/reminders — Lapsed win-back track", () => {
     expect(sendEmailMock).toHaveBeenCalledTimes(1);
     const emailArg = callsOf(sendEmailMock)[0][0];
     expect(emailArg.to).toBe("lapsed@test.com");
-    // Honest, reactivate-only copy: says the plan ended & we're NOT filing,
+    // Honest, reactivate-only copy: the plan ended so they can no longer
+    // file THROUGH DormantFile (self-service — we never file FOR them),
     // with a reactivate CTA, and NEVER mentions WebFiling / free routes.
-    expect(emailArg.html).toMatch(/not filing|won't be filed|will not be filed/i);
+    expect(emailArg.html).toMatch(/no longer file|still needs? filing|through DormantFile/i);
+    expect(emailArg.html).toMatch(/remains your responsibility/i);
+    expect(emailArg.html).not.toMatch(/for you|on your behalf/i);
     expect(emailArg.html).toMatch(/reactivat/i);
     expect(emailArg.html).not.toMatch(/webfiling/i);
 

@@ -33,6 +33,8 @@ export default async function CT600FilingPage({ params, searchParams }: PageProp
     where: { id: companyId, userId: session.user.id, deletedAt: null },
   });
   if (!company) redirect("/dashboard");
+  // Struck off / dissolved at Companies House — filing is disabled.
+  if (company.companyGoneAt) redirect(`/company/${companyId}`);
   if (!company.registeredForCorpTax) redirect(`/company/${companyId}`);
 
   // Resolve target period: filingId takes priority, then periodEnd param, then redirect

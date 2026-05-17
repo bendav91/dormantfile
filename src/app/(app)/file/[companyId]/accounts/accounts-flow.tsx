@@ -1,6 +1,7 @@
 "use client";
 
 import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
+import DirectorConfirm from "@/components/director-confirm";
 import { cn } from "@/lib/cn";
 import { AlertTriangle, Building2, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -41,18 +42,24 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 // ─── Step components ──────────────────────────────────────────────────────────
 
 function StepConfirm({
+  companyId,
   companyName,
   companyRegistrationNumber,
   periodStart,
   periodEnd,
   shareCapitalPence,
+  directorName,
+  onDirectorChange,
   onContinue,
 }: {
+  companyId: string;
   companyName: string;
   companyRegistrationNumber: string;
   periodStart: string;
   periodEnd: string;
   shareCapitalPence: number;
+  directorName: string | null;
+  onDirectorChange: (name: string | null) => void;
   onContinue: () => void;
 }) {
   return (
@@ -97,6 +104,11 @@ function StepConfirm({
           <DetailRow label="Period end" value={periodEnd} />
         </div>
 
+        {/* Director confirmation gate */}
+        <div className="pb-2 mb-6 border-b border-border-subtle">
+          <DirectorConfirm companyId={companyId} onChange={onDirectorChange} />
+        </div>
+
         {/* Info card */}
         <div className="flex items-start gap-2.5 px-4 py-3.5 bg-primary-bg border border-primary-border rounded-lg mb-7">
           <span className="text-primary shrink-0 mt-px">
@@ -111,10 +123,21 @@ function StepConfirm({
 
         <button
           onClick={onContinue}
-          className="focus-ring bg-cta text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
+          disabled={!directorName}
+          className={cn(
+            "focus-ring bg-cta text-card px-6 py-3 rounded-lg font-semibold text-base border-0 transition-all duration-200 inline-flex items-center justify-center gap-2 w-full",
+            directorName
+              ? "cursor-pointer hover:opacity-90 hover:-translate-y-px"
+              : "opacity-50 cursor-not-allowed",
+          )}
         >
           Continue
         </button>
+        {!directorName && (
+          <p className="text-[13px] text-muted text-center m-0 mt-3">
+            Select or enter the director signing these accounts to continue.
+          </p>
+        )}
       </div>
     </div>
   );
@@ -423,6 +446,7 @@ export default function AccountsFlow({
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");
+  const [directorName, setDirectorName] = useState<string | null>(null);
   const [result, setResult] = useState<ResultState | null>(null);
   const [pendingAuthCode, setPendingAuthCode] = useState<string | null>(null);
 
@@ -435,6 +459,7 @@ export default function AccountsFlow({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyId,
+          directorName,
           companyAuthCode,
           periodStart: periodStartISO,
           periodEnd: periodEndISO,
@@ -492,11 +517,14 @@ export default function AccountsFlow({
   if (step === "confirm") {
     return (
       <StepConfirm
+        companyId={companyId}
         companyName={companyName}
         companyRegistrationNumber={companyRegistrationNumber}
         periodStart={periodStart}
         periodEnd={periodEnd}
         shareCapitalPence={shareCapitalPence}
+        directorName={directorName}
+        onDirectorChange={setDirectorName}
         onContinue={() => setStep("authenticate")}
       />
     );

@@ -30,6 +30,8 @@ export default async function AccountsFilingPage({ params, searchParams }: PageP
     where: { id: companyId, userId: session.user.id, deletedAt: null },
   });
   if (!company) redirect("/dashboard");
+  // Struck off / dissolved at Companies House — filing is disabled.
+  if (company.companyGoneAt) redirect(`/company/${companyId}`);
 
   // Resolve target period: filingId takes priority, then periodEnd param, then company defaults
   let periodStart: Date;

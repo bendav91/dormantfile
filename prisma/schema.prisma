@@ -86,6 +86,9 @@ model Company {
   newArdDay                 Int?
   dormancyAttestationAcceptedAt DateTime?
   dormancyAttestationVersion    String?
+  filingDirectorName        String?
+  filingDirectorConfirmedAt DateTime?
+  companyGoneAt             DateTime?
   deletedAt                 DateTime?
   createdAt                 DateTime   @default(now())
   updatedAt                 DateTime   @updatedAt

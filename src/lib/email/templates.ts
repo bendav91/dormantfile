@@ -212,10 +212,12 @@ export function buildReminderEmail(data: ReminderEmailData): ReminderEmailResult
 // Sent by the daily reminders cron to the Lapsed cohort (subscription
 // past_due / cancelled / none) that still has an upcoming or overdue
 // filing. Honest, reactivate-only: it states plainly that the plan ended
-// and that we are therefore NOT filing on their behalf, with a single
-// reactivate CTA. It must NOT mention Companies House WebFiling or any
-// free/alternative filing route. Honest and clear — not alarmist, not
-// soft-pedalled.
+// so they can no longer file through DormantFile, with a single reactivate
+// CTA. DormantFile is self-service — we never file FOR the customer; they
+// submit the return themselves through the app. The copy must NOT imply a
+// managed/done-for-you service, and must NOT mention Companies House
+// WebFiling or any free/alternative filing route. Honest and clear — not
+// alarmist, not soft-pedalled.
 
 interface LapsedComplianceCompany {
   companyName: string;
@@ -242,8 +244,8 @@ export function buildLapsedComplianceEmail(
   const count = companies.length;
 
   const subject = hasOverdue
-    ? "Your DormantFile plan ended — an overdue filing is not being filed"
-    : `Your DormantFile plan ended — ${pluralise(count, "filing", "filings")} not being filed`;
+    ? "Your DormantFile plan ended — an overdue filing still needs filing"
+    : `Your DormantFile plan ended — ${pluralise(count, "filing", "filings")} still ${count === 1 ? "needs" : "need"} filing`;
 
   const rowsHtml = companies
     .map((c) => {
@@ -264,14 +266,14 @@ export function buildLapsedComplianceEmail(
 
   const html = emailShell({
     preheader: hasOverdue
-      ? "Your plan ended and an overdue filing is not being submitted for you"
-      : "Your plan ended — these filings are not being submitted for you",
+      ? "Your plan ended — an overdue filing still needs to be filed through DormantFile"
+      : "Your plan ended — these filings still need to be filed through DormantFile",
     content: `
     <h1 class="heading-text" style="color:#1a1a1a;font-size:22px;margin:0 0 12px;">Your plan has ended</h1>
     <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 16px;">Hi ${escapeHtml(userName)},</p>
     <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 16px;">
-      Your DormantFile subscription has ended, so <strong>we are not filing the
-      ${count === 1 ? "return below" : "returns below"} for you</strong>. The
+      Your DormantFile subscription has ended, so <strong>you can no longer file
+      the ${count === 1 ? "return below" : "returns below"} through DormantFile</strong>. The
       ${pluralise(count, "deadline", "deadlines")} below still ${count === 1 ? "applies" : "apply"},
       and the filing remains your responsibility until it is submitted.
     </p>
@@ -279,7 +281,7 @@ export function buildLapsedComplianceEmail(
       ${rowsHtml}
     </table>
     <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
-      To have us prepare and submit ${count === 1 ? "this filing" : "these filings"} for you, reactivate your plan.
+      Reactivate your plan to file ${count === 1 ? "this return" : "these returns"} yourself through DormantFile.
     </p>
     <p>
       <a href="${reactivateUrl}" class="primary-button" style="display:inline-block;background-color:#2563eb;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">
@@ -340,6 +342,83 @@ export function buildFilingConfirmationEmail(
   });
 
   return { subject, html };
+}
+
+// ── Company struck off / restored ────────────────────────────────────────
+// Sent once by the daily resync when a company's Companies House status
+// crosses into / back out of a closure status. Honest and factual: states
+// what Companies House shows, what it means for filing here, and that we
+// keep watching in case it is restored.
+
+interface CompanyStatusEmailData {
+  companyName: string;
+  companyNumber: string;
+  dashboardUrl: string;
+}
+
+export function buildCompanyDissolvedEmail(
+  data: CompanyStatusEmailData,
+): { subject: string; html: string } {
+  const { companyName, companyNumber, dashboardUrl } = data;
+  return {
+    subject: `${companyName} has been struck off at Companies House`,
+    html: emailShell({
+      preheader: `Companies House shows ${companyName} as dissolved — filing is paused`,
+      content: `
+      <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Your company has been struck off</h1>
+      <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 16px;">
+        Companies House now shows <strong>${escapeHtml(companyName)}</strong>
+        (${escapeHtml(companyNumber)}) as dissolved or struck off the register.
+      </p>
+      <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 16px;">
+        Because the company is no longer on the register, <strong>filing has
+        been disabled</strong> for it in DormantFile and we have stopped
+        sending filing reminders for it. A dissolved company has no further
+        accounts or Corporation Tax filing obligations.
+      </p>
+      <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
+        We will keep checking Companies House. If the company is restored to
+        the register, we will re-enable filing and let you know.
+      </p>
+      <p>
+        <a href="${dashboardUrl}" class="primary-button" style="display:inline-block;background-color:#2563eb;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">
+          View dashboard
+        </a>
+      </p>
+      <p class="secondary-text" style="color:#9ca3af;font-size:12px;margin-top:20px;">
+        If you believe this is wrong, check the company on the Companies House
+        register directly — our status follows theirs.
+      </p>`,
+    }),
+  };
+}
+
+export function buildCompanyReinstatedEmail(
+  data: CompanyStatusEmailData,
+): { subject: string; html: string } {
+  const { companyName, companyNumber, dashboardUrl } = data;
+  return {
+    subject: `${companyName} is active again at Companies House`,
+    html: emailShell({
+      preheader: `${companyName} has been restored — filing is re-enabled`,
+      content: `
+      <h1 class="heading-text" style="color:#1a1a1a;font-size:20px;margin:0 0 12px;">Your company is active again</h1>
+      <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 16px;">
+        Companies House now shows <strong>${escapeHtml(companyName)}</strong>
+        (${escapeHtml(companyNumber)}) as active again. Filing has been
+        re-enabled for it in DormantFile and deadline reminders have resumed.
+      </p>
+      <p class="body-text" style="color:#4b5563;font-size:14px;line-height:1.6;margin:0 0 20px;">
+        Check your dashboard for any filings that became due while the company
+        was off the register.
+      </p>
+      <p>
+        <a href="${dashboardUrl}" class="primary-button" style="display:inline-block;background-color:#2563eb;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">
+          View dashboard
+        </a>
+      </p>`,
+    }),
+  };
 }
 
 interface VerificationEmailData {

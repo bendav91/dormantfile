@@ -48,7 +48,9 @@ export async function GET(req: NextRequest) {
     companyRegistrationNumber: filing.company.companyRegistrationNumber,
     periodStart: filing.startDate ?? filing.periodStart,
     periodEnd,
-    directorName: filing.company.user.name,
+    // Show the confirmed filing director so the preview matches what will be
+    // filed; fall back to the account holder only if not yet confirmed.
+    directorName: filing.company.filingDirectorName ?? filing.company.user.name,
     shareCapital: filing.company.shareCapital,
   });
 

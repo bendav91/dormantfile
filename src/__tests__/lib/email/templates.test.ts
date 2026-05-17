@@ -10,6 +10,7 @@ import {
   buildPaymentFailedEmail,
   buildSubscriptionCancelledEmail,
   buildAccountDeletedEmail,
+  buildLapsedComplianceEmail,
 } from "@/lib/email/templates";
 import { describe, expect, it } from "vitest";
 
@@ -266,5 +267,47 @@ describe("buildAccountDeletedEmail", () => {
     const { html } = buildAccountDeletedEmail({ contactUrl: "https://example.com/contact" });
     expect(html).toContain("permanently deleted");
     expect(html).toContain("https://example.com/contact");
+  });
+});
+
+describe("buildLapsedComplianceEmail", () => {
+  const data = {
+    userName: "Jane Doe",
+    reactivateUrl: "https://example.com/settings/billing",
+    companies: [
+      { companyName: "ACME LTD", deadline: new Date("2026-06-30"), daysUntilDeadline: 14 },
+    ],
+  };
+
+  it("does not imply a done-for-you / managed filing service", () => {
+    // Check both the upcoming and overdue variants, subject + html.
+    for (const days of [14, -5]) {
+      const { subject, html } = buildLapsedComplianceEmail({
+        ...data,
+        companies: [{ ...data.companies[0], daysUntilDeadline: days }],
+      });
+      const text = (subject + html).toLowerCase();
+      // It is self-service: DormantFile never files FOR the customer.
+      expect(text).not.toContain("for you");
+      expect(text).not.toContain("on your behalf");
+      expect(text).not.toContain("we are not filing");
+      expect(text).not.toContain("have us prepare and submit");
+    }
+  });
+
+  it("frames reactivation as self-service filing through DormantFile", () => {
+    const { html } = buildLapsedComplianceEmail(data);
+    expect(html).toContain("through DormantFile");
+    expect(html).toContain("yourself");
+    expect(html).toContain("https://example.com/settings/billing");
+    expect(html).toContain("Reactivate my plan");
+    // Still honest that the obligation remains with the user.
+    expect(html).toContain("remains your responsibility");
+  });
+
+  it("subject states the filing still needs filing, not that we file it", () => {
+    const { subject } = buildLapsedComplianceEmail(data);
+    expect(subject).toContain("plan ended");
+    expect(subject).toContain("still");
   });
 });

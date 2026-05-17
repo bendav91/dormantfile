@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
   let body: {
     companyId?: string;
     filingId?: string;
+    directorName?: string;
     companyAuthCode?: string;
     periodStart?: string;
     periodEnd?: string;
@@ -64,6 +65,17 @@ export async function POST(req: NextRequest) {
 
   if (!companyId) {
     return NextResponse.json({ error: "companyId is required" }, { status: 400 });
+  }
+
+  // Director confirmed at the pre-file gate. Required: signs the accounts
+  // iXBRL — never assumed to be the account holder, who may be an agent
+  // filing for someone else's company.
+  const filingDirectorName = body.directorName?.trim();
+  if (!filingDirectorName || filingDirectorName.length > 160) {
+    return NextResponse.json(
+      { error: "Confirm the director signing these accounts before submitting." },
+      { status: 400 },
+    );
   }
 
   if (!body.filingId && (!body.periodStart || !body.periodEnd)) {
@@ -99,6 +111,19 @@ export async function POST(req: NextRequest) {
 
   if (!company) {
     return NextResponse.json({ error: "Company not found" }, { status: 404 });
+  }
+
+  // Fast guard: company flagged as struck off / dissolved by the daily
+  // resync. Defence in depth — no network needed; the live CH check below
+  // is the backstop if the flag is stale.
+  if (company.companyGoneAt) {
+    return NextResponse.json(
+      {
+        error:
+          "This company has been struck off or dissolved at Companies House and can no longer file accounts.",
+      },
+      { status: 400 },
+    );
   }
 
   // Validate the requested filing exists as outstanding.
@@ -231,6 +256,12 @@ export async function POST(req: NextRequest) {
 
   const filing = { ...outstandingFiling, status: "pending" as const };
 
+  // Persist the confirmed director so it's pre-selected next period.
+  await prisma.company.update({
+    where: { id: company.id },
+    data: { filingDirectorName, filingDirectorConfirmedAt: new Date() },
+  });
+
   let credentials: ReturnType<typeof getPresenterCredentials>;
   let endpoint: string;
 
@@ -282,7 +313,7 @@ export async function POST(req: NextRequest) {
     companyRegistrationNumber: company.companyRegistrationNumber,
     periodStart: effectiveStart,
     periodEnd: effectiveEnd,
-    directorName: user.name,
+    directorName: filingDirectorName,
     shareCapital: company.shareCapital,
   });
 

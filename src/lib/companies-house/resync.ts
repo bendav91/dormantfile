@@ -4,6 +4,12 @@ import {
   detectAccountsGaps,
   computeFirstPeriodEnd,
 } from "@/lib/companies-house/filing-history";
+import { detectStatusTransition } from "@/lib/companies-house/company-status";
+import { sendEmail } from "@/lib/email/client";
+import {
+  buildCompanyDissolvedEmail,
+  buildCompanyReinstatedEmail,
+} from "@/lib/email/templates";
 import { calculateAccountsDeadline } from "@/lib/utils";
 
 export interface ResyncResult {
@@ -102,6 +108,14 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
     company.ardDay != null &&
     (company.ardMonth !== ardMonth || company.ardDay !== ardDay);
 
+  // Detect a Companies House status transition into / back out of a closure
+  // status (dissolved, struck off, liquidation, …). Flagging disables filing
+  // and drops the company from filing email; unflagging resumes both.
+  const transition = detectStatusTransition(
+    company.companyGoneAt != null,
+    profile.companyStatus,
+  );
+
   // Update company with latest CH data
   await prisma.company.update({
     where: { id: companyId },
@@ -112,6 +126,11 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
       companyType: profile.companyType,
       registeredAddress: profile.registeredAddress,
       sicCodes: profile.sicCodes,
+      ...(transition === "became_gone"
+        ? { companyGoneAt: new Date() }
+        : transition === "reinstated"
+          ? { companyGoneAt: null }
+          : {}),
       // Only update ARD if no change detected (otherwise flag for user confirmation)
       ...(ardChanged
         ? {
@@ -126,6 +145,28 @@ export async function resyncFromCompaniesHouse(companyId: string): Promise<Resyn
           }),
     },
   });
+
+  // One-off notification on the transition. Email failure must not break the
+  // resync (the flag is already persisted; the cron continues to next company).
+  if (transition) {
+    try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://dormantfile.co.uk";
+      const emailData = {
+        companyName: company.companyName,
+        companyNumber: company.companyRegistrationNumber,
+        dashboardUrl: `${appUrl}/dashboard`,
+      };
+      const { subject, html } =
+        transition === "became_gone"
+          ? buildCompanyDissolvedEmail(emailData)
+          : buildCompanyReinstatedEmail(emailData);
+      await sendEmail({ to: company.user.email, subject, html });
+    } catch (err) {
+      console.error(
+        `Status-transition email failed for company ${companyId}: ${(err as Error).message}`,
+      );
+    }
+  }
 
   // Step 3: Fetch filing history (strict — throws on failure)
   let filedPeriodEnds: Date[];

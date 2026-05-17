@@ -87,6 +87,11 @@ export async function GET(req: NextRequest) {
         // per-filing classification below splits Covered vs Lapsed so the
         // existing reminder path stays byte-for-byte unchanged.
         deletedAt: null,
+        // Struck off / dissolved companies are silenced entirely — no
+        // reminders and no win-back, for both the Covered and Lapsed
+        // cohorts. Resumes automatically when the daily resync clears
+        // the flag on reinstatement.
+        companyGoneAt: null,
         user: {
           // Honouring an explicit reminder-email opt-out for both the
           // reminder and the win-back stream (same email channel).

@@ -111,6 +111,26 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
         </div>
       </div>
 
+      {/* Struck off / dissolved banner */}
+      {company.companyGoneAt && (
+        <div className="flex items-start gap-3 px-4 py-3.5 bg-danger-bg border border-danger-border rounded-lg mb-6">
+          <span className="text-danger-deep shrink-0 mt-px">
+            <Building2 size={18} color="currentColor" strokeWidth={2} />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-danger-text m-0">
+              This company has been struck off or dissolved at Companies House
+            </p>
+            <p className="text-[13px] text-danger-text m-0 mt-1 leading-relaxed">
+              Filing is disabled and we&apos;ve paused reminders for it. A
+              dissolved company has no further filing obligations. We keep
+              checking Companies House — if it&apos;s restored to the register,
+              filing will be re-enabled and we&apos;ll let you know.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ARD change banner */}
       {company.ardChangeDetected && company.ardMonth != null && company.ardDay != null && company.newArdMonth != null && company.newArdDay != null && (
         <ArdMismatchBanner
