@@ -116,7 +116,9 @@ model Filing {
   pollInterval     Int?
   pollEndpoint     String?
   ctapUserEdited   Boolean      @default(false)
-  submissionNumber String?
+  submissionNumber        String?
+  filedAccountsIxbrl      String?
+  filedComputationsIxbrl  String?
   submittedAt      DateTime?
   confirmedAt      DateTime?
   reviewFlaggedAt  DateTime?
