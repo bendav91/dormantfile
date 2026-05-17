@@ -7,7 +7,7 @@ describe("fetchOfficialAccountsPdf", () => {
     vi.restoreAllMocks();
   });
 
-  it("fetches ${url}/content with Accept: application/pdf and Basic auth, returns ArrayBuffer on 200", async () => {
+  it("fetches <url>/content with Accept: application/pdf and Basic auth, returns ArrayBuffer on 200", async () => {
     vi.stubEnv("COMPANIES_HOUSE_API_KEY", "testkey");
     const buf = new ArrayBuffer(8);
     vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(

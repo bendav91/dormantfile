@@ -161,6 +161,13 @@ export interface ChAccountsFilingDoc {
   documentMetadataUrl: string | null;
 }
 
+/**
+ * Fetches enriched AA* accounts filing entries (including `document_metadata`
+ * URL) from the Companies House filing history API.
+ *
+ * Returns an empty array when credentials are unconfigured, the API returns
+ * a non-OK status, or the request throws (graceful degradation).
+ */
 export async function fetchAccountsFilingDocuments(
   companyNumber: string,
 ): Promise<ChAccountsFilingDoc[]> {

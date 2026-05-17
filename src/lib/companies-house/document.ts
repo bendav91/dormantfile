@@ -1,3 +1,11 @@
+/**
+ * Fetches the official filed PDF bytes from the CH Document API at
+ * `${documentMetadataUrl}/content`.
+ *
+ * Returns the `ArrayBuffer` on success, or `null` when credentials are
+ * unconfigured, `documentMetadataUrl` is empty, the API returns a non-OK
+ * status, or the request throws (graceful degradation).
+ */
 export async function fetchOfficialAccountsPdf(
   documentMetadataUrl: string,
 ): Promise<ArrayBuffer | null> {
