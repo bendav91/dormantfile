@@ -120,7 +120,7 @@ The four units are independently shippable and testable, in this order.
 **Files:**
 - Create: `src/lib/lapsed-compliance.ts` (classify Covered/Lapsed/Stop; select cohort; cap logic)
 - Modify: `src/app/api/cron/reminders/route.ts` (branch on classification; write distinct `Notification.type`s; enforce caps/stop)
-- Modify: `src/lib/email/templates.ts` (lapsed compliance/win-back template — honest framing + reactivate CTA + free-WebFiling fallback line)
+- Modify: `src/lib/email/templates.ts` (lapsed compliance/win-back template — honest "your plan ended, we are NOT filing this" framing + reactivate CTA. **No free-WebFiling line** per locked decision.)
 - Modify: `src/lib/admin.ts` (at-risk metric)
 - Tests: mirror each under `src/__tests__/`
 
@@ -132,7 +132,7 @@ The four units are independently shippable and testable, in this order.
 
 - [ ] **Step 4: GREEN.** Re-run.
 
-- [ ] **Step 5: Failing tests for reminders-cron branching** — *Given* a Lapsed cohort member at the −60/−30/−7 windows, *then* the lapsed template is sent and a distinct `Notification.type` (e.g. `lapsed_compliance_60`) recorded; *Given* the cap reached or a Stop signal, *then* nothing sent; *Given* a Covered user, *then* unchanged existing behaviour.
+- [ ] **Step 5: Failing tests for reminders-cron branching** — *Given* a Lapsed cohort member crossing an existing reminder tier (windows ALIGN to the existing cron tiers: `UPCOMING_TIERS=[90,30,14,7,3,1]`, `OVERDUE_TIERS=[1,7,30,90]`), *then* the lapsed template is sent and a distinct lapsed `Notification.type` (e.g. `lapsed_due_30`, `lapsed_overdue_7`) recorded; *Given* the per-period lapsed cap of **3** lapsed-type notifications already reached, OR a Stop signal, *then* nothing sent; *Given* a Covered user, *then* unchanged existing behaviour.
 
 - [ ] **Step 6: RED → implement branching in `reminders/route.ts` + template → GREEN.** Reuse the existing `prisma.notification.createMany` pattern and the `(filingId, type)` idempotency already used there.
 
@@ -140,7 +140,12 @@ The four units are independently shippable and testable, in this order.
 
 - [ ] **Step 8: Full suite + tsc + lint; commit** `feat: tiered lapsed compliance/win-back track + ops exposure metric (Risk 1 wrap)`.
 
-**Decisions to confirm before Step 5** (product/copy, not eng): exact reminder windows (default −60/−30/−7, aligned to existing reminders cron); final wording of the "your plan ended, we are not filing this" + free-WebFiling line; cap (default 3 then silence); grace period after deadline before Stop (default 30 days).
+**Decisions — LOCKED:**
+- **Windows:** align to the existing reminders cron tiers (do NOT introduce separate −60/−30/−7). Lapsed track fires on the same tier crossings as Covered, distinguished only by copy + a `lapsed_*` notification-type namespace.
+- **Cap:** 3 lapsed-track emails per period (per filing), then silence — even though the cron has more tiers; count existing `lapsed_*` notifications for the filing and stop at 3.
+- **Post-deadline grace:** continue into overdue tiers only up to and including the **30-days-overdue** tier; never send the `overdue_90` tier for the lapsed track. (Combined with the cap and Stop signals.)
+- **Copy:** honest, reactivate-only — explicitly state the plan ended and we are NOT filing this, with a reactivate CTA. **No** free-Companies-House-WebFiling line.
+- **Stop signals:** company `deletedAt`; period Filing `accepted`/`filed_elsewhere`; cap (3) reached; or past deadline + 30-day grace.
 
 **Independently shippable:** yes — builds on Unit B.
 
