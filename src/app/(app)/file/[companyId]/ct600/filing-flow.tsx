@@ -439,7 +439,7 @@ function StepResult({
   checkNote,
   onCheckStatus,
   onTryAgain,
-  onDashboard,
+  onViewCompany,
 }: {
   result: ResultState;
   filingId: string | null;
@@ -447,7 +447,7 @@ function StepResult({
   checkNote: string | null;
   onCheckStatus: () => void;
   onTryAgain: () => void;
-  onDashboard: () => void;
+  onViewCompany: () => void;
 }) {
   if (result.type === "accepted") {
     return (
@@ -473,10 +473,10 @@ function StepResult({
             </div>
           </div>
           <button
-            onClick={onDashboard}
+            onClick={onViewCompany}
             className="focus-ring bg-primary text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
           >
-            Return to dashboard
+            View company
           </button>
         </div>
       </div>
@@ -535,7 +535,8 @@ function StepResult({
               </h2>
               <p className="text-[15px] text-warning-deep m-0 leading-relaxed">
                 Your return has been submitted but HMRC has not yet confirmed the outcome. Check the
-                status now, or return to your dashboard - it may take a few more minutes.
+                status now, or view the company to watch for the result - it may take a few more
+                minutes.
               </p>
             </div>
           </div>
@@ -555,10 +556,10 @@ function StepResult({
             </button>
           )}
           <button
-            onClick={onDashboard}
+            onClick={onViewCompany}
             className="focus-ring bg-primary text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
           >
-            Return to dashboard
+            View company
           </button>
         </div>
       </div>
@@ -714,8 +715,8 @@ export default function FilingFlow({
     setStep("credentials");
   }
 
-  function handleDashboard() {
-    router.push("/dashboard");
+  function handleViewCompany() {
+    router.push(`/company/${companyId}`);
   }
 
   if (step === "confirm") {
@@ -781,7 +782,7 @@ export default function FilingFlow({
       checkNote={checkNote}
       onCheckStatus={handleCheckStatus}
       onTryAgain={handleTryAgain}
-      onDashboard={handleDashboard}
+      onViewCompany={handleViewCompany}
     />
   );
 }

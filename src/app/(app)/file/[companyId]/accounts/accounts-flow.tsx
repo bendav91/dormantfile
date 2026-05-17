@@ -338,11 +338,11 @@ function StepSubmitting() {
 function StepResult({
   result,
   onTryAgain,
-  onDashboard,
+  onViewCompany,
 }: {
   result: ResultState;
   onTryAgain: () => void;
-  onDashboard: () => void;
+  onViewCompany: () => void;
 }) {
   if (result.type === "accepted") {
     return (
@@ -369,10 +369,10 @@ function StepResult({
             </div>
           </div>
           <button
-            onClick={onDashboard}
+            onClick={onViewCompany}
             className="focus-ring bg-primary text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
           >
-            Return to dashboard
+            View company
           </button>
         </div>
       </div>
@@ -431,16 +431,16 @@ function StepResult({
               </h2>
               <p className="text-[15px] text-warning-deep m-0 leading-relaxed">
                 Your accounts have been submitted but Companies House has not yet confirmed the
-                outcome. You can check the status from your dashboard - it may take a few more
+                outcome. You can watch for the result on the company page - it may take a few more
                 minutes.
               </p>
             </div>
           </div>
           <button
-            onClick={onDashboard}
+            onClick={onViewCompany}
             className="focus-ring bg-primary text-card px-6 py-3 rounded-lg font-semibold text-base border-0 cursor-pointer transition-all duration-200 inline-flex items-center justify-center gap-2 w-full hover:opacity-90 hover:-translate-y-px"
           >
-            Return to dashboard
+            View company
           </button>
         </div>
       </div>
@@ -559,8 +559,8 @@ export default function AccountsFlow({
     setStep("confirm");
   }
 
-  function handleDashboard() {
-    router.push("/dashboard");
+  function handleViewCompany() {
+    router.push(`/company/${companyId}`);
   }
 
   if (step === "confirm") {
@@ -616,5 +616,7 @@ export default function AccountsFlow({
   }
 
   // result step
-  return <StepResult result={result!} onTryAgain={handleTryAgain} onDashboard={handleDashboard} />;
+  return (
+    <StepResult result={result!} onTryAgain={handleTryAgain} onViewCompany={handleViewCompany} />
+  );
 }
