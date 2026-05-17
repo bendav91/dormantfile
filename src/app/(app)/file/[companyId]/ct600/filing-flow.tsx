@@ -1,6 +1,7 @@
 "use client";
 
 import DirectorConfirm from "@/components/director-confirm";
+import FiledDocumentViewer from "@/components/filed-document-viewer";
 import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
 import { cn } from "@/lib/cn";
 import {
@@ -17,7 +18,7 @@ import { useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Step = "confirm" | "credentials" | "submitting" | "result";
+type Step = "confirm" | "preview" | "credentials" | "submitting" | "result";
 
 type ResultState =
   | { type: "accepted" }
@@ -315,6 +316,63 @@ function StepCredentials({
   );
 }
 
+function StepPreview({
+  filingId,
+  onBack,
+  onContinue,
+}: {
+  filingId: string;
+  onBack: () => void;
+  onContinue: () => void;
+}) {
+  const src = `/api/file/preview-computations?filingId=${encodeURIComponent(filingId)}`;
+  return (
+    <div>
+      <div className="mb-7">
+        <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
+          Review the return to be filed
+        </h1>
+        <p className="text-[15px] text-body m-0 leading-relaxed">
+          This is exactly what will be submitted to HMRC.
+        </p>
+      </div>
+      <div className="bg-card rounded-xl p-8 shadow-card">
+        <FiledDocumentViewer
+          src={src}
+          downloadHref={`${src}&download=1`}
+          context="pre-filing"
+          title="Corporation Tax computations"
+        />
+        <p className="text-[13px] text-body mt-5 mb-0 leading-normal">
+          The dormant accounts iXBRL is also attached to this submission.{" "}
+          <a
+            href={`/api/file/preview-accounts?filingId=${encodeURIComponent(filingId)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-primary no-underline hover:underline"
+          >
+            View attached accounts
+          </a>
+        </p>
+        <div className="flex gap-3 mt-7">
+          <button
+            onClick={onBack}
+            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border border-border bg-transparent text-secondary cursor-pointer transition-all duration-200 hover:opacity-80"
+          >
+            Back
+          </button>
+          <button
+            onClick={onContinue}
+            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border-0 bg-cta text-card cursor-pointer transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StepSubmitting() {
   return (
     <div>
@@ -550,13 +608,13 @@ export default function FilingFlow({
   periodEnd,
   periodStartISO,
   periodEndISO,
-  // filingId is accepted via Props; consumed in Tasks 10/11 (preview step)
+  filingId,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");
   const [directorName, setDirectorName] = useState<string | null>(null);
   const [result, setResult] = useState<ResultState | null>(null);
-  const [filingId, setFilingId] = useState<string | null>(null);
+  const [submittedFilingId, setSubmittedFilingId] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
   const [checkNote, setCheckNote] = useState<string | null>(null);
   const [pendingCredentials, setPendingCredentials] = useState<{
@@ -582,7 +640,7 @@ export default function FilingFlow({
       });
 
       const data = await res.json();
-      setFilingId(data.filingId ?? null);
+      setSubmittedFilingId(data.filingId ?? null);
 
       if (!res.ok) {
         setResult({
@@ -619,14 +677,14 @@ export default function FilingFlow({
   }
 
   async function handleCheckStatus() {
-    if (!filingId || checking) return;
+    if (!submittedFilingId || checking) return;
     setChecking(true);
     setCheckNote(null);
     try {
       const res = await fetch("/api/file/check-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filingId }),
+        body: JSON.stringify({ filingId: submittedFilingId }),
       });
       const data = await res.json();
 
@@ -651,7 +709,7 @@ export default function FilingFlow({
 
   function handleTryAgain() {
     setResult(null);
-    setFilingId(null);
+    setSubmittedFilingId(null);
     setCheckNote(null);
     setStep("credentials");
   }
@@ -670,6 +728,16 @@ export default function FilingFlow({
         periodEnd={periodEnd}
         directorName={directorName}
         onDirectorChange={setDirectorName}
+        onContinue={() => setStep("preview")}
+      />
+    );
+  }
+
+  if (step === "preview") {
+    return (
+      <StepPreview
+        filingId={filingId}
+        onBack={() => setStep("confirm")}
         onContinue={() => setStep("credentials")}
       />
     );
@@ -708,7 +776,7 @@ export default function FilingFlow({
   return (
     <StepResult
       result={result!}
-      filingId={filingId}
+      filingId={submittedFilingId}
       checking={checking}
       checkNote={checkNote}
       onCheckStatus={handleCheckStatus}
