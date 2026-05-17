@@ -382,6 +382,8 @@ export async function POST(req: NextRequest) {
         pollInterval: submissionResult.pollInterval,
         pollEndpoint: submissionResult.endpoint,
         submittedAt: new Date(),
+        filedAccountsIxbrl: accountsIxbrl,
+        filedComputationsIxbrl: computationsIxbrl,
       },
     });
 
