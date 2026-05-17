@@ -25,6 +25,7 @@ export default function FiledDocumentViewer({
         <p className="text-[13px] text-secondary m-0">{LABEL[context]}</p>
         <a
           href={downloadHref}
+          download
           className="focus-ring inline-flex items-center gap-1.5 text-[13px] font-semibold text-primary no-underline"
         >
           <Download size={14} strokeWidth={2} />

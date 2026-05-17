@@ -30,7 +30,8 @@ describe("FiledDocumentViewer", () => {
   it("renders a download link", () => {
     render(<FiledDocumentViewer src="/x" downloadHref="/x?download=1"
       context="post-ct600" title="t" />);
-    expect(screen.getByRole("link", { name: /download/i }))
-      .toHaveAttribute("href", "/x?download=1");
+    const link = screen.getByRole("link", { name: /download/i });
+    expect(link).toHaveAttribute("href", "/x?download=1");
+    expect(link).toHaveAttribute("download");
   });
 });
