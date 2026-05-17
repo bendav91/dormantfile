@@ -5,25 +5,25 @@ import { useRouter } from "next/navigation";
 import { Loader2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/cn";
 
+export type CheckStatusResult = {
+  type: "accepted" | "rejected" | "processing" | "needs_attention";
+  message: string;
+};
+
 interface CheckStatusButtonProps {
   filingId: string;
+  // Outcome is lifted to the caller so it can render in the row's state
+  // (meta) zone rather than crowding the action cluster.
+  onResult?: (result: CheckStatusResult | null) => void;
 }
 
-type ResultState =
-  | { type: "accepted"; message: string }
-  | { type: "rejected"; message: string }
-  | { type: "processing"; message: string }
-  | { type: "needs_attention"; message: string }
-  | null;
-
-export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) {
+export default function CheckStatusButton({ filingId, onResult }: CheckStatusButtonProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ResultState>(null);
 
   async function handleCheckStatus() {
     setLoading(true);
-    setResult(null);
+    onResult?.(null);
 
     try {
       const res = await fetch("/api/file/check-status", {
@@ -35,7 +35,7 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
       const data = await res.json();
 
       if (!res.ok) {
-        setResult({
+        onResult?.({
           type: "processing",
           message: data.error || "Unable to check status. Please try again.",
         });
@@ -46,29 +46,29 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
       const status: string = data.status;
 
       if (status === "accepted") {
-        setResult({ type: "accepted", message: "Filing accepted." });
+        onResult?.({ type: "accepted", message: "Filing accepted." });
         setTimeout(() => router.refresh(), 1500);
       } else if (status === "rejected") {
-        setResult({
+        onResult?.({
           type: "rejected",
           message: data.message || "Filing rejected. Please retry or contact support.",
         });
         setTimeout(() => router.refresh(), 1500);
       } else if (status === "needs_attention") {
-        setResult({
+        onResult?.({
           type: "needs_attention",
           message:
             "Submitted, but no confirmation from Companies House yet. Not a rejection — contact support if it doesn't clear.",
         });
         setTimeout(() => router.refresh(), 1500);
       } else {
-        setResult({
+        onResult?.({
           type: "processing",
           message: "Still being processed. Please check again later.",
         });
       }
     } catch {
-      setResult({ type: "processing", message: "An unexpected error occurred. Please try again." });
+      onResult?.({ type: "processing", message: "An unexpected error occurred. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -76,21 +76,6 @@ export default function CheckStatusButton({ filingId }: CheckStatusButtonProps) 
 
   return (
     <>
-      {result && (
-        <span
-          aria-live="polite"
-          className={cn(
-            "text-xs font-medium",
-            result.type === "accepted" && "text-success",
-            result.type === "rejected" && "text-danger-deep",
-            result.type === "needs_attention" && "text-warning-deep",
-            result.type === "processing" && "text-warning-deep"
-          )}
-        >
-          {result.message}
-        </span>
-      )}
-
       <button
         onClick={handleCheckStatus}
         disabled={loading}

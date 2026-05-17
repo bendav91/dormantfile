@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { EyeOff, Eye } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { quietAction } from "@/components/filing-ledger";
 
 interface SuppressButtonProps {
   companyId: string;
@@ -48,10 +48,7 @@ export default function SuppressButton({
       onClick={handleClick}
       disabled={loading}
       title={isSuppressed ? "Restore this period" : "Suppress this period"}
-      className={cn(
-        "inline-flex items-center gap-[5px] py-[5px] px-2.5 rounded-md text-xs font-medium border border-border bg-inset text-secondary transition-opacity duration-200",
-        loading ? "cursor-wait opacity-60" : "cursor-pointer opacity-100"
-      )}
+      className={quietAction}
     >
       {isSuppressed ? (
         <>

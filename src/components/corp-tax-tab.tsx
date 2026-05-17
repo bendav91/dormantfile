@@ -8,15 +8,23 @@ import FilingStatusBadge from "@/components/filing-status-badge";
 import MarkFiledButton from "@/components/mark-filed-button";
 import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
 import FiledDocumentModal from "@/components/filed-document-modal";
+import {
+  LedgerEmpty,
+  LedgerList,
+  LedgerRow,
+  LedgerTabs,
+  quietAction,
+  quietIcon,
+} from "@/components/filing-ledger";
 import { cn } from "@/lib/cn";
 import { REMOVABLE_CT600_STATUSES } from "@/lib/ct600-remove-policy";
 import { buildFilingViews } from "@/lib/filing-views";
 import { isTaxFilingLive } from "@/lib/launch-mode";
 import { FilingStatus } from "@prisma/client";
-import { Calendar, CheckCircle2, FileText, Settings2, Trash2, Wrench } from "lucide-react";
+import { FileText, Settings2, Trash2, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 // CTAP period dates and deadlines are statutory calendar dates → verbatim.
 const formatDate = formatCivilDate;
@@ -49,6 +57,11 @@ interface CorpTaxTabProps {
   immutable?: { startISO: string; endISO: string; status: string }[];
 }
 
+type SubTab = "outstanding" | "filed_elsewhere" | "completed";
+
+const ctaLink =
+  "inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-cta px-3.5 py-1.5 text-[13px] font-semibold text-card no-underline transition-opacity duration-200 sm:w-auto";
+
 export default function CorpTaxTab({
   companyId,
   companyName,
@@ -68,14 +81,17 @@ export default function CorpTaxTab({
 
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<"outstanding" | "filed_elsewhere" | "completed">(
-    "outstanding",
-  );
+  const [activeTab, setActiveTab] = useState<SubTab>("outstanding");
   const [editing, setEditing] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
   const [removing, setRemoving] = useState(false);
   const [removeError, setRemoveError] = useState("");
   const [previewFilingId, setPreviewFilingId] = useState<string | null>(null);
+  const [checkResult, setCheckResult] = useState<{
+    filingId: string;
+    message: string;
+    tone: "accepted" | "rejected" | "processing" | "needs_attention";
+  } | null>(null);
 
   async function handleRemove() {
     if (!confirmRemoveId) return;
@@ -108,15 +124,39 @@ export default function CorpTaxTab({
     suggested != null &&
     immutable != null;
 
+  const subTabs: { key: SubTab; label: string; count: number }[] = [
+    { key: "outstanding", label: "Outstanding", count: outstanding.length },
+    ...(filedElsewhere.length > 0
+      ? [{ key: "filed_elsewhere" as const, label: "Filed elsewhere", count: filedElsewhere.length }]
+      : []),
+    { key: "completed", label: "Completed", count: completed.length },
+  ];
+
+  function removeButton(id: string) {
+    return (
+      <button
+        type="button"
+        title="Remove this CT600"
+        onClick={() => {
+          setConfirmRemoveId(id);
+          setRemoveError("");
+        }}
+        className={quietIcon}
+      >
+        <Trash2 size={14} strokeWidth={2} />
+      </button>
+    );
+  }
+
   return (
     <>
       {/* CT600 filing is gated off via env — surface that it's still in development */}
       {!isTaxFilingLive() && (
-        <div className="flex items-start gap-2.5 px-5 py-3.5 bg-warning-bg border border-warning-border rounded-xl mb-5">
-          <span className="text-warning shrink-0 mt-px">
+        <div className="mb-5 flex items-start gap-2.5 rounded-xl bg-warning-bg px-5 py-3.5 border border-warning-border">
+          <span className="mt-px shrink-0 text-warning">
             <Wrench size={18} color="currentColor" strokeWidth={2} />
           </span>
-          <p className="text-sm text-warning-text m-0 font-medium leading-relaxed">
+          <p className="m-0 text-sm font-medium leading-relaxed text-warning-text">
             CT600 filing is in active development and not yet available. You can still set up your
             Corporation Tax periods and mark returns as filed elsewhere — online submission to HMRC
             is coming soon.
@@ -126,12 +166,15 @@ export default function CorpTaxTab({
 
       {/* Manage periods action — shown alongside the sub-tab bar */}
       {activeTab === "outstanding" && canManagePeriods && (
-        <div className="flex justify-end mb-3">
+        <div className="mb-3 flex justify-end">
           <button
             disabled={!isTaxFilingLive()}
             type="button"
             onClick={() => setEditing(true)}
-            className={`inline-flex items-center gap-1.5 bg-primary text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] transition-opacity duration-200 ${!isTaxFilingLive() ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md bg-primary px-3.5 py-1.5 text-[13px] font-semibold text-card transition-opacity duration-200",
+              !isTaxFilingLive() && "cursor-not-allowed opacity-50",
+            )}
           >
             <Settings2 size={14} strokeWidth={2} />
             {outstanding.length === 0 && completed.length === 0 && filedElsewhere.length === 0
@@ -152,325 +195,254 @@ export default function CorpTaxTab({
         />
       )}
 
-      {/* Sub-tab bar */}
-      <div className="flex bg-inset rounded-[10px] p-1 mb-5">
-        <button
-          className={cn(
-            "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
-            activeTab === "outstanding"
-              ? "bg-card text-foreground shadow-active"
-              : "bg-transparent text-secondary",
-          )}
-          onClick={() => setActiveTab("outstanding")}
-        >
-          Outstanding ({outstanding.length})
-        </button>
-        {filedElsewhere.length > 0 && (
-          <button
-            className={cn(
-              "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
-              activeTab === "filed_elsewhere"
-                ? "bg-card text-foreground shadow-active"
-                : "bg-transparent text-secondary",
-            )}
-            onClick={() => setActiveTab("filed_elsewhere")}
-          >
-            Filed elsewhere ({filedElsewhere.length})
-          </button>
-        )}
-        <button
-          className={cn(
-            "flex-1 px-4 py-2 rounded-lg text-[13px] font-semibold border-0 cursor-pointer transition-all duration-200",
-            activeTab === "completed"
-              ? "bg-card text-foreground shadow-active"
-              : "bg-transparent text-secondary",
-          )}
-          onClick={() => setActiveTab("completed")}
-        >
-          Completed ({completed.length})
-        </button>
-      </div>
+      <LedgerTabs tabs={subTabs} active={activeTab} onChange={setActiveTab} />
 
       {/* Outstanding */}
-      {activeTab === "outstanding" && (
-        <>
-          {outstanding.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {outstanding.map((view, index) => {
-                const f = view.filing;
-                const ctapStart = f.startDate ?? f.periodStart;
-                const ctapEnd = f.endDate ?? f.periodEnd;
-                const ctapEndISO = ctapEnd.toISOString().split("T")[0];
-                const deadline = f.deadline ?? f.periodEnd;
-                const isFirst = index === 0;
+      {activeTab === "outstanding" &&
+        (outstanding.length > 0 ? (
+          <LedgerList>
+            {outstanding.map((view, index) => {
+              const f = view.filing;
+              const ctapStart = f.startDate ?? f.periodStart;
+              const ctapEnd = f.endDate ?? f.periodEnd;
+              const ctapEndISO = ctapEnd.toISOString().split("T")[0];
+              const deadline = f.deadline ?? f.periodEnd;
+              const overdue = deadline ? deadline.getTime() < now : false;
+              const showFileNext = index === 0 && outstanding.length > 1;
 
-                return (
-                  <div
-                    key={f.id}
-                    className={cn(
-                      "bg-card rounded-xl p-5 shadow-card",
-                      isFirst ? "border-2 border-primary-border" : "border border-border",
+              const statusBadge =
+                f.status !== "outstanding" ? (
+                  <FilingStatusBadge status={f.status} filingType="ct600" />
+                ) : null;
+
+              let actions: ReactNode;
+              if (f.status !== "outstanding") {
+                const primary =
+                  f.status === "submitted" ? (
+                    <CheckStatusButton
+                      filingId={f.id}
+                      onResult={(r) =>
+                        setCheckResult(
+                          r ? { filingId: f.id, message: r.message, tone: r.type } : null,
+                        )
+                      }
+                    />
+                  ) : (f.status === "failed" || f.status === "rejected") && isTaxFilingLive() ? (
+                    <Link href={`/file/${companyId}/ct600?filingId=${f.id}`} className={ctaLink}>
+                      Retry
+                    </Link>
+                  ) : null;
+                actions = (
+                  <>
+                    {(f.status === "submitted" || f.status === "rejected") && (
+                      <button
+                        type="button"
+                        onClick={() => setPreviewFilingId(f.id)}
+                        title="Preview what was submitted to HMRC"
+                        className={quietAction}
+                      >
+                        <FileText size={13} strokeWidth={2} />
+                        Preview submitted
+                      </button>
                     )}
-                  >
-                    <div className="flex items-center gap-2 mb-3.5">
-                      <span className="text-secondary flex">
-                        <Calendar size={16} color="currentColor" strokeWidth={2} />
-                      </span>
-                      <h2 className="text-base font-bold text-foreground m-0">
-                        {formatDate(ctapStart)} &ndash; {formatDate(ctapEnd)}
-                      </h2>
-                    </div>
-
-                    <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
-                      <div>
-                        <p className="text-[13px] font-semibold text-foreground m-0">CT600</p>
-                        {deadline && (
-                          <p
-                            className={cn(
-                              "text-xs m-0",
-                              deadline.getTime() < now ? "text-danger" : "text-secondary",
-                            )}
-                          >
-                            Due: {formatShortDate(deadline)}
-                            {deadline.getTime() < now && " (Overdue)"}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {f.status !== "outstanding" ? (
-                          <>
-                            {f.status === "submitted" && <CheckStatusButton filingId={f.id} />}
-                            <FilingStatusBadge status={f.status} filingType="ct600" />
-                            {(f.status === "submitted" || f.status === "rejected") && (
-                              <button
-                                type="button"
-                                onClick={() => setPreviewFilingId(f.id)}
-                                title="Preview what was submitted to HMRC"
-                                className="focus-ring inline-flex items-center gap-1 text-[13px] font-semibold text-primary bg-transparent border-0 p-0 cursor-pointer"
-                              >
-                                <FileText size={13} strokeWidth={2} />
-                                Preview submitted
-                              </button>
-                            )}
-                            {(f.status === "failed" || f.status === "rejected") && (
-                              <>
-                                <MarkFiledButton
-                                  companyId={companyId}
-                                  periodEnd={ctapEndISO}
-                                  filingType="ct600"
-                                />
-                                {isTaxFilingLive() && (
-                                  <Link
-                                    href={`/file/${companyId}/ct600?filingId=${f.id}`}
-                                    className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
-                                  >
-                                    Retry
-                                  </Link>
-                                )}
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            <MarkFiledButton
-                              companyId={companyId}
-                              periodEnd={ctapEndISO}
-                              filingType="ct600"
-                            />
-                            {isTaxFilingLive() && (
-                              <Link
-                                href={`/file/${companyId}/ct600?filingId=${f.id}`}
-                                className="inline-flex items-center gap-1.5 bg-cta text-card px-3.5 py-1.5 rounded-md font-semibold text-[13px] no-underline transition-opacity duration-200"
-                              >
-                                File
-                              </Link>
-                            )}
-                          </>
-                        )}
-                        {REMOVABLE_CT600_STATUSES.has(f.status) && (
-                          <button
-                            type="button"
-                            title="Remove this CT600"
-                            onClick={() => {
-                              setConfirmRemoveId(f.id);
-                              setRemoveError("");
-                            }}
-                            className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-border text-secondary transition-colors duration-200"
-                          >
-                            <Trash2 size={13} strokeWidth={2.5} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                    {(f.status === "failed" || f.status === "rejected") && (
+                      <MarkFiledButton
+                        companyId={companyId}
+                        periodEnd={ctapEndISO}
+                        filingType="ct600"
+                      />
+                    )}
+                    {REMOVABLE_CT600_STATUSES.has(f.status) && removeButton(f.id)}
+                    {primary}
+                  </>
                 );
-              })}
-            </div>
-          ) : canManagePeriods ? (
-            <div className="px-5 py-5 bg-card rounded-xl border border-border shadow-card">
-              <p className="text-sm text-body m-0 leading-relaxed">
-                No Corporation Tax periods set up yet — add the accounting period (or split periods
-                if your first period was longer than 12 months) you need to file, then submit.
-              </p>
-            </div>
-          ) : (
-            <div className="text-center px-6 py-10 bg-card rounded-xl shadow-active">
-              <span className="text-success flex justify-center mb-3">
-                <CheckCircle2 size={32} color="currentColor" strokeWidth={2} />
-              </span>
-              <p className="text-base font-semibold text-foreground m-0 mb-1">All caught up</p>
-              <p className="text-sm text-secondary m-0">No outstanding CT600 returns.</p>
-            </div>
-          )}
-        </>
-      )}
+              } else {
+                actions = (
+                  <>
+                    <MarkFiledButton
+                      companyId={companyId}
+                      periodEnd={ctapEndISO}
+                      filingType="ct600"
+                    />
+                    {REMOVABLE_CT600_STATUSES.has(f.status) && removeButton(f.id)}
+                    {isTaxFilingLive() && (
+                      <Link href={`/file/${companyId}/ct600?filingId=${f.id}`} className={ctaLink}>
+                        File
+                      </Link>
+                    )}
+                  </>
+                );
+              }
+
+              return (
+                <LedgerRow
+                  key={f.id}
+                  eyebrow={showFileNext ? "File next" : undefined}
+                  title={
+                    <>
+                      {formatDate(ctapStart)} &ndash; {formatDate(ctapEnd)}
+                    </>
+                  }
+                  meta={
+                    <>
+                      <p className="m-0 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        {statusBadge}
+                        {deadline && (
+                          <span className={overdue ? "text-danger" : "text-secondary"}>
+                            Due {formatShortDate(deadline)}
+                            {overdue && " · Overdue"}
+                          </span>
+                        )}
+                      </p>
+                      {checkResult?.filingId === f.id && (
+                        <p
+                          aria-live="polite"
+                          className={
+                            checkResult.tone === "accepted"
+                              ? "m-0 text-success"
+                              : checkResult.tone === "rejected"
+                                ? "m-0 text-danger"
+                                : "m-0 text-warning-text"
+                          }
+                        >
+                          {checkResult.message}
+                        </p>
+                      )}
+                    </>
+                  }
+                  actions={actions}
+                />
+              );
+            })}
+          </LedgerList>
+        ) : canManagePeriods ? (
+          <LedgerEmpty
+            title="No Corporation Tax periods yet"
+            body="Add the accounting period you need to file — split it if your first period was longer than 12 months — then submit."
+          />
+        ) : (
+          <LedgerEmpty title="All caught up" body="No outstanding CT600 returns." />
+        ))}
 
       {/* Filed elsewhere */}
       {activeTab === "filed_elsewhere" && (
-        <div className="flex flex-col gap-3">
+        <LedgerList>
           {[...filedElsewhere].reverse().map((view) => {
             const f = view.filing;
             const ctapStart = f.startDate ?? f.periodStart;
             const ctapEnd = f.endDate ?? f.periodEnd;
 
             return (
-              <div key={f.id} className="bg-card rounded-xl p-5 shadow-card border border-border">
-                <div className="flex items-center gap-2 mb-3.5">
-                  <span className="text-secondary flex">
-                    <Calendar size={16} color="currentColor" strokeWidth={2} />
-                  </span>
-                  <h2 className="text-base font-bold text-foreground m-0">
+              <LedgerRow
+                key={f.id}
+                title={
+                  <>
                     {formatDate(ctapStart)} &ndash; {formatDate(ctapEnd)}
-                  </h2>
-                </div>
-                <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
-                  <div>
-                    <p className="text-[13px] font-semibold text-foreground m-0">CT600</p>
-                    <p className="text-xs text-secondary m-0">Filed elsewhere</p>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <UndoMarkFiledButton
-                      filingId={f.id}
-                      onUndo={
-                        filedElsewhere.length === 1 ? () => setActiveTab("outstanding") : undefined
-                      }
-                    />
-                    <FilingStatusBadge
-                      status={"filed_elsewhere" as FilingStatus}
-                      filingType="ct600"
-                    />
-                  </div>
-                </div>
-              </div>
+                  </>
+                }
+                meta={<p className="m-0 text-secondary">Filed elsewhere</p>}
+                actions={
+                  <UndoMarkFiledButton
+                    filingId={f.id}
+                    onUndo={
+                      filedElsewhere.length === 1 ? () => setActiveTab("outstanding") : undefined
+                    }
+                  />
+                }
+              />
             );
           })}
-        </div>
+        </LedgerList>
       )}
+
+      {/* Completed */}
+      {activeTab === "completed" &&
+        (completed.length > 0 ? (
+          <LedgerList>
+            {[...completed].reverse().map((view) => {
+              const f = view.filing;
+              const ctapStart = f.startDate ?? f.periodStart;
+              const ctapEnd = f.endDate ?? f.periodEnd;
+
+              return (
+                <LedgerRow
+                  key={f.id}
+                  title={
+                    <>
+                      {formatDate(ctapStart)} &ndash; {formatDate(ctapEnd)}
+                    </>
+                  }
+                  meta={
+                    <p className="m-0 text-secondary">
+                      {f.confirmedAt
+                        ? `Accepted ${formatUkDateShort(f.confirmedAt)}`
+                        : "Accepted"}
+                      {f.submittedAt && " · Filed via DormantFile"}
+                    </p>
+                  }
+                  actions={
+                    f.submittedAt ? (
+                      <>
+                        <CopyFilingSummary
+                          companyName={companyName}
+                          companyNumber={companyNumber}
+                          filingType="ct600"
+                          periodStart={ctapStart}
+                          periodEnd={ctapEnd}
+                          confirmedAt={f.confirmedAt}
+                        />
+                        <Link
+                          href={`/company/${companyId}/receipt/${f.id}`}
+                          title="View receipt"
+                          className={quietIcon}
+                        >
+                          <FileText size={14} strokeWidth={2} />
+                        </Link>
+                      </>
+                    ) : undefined
+                  }
+                />
+              );
+            })}
+          </LedgerList>
+        ) : (
+          <LedgerEmpty
+            title="No completed filings yet"
+            body="Completed CT600 returns will appear here once accepted by HMRC."
+          />
+        ))}
 
       {/* Remove CT600 confirmation modal */}
       {confirmRemoveId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-xl p-5 max-w-[420px] w-[calc(100%-32px)] shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
-            <h3 className="text-base font-bold text-foreground m-0 mb-3">Remove this CT600?</h3>
-            <p className="text-sm text-body m-0 mb-5 leading-relaxed">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-[calc(100%-32px)] max-w-[420px] rounded-xl bg-card p-5 shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+            <h3 className="m-0 mb-3 text-base font-bold text-foreground">Remove this CT600?</h3>
+            <p className="m-0 mb-5 text-sm leading-relaxed text-body">
               This will permanently remove the CT600 period. You can add it again using the period
               editor. Are you sure?
             </p>
-            {removeError && <p className="text-xs text-danger m-0 mb-4">{removeError}</p>}
-            <div className="flex gap-2 justify-end">
+            {removeError && <p className="m-0 mb-4 text-xs text-danger">{removeError}</p>}
+            <div className="flex justify-end gap-2">
               <button
                 onClick={() => {
                   setConfirmRemoveId(null);
                   setRemoveError("");
                 }}
                 disabled={removing}
-                className="bg-transparent border border-border px-4 py-2 text-xs font-semibold cursor-pointer rounded"
+                className="cursor-pointer rounded border border-border bg-transparent px-4 py-2 text-xs font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleRemove}
                 disabled={removing}
-                className="bg-danger text-white px-4 py-2 text-xs font-semibold cursor-pointer rounded-md border-0"
+                className="cursor-pointer rounded-md border-0 bg-danger px-4 py-2 text-xs font-semibold text-white"
               >
                 {removing ? "Removing…" : "Remove"}
               </button>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Completed */}
-      {activeTab === "completed" && (
-        <>
-          {completed.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {[...completed].reverse().map((view) => {
-                const f = view.filing;
-                const ctapStart = f.startDate ?? f.periodStart;
-                const ctapEnd = f.endDate ?? f.periodEnd;
-
-                return (
-                  <div
-                    key={f.id}
-                    className="bg-card rounded-xl p-5 shadow-card border border-border"
-                  >
-                    <div className="flex items-center gap-2 mb-3.5">
-                      <span className="text-success flex">
-                        <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
-                      </span>
-                      <h2 className="text-base font-bold text-foreground m-0">
-                        {formatDate(ctapStart)} &ndash; {formatDate(ctapEnd)}
-                      </h2>
-                    </div>
-                    <div className="flex items-center justify-between px-3 py-2.5 bg-inset rounded-lg">
-                      <div>
-                        <p className="text-[13px] font-semibold text-foreground m-0">CT600</p>
-                        <p className="text-xs text-secondary m-0">
-                          {f.confirmedAt
-                            ? `Accepted ${formatUkDateShort(f.confirmedAt)}`
-                            : "Accepted"}
-                          {f.submittedAt && " \u00b7 Filed via DormantFile"}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {f.submittedAt && (
-                          <>
-                            <CopyFilingSummary
-                              companyName={companyName}
-                              companyNumber={companyNumber}
-                              filingType="ct600"
-                              periodStart={ctapStart}
-                              periodEnd={ctapEnd}
-                              confirmedAt={f.confirmedAt}
-                            />
-                            <Link
-                              href={`/company/${companyId}/receipt/${f.id}`}
-                              title="View receipt"
-                              className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-border text-secondary transition-colors duration-200"
-                            >
-                              <FileText size={14} strokeWidth={2} />
-                            </Link>
-                          </>
-                        )}
-                        <FilingStatusBadge status={f.status} filingType="ct600" />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center px-6 py-12 bg-card rounded-xl shadow-active">
-              <p className="text-base font-semibold text-foreground m-0 mb-1">
-                No completed filings yet
-              </p>
-              <p className="text-sm text-secondary m-0">
-                Completed CT600 returns will appear here once accepted by HMRC.
-              </p>
-            </div>
-          )}
-        </>
       )}
 
       {previewFilingId && (

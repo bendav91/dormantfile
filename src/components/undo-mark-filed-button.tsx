@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { quietAction } from "@/components/filing-ledger";
 
 interface UndoMarkFiledButtonProps {
   filingId: string;
@@ -48,7 +49,7 @@ export default function UndoMarkFiledButton({ filingId, onUndo }: UndoMarkFiledB
         <button
           onClick={() => setConfirming(false)}
           disabled={loading}
-          className="py-1 px-2.5 rounded-md text-xs font-medium text-secondary bg-transparent border border-border cursor-pointer"
+          className={quietAction}
         >
           Cancel
         </button>
@@ -57,10 +58,7 @@ export default function UndoMarkFiledButton({ filingId, onUndo }: UndoMarkFiledB
   }
 
   return (
-    <button
-      onClick={() => setConfirming(true)}
-      className="py-1 px-2.5 rounded-md text-xs font-medium text-secondary bg-transparent border border-border cursor-pointer transition-opacity duration-200"
-    >
+    <button onClick={() => setConfirming(true)} className={quietAction}>
       Undo
     </button>
   );

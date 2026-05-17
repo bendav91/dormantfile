@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { quietIcon } from "@/components/filing-ledger";
 import { formatCivilDate, formatUkDate } from "@/lib/format-date";
 
 interface CopyFilingSummaryProps {
@@ -54,10 +55,7 @@ export default function CopyFilingSummary({
     <button
       onClick={handleCopy}
       title="Copy filing summary"
-      className={cn(
-        "inline-flex items-center justify-center w-7 h-7 rounded-md border border-border bg-transparent cursor-pointer transition-colors duration-200",
-        copied ? "text-success" : "text-secondary"
-      )}
+      className={cn(quietIcon, copied && "text-success hover:text-success")}
     >
       {copied ? (
         <Check size={14} strokeWidth={2} />

@@ -97,32 +97,23 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       </Link>
 
       {/* Company header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <div className="w-[42px] h-[42px] rounded-[10px] bg-primary-bg flex items-center justify-center shrink-0">
-              <span className="text-primary">
-                <Building2 size={20} color="currentColor" strokeWidth={2} />
-              </span>
-            </div>
-            <div>
-              <h1 className="text-[26px] font-bold text-foreground tracking-[-0.02em]">
-                {company.companyName}
-              </h1>
-              <p className="text-sm text-secondary mt-0.5">
-                {company.companyRegistrationNumber}
-                {outstandingAccountsCount > 0 && (
-                  <>
-                    {" "}
-                    &middot; {outstandingAccountsCount} outstanding{" "}
-                    {outstandingAccountsCount === 1 ? "period" : "periods"}
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
-          <SyncButton companyId={companyId} />
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-[26px] font-bold text-foreground tracking-[-0.02em]">
+            {company.companyName}
+          </h1>
+          <p className="text-sm text-secondary mt-0.5">
+            {company.companyRegistrationNumber}
+            {outstandingAccountsCount > 0 && (
+              <>
+                {" "}
+                &middot; {outstandingAccountsCount} outstanding{" "}
+                {outstandingAccountsCount === 1 ? "period" : "periods"}
+              </>
+            )}
+          </p>
         </div>
+        <SyncButton companyId={companyId} />
       </div>
 
       {/* Struck off / dissolved banner */}
@@ -159,7 +150,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
       {showFirstFilingNote && <FirstFilingNote />}
 
       {/* Tab bar */}
-      <div className="flex border-b border-border mb-6">
+      <div className="flex border-b border-border mb-6 overflow-x-auto">
         {[
           { key: "filings", label: "Account Filings", href: `/company/${companyId}` },
           ...(hasUtr
@@ -173,7 +164,7 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
             key={key}
             href={href}
             className={cn(
-              "py-2.5 px-5 text-sm font-semibold no-underline border-b-2 transition-colors duration-200",
+              "py-2.5 px-5 text-sm font-semibold no-underline border-b-2 transition-colors duration-200 whitespace-nowrap shrink-0",
               tab === key
                 ? "text-primary border-primary"
                 : "text-secondary border-transparent",

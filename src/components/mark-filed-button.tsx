@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { quietAction } from "@/components/filing-ledger";
 
 interface MarkFiledButtonProps {
   companyId: string;
@@ -48,7 +49,7 @@ export default function MarkFiledButton({ companyId, periodEnd, filingType }: Ma
         <button
           onClick={() => setConfirming(false)}
           disabled={loading}
-          className="py-1.5 px-3 rounded-md text-xs font-medium text-secondary bg-transparent border border-border cursor-pointer"
+          className={quietAction}
         >
           Cancel
         </button>
@@ -57,10 +58,7 @@ export default function MarkFiledButton({ companyId, periodEnd, filingType }: Ma
   }
 
   return (
-    <button
-      onClick={() => setConfirming(true)}
-      className="py-1.5 px-3 rounded-md text-xs font-medium text-secondary bg-transparent border border-border cursor-pointer transition-opacity duration-200"
-    >
+    <button onClick={() => setConfirming(true)} className={quietAction}>
       Filed elsewhere?
     </button>
   );
