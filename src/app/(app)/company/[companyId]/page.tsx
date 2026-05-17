@@ -18,6 +18,7 @@ import { buildActivityTimeline } from "@/lib/activity-timeline";
 import { deriveCt600EditorSeed } from "@/lib/ct600-editor-seed";
 import { isFilingLive, isTaxFilingLive } from "@/lib/launch-mode";
 import { fetchAccountsFilingDocuments } from "@/lib/companies-house/filing-history";
+
 interface PageProps {
   params: Promise<{ companyId: string }>;
   searchParams: Promise<{ tab?: string }>;
@@ -72,14 +73,14 @@ export default async function CompanyPage({ params, searchParams }: PageProps) {
   // eslint-disable-next-line react-hooks/purity -- server component, runs once
   const now = Date.now();
 
-  const chAccountsFilingsRaw = await fetchAccountsFilingDocuments(
-    company.companyRegistrationNumber,
-  );
-  const chAccountsFilings = chAccountsFilingsRaw.map((f) => ({
-    madeUpDate: f.madeUpDate.toISOString(),
-    type: f.type,
-    hasDocument: !!f.documentMetadataUrl,
-  }));
+  const chAccountsFilings =
+    tab === "filings"
+      ? (await fetchAccountsFilingDocuments(company.companyRegistrationNumber)).map((f) => ({
+          madeUpDate: f.madeUpDate.toISOString(),
+          type: f.type,
+          hasDocument: !!f.documentMetadataUrl,
+        }))
+      : [];
 
   return (
     <div>

@@ -38,7 +38,7 @@ interface Filing {
 interface ChAccountsFilingRow {
   madeUpDate: string;
   type: string;
-  hasDocument: boolean;
+  hasDocument: boolean; // reserved for per-row PDF links (future task)
 }
 
 interface FilingsTabProps {
@@ -490,7 +490,7 @@ export default function FilingsTab({
                   )
                   .map((doc) => (
                     <div
-                      key={doc.madeUpDate}
+                      key={`${doc.madeUpDate}-${doc.type}`}
                       className="flex items-center justify-between px-3 py-2 bg-inset rounded-lg"
                     >
                       <p className="text-[13px] font-semibold text-foreground m-0">
