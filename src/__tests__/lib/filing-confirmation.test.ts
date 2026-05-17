@@ -45,7 +45,10 @@ describe("sendFilingConfirmation", () => {
     });
     expect(sendEmail).toHaveBeenCalledTimes(1);
     expect(sendEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "owner@example.com" }),
+      expect.objectContaining({
+        to: "owner@example.com",
+        idempotencyKey: "filing_confirmation-filing-1",
+      }),
     );
     expect(prisma.notification.create).toHaveBeenCalledTimes(1);
     expect(prisma.notification.create).toHaveBeenCalledWith({
@@ -107,11 +110,30 @@ describe("sendFilingConfirmation", () => {
 
 describe("rollForwardPeriod → sendFilingConfirmation (double-send & skipEmail seam)", () => {
   it("check-status then poll-filings on the same accepted filing: exactly one email, one Notification, second pass emits none", async () => {
-    // First pass (e.g. manual check-status): no prior row -> send + record.
-    vi.mocked(prisma.notification.findFirst).mockResolvedValueOnce(null);
+    // Drive findFirst off an in-memory store that create() pushes to, so
+    // pass 2 genuinely observes the row pass 1 wrote (and matching on the
+    // same where-clause catches a `type`-string divergence regression).
+    const store: Array<{
+      companyId: string;
+      filingId: string;
+      type: string;
+    }> = [];
+    vi.mocked(prisma.notification.findFirst).mockImplementation((async (args: {
+      where: { filingId: string; type: string };
+    }) =>
+      store.find(
+        (r) =>
+          r.filingId === args.where.filingId && r.type === args.where.type,
+      ) ?? null) as never);
+    vi.mocked(prisma.notification.create).mockImplementation((async (args: {
+      data: { companyId: string; filingId: string; type: string };
+    }) => {
+      store.push(args.data);
+      return args.data as never;
+    }) as never);
     vi.mocked(sendEmail).mockResolvedValue({} as never);
-    vi.mocked(prisma.notification.create).mockResolvedValue({} as never);
 
+    // First pass (e.g. manual check-status): no prior row -> send + record.
     await rollForwardPeriod(
       "comp-1",
       new Date("2025-08-31"),
@@ -123,14 +145,6 @@ describe("rollForwardPeriod → sendFilingConfirmation (double-send & skipEmail 
     );
 
     // Second pass (e.g. cron poll-filings) sees the row written by pass 1.
-    vi.mocked(prisma.notification.findFirst).mockResolvedValueOnce({
-      id: "notif-1",
-      companyId: "comp-1",
-      filingId: "filing-1",
-      type: "filing_confirmation",
-      sentAt: new Date(),
-    } as never);
-
     await rollForwardPeriod(
       "comp-1",
       new Date("2025-08-31"),

@@ -8,8 +8,14 @@ import { buildFilingConfirmationEmail } from "@/lib/email/templates";
  *
  * A `Notification{ filingId, type: "filing_confirmation" }` row is the dedupe
  * AND audit key: it means "the customer was told filing X was accepted". The
- * manual-check route and the cron poll can both reach an accepted filing, so
- * this MUST be idempotent on `(filingId, "filing_confirmation")`.
+ * manual-check route and the cron poll can both reach an accepted filing.
+ * Duplicates are prevented on two layers:
+ *  - sequential calls: the `findFirst` Notification check short-circuits the
+ *    second call once the first has written its row;
+ *  - concurrent calls (the race where both pass the check before either
+ *    writes): a deterministic `idempotencyKey` on the `sendEmail` call lets
+ *    Resend dedupe within its window (~24h), so at most one email is sent.
+ * (A DB-level unique constraint is intentionally out of scope here.)
  *
  * Contract:
  *  - If such a row already exists: do nothing (no email, no duplicate row).
@@ -31,7 +37,15 @@ export async function sendFilingConfirmation(args: {
   periodEnd: Date;
   filingType: "accounts" | "ct600";
 }): Promise<void> {
-  const { filingId, companyId, recipient } = args;
+  const {
+    filingId,
+    companyId,
+    recipient,
+    companyName,
+    periodStart,
+    periodEnd,
+    filingType,
+  } = args;
 
   const existing = await prisma.notification.findFirst({
     where: { filingId, type: "filing_confirmation" },
@@ -40,12 +54,17 @@ export async function sendFilingConfirmation(args: {
 
   try {
     const { subject, html } = buildFilingConfirmationEmail({
-      companyName: args.companyName,
-      periodStart: args.periodStart,
-      periodEnd: args.periodEnd,
-      filingType: args.filingType,
+      companyName,
+      periodStart,
+      periodEnd,
+      filingType,
     });
-    await sendEmail({ to: recipient, subject, html });
+    await sendEmail({
+      to: recipient,
+      subject,
+      html,
+      idempotencyKey: `filing_confirmation-${filingId}`,
+    });
   } catch (error) {
     console.error("[filing-confirmation] send failed", {
       filingId,

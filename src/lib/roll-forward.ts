@@ -13,10 +13,11 @@ import { sendFilingConfirmation } from "@/lib/filing-confirmation";
  * filed-elsewhere path must never reach `sendFilingConfirmation`.
  *
  * The genuine-acceptance callers (check-status, poll-filings) pass
- * `filingId`; the confirmation is idempotent + audited on
- * `(filingId, "filing_confirmation")` inside `sendFilingConfirmation`, so
- * the manual-check and cron paths can no longer double-send. This must never
- * throw on email failure (it must not block acceptance).
+ * `filingId`; `sendFilingConfirmation` dedupes both the sequential case (via
+ * the `(filingId, "filing_confirmation")` Notification check) and the
+ * concurrent manual-check-vs-cron race (via the email idempotency key), so a
+ * duplicate confirmation is not sent. This must never throw on email failure
+ * (it must not block acceptance).
  */
 export async function rollForwardPeriod(
   companyId: string,
@@ -49,7 +50,10 @@ export async function rollForwardPeriod(
       filingType,
     });
   } catch {
-    // Must not block acceptance — sendFilingConfirmation already handles its
-    // own send failures, but stay defensive so a throw never propagates.
+    // Must not block acceptance. sendFilingConfirmation already swallows its
+    // own email-send failures, so the only throws this guards are the
+    // surrounding work: the period-start date derivation and the Prisma
+    // findFirst/create calls. Swallow them so a throw never propagates and
+    // blocks the accepted filing.
   }
 }
