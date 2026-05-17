@@ -22,11 +22,14 @@ export async function GET(req: NextRequest) {
 
   const now = new Date();
 
-  // Get all active companies with their most recent accounts filing
+  // Materialise statutory obligations for ALL non-deleted companies,
+  // regardless of subscription status. Filing remains subscription-gated at
+  // submit time (see /api/file/submit*), so lapsed users still see their
+  // outstanding obligations and reactivation auto-heals via the idempotent
+  // upsert below.
   const companies = await prisma.company.findMany({
     where: {
       deletedAt: null,
-      user: { subscriptionStatus: { in: ["active", "cancelling"] } },
     },
     select: {
       id: true,
