@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 vi.mock("next-auth", () => ({ getServerSession: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ authOptions: {} }));
@@ -35,6 +35,10 @@ function makeRequest(body: Record<string, unknown>): NextRequest {
   });
 }
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(getServerSession).mockResolvedValue({ user: { id: "user-1" } } as never);
@@ -52,23 +56,31 @@ beforeEach(() => {
     periodStart: new Date("2023-01-01"), periodEnd: new Date("2023-12-31"),
     startDate: null, endDate: null, status: "outstanding",
   };
-  // findFirst is called twice: once for outstanding lookup, once for idempotency check
+  // findFirst is called in order: (1) outstanding-filing lookup, (2) idempotency check
+  // (no already-submitted/accepted row). A 3rd findFirst occurs inside the route's
+  // $transaction (submission-number generation) — that is served by the separate
+  // $transaction mock below and is NOT part of this Once chain.
   vi.mocked(prisma.filing.findFirst)
-    .mockResolvedValueOnce(filingRow as never)   // outstanding filing found
-    .mockResolvedValueOnce(null as never);        // idempotency: no submitted/accepted filing
+    .mockResolvedValueOnce(filingRow as never)   // (1) outstanding-filing lookup
+    .mockResolvedValueOnce(null as never);        // (2) idempotency check (no submitted/accepted row)
   vi.mocked(prisma.filing.updateMany).mockResolvedValue({ count: 1 } as never);
   vi.mocked(prisma.filing.update).mockResolvedValue(filingRow as never);
-  // $transaction: simulate submission number generation
+  // $transaction: provides only the subset the route uses inside the transaction today
+  // (tx.filing.findFirst for submission-number generation). If the route's transaction
+  // is extended (e.g. an in-transaction update), this stub MUST be widened or the
+  // additional call will be silently dropped.
   vi.mocked(prisma.$transaction).mockImplementation(async (fn: (tx: typeof prisma) => Promise<string>) => {
     return fn({ filing: { findFirst: vi.fn().mockResolvedValue(null) } } as never);
   });
 
-  // Provide env vars needed by getPresenterCredentials and getFilingEndpoint
-  process.env.COMPANIES_HOUSE_PRESENTER_ID = "test-presenter";
-  process.env.COMPANIES_HOUSE_PRESENTER_AUTH = "test-auth";
-  process.env.COMPANIES_HOUSE_FILING_ENDPOINT = "http://test-endpoint";
-  // Unset CH API key so the live status check is skipped
-  delete process.env.COMPANIES_HOUSE_API_KEY;
+  // Env vars required by getPresenterCredentials() and getFilingEndpoint() in the route.
+  // Using vi.stubEnv so every var is automatically restored by vi.unstubAllEnvs() in afterEach.
+  vi.stubEnv("COMPANIES_HOUSE_PRESENTER_ID", "test-presenter");
+  vi.stubEnv("COMPANIES_HOUSE_PRESENTER_AUTH", "test-auth");
+  vi.stubEnv("COMPANIES_HOUSE_FILING_ENDPOINT", "http://test-endpoint");
+  // Empty string → the `if (chApiKey)` branch in the route is skipped (same effect as
+  // deleting the var, without mutating process.env directly).
+  vi.stubEnv("COMPANIES_HOUSE_API_KEY", "");
 });
 
 describe("POST /api/file/submit-accounts — persists filed iXBRL", () => {
