@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 vi.mock("@/lib/db", () => ({
   prisma: {
@@ -60,7 +60,19 @@ function makeIdempotentUpsertStore() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // Freeze the clock so ELAPSED_END (2025-04-30) and the hard counts below are
+  // permanently sound. The route computes "now" via `new Date()` at request
+  // time, so fake timers apply: with now pinned at 2026-05-17, the next annual
+  // period (2025-05-01 → 2026-04-30) has elapsed while the one after
+  // (→ 2027-04-30) has not, making "exactly one elapsed period" a real
+  // invariant rather than a calendar-dependent accident.
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-05-17T08:00:00.000Z"));
   vi.stubEnv("CRON_SECRET", "test-secret");
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("GET /api/cron/create-periods — obligations tracked for ALL companies", () => {
