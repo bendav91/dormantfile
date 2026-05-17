@@ -138,15 +138,26 @@ describe("GET /api/file/official-accounts", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("Content-Type")).toBe("application/pdf");
 
-    // Verify the body bytes equal the mocked buffer
+    // Verify the body bytes equal the mocked buffer (full-array equality)
     const body = await res.arrayBuffer();
-    const expected = new Uint8Array(FAKE_PDF_BUFFER);
-    const actual = new Uint8Array(body);
-    expect(actual.byteLength).toBe(expected.byteLength);
-    expect(actual[0]).toBe(expected[0]); // '%'
-    expect(actual[1]).toBe(expected[1]); // 'P'
-    expect(actual[2]).toBe(expected[2]); // 'D'
-    expect(actual[3]).toBe(expected[3]); // 'F'
+    expect(new Uint8Array(body)).toEqual(new Uint8Array(FAKE_PDF_BUFFER));
+
+    // Content-Disposition must match the CRN-based inline filename
+    expect(res.headers.get("Content-Disposition")).toBe(
+      `inline; filename="${CRN}-accounts.pdf"`,
+    );
+  });
+
+  it("returns 400 { error: 'filingId required' } when filingId query param is absent", async () => {
+    vi.mocked(getServerSession).mockResolvedValue({
+      user: { id: OWNER_ID },
+    } as never);
+
+    // makeRequest() with no argument produces a URL with no filingId search param
+    const res = await GET(makeRequest());
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "filingId required" });
   });
 
   it("returns 409 { status: 'pending' } when owner + no CH match", async () => {
@@ -162,6 +173,27 @@ describe("GET /api/file/official-accounts", () => {
     expect(res.status).toBe(409);
     const body = await res.json();
     expect(body).toEqual({ status: "pending" });
+  });
+
+  it("returns 409 { status: 'pending' } when owner + snapshot present + no CH match (interim path)", async () => {
+    // This exercises the "interim" branch of resolvePostFilingDocument (hasSnapshot=true, no CH match),
+    // distinct from the "legacy-none" branch (hasSnapshot=false) tested above.
+    // resolvePostFilingDocument is kept REAL; only fetchAccountsFilingDocuments is mocked to return [].
+    vi.mocked(getServerSession).mockResolvedValue({
+      user: { id: OWNER_ID },
+    } as never);
+    // Base filing with filedAccountsIxbrl set → hasSnapshot=true → real resolver returns "interim"
+    vi.mocked(prisma.filing.findFirst).mockResolvedValue({
+      ...BASE_FILING,
+      filedAccountsIxbrl: "<xbrl>snapshot</xbrl>",
+    } as never);
+    // No CH match → resolver falls through to hasSnapshot branch
+    vi.mocked(fetchAccountsFilingDocuments).mockResolvedValue([]);
+
+    const res = await GET(makeRequest(FILING_ID));
+
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ status: "pending" });
   });
 
   it("returns 502 { status: 'unavailable' } when CH match found but PDF fetch returns null", async () => {
