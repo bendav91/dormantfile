@@ -175,13 +175,13 @@ function StepPreview({
         <div className="flex gap-3 mt-7">
           <button
             onClick={onBack}
-            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border border-border bg-transparent text-secondary cursor-pointer hover:opacity-80"
+            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border border-border bg-transparent text-secondary cursor-pointer transition-all duration-200 hover:opacity-80"
           >
             Back
           </button>
           <button
             onClick={onContinue}
-            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border-0 bg-cta text-card cursor-pointer hover:opacity-90 hover:-translate-y-px"
+            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border-0 bg-cta text-card cursor-pointer transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
           >
             Continue
           </button>
