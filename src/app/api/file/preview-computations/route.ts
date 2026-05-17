@@ -49,6 +49,20 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // Snapshot short-circuit: if the filing already has persisted iXBRL, return
+  // it verbatim so the preview exactly matches what was submitted to HMRC.
+  // Placed AFTER the UTR check so missing-UTR still 400s even when a snapshot exists.
+  if (filing.filedComputationsIxbrl) {
+    const periodEnd = filing.endDate ?? filing.periodEnd;
+    const headers: Record<string, string> = download
+      ? {
+          "Content-Type": "application/xhtml+xml; charset=utf-8",
+          "Content-Disposition": `attachment; filename="${filing.company.companyRegistrationNumber}-computations-${periodEnd.toISOString().slice(0, 10)}.html"`,
+        }
+      : { "Content-Type": "text/html; charset=utf-8" };
+    return new NextResponse(filing.filedComputationsIxbrl, { headers });
+  }
+
   const periodEnd = filing.endDate ?? filing.periodEnd;
   const html = generateDormantTaxComputationsIxbrl({
     companyName: filing.company.companyName,
