@@ -1,7 +1,7 @@
 "use client";
 
-import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
 import DirectorConfirm from "@/components/director-confirm";
+import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
 import { cn } from "@/lib/cn";
 import { AlertTriangle, Building2, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -106,7 +106,7 @@ function StepConfirm({
 
         {/* Director confirmation gate */}
         <div className="pb-2 mb-6 border-b border-border-subtle">
-          <DirectorConfirm companyId={companyId} onChange={onDirectorChange} />
+          <DirectorConfirm companyId={companyId} onChangeAction={onDirectorChange} />
         </div>
 
         {/* Info card */}

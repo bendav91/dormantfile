@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { UserCheck } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { UserCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface Director {
   name: string;
@@ -26,18 +26,18 @@ const MANUAL = "__manual__";
  */
 export default function DirectorConfirm({
   companyId,
-  onChange,
+  onChangeAction,
 }: {
   companyId: string;
-  onChange: (name: string | null) => void;
+  onChangeAction: (name: string | null) => void;
 }) {
   const [loading, setLoading] = useState(true);
   const [directors, setDirectors] = useState<Director[]>([]);
   const [chError, setChError] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [manualName, setManualName] = useState("");
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  const onChangeRef = useRef(onChangeAction);
+  onChangeRef.current = onChangeAction;
 
   // Load directors + any previously confirmed name once.
   useEffect(() => {
@@ -100,14 +100,11 @@ export default function DirectorConfirm({
         <span className="text-primary">
           <UserCheck size={16} color="currentColor" strokeWidth={2} />
         </span>
-        <h3 className="text-sm font-semibold text-foreground m-0">
-          Who is filing as director?
-        </h3>
+        <h3 className="text-sm font-semibold text-foreground m-0">Who is filing as director?</h3>
       </div>
       <p className="text-[13px] text-body m-0 mb-3.5 leading-relaxed">
-        This name is used as the director signing the accounts (and the
-        Corporation Tax declaration). Confirm the correct director — it is not
-        assumed to be the account holder.
+        This name is used as the director signing the accounts (and the Corporation Tax
+        declaration). Confirm the correct director — it is not assumed to be the account holder.
       </p>
 
       {loading ? (
@@ -135,9 +132,7 @@ export default function DirectorConfirm({
                 onChange={() => setSelected(d.name)}
               />
               <span>
-                <span className="block text-[15px] font-medium text-foreground">
-                  {d.name}
-                </span>
+                <span className="block text-[15px] font-medium text-foreground">{d.name}</span>
                 <span className="block text-[12px] text-muted mt-0.5">
                   Active director at Companies House
                 </span>
@@ -187,8 +182,8 @@ export default function DirectorConfirm({
 
           {chError && (
             <p className="text-[12px] text-muted m-0 mt-1 leading-relaxed">
-              We couldn&apos;t reach Companies House to list directors. Enter
-              the director&apos;s full name above to continue.
+              We couldn&apos;t reach Companies House to list directors. Enter the director&apos;s
+              full name above to continue.
             </p>
           )}
         </div>

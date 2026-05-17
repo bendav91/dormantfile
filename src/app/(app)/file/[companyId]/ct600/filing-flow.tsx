@@ -1,5 +1,8 @@
 "use client";
 
+import DirectorConfirm from "@/components/director-confirm";
+import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
+import { cn } from "@/lib/cn";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -11,9 +14,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
-import DirectorConfirm from "@/components/director-confirm";
-import { cn } from "@/lib/cn";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,7 +70,7 @@ function FocusableInput({
       className={cn(
         "focus-ring-input w-full px-4 py-3 border border-muted rounded-lg text-base text-foreground bg-card transition-colors duration-200 box-border",
         "focus:border-primary focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-primary)_12%,transparent)]",
-        hasError && "border-danger"
+        hasError && "border-danger",
       )}
     />
   );
@@ -79,12 +79,8 @@ function FocusableInput({
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-semibold text-muted uppercase tracking-[0.05em] mb-1">
-        {label}
-      </p>
-      <p className="text-[15px] text-foreground m-0 font-medium">
-        {value}
-      </p>
+      <p className="text-xs font-semibold text-muted uppercase tracking-[0.05em] mb-1">{label}</p>
+      <p className="text-[15px] text-foreground m-0 font-medium">{value}</p>
     </div>
   );
 }
@@ -133,9 +129,7 @@ function StepConfirm({
             <h2 className="text-[17px] font-bold text-foreground m-0 tracking-[-0.01em]">
               {companyName}
             </h2>
-            <p className="text-[13px] text-muted m-0 mt-0.5">
-              Corporation Tax return
-            </p>
+            <p className="text-[13px] text-muted m-0 mt-0.5">Corporation Tax return</p>
           </div>
         </div>
 
@@ -149,7 +143,7 @@ function StepConfirm({
 
         {/* Director confirmation gate */}
         <div className="pb-2 mb-6 border-b border-border-subtle">
-          <DirectorConfirm companyId={companyId} onChange={onDirectorChange} />
+          <DirectorConfirm companyId={companyId} onChangeAction={onDirectorChange} />
         </div>
 
         {/* Info card */}
@@ -481,8 +475,8 @@ function StepResult({
                 HMRC is still processing
               </h2>
               <p className="text-[15px] text-warning-deep m-0 leading-relaxed">
-                Your return has been submitted but HMRC has not yet confirmed the outcome. Check
-                the status now, or return to your dashboard - it may take a few more minutes.
+                Your return has been submitted but HMRC has not yet confirmed the outcome. Check the
+                status now, or return to your dashboard - it may take a few more minutes.
               </p>
             </div>
           </div>
