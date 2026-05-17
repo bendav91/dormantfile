@@ -130,9 +130,12 @@ async function attemptConfirmationSend(
 
 /**
  * Inline entry point (called from the genuine-acceptance path of
- * `rollForwardPeriod`). Writes the durable `pending` marker first so the owed
- * confirmation survives a crash, then performs one send attempt via the
- * shared primitive. Never throws.
+ * `rollForwardPeriod`). If the confirmation was already delivered nothing is
+ * owed and we return immediately (so re-entries on an already-confirmed
+ * accepted filing — manual check-status AND the cron both reach it — never
+ * accrue dead `pending` rows). Otherwise writes the durable `pending` marker
+ * first so the owed confirmation survives a crash, then performs one send
+ * attempt via the shared primitive. Never throws.
  */
 export async function sendFilingConfirmation(args: {
   filingId: string;
@@ -144,6 +147,18 @@ export async function sendFilingConfirmation(args: {
   filingType: "accounts" | "ct600";
 }): Promise<void> {
   const { filingId, companyId } = args;
+
+  // Already delivered — `filing_confirmation` is THE success/idempotency key,
+  // so nothing is owed. Short-circuit BEFORE writing the `pending` marker:
+  // otherwise every later re-entry on an already-confirmed filing (especially
+  // pre-Unit-D filings confirmed by the old inline path that have no `pending`
+  // row) would write a fresh dead `pending` row forever. `attemptConfirmationSend`
+  // keeps its own confirmed-check (it is still the shared drain primitive);
+  // this is just an additional earlier short-circuit on the inline path.
+  const confirmed = await prisma.notification.findFirst({
+    where: { filingId, type: TYPE_CONFIRMATION },
+  });
+  if (confirmed) return;
 
   // Idempotent durable "a confirmation is owed" marker — written BEFORE the
   // send so a crash between acceptance and delivery is still recoverable by
@@ -236,8 +251,15 @@ export async function drainPendingFilingConfirmations(): Promise<
         include: { company: { include: { user: true } } },
       });
       if (!filing) {
-        // The Filing was hard-deleted; nothing to send. Treat as terminal so
-        // we stop re-querying it forever.
+        // Defensive guard against a currently-impossible invariant violation:
+        // an orphaned `pending` with no Filing. A `pending` row only exists
+        // for an `accepted` filing; accepted filings can't be hard-deleted via
+        // the ct600-remove path, full-account deletion removes these
+        // notifications in the same operation, and `Notification.filingId` is
+        // FK-Restrict. This is NOT an expected/normal case — it is kept only
+        // to fail terminal (write `failed`, surface to ops) rather than
+        // re-query a nonexistent Filing forever should that invariant ever
+        // break in future.
         await prisma.notification.create({
           data: { companyId, filingId, type: TYPE_FAILED },
         });

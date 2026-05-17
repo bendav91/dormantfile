@@ -150,6 +150,26 @@ describe("sendFilingConfirmation", () => {
     expect(successCreates).toHaveLength(0);
   });
 
+  it("already confirmed but NO pending row exists: writes no _pending/_attempt/filing_confirmation row, sends no email, does not throw", async () => {
+    // Regression guard (Unit D review fix #1): pre-Unit-D filings were
+    // confirmed by the old inline path and so have a `filing_confirmation`
+    // row but NO `filing_confirmation_pending` row. Every later
+    // rollForwardPeriod re-entry (manual check-status + cron) reaches the
+    // accepted filing and used to write a fresh dead `_pending` row forever
+    // (unbounded junk-row accumulation on a hot path). `sendFilingConfirmation`
+    // must short-circuit on the confirmed row BEFORE writing `_pending`.
+    makeNotificationStore([
+      { companyId: "comp-1", filingId: "filing-1", type: "filing_confirmation" },
+    ]);
+
+    await expect(sendFilingConfirmation(baseArgs)).resolves.not.toThrow();
+
+    expect(sendEmail).not.toHaveBeenCalled();
+    // No notification row of ANY type is created on the already-confirmed
+    // re-entry path.
+    expect(prisma.notification.create).not.toHaveBeenCalled();
+  });
+
   it("on email transport failure: does not throw, writes NO filing_confirmation row, logs structured error", async () => {
     // Unit A superset: still no success row, still no throw, still the same
     // structured log. Task D additionally appends a `filing_confirmation_attempt`
