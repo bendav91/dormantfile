@@ -128,8 +128,15 @@ export function buildActivityTimeline(
     }
   }
 
-  // Notification events
+  // Notification events.
+  // The Notification table is shared across several lifecycle/cohort writers
+  // (filing confirmations, lapsed-compliance cohorts, etc.). The Activity
+  // timeline only surfaces the reminder family as "Reminder sent" — any other
+  // type would leak internal vocabulary to the customer, so skip it here.
   for (const notification of notifications) {
+    if (!notification.type.startsWith("reminder_")) {
+      continue;
+    }
     events.push({
       id: `notification-${notification.id}`,
       type: "reminder_sent",

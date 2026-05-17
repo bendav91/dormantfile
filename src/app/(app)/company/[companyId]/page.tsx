@@ -230,7 +230,7 @@ async function ActivityTabSection({
   }>;
 }) {
   const notifications = await prisma.notification.findMany({
-    where: { companyId },
+    where: { companyId, type: { startsWith: "reminder_" } },
     orderBy: { sentAt: "desc" },
   });
 
