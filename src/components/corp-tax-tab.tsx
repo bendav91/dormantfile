@@ -1,12 +1,8 @@
 "use client";
 
 import CheckStatusButton from "@/components/check-status-button";
-import { formatCivilDate, formatCivilDateShort, formatUkDateShort } from "@/lib/format-date";
 import CopyFilingSummary from "@/components/copy-filing-summary";
 import Ct600PeriodEditor from "@/components/ct600-period-editor";
-import FilingStatusBadge from "@/components/filing-status-badge";
-import MarkFiledButton from "@/components/mark-filed-button";
-import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
 import FiledDocumentModal from "@/components/filed-document-modal";
 import {
   LedgerEmpty,
@@ -16,9 +12,13 @@ import {
   quietAction,
   quietIcon,
 } from "@/components/filing-ledger";
+import FilingStatusBadge from "@/components/filing-status-badge";
+import MarkFiledButton from "@/components/mark-filed-button";
+import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
 import { cn } from "@/lib/cn";
 import { REMOVABLE_CT600_STATUSES } from "@/lib/ct600-remove-policy";
 import { buildFilingViews } from "@/lib/filing-views";
+import { formatCivilDate, formatCivilDateShort, formatUkDateShort } from "@/lib/format-date";
 import { isTaxFilingLive } from "@/lib/launch-mode";
 import { FilingStatus } from "@prisma/client";
 import { FileText, Settings2, Trash2, Wrench } from "lucide-react";
@@ -127,7 +127,13 @@ export default function CorpTaxTab({
   const subTabs: { key: SubTab; label: string; count: number }[] = [
     { key: "outstanding", label: "Outstanding", count: outstanding.length },
     ...(filedElsewhere.length > 0
-      ? [{ key: "filed_elsewhere" as const, label: "Filed elsewhere", count: filedElsewhere.length }]
+      ? [
+          {
+            key: "filed_elsewhere" as const,
+            label: "Filed elsewhere",
+            count: filedElsewhere.length,
+          },
+        ]
       : []),
     { key: "completed", label: "Completed", count: completed.length },
   ];
@@ -195,7 +201,7 @@ export default function CorpTaxTab({
         />
       )}
 
-      <LedgerTabs tabs={subTabs} active={activeTab} onChange={setActiveTab} />
+      <LedgerTabs tabs={subTabs} active={activeTab} onChangeAction={setActiveTab} />
 
       {/* Outstanding */}
       {activeTab === "outstanding" &&
@@ -374,9 +380,7 @@ export default function CorpTaxTab({
                   }
                   meta={
                     <p className="m-0 text-secondary">
-                      {f.confirmedAt
-                        ? `Accepted ${formatUkDateShort(f.confirmedAt)}`
-                        : "Accepted"}
+                      {f.confirmedAt ? `Accepted ${formatUkDateShort(f.confirmedAt)}` : "Accepted"}
                       {f.submittedAt && " · Filed via DormantFile"}
                     </p>
                   }

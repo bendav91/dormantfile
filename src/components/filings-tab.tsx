@@ -1,17 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import FilingStatusBadge from "@/components/filing-status-badge";
-import { formatCivilDate, formatCivilDateShort, formatUkDateShort } from "@/lib/format-date";
 import CheckStatusButton from "@/components/check-status-button";
-import MarkFiledButton from "@/components/mark-filed-button";
-import { buildFilingViews } from "@/lib/filing-views";
-import { FilingStatus } from "@prisma/client";
-import { AlertTriangle, ExternalLink, FileText } from "lucide-react";
-import Link from "next/link";
-import SuppressButton from "@/components/suppress-button";
 import CopyFilingSummary from "@/components/copy-filing-summary";
-import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
 import FiledDocumentModal from "@/components/filed-document-modal";
 import {
   LedgerEmpty,
@@ -21,7 +11,17 @@ import {
   quietAction,
   quietIcon,
 } from "@/components/filing-ledger";
+import FilingStatusBadge from "@/components/filing-status-badge";
+import MarkFiledButton from "@/components/mark-filed-button";
+import SuppressButton from "@/components/suppress-button";
+import UndoMarkFiledButton from "@/components/undo-mark-filed-button";
+import { buildFilingViews } from "@/lib/filing-views";
+import { formatCivilDate, formatCivilDateShort, formatUkDateShort } from "@/lib/format-date";
 import { isFilingLive } from "@/lib/launch-mode";
+import { FilingStatus } from "@prisma/client";
+import { AlertTriangle, ExternalLink, FileText } from "lucide-react";
+import Link from "next/link";
+import { useState, type ReactNode } from "react";
 
 // Period dates and accounts deadlines are statutory calendar dates → verbatim.
 const formatDate = formatCivilDate;
@@ -99,7 +99,13 @@ export default function FilingsTab({
       ? [{ key: "suppressed" as const, label: "Suppressed", count: suppressed.length }]
       : []),
     ...(filedElsewhere.length > 0
-      ? [{ key: "filed_elsewhere" as const, label: "Filed elsewhere", count: filedElsewhere.length }]
+      ? [
+          {
+            key: "filed_elsewhere" as const,
+            label: "Filed elsewhere",
+            count: filedElsewhere.length,
+          },
+        ]
       : []),
     { key: "completed", label: "Completed", count: completed.length },
   ];
@@ -120,7 +126,7 @@ export default function FilingsTab({
         </div>
       )}
 
-      <LedgerTabs tabs={subTabs} active={activeTab} onChange={setActiveTab} />
+      <LedgerTabs tabs={subTabs} active={activeTab} onChangeAction={setActiveTab} />
 
       {/* Outstanding */}
       {activeTab === "outstanding" &&
@@ -218,10 +224,7 @@ export default function FilingsTab({
                       }
                     />
                   ) : (f.status === "failed" || f.status === "rejected") && isFilingLive() ? (
-                    <Link
-                      href={`/file/${companyId}/accounts?filingId=${f.id}`}
-                      className={ctaLink}
-                    >
+                    <Link href={`/file/${companyId}/accounts?filingId=${f.id}`} className={ctaLink}>
                       Retry
                     </Link>
                   ) : null;
@@ -245,15 +248,13 @@ export default function FilingsTab({
                         filingType="accounts"
                       />
                     )}
-                    {view.isOverdue &&
-                      f.status !== "submitted" &&
-                      f.status !== "pending" && (
-                        <SuppressButton
-                          companyId={companyId}
-                          periodEnd={endISO}
-                          isSuppressed={false}
-                        />
-                      )}
+                    {view.isOverdue && f.status !== "submitted" && f.status !== "pending" && (
+                      <SuppressButton
+                        companyId={companyId}
+                        periodEnd={endISO}
+                        isSuppressed={false}
+                      />
+                    )}
                     {primary}
                   </>
                 );
@@ -400,9 +401,7 @@ export default function FilingsTab({
                   }
                   meta={
                     <p className="m-0 text-secondary">
-                      {f.confirmedAt
-                        ? `Accepted ${formatUkDateShort(f.confirmedAt)}`
-                        : "Accepted"}
+                      {f.confirmedAt ? `Accepted ${formatUkDateShort(f.confirmedAt)}` : "Accepted"}
                       {f.submittedAt && " · Filed via DormantFile"}
                     </p>
                   }

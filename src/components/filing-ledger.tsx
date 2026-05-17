@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import type { ReactNode } from "react";
 
 /**
  * Ledger primitives for the company filing tabs.
@@ -86,11 +86,11 @@ export function LedgerEmpty({ title, body }: { title: string; body: string }) {
 export function LedgerTabs<T extends string>({
   tabs,
   active,
-  onChange,
+  onChangeAction,
 }: {
   tabs: ReadonlyArray<{ key: T; label: string; count: number }>;
   active: T;
-  onChange: (key: T) => void;
+  onChangeAction: (key: T) => void;
 }) {
   return (
     <div className="mb-5 flex items-center gap-5 overflow-x-auto border-b border-border sm:gap-6">
@@ -100,7 +100,7 @@ export function LedgerTabs<T extends string>({
           <button
             key={t.key}
             type="button"
-            onClick={() => onChange(t.key)}
+            onClick={() => onChangeAction(t.key)}
             className={cn(
               "-mb-px cursor-pointer whitespace-nowrap border-0 border-b-2 bg-transparent pb-2.5 text-[13px] transition-colors duration-200",
               isActive
