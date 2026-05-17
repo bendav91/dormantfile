@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Building2, Plus, AlertTriangle, ChevronRight, CheckCircle2, Download } from "lucide-react";
+import { Plus, AlertTriangle, ChevronRight, Download } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import SubscriptionBanner from "@/components/subscription-banner";
@@ -22,6 +22,7 @@ import { getOnboardingState } from "@/lib/onboarding";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
 import { ReviewPrompt } from "@/components/marketing/ReviewPrompt";
 import CalendarFeedSection from "@/components/calendar-feed-section";
+import { LedgerList, LedgerRow } from "@/components/filing-ledger";
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -131,13 +132,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         {showOnboarding && onboardingState ? (
           <OnboardingChecklist state={onboardingState} />
         ) : (
-          <div className="text-center px-6 py-16 bg-card border border-border rounded-xl">
-            <div className="w-12 h-12 rounded-xl bg-primary-bg inline-flex items-center justify-center mb-4">
-              <Building2 size={24} color="var(--color-primary)" strokeWidth={2} />
-            </div>
-            <h2 className="text-lg font-bold text-foreground mb-2">
-              No companies yet
-            </h2>
+          <div className="px-6 py-16 bg-card border border-border rounded-xl text-center">
+            <h2 className="text-lg font-bold text-foreground mb-2">No companies yet</h2>
             <p className="text-[15px] text-secondary mb-6 max-w-[400px] mx-auto leading-normal">
               Add your first company to get started with filing. You can explore the dashboard in the
               meantime.
@@ -251,13 +247,102 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const showAddCompany = canAddCompany(user.subscriptionTier, allCompanyCount);
   const companyLimit = getCompanyLimit(user.subscriptionTier);
 
+  // One ranked column ordered by urgency. Each company carries the deadline
+  // phrase + colour so a 4-years-overdue company never reads like a caught-up
+  // one; overdue companies are split out so "is anything on fire?" is answered
+  // at a glance instead of inferred by reading down the list.
+  const rows = paginatedCompanies.map(({ company, outstandingCount }) => {
+    const currentFiling = company.filings
+      .filter(
+        (f) =>
+          f.filingType === "accounts" &&
+          f.status !== "accepted" &&
+          f.status !== "filed_elsewhere" &&
+          !f.suppressedAt,
+      )
+      .sort((a, b) => a.periodEnd.getTime() - b.periodEnd.getTime())[0];
+    const accountsDeadline = currentFiling?.deadline ?? company.accountingPeriodEnd;
+    const accountsDaysLeft = Math.ceil((accountsDeadline.getTime() - now) / (1000 * 60 * 60 * 24));
+    const accountsOverdueYears = accountsDaysLeft <= 0 ? Math.floor(-accountsDaysLeft / 365) : 0;
+    const accountsText =
+      accountsDaysLeft <= 0
+        ? accountsOverdueYears >= 2
+          ? `Accounts ${accountsOverdueYears} years overdue`
+          : `Accounts overdue — due ${formatDate(accountsDeadline)}`
+        : accountsDaysLeft <= 30
+          ? `Accounts due in ${accountsDaysLeft} days — ${formatDate(accountsDeadline)}`
+          : `Accounts due ${formatDate(accountsDeadline)}`;
+    return {
+      company,
+      outstandingCount,
+      accountsDeadline,
+      accountsDaysLeft,
+      accountsText,
+      isOverdue: outstandingCount > 0 && accountsDaysLeft <= 0,
+    };
+  });
+
+  const overdueRows = rows.filter((r) => r.isOverdue);
+  const otherRows = rows.filter((r) => !r.isOverdue);
+  const split = overdueRows.length > 0 && otherRows.length > 0;
+  const singleFocused = allCompanyCount === 1 && !search && !filter && rows.length === 1;
+
+  function deadlineColor(daysLeft: number) {
+    return daysLeft <= 0 ? "text-danger" : daysLeft <= 30 ? "text-due-soon" : "text-secondary";
+  }
+
+  function renderRow(r: (typeof rows)[number]) {
+    return (
+      <Link
+        key={r.company.id}
+        href={`/company/${r.company.id}`}
+        className="focus-ring hoverable-card block no-underline text-inherit transition-colors duration-200"
+      >
+        <LedgerRow
+          title={r.company.companyName}
+          meta={
+            <p className="m-0">
+              <span className="text-muted">{r.company.companyRegistrationNumber}</span>
+              {" · "}
+              {r.outstandingCount > 0 ? (
+                <span className={deadlineColor(r.accountsDaysLeft)}>{r.accountsText}</span>
+              ) : (
+                <>
+                  <span className="text-success">All caught up</span>
+                  <span className="text-secondary">
+                    {" · "}next due {formatDate(r.accountsDeadline)}
+                  </span>
+                </>
+              )}
+            </p>
+          }
+          actions={
+            r.outstandingCount > 0 ? (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 text-xs font-semibold tabular-nums",
+                  r.outstandingCount >= 4 ? "text-danger" : "text-warning-text",
+                )}
+              >
+                {r.outstandingCount} {r.outstandingCount === 1 ? "period" : "periods"}
+                <ChevronRight size={14} strokeWidth={2.5} />
+              </span>
+            ) : (
+              <span className="flex text-muted" aria-hidden="true">
+                <ChevronRight size={16} strokeWidth={2} />
+              </span>
+            )
+          }
+        />
+      </Link>
+    );
+  }
+
   return (
     <div className="max-w-[960px] mx-auto">
       <SubscriptionBanner status={user.subscriptionStatus} />
 
-      {showOnboarding && onboardingState && (
-        <OnboardingChecklist state={onboardingState} />
-      )}
+      {showOnboarding && onboardingState && <OnboardingChecklist state={onboardingState} />}
 
       {showReviewPrompt && <ReviewPrompt />}
 
@@ -294,26 +379,16 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
           <h1 className="text-[28px] font-bold text-foreground mb-1.5 tracking-[-0.02em]">
             Dashboard
           </h1>
-          <div className="flex items-center gap-2.5 mt-0.5">
-            <p className="text-[15px] text-secondary">
-              {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"}
-              {companyLimit > 0 && ` / ${companyLimit}`}
-            </p>
-            <span
-              className={cn(
-                "inline-flex items-center gap-[5px] px-2.5 py-[3px] rounded-full text-xs font-semibold border",
-                user.subscriptionTier === "none"
-                  ? "bg-danger-bg text-danger border-danger-border"
-                  : user.subscriptionStatus === "active" || user.subscriptionStatus === "cancelling"
-                    ? "bg-primary-bg text-primary border-primary-border"
-                    : "bg-inset text-secondary border-border",
-              )}
-            >
+          <p className="text-[15px] text-secondary mt-0.5">
+            {allCompanyCount} {allCompanyCount === 1 ? "company" : "companies"}
+            {companyLimit > 0 && ` / ${companyLimit}`}
+            {" · "}
+            <span className={cn(user.subscriptionTier === "none" && "text-danger font-semibold")}>
               {user.subscriptionTier === "none"
                 ? "No plan"
                 : `${TIER_LABELS[user.subscriptionTier]} plan`}
             </span>
-          </div>
+          </p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
           {canFile && (
@@ -338,38 +413,27 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         </div>
       </div>
 
-      {/* Filters, search, and sort — show when there are 2+ companies, or when a search/filter is active */}
+      {/* Filter + search + sort — shown at 2+ companies, or when searching/filtering */}
       {(allCompanyCount > 1 || search || filter) && (
         <>
-          {/* Segmented filter control */}
-          <div className="flex w-full sm:inline-flex sm:w-auto overflow-x-auto scrollbar-none bg-inset rounded-lg p-[3px] mb-2.5 [-webkit-overflow-scrolling:touch]">
-
+          <div className="flex items-center gap-5 sm:gap-6 overflow-x-auto border-b border-border mb-4 scrollbar-none">
             {[
-              {
-                key: "" as FilterType,
-                label: "All",
-                mobileLabel: "All",
-                count: filterCounts.all,
-                urgent: false,
-              },
+              { key: "" as FilterType, label: "All", count: filterCounts.all, urgent: false },
               {
                 key: "needs-attention" as FilterType,
-                label: "Needs Attention",
-                mobileLabel: "Attention",
+                label: "Needs attention",
                 count: filterCounts.needsAttention,
                 urgent: true,
               },
               {
                 key: "recently-filed" as FilterType,
-                label: "Recently Filed",
-                mobileLabel: "Filed",
+                label: "Recently filed",
                 count: filterCounts.recentlyFiled,
                 urgent: false,
               },
               {
                 key: "issues" as FilterType,
                 label: "Issues",
-                mobileLabel: "Issues",
                 count: filterCounts.issues,
                 urgent: true,
               },
@@ -380,7 +444,6 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
               if (search) params.set("q", search);
               if (sort !== "most-overdue") params.set("sort", sort);
               const href = `/dashboard${params.toString() ? `?${params}` : ""}`;
-              const showUrgentBadge = f.urgent && f.count > 0;
               return (
                 <Link
                   key={f.key}
@@ -388,31 +451,28 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
                   role="tab"
                   aria-selected={isActive}
                   className={cn(
-                    "focus-ring segmented-tab flex-1 sm:flex-none py-1.5 px-2.5 rounded-md text-xs text-center no-underline whitespace-nowrap transition-all duration-150",
+                    "focus-ring -mb-px whitespace-nowrap border-0 border-b-2 bg-transparent pb-2.5 text-[13px] no-underline transition-colors duration-200",
                     isActive
-                      ? "font-semibold bg-card text-foreground shadow-sm"
-                      : "font-medium bg-transparent text-secondary",
+                      ? "border-foreground font-semibold text-foreground"
+                      : "border-transparent font-medium text-secondary hover:text-foreground",
                   )}
                 >
-                  <span className="segmented-tab-label-full">{f.label}</span>
-                  <span className="segmented-tab-label-short">{f.mobileLabel}</span>{" "}
-                  {showUrgentBadge ? (
-                    <span className="inline-flex items-center justify-center bg-danger-bg text-danger px-1.5 py-px rounded-full text-[10px] font-semibold min-w-[18px]">
-                      {f.count}
-                    </span>
-                  ) : (
-                    <span className="text-muted font-medium">
-                      {f.count}
-                    </span>
-                  )}
+                  {f.label}{" "}
+                  <span
+                    className={cn(
+                      f.urgent && f.count > 0
+                        ? "font-semibold text-danger"
+                        : "font-normal text-muted",
+                    )}
+                  >
+                    ({f.count})
+                  </span>
                 </Link>
               );
             })}
           </div>
 
-          {/* Search + sort row */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2.5 mb-4">
-
             <CompanySearch />
             <SortDropdown currentSort={sort} />
           </div>
@@ -437,117 +497,74 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
         </div>
       )}
 
-      {/* Company cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {paginatedCompanies.map(({ company, outstandingCount }) => {
-          // Show the current (oldest unfiled) accounts filing's deadline
-          const currentFiling = company.filings
-            .filter((f) => f.filingType === "accounts" && f.status !== "accepted" && f.status !== "filed_elsewhere" && !f.suppressedAt)
-            .sort((a, b) => a.periodEnd.getTime() - b.periodEnd.getTime())[0];
-          const accountsDeadline = currentFiling?.deadline ?? company.accountingPeriodEnd;
-
-          const accountsDaysLeft = Math.ceil(
-            (accountsDeadline.getTime() - now) / (1000 * 60 * 60 * 24),
-          );
-
-          // Pre-compute deadline text
-          const accountsOverdueYears =
-            accountsDaysLeft <= 0 ? Math.floor(-accountsDaysLeft / 365) : 0;
-          const accountsText =
-            accountsDaysLeft <= 0
-              ? accountsOverdueYears >= 2
-                ? `Accounts ${accountsOverdueYears} years overdue`
-                : `Accounts overdue \u2014 due ${formatDate(accountsDeadline)}`
-              : accountsDaysLeft <= 30
-                ? `Accounts due in ${accountsDaysLeft}\u00a0days \u2014 ${formatDate(accountsDeadline)}`
-                : `Accounts due ${formatDate(accountsDeadline)}`;
-
-          return (
-            <article key={company.id}>
+      {/* Company list — focused summary for a single company, otherwise a
+          prioritised ledger split into Overdue / Everything else */}
+      {singleFocused
+        ? (() => {
+            const r = rows[0];
+            return (
               <Link
-                href={`/company/${company.id}`}
-                className="focus-ring hoverable-card block bg-card rounded-[10px] p-[18px] border border-border shadow-active no-underline text-inherit transition-colors duration-200 touch-manipulation"
+                href={`/company/${r.company.id}`}
+                className="focus-ring hoverable-card block no-underline text-inherit rounded-xl border border-border bg-card p-6 sm:p-8 transition-colors duration-200"
               >
-                {/* Header — icon + name + CRN */}
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div
-                    className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                      outstandingCount === 0 ? "bg-success-bg" : "bg-primary-bg",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "flex",
-                        outstandingCount === 0 ? "text-success" : "text-primary",
-                      )}
-                      aria-hidden="true"
-                    >
-                      {outstandingCount === 0 ? (
-                        <CheckCircle2 size={16} color="currentColor" strokeWidth={2} />
-                      ) : (
-                        <Building2 size={16} color="currentColor" strokeWidth={2} />
-                      )}
-                    </span>
-                  </div>
-                  <div className="min-w-0">
-                    <h2 className="text-sm font-bold text-foreground tracking-[-0.01em] whitespace-nowrap overflow-hidden text-ellipsis">
-                      {company.companyName}
-                    </h2>
-                    <p className="text-xs text-muted mt-px">
-                      {company.companyRegistrationNumber}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Deadline summary */}
-                {outstandingCount > 0 ? (
-                  <div className="flex flex-col gap-1 mb-3">
+                <h2 className="m-0 text-xl font-bold text-foreground tracking-[-0.01em]">
+                  {r.company.companyName}
+                </h2>
+                <p className="m-0 mt-1 text-sm text-muted">
+                  {r.company.companyRegistrationNumber}
+                </p>
+                {r.outstandingCount > 0 ? (
+                  <>
                     <p
                       className={cn(
-                        "text-xs font-semibold",
-                        accountsDaysLeft <= 0
-                          ? "text-danger"
-                          : accountsDaysLeft <= 30
-                            ? "text-due-soon"
-                            : "text-secondary",
+                        "m-0 mt-6 text-[15px] font-semibold",
+                        deadlineColor(r.accountsDaysLeft),
                       )}
                     >
-                      {accountsText}
+                      {r.accountsText}
                     </p>
-                  </div>
+                    <p className="m-0 mt-1 text-sm text-secondary">
+                      {r.outstandingCount} outstanding{" "}
+                      {r.outstandingCount === 1 ? "period" : "periods"}
+                    </p>
+                  </>
                 ) : (
-                  <div className="mb-3">
-                    <p className="text-xs font-semibold text-success">
+                  <>
+                    <p className="m-0 mt-6 text-[15px] font-semibold text-success">
                       All caught up
                     </p>
-                    <p className="text-[11px] text-secondary mt-0.5">
-                      Next period due {formatDate(accountsDeadline)}
+                    <p className="m-0 mt-1 text-sm text-secondary">
+                      Next period due {formatDate(r.accountsDeadline)}
                     </p>
-                  </div>
+                  </>
                 )}
-
-                {/* Outstanding badge */}
-                {outstandingCount > 0 && (
-                  <div
-                    className={cn(
-                      "inline-flex items-center gap-0.5 py-0.5 pl-2 pr-1.5 rounded-full text-[10px] font-semibold tabular-nums border",
-                      outstandingCount >= 4
-                        ? "bg-danger-bg text-danger border-danger-border"
-                        : "bg-warning-bg text-warning-text border-warning-border",
-                    )}
-                  >
-                    {outstandingCount} {outstandingCount === 1 ? "period" : "periods"}
-                    <span className="flex" aria-hidden="true">
-                      <ChevronRight size={10} strokeWidth={2.5} />
-                    </span>
-                  </div>
-                )}
+                <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                  Open company
+                  <ChevronRight size={16} strokeWidth={2.5} />
+                </span>
               </Link>
-            </article>
-          );
-        })}
-      </div>
+            );
+          })()
+        : rows.length > 0
+          ? split
+            ? (
+              <div className="flex flex-col gap-6">
+                <div>
+                  <p className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-secondary">
+                    Overdue <span className="text-danger">({overdueRows.length})</span>
+                  </p>
+                  <LedgerList>{overdueRows.map(renderRow)}</LedgerList>
+                </div>
+                <div>
+                  <p className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-secondary">
+                    Everything else <span className="text-muted">({otherRows.length})</span>
+                  </p>
+                  <LedgerList>{otherRows.map(renderRow)}</LedgerList>
+                </div>
+              </div>
+            )
+            : <LedgerList>{rows.map(renderRow)}</LedgerList>
+          : null}
 
       {/* Pagination */}
       {totalPages > 1 && (
