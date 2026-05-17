@@ -355,6 +355,17 @@ export async function getFilingsList(params: {
 
   const conditions: Record<string, unknown>[] = [];
 
+  // Exclude filings that were never filed through DormantFile. Synced Companies
+  // House history (and the in-app "mark filed elsewhere" action) materialises as
+  // accepted/filed_elsewhere with no submittedAt — see materialiseFilings /
+  // resync. Those are not part of DormantFile's filing pipeline and only clutter
+  // the admin view. "Filed through DormantFile" === submittedAt is set (the same
+  // marker the dashboard uses). Outstanding/in-flight rows have no submittedAt
+  // but aren't accepted/filed_elsewhere, so they're retained.
+  conditions.push({
+    NOT: { submittedAt: null, status: { in: ["accepted", "filed_elsewhere"] } },
+  });
+
   if (status === "stuck") {
     conditions.push({
       OR: [

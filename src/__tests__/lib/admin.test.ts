@@ -20,7 +20,7 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 import { prisma } from "@/lib/db";
-import { getAttentionCounts, getHealthStats } from "@/lib/admin";
+import { getAttentionCounts, getHealthStats, getFilingsList } from "@/lib/admin";
 
 describe("getAttentionCounts", () => {
   beforeEach(() => {
@@ -126,5 +126,47 @@ describe("getHealthStats", () => {
     expect(result.mrr).toBe(0);
     expect(result.totalSubscribers).toBe(0);
     expect(result.tiers).toEqual({ basic: 0, multi: 0, agent: 0 });
+  });
+});
+
+describe("getFilingsList", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(prisma.filing.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.filing.count).mockResolvedValue(0);
+  });
+
+  function whereArg() {
+    const [arg] = (
+      prisma.filing.findMany as unknown as ReturnType<typeof vi.fn>
+    ).mock.calls[0];
+    return arg.where as { AND: Record<string, unknown>[] };
+  }
+
+  const NON_DORMANTFILE = {
+    NOT: { submittedAt: null, status: { in: ["accepted", "filed_elsewhere"] } },
+  };
+
+  it("always excludes imported CH history / filed-elsewhere rows (no submittedAt)", async () => {
+    await getFilingsList({});
+    expect(whereArg().AND).toContainEqual(NON_DORMANTFILE);
+  });
+
+  it("keeps the exclusion alongside an explicit status filter", async () => {
+    await getFilingsList({ status: "accepted" });
+    const and = whereArg().AND;
+    expect(and).toContainEqual(NON_DORMANTFILE);
+    expect(and).toContainEqual({ status: "accepted" });
+  });
+
+  it("applies the same where to the count query for consistent pagination", async () => {
+    await getFilingsList({ type: "ct600" });
+    const [findArg] = (
+      prisma.filing.findMany as unknown as ReturnType<typeof vi.fn>
+    ).mock.calls[0];
+    const [countArg] = (
+      prisma.filing.count as unknown as ReturnType<typeof vi.fn>
+    ).mock.calls[0];
+    expect(countArg.where).toEqual(findArg.where);
   });
 });
