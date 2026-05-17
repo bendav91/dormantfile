@@ -1,6 +1,7 @@
 "use client";
 
 import DirectorConfirm from "@/components/director-confirm";
+import FiledDocumentViewer from "@/components/filed-document-viewer";
 import FilingConfirmationDialog from "@/components/filing-confirmation-dialog";
 import { cn } from "@/lib/cn";
 import { AlertTriangle, Building2, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
@@ -9,7 +10,7 @@ import { useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Step = "confirm" | "authenticate" | "submitting" | "result";
+type Step = "confirm" | "preview" | "authenticate" | "submitting" | "result";
 
 type ResultState =
   | { type: "accepted" }
@@ -139,6 +140,52 @@ function StepConfirm({
             Select or enter the director signing these accounts to continue.
           </p>
         )}
+      </div>
+    </div>
+  );
+}
+
+function StepPreview({
+  filingId,
+  onBack,
+  onContinue,
+}: {
+  filingId: string;
+  onBack: () => void;
+  onContinue: () => void;
+}) {
+  const src = `/api/file/preview-accounts?filingId=${encodeURIComponent(filingId)}`;
+  return (
+    <div>
+      <div className="mb-7">
+        <h1 className="text-[26px] font-bold text-foreground mb-2 tracking-[-0.02em]">
+          Review the accounts to be filed
+        </h1>
+        <p className="text-[15px] text-body m-0 leading-relaxed">
+          This is the exact document we will submit to Companies House.
+        </p>
+      </div>
+      <div className="bg-card rounded-xl p-8 shadow-card">
+        <FiledDocumentViewer
+          src={src}
+          downloadHref={`${src}&download=1`}
+          context="pre-filing"
+          title="Dormant accounts to be filed"
+        />
+        <div className="flex gap-3 mt-7">
+          <button
+            onClick={onBack}
+            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border border-border bg-transparent text-secondary cursor-pointer hover:opacity-80"
+          >
+            Back
+          </button>
+          <button
+            onClick={onContinue}
+            className="focus-ring flex-1 py-3 px-6 rounded-lg font-semibold text-base border-0 bg-cta text-card cursor-pointer hover:opacity-90 hover:-translate-y-px"
+          >
+            Continue
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -444,7 +491,7 @@ export default function AccountsFlow({
   periodStartISO,
   periodEndISO,
   shareCapitalPence,
-  // filingId is accepted via Props; consumed in Tasks 10/11 (preview step)
+  filingId,
 }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<Step>("confirm");
@@ -527,6 +574,16 @@ export default function AccountsFlow({
         shareCapitalPence={shareCapitalPence}
         directorName={directorName}
         onDirectorChange={setDirectorName}
+        onContinue={() => setStep("preview")}
+      />
+    );
+  }
+
+  if (step === "preview") {
+    return (
+      <StepPreview
+        filingId={filingId}
+        onBack={() => setStep("confirm")}
         onContinue={() => setStep("authenticate")}
       />
     );
