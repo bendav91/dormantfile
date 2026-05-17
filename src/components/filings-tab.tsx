@@ -35,12 +35,19 @@ interface Filing {
   reviewFlaggedAt: Date | null;
 }
 
+interface ChAccountsFilingRow {
+  madeUpDate: string;
+  type: string;
+  hasDocument: boolean;
+}
+
 interface FilingsTabProps {
   companyId: string;
   companyName: string;
   companyNumber: string;
   filings: Filing[];
   now: number;
+  chAccountsFilings?: ChAccountsFilingRow[];
 }
 
 export default function FilingsTab({
@@ -49,6 +56,7 @@ export default function FilingsTab({
   companyNumber,
   filings,
   now,
+  chAccountsFilings,
 }: FilingsTabProps) {
   const views = buildFilingViews(filings as never[], "accounts");
 
@@ -452,6 +460,46 @@ export default function FilingsTab({
               <p className="text-sm text-secondary m-0">
                 Completed filings will appear here once accepted by Companies House.
               </p>
+            </div>
+          )}
+
+          {chAccountsFilings && chAccountsFilings.length > 0 && (
+            <div className="bg-card rounded-xl p-5 shadow-card border border-border mt-4">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-base font-bold text-foreground m-0">
+                  Companies House record
+                </h3>
+                <a
+                  href={`https://find-and-update.company-information.service.gov.uk/company/${companyNumber}/filing-history`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[13px] font-semibold text-primary no-underline"
+                >
+                  View on Companies House
+                </a>
+              </div>
+              <p className="text-xs text-secondary m-0 mb-3">
+                Official accounts filings held by Companies House — including any filed before
+                DormantFile or by an accountant. Full documents are available on Companies House.
+              </p>
+              <div className="flex flex-col gap-1.5">
+                {[...chAccountsFilings]
+                  .sort(
+                    (a, b) =>
+                      new Date(b.madeUpDate).getTime() - new Date(a.madeUpDate).getTime(),
+                  )
+                  .map((doc) => (
+                    <div
+                      key={doc.madeUpDate}
+                      className="flex items-center justify-between px-3 py-2 bg-inset rounded-lg"
+                    >
+                      <p className="text-[13px] font-semibold text-foreground m-0">
+                        Made up to {formatDate(new Date(doc.madeUpDate))}
+                      </p>
+                      <p className="text-xs text-secondary m-0">{doc.type}</p>
+                    </div>
+                  ))}
+              </div>
             </div>
           )}
         </>
