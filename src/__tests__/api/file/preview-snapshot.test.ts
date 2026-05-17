@@ -125,6 +125,9 @@ describe("GET /api/file/preview-accounts — snapshot-aware", () => {
       "application/xhtml+xml",
     );
     expect(res.headers.get("Content-Disposition")).toContain("attachment");
+    expect(res.headers.get("Content-Disposition")).toContain(
+      "12345678-accounts-2024-03-31.html",
+    );
     expect(generateDormantAccountsIxbrl).not.toHaveBeenCalled();
   });
 });
@@ -176,6 +179,9 @@ describe("GET /api/file/preview-computations — snapshot-aware", () => {
       "application/xhtml+xml",
     );
     expect(res.headers.get("Content-Disposition")).toContain("attachment");
+    expect(res.headers.get("Content-Disposition")).toContain(
+      "12345678-computations-2024-03-31.html",
+    );
     expect(generateDormantTaxComputationsIxbrl).not.toHaveBeenCalled();
   });
 
